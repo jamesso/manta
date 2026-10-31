@@ -1,18 +1,30 @@
 process.env.TZ = 'UTC';
 
-import { vi } from 'vitest';
+import { afterEach, vi } from 'vitest';
 import Enzyme from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 
-// Was jest.shim.js
+// The old setTimeout(0) shim runs after jsdom teardown.
+const rafTimers = new Set();
 global.requestAnimationFrame = callback => {
-  setTimeout(callback, 0);
+  const id = setTimeout(() => {
+    rafTimers.delete(id);
+    if (typeof window !== 'undefined') callback(0);
+  }, 0);
+  rafTimers.add(id);
+  return id;
+};
+global.cancelAnimationFrame = id => {
+  clearTimeout(id);
+  rafTimers.delete(id);
 };
 
-// Was jest.setup.js
+afterEach(() => {
+  for (const id of rafTimers) clearTimeout(id);
+  rafTimers.clear();
+});
+
 Enzyme.configure({ adapter: new Adapter() });
 
-// These two CommonJS modules touch Electron/Node at import time.
-// Replace them with their __mocks__ versions in every test file.
 vi.mock('./app/renderers/dialog.js');
 vi.mock('./libs/sounds.js');
