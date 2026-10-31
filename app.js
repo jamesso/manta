@@ -3,15 +3,27 @@ console.time('init');
 // Node Libs
 const fs = require('fs');
 const os = require('os');
-const url = require('url');
 const path = require('path');
-const glob = require('glob');
-const isDev = require('electron-is-dev');
 const omit = require('lodash').omit;
 
 // Electron Libs
 const { app, BrowserWindow, ipcMain } = require('electron');
 const { autoUpdater } = require('electron-updater');
+const remoteMain = require('@electron/remote/main');
+const {
+  COMPAT_WEB_PREFERENCES,
+  enableRemote,
+  loadPage,
+} = require('./helpers/windows');
+const isDev = !app.isPackaged;
+
+// Never let dev/test runs touch the real user profile.
+if (process.env.MANTA_USER_DATA) {
+  app.setPath('userData', process.env.MANTA_USER_DATA);
+} else if (!app.isPackaged) {
+  app.setPath('userData', path.join(app.getPath('appData'), 'Manta-dev'));
+}
+remoteMain.initialize();
 
 // Place a BrowserWindow in center of primary display
 const centerOnPrimaryDisplay = require('./helpers/center-on-primary-display');
@@ -24,7 +36,6 @@ if (process.argv.includes('--disable-hardware-acceleration')) {
 
 // 3rd Party Libs
 const appConfig = require('electron-settings');
-require('dotenv').config();
 
 let tourWindow = null;
 let mainWindow = null;
@@ -49,17 +60,13 @@ function createTourWindow() {
     movable: false,
     title: 'Tour Window',
     backgroundColor: '#F9FAFA',
+    webPreferences: COMPAT_WEB_PREFERENCES,
   });
+  enableRemote(tourWindow);
   // Register WindowID with appConfig
   appConfig.set('tourWindowID', parseInt(tourWindow.id));
   // Load Content
-  tourWindow.loadURL(
-    url.format({
-      pathname: path.join(__dirname, './tour/index.html'),
-      protocol: 'file:',
-      slashes: true,
-    })
-  );
+  loadPage(tourWindow, 'tour');
   // Add Event Listeners
   tourWindow.on('show', event => {
     if (isDev || forceDevtools) tourWindow.webContents.openDevTools({ mode: 'detach' });
@@ -85,19 +92,15 @@ function createMainWindow() {
     backgroundColor: '#2e2c29',
     show: false,
     title: 'Main Window',
+    webPreferences: COMPAT_WEB_PREFERENCES,
   });
+  enableRemote(mainWindow);
   // Register WindowID
   appConfig.set('mainWindowID', parseInt(mainWindow.id));
   // Track window state
   mainWindownStateKeeper.track(mainWindow);
   // Load Content
-  mainWindow.loadURL(
-    url.format({
-      pathname: path.join(__dirname, './app/index.html'),
-      protocol: 'file:',
-      slashes: true,
-    })
-  );
+  loadPage(mainWindow, 'app');
   // Add Event Listeners
   mainWindow.on('show', event => {
     if (isDev || forceDevtools) mainWindow.webContents.openDevTools({ mode: 'detach' });
@@ -127,19 +130,15 @@ function createPreviewWindow() {
     backgroundColor: '#2e2c29',
     show: false,
     title: 'Preview Window',
+    webPreferences: COMPAT_WEB_PREFERENCES,
   });
+  enableRemote(previewWindow);
   // Register WindowID
   appConfig.set('previewWindowID', parseInt(previewWindow.id));
   // Track window state
   previewWindownStateKeeper.track(previewWindow);
   // Load Content
-  previewWindow.loadURL(
-    url.format({
-      pathname: path.join(__dirname, './preview/index.html'),
-      protocol: 'file:',
-      slashes: true,
-    })
-  );
+  loadPage(previewWindow, 'preview');
   // Add Event Listener
   previewWindow.on('show', event => {
     if (isDev || forceDevtools) previewWindow.webContents.openDevTools({ mode: 'detach' });
@@ -162,7 +161,7 @@ function addDevToolsExtension() {
 
 function setInitialValues() {
   // Default Logo
-  const logoPath = path.resolve(__dirname, './static/imgs/default_logo.svg');
+  const logoPath = path.join(app.getAppPath(), 'static/imgs/default_logo.svg');
   const logoData = fs.readFileSync(logoPath);
   const logoBase64String =
     'data:image/svg+xml;base64,' + logoData.toString('base64');
@@ -358,8 +357,13 @@ function addEventListeners() {
 }
 
 function loadMainProcessFiles() {
-  const files = glob.sync(path.join(__dirname, 'main/*.js'));
-  files.forEach(file => require(file));
+  require('./main/modal-window');
+  require('./main/preview-window');
+  require('./main/save-pdf');
+  require('./main/select-export-directory');
+  require('./main/select-logo-file');
+  require('./main/tour');
+  require('./main/updater');
 }
 
 function windowStateKeeper(windowName) {

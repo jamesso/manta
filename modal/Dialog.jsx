@@ -142,10 +142,10 @@ class Dialog extends PureComponent {
     const { rest, returnChannel } = this.state;
     // Only send IPC back if there's a channel present
     if (returnChannel !== '') {
-      mainWindow.send(returnChannel, parseInt(index), ...rest);
+      mainWindow.webContents.send(returnChannel, parseInt(index), ...rest);
     }
     // Close the windows
-    BrowserWindow.getFocusedWindow().close();
+    remote.getCurrentWindow().close();
   }
 
   renderIconClass() {

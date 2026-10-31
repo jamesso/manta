@@ -1,8 +1,8 @@
 // Libs
-const { BrowserWindow, ipcMain } = require('electron');
+const { BrowserWindow, ipcMain, app } = require('electron');
 const { autoUpdater } = require('electron-updater');
 const appConfig = require('electron-settings');
-const isDev = require('electron-is-dev');
+const isDev = !app.isPackaged;
 
 // Set mainWindow
 const mainWindowID = appConfig.get('mainWindowID');

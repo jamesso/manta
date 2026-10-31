@@ -1,0 +1,28 @@
+const { BrowserWindow, ipcMain } = require('electron');
+const centerOnPrimaryDisplay = require('../helpers/center-on-primary-display');
+const { COMPAT_WEB_PREFERENCES, enableRemote, loadPage } = require('../helpers/windows');
+
+ipcMain.on('show-modal', (event, dialogOptions, returnChannel = '', ...rest) => {
+  const width = 450;
+  const height = 220;
+  const winPOS = centerOnPrimaryDisplay(width, height);
+  const modalWin = new BrowserWindow({
+    x: Math.round(winPOS.x),
+    y: Math.round(winPOS.y),
+    width,
+    height,
+    backgroundColor: '#282828',
+    frame: false,
+    show: false,
+    webPreferences: COMPAT_WEB_PREFERENCES,
+  });
+  enableRemote(modalWin);
+  loadPage(modalWin, 'modal');
+  modalWin.webContents.on('did-finish-load', () => {
+    modalWin.webContents.send('update-modal', dialogOptions, returnChannel, ...rest);
+  });
+  modalWin.on('ready-to-show', () => {
+    modalWin.show();
+    modalWin.focus();
+  });
+});
