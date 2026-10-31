@@ -47,7 +47,14 @@ const toggleFormSettings = vi.fn();
 const updateSavedSettings = vi.fn();
 const t = vi.fn();
 
-const fieldNames = ['invoiceID', 'dueDate', 'currency', 'discount', 'tax', 'note'];
+const fieldNames = [
+  'invoiceID',
+  'dueDate',
+  'currency',
+  'discount',
+  'tax',
+  'note',
+];
 
 beforeEach(() => {
   toggleField.mockClear();

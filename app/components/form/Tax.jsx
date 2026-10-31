@@ -10,7 +10,9 @@ import _withFadeInAnimation from '../shared/hoc/_withFadeInAnimation';
 import styled from 'styled-components';
 import { Part, Row, Field } from '../shared/Part';
 const TaxID = styled.div``;
-const TaxAmount = styled.div`flex: 1;`;
+const TaxAmount = styled.div`
+  flex: 1;
+`;
 
 // Component
 export class Tax extends PureComponent {

@@ -19,8 +19,8 @@ describe('RootReducer should', () => {
       payload: {
         invoice: 'invoice',
         configs: 'configs',
-      }
-    })
+      },
+    });
     expect(newState.invoice).toEqual({
       invoice: 'invoice',
       configs: 'configs',
@@ -30,37 +30,37 @@ describe('RootReducer should', () => {
 
   it('handle UI_CHANGE_LANGUAGE action', () => {
     const currentState = {
-      ui: { language: 'en' }
+      ui: { language: 'en' },
     };
     const newState = RootReducer(currentState, {
       type: ACTION_TYPES.UI_CHANGE_LANGUAGE,
-      payload: 'fr'
-    })
+      payload: 'fr',
+    });
     expect(newState.ui.language).toEqual('fr');
   });
 
   it('handle SETTINGS_UPDATE_PROFILE action', () => {
     const currentState = {
-      profile: 'Profile'
+      profile: 'Profile',
     };
     const newState = RootReducer(currentState, {
       type: ACTION_TYPES.SETTINGS_UPDATE_PROFILE,
-      payload: 'New Profile'
-    })
+      payload: 'New Profile',
+    });
     expect(newState.profile).toEqual('New Profile');
   });
 
   it('handle SETTINGS_UPDATE_CONFIGS action', () => {
     const currentState = {
-      configs: { template: 'minimal' }
+      configs: { template: 'minimal' },
     };
     const newState = RootReducer(currentState, {
       type: ACTION_TYPES.SETTINGS_UPDATE_CONFIGS,
       payload: {
         name: 'template',
         value: 'business',
-      }
-    })
+      },
+    });
     expect(newState.configs.template).toEqual('business');
   });
 
@@ -71,7 +71,7 @@ describe('RootReducer should', () => {
         language: 'fr',
         template: 'minimal',
         dateFormat: 'DDMMYY',
-      }
+      },
     };
     const newState = RootReducer(currentState, {
       type: ACTION_TYPES.SETTINGS_RELOAD_CONFIGS,
@@ -81,9 +81,9 @@ describe('RootReducer should', () => {
         invoice: {
           dateFormat: 'MMMM/DDDD/YYYY',
           template: 'business',
-        }
-      }
-    })
+        },
+      },
+    });
     expect(newState.profile).toEqual('New Profile');
     expect(newState.configs.language).toEqual('en');
     expect(newState.configs.template).toEqual('business');
@@ -99,7 +99,7 @@ describe('Selectors should', () => {
       configs: { template: 'Business' },
       invoice: { language: 'fr' },
       profile: 'Profile',
-    }
+    };
   });
   it('getConfigs should return invoice current configs', () => {
     expect(getConfigs(state)).toEqual(state.configs);

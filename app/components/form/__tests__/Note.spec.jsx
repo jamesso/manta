@@ -32,11 +32,13 @@ describe('Note component', () => {
 
   it('clears the note when the content prop is removed', () => {
     const { container, rerender } = render(
-      <Note t={t} note={{ content: 'hello' }} updateFieldData={updateFieldData} />
+      <Note
+        t={t}
+        note={{ content: 'hello' }}
+        updateFieldData={updateFieldData}
+      />
     );
-    rerender(
-      <Note t={t} note={{}} updateFieldData={updateFieldData} />
-    );
+    rerender(<Note t={t} note={{}} updateFieldData={updateFieldData} />);
     expect(container.querySelector('textarea').value).toBe('');
     expect(updateFieldData).toHaveBeenCalledWith('note', { content: '' });
   });

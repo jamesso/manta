@@ -6,9 +6,7 @@ import { Section, Label, Range } from '../shared';
 function LogoSize({ t, logoSize, handleInputChange, UILang }) {
   return (
     <Section>
-      <Label>
-        {t('preview:sidebar:logoSize', { lng: UILang })}
-      </Label>
+      <Label>{t('preview:sidebar:logoSize', { lng: UILang })}</Label>
       <Range
         name="logoSize"
         type="range"

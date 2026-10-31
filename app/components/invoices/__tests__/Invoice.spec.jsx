@@ -83,11 +83,15 @@ beforeEach(() => {
 describe('Renders correctly to the DOM', () => {
   it('render invoice status correctly', () => {
     const pending = renderInvoice();
-    expect(statusNode(pending.container, 'ion-loop')).toHaveTextContent('Pending');
+    expect(statusNode(pending.container, 'ion-loop')).toHaveTextContent(
+      'Pending'
+    );
     pending.unmount();
 
     const paid = renderInvoice(Object.assign({}, invoice, { status: 'paid' }));
-    expect(statusNode(paid.container, 'ion-checkmark')).toHaveTextContent('Paid');
+    expect(statusNode(paid.container, 'ion-checkmark')).toHaveTextContent(
+      'Paid'
+    );
     paid.unmount();
 
     const cancelled = renderInvoice(

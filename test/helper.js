@@ -1,6 +1,9 @@
 const path = require('path');
 const { Application } = require('spectron');
-const appPath = path.join(__dirname, '../dist/mac/Manta.app/Contents/MacOS/Manta');
+const appPath = path.join(
+  __dirname,
+  '../dist/mac/Manta.app/Contents/MacOS/Manta'
+);
 
 function initializeSpectron() {
   return new Application({

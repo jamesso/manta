@@ -141,7 +141,11 @@ class SplitButton extends Component {
 
   render() {
     return (
-      <div ref={node => { this.node = node; }}>
+      <div
+        ref={node => {
+          this.node = node;
+        }}
+      >
         <Wrapper>
           <ButtonsGroup>
             <a href="#" onClick={this.handleMainAction}>

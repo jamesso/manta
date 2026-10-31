@@ -105,85 +105,90 @@ class Settings extends PureComponent {
     const { t, toggleFormSettings, settings } = this.props;
     const { required_fields, open } = settings;
     return (
-          <Wrapper style={{ height: open ? '180px' : '45px', transition: 'height 300ms ease' }}>
-            <SettingsHeader href="#" onClick={toggleFormSettings}>
-              <Label>{t('form:settings:name')}</Label>
-              <div
-                style={{
-                  transform: `rotate(${open ? 180 : 0}deg)`,
-                  transition: 'transform 300ms ease',
-                }}
-              >
-                <i className="ion-arrow-down-b" />
-              </div>
-            </SettingsHeader>
+      <Wrapper
+        style={{
+          height: open ? '180px' : '45px',
+          transition: 'height 300ms ease',
+        }}
+      >
+        <SettingsHeader href="#" onClick={toggleFormSettings}>
+          <Label>{t('form:settings:name')}</Label>
+          <div
+            style={{
+              transform: `rotate(${open ? 180 : 0}deg)`,
+              transition: 'transform 300ms ease',
+            }}
+          >
+            <i className="ion-arrow-down-b" />
+          </div>
+        </SettingsHeader>
 
-            <Helper>
-              {this.isSettingsSaved() ? (
-                <p>{t('form:settings:hint')}</p>
-              ) : (
-                <a href="#" onClick={this.saveAsDefault}>
-                  <i className="ion-checkmark" /> {t('common:saveAsDefault')}
-                </a>
-              )}
-            </Helper>
+        <Helper>
+          {this.isSettingsSaved() ? (
+            <p>{t('form:settings:hint')}</p>
+          ) : (
+            <a href="#" onClick={this.saveAsDefault}>
+              <i className="ion-checkmark" /> {t('common:saveAsDefault')}
+            </a>
+          )}
+        </Helper>
 
-            <AllSettings>
-              <Setting>
-                <Label>Invoice ID</Label>
-                <Switch
-                  name="invoiceID"
-                  checked={required_fields.invoiceID}
-                  onChange={this.handleInputChange}
-                />
-              </Setting>
+        <AllSettings>
+          <Setting>
+            <Label>Invoice ID</Label>
+            <Switch
+              name="invoiceID"
+              checked={required_fields.invoiceID}
+              onChange={this.handleInputChange}
+            />
+          </Setting>
 
-              <Setting>
-                <Label>{t('form:fields:dueDate:name')}</Label>
-                <Switch
-                  name="dueDate"
-                  checked={required_fields.dueDate}
-                  onChange={this.handleInputChange}
-                />
-              </Setting>
+          <Setting>
+            <Label>{t('form:fields:dueDate:name')}</Label>
+            <Switch
+              name="dueDate"
+              checked={required_fields.dueDate}
+              onChange={this.handleInputChange}
+            />
+          </Setting>
 
-              <Setting>
-                <Label>{t('form:fields:currency')}</Label>
-                <Switch
-                  name="currency"
-                  checked={required_fields.currency}
-                  onChange={this.handleInputChange}
-                />
-              </Setting>
+          <Setting>
+            <Label>{t('form:fields:currency')}</Label>
+            <Switch
+              name="currency"
+              checked={required_fields.currency}
+              onChange={this.handleInputChange}
+            />
+          </Setting>
 
-              <Setting>
-                <Label>{t('form:fields:discount:name')}</Label>
-                <Switch
-                  name="discount"
-                  checked={required_fields.discount}
-                  onChange={this.handleInputChange}
-                />
-              </Setting>
+          <Setting>
+            <Label>{t('form:fields:discount:name')}</Label>
+            <Switch
+              name="discount"
+              checked={required_fields.discount}
+              onChange={this.handleInputChange}
+            />
+          </Setting>
 
-              <Setting>
-                <Label>{t('form:fields:tax:name')}</Label>
-                <Switch
-                  name="tax"
-                  checked={required_fields.tax}
-                  onChange={this.handleInputChange}
-                />
-              </Setting>
+          <Setting>
+            <Label>{t('form:fields:tax:name')}</Label>
+            <Switch
+              name="tax"
+              checked={required_fields.tax}
+              onChange={this.handleInputChange}
+            />
+          </Setting>
 
-              <Setting>
-                <Label>{t('form:fields:note')}</Label>
-                <Switch
-                  name="note"
-                  checked={required_fields.note}
-                  onChange={this.handleInputChange}
-                />
-              </Setting>
-            </AllSettings>
-          </Wrapper>
+          <Setting>
+            <Label>{t('form:fields:note')}</Label>
+            <Switch
+              name="note"
+              checked={required_fields.note}
+              onChange={this.handleInputChange}
+            />
+          </Setting>
+        </AllSettings>
+      </Wrapper>
     );
   }
 }

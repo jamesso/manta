@@ -21,9 +21,8 @@ function setSeparator(separator) {
 }
 
 function replaceSeparators(number, decimalSeparator, thousandsSeparator) {
-  const formattedNumber = number.replace(
-    /[,.]/g,
-    n => (n === ',' ? thousandsSeparator : decimalSeparator)
+  const formattedNumber = number.replace(/[,.]/g, n =>
+    n === ',' ? thousandsSeparator : decimalSeparator
   );
   return formattedNumber;
 }

@@ -7,7 +7,7 @@ function getInvoiceValue(data) {
     if (data.discount) {
       if (data.discount.type === 'percentage') {
         const subtotal = calSub(data);
-        return subtotal * data.discount.amount / 100;
+        return (subtotal * data.discount.amount) / 100;
       }
       return data.discount.amount;
     }
@@ -19,9 +19,9 @@ function getInvoiceValue(data) {
       if (data.discount) {
         const discount = calDiscount(data);
         const afterDiscount = subtotal - discount;
-        return afterDiscount * data.tax.amount / 100;
+        return (afterDiscount * data.tax.amount) / 100;
       }
-      return subtotal * data.tax.amount / 100;
+      return (subtotal * data.tax.amount) / 100;
     }
   }
 

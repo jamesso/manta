@@ -2,7 +2,7 @@ import React from 'react';
 import createImg from '../../imgs/Create.svg';
 import Slide from '../Slide';
 
-function Create({t}) {
+function Create({ t }) {
   return (
     <Slide
       fromColor="#85E5A9"

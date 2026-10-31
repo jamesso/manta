@@ -39,9 +39,9 @@ export class DueDateTerms extends Component {
     const { t, paymentTerm } = this.props;
     const termOptions = paymentTerms.map(term => (
       <option key={term} value={term}>
-        { t(`form:fields:dueDate:paymentTerms:${term}:label`) }
+        {t(`form:fields:dueDate:paymentTerms:${term}:label`)}
         {' - '}
-        { t(`form:fields:dueDate:paymentTerms:${term}:description`) }
+        {t(`form:fields:dueDate:paymentTerms:${term}:description`)}
       </option>
     ));
     return (
@@ -50,7 +50,7 @@ export class DueDateTerms extends Component {
           onChange={this.handleInputChange}
           value={paymentTerm === null ? paymentTerms[0] : paymentTerm}
         >
-          { termOptions }
+          {termOptions}
         </select>
       </Container>
     );
@@ -65,4 +65,3 @@ DueDateTerms.propTypes = {
 
 // Export
 export default _withFadeInAnimation(DueDateTerms);
-

@@ -17,5 +17,5 @@ export default {
   messages,
   preview,
   settings,
-  tour
-}
+  tour,
+};

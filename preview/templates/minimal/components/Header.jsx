@@ -53,20 +53,19 @@ function Header({ t, invoice, profile, configs }) {
           accentColor={accentColor}
           customAccentColor={customAccentColor}
         >
-          {t('preview:common:invoice', {lng: language})}
+          {t('preview:common:invoice', { lng: language })}
         </Heading>
         <h4 className="label">
-          # {' '}
-          { invoice.invoiceID
+          #{' '}
+          {invoice.invoiceID
             ? invoice.invoiceID
             : truncate(invoice._id, {
                 length: 8,
-                omission: '', })
-          }
+                omission: '',
+              })}
         </h4>
         <p>
-          {t('preview:common:created', {lng: language})}:
-          {' '}
+          {t('preview:common:created', { lng: language })}:{' '}
           {moment(invoice.created_at).lang(language).format(configs.dateFormat)}
         </p>
         {dueDate && [
@@ -76,9 +75,7 @@ function Header({ t, invoice, profile, configs }) {
               ? moment(dueDate.selectedDate)
                   .lang(language)
                   .format(configs.dateFormat)
-              : moment(
-                  calTermDate(invoice.created_at, dueDate.paymentTerm)
-                )
+              : moment(calTermDate(invoice.created_at, dueDate.paymentTerm))
                   .lang(language)
                   .format(configs.dateFormat)}
           </p>,

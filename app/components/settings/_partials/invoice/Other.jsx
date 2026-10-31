@@ -15,7 +15,7 @@ function Other({
   template,
   selectExportDir,
   handleInputChange,
-  t
+  t,
 }) {
   return [
     <label key="label" className="itemLabel">
@@ -24,14 +24,11 @@ function Other({
     <Part key="part">
       <Row>
         <Field>
-          <label className="itemLabel">{t('settings:fields:pdfExportDir')}</label>
+          <label className="itemLabel">
+            {t('settings:fields:pdfExportDir')}
+          </label>
           <ExportDir>
-            <input
-              name="exportDir"
-              type="text"
-              value={exportDir}
-              disabled
-            />
+            <input name="exportDir" type="text" value={exportDir} disabled />
             <a
               href="#"
               className="input-group-customized "
@@ -84,7 +81,8 @@ function Other({
               {moment(Date.now()).format('DD/MM/YY')} (DD/MM/YY)
             </option>
             <option value="dddd, Do MMMM YYYY">
-              {moment(Date.now()).format('dddd, Do MMMM YYYY')} (dddd, Do MMMM YYYY)
+              {moment(Date.now()).format('dddd, Do MMMM YYYY')} (dddd, Do MMMM
+              YYYY)
             </option>
             <option value="Do MMMM YYYY">
               {moment(Date.now()).format('Do MMMM YYYY')} (Do MMMM YYYY)

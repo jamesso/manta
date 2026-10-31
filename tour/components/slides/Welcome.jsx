@@ -2,7 +2,7 @@ import React from 'react';
 import welcomeImg from '../../imgs/Welcome.svg';
 import Slide from '../Slide';
 
-function Welcome({t}) {
+function Welcome({ t }) {
   return (
     <Slide
       inverted

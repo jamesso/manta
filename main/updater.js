@@ -56,7 +56,7 @@ autoUpdater.on('error', error => {
     errMessage = 'Unknown Error';
   } else {
     errMessage = error.message;
-  };
+  }
   mainWindow.webContents.send('update-error', errMessage);
 });
 

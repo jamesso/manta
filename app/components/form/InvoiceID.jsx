@@ -31,8 +31,8 @@ export class InvoiceID extends PureComponent {
 
   componentDidUpdate(prevProps) {
     if (prevProps === this.props) return;
-    if (this.props.invoiceID === "") {
-      this.setState({ invoiceID: "" });
+    if (this.props.invoiceID === '') {
+      this.setState({ invoiceID: '' });
     }
   }
 

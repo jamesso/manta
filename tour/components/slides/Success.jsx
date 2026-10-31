@@ -2,7 +2,7 @@ import React from 'react';
 import successImg from '../../imgs/Success.svg';
 import Slide from '../Slide';
 
-function Success({t}) {
+function Success({ t }) {
   return (
     <Slide
       fromColor="#FFFFFF"

@@ -82,7 +82,7 @@ class App extends PureComponent {
       'menu-form-toggle-note',
       'menu-form-toggle-settings',
       // Save template configs to invoice
-      'save-configs-to-invoice'
+      'save-configs-to-invoice',
     ]);
   }
 

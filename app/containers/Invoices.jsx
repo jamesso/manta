@@ -61,10 +61,7 @@ export class Invoices extends PureComponent {
         type: 'warning',
         title: t('dialog:deleteInvoice:title'),
         message: t('dialog:deleteInvoice:message'),
-        buttons: [
-          t('common:yes'),
-          t('common:noThanks')
-        ],
+        buttons: [t('common:yes'), t('common:noThanks')],
       },
       'confirmed-delete-invoice',
       invoiceId
@@ -103,7 +100,9 @@ export class Invoices extends PureComponent {
   render() {
     const { dateFormat, invoices, t } = this.props;
     const { filter } = this.state;
-    const filteredInvoices = filter ? invoices.filter(invoice => invoice.status === filter) : invoices
+    const filteredInvoices = filter
+      ? invoices.filter(invoice => invoice.status === filter)
+      : invoices;
     const invoicesComponent = filteredInvoices.map((invoice, index) => (
       <Invoice
         key={invoice._id}
@@ -126,7 +125,7 @@ export class Invoices extends PureComponent {
         data-filter={status}
         onClick={this.setFilter}
       >
-        { t(`invoices:status:${status}`) }
+        {t(`invoices:status:${status}`)}
       </Button>
     ));
 
@@ -136,16 +135,14 @@ export class Invoices extends PureComponent {
           <PageHeaderTitle>{t('invoices:header:name')}</PageHeaderTitle>
           <PageHeaderActions>
             <i className="ion-funnel" />
-            <ButtonsGroup>{ filterButtons }</ButtonsGroup>
+            <ButtonsGroup>{filterButtons}</ButtonsGroup>
           </PageHeaderActions>
         </PageHeader>
         <PageContent bare>
           {invoices.length === 0 ? (
             <Message info text={t('messages:noInvoice')} />
           ) : (
-            <div className="row">
-              {invoicesComponent}
-            </div>
+            <div className="row">{invoicesComponent}</div>
           )}
         </PageContent>
       </PageWrapper>

@@ -34,17 +34,19 @@ const RootReducer = handleActions(
     [ACTION_TYPES.INVOICE_UPDATE]: (state, action) =>
       Object.assign({}, state, {
         invoice: action.payload,
-        configs: action.payload.configs ? action.payload.configs : state.configs
+        configs: action.payload.configs
+          ? action.payload.configs
+          : state.configs,
       }),
     [ACTION_TYPES.UI_CHANGE_LANGUAGE]: (state, action) =>
       Object.assign({}, state, {
         ui: Object.assign({}, state.ui, {
-          language: action.payload
-        })
+          language: action.payload,
+        }),
       }),
     [ACTION_TYPES.SETTINGS_UPDATE_PROFILE]: (state, action) =>
       Object.assign({}, state, {
-        profile: action.payload
+        profile: action.payload,
       }),
     [ACTION_TYPES.SETTINGS_UPDATE_CONFIGS]: (state, action) =>
       Object.assign({}, state, {
@@ -53,7 +55,7 @@ const RootReducer = handleActions(
         }),
       }),
     [ACTION_TYPES.SETTINGS_RELOAD_CONFIGS]: (state, action) => {
-      const { profile, invoice, general} = action.payload;
+      const { profile, invoice, general } = action.payload;
       return Object.assign({}, state, {
         profile,
         configs: Object.assign({}, state.configs, {
@@ -62,7 +64,7 @@ const RootReducer = handleActions(
           dateFormat: invoice.dateFormat,
         }),
       });
-    }
+    },
   },
   initialState
 );
@@ -74,6 +76,8 @@ const getState = state => state;
 export const getConfigs = createSelector(getState, state => state.configs);
 export const getInvoice = createSelector(getState, state => state.invoice);
 export const getProfile = createSelector(getState, state => state.profile);
-export const getUILang  = createSelector(getState, state => state.ui.language);
-export const getInvoiceLang  = createSelector(getState, state => state.invoice.language);
-
+export const getUILang = createSelector(getState, state => state.ui.language);
+export const getInvoiceLang = createSelector(
+  getState,
+  state => state.invoice.language
+);

@@ -18,13 +18,13 @@ const InvoiceFooter = styled.div`
 
 // Component
 function Footer({ t, invoice, configs }) {
-  const { language, accentColor, customAccentColor  } = configs;
+  const { language, accentColor, customAccentColor } = configs;
   return invoice.note ? (
     <InvoiceFooter
       accentColor={accentColor}
       customAccentColor={customAccentColor}
     >
-      <h4>{ t('preview:common:notice', {lng: language}) }</h4>
+      <h4>{t('preview:common:notice', { lng: language })}</h4>
       <p>{invoice.note}</p>
     </InvoiceFooter>
   ) : null;

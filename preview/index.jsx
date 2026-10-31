@@ -25,10 +25,7 @@ import Viewer from './Viewer';
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
 // Create Store
-const store = createStore(
-  combineReducers,
-  composeEnhancers(applyMiddleware())
-);
+const store = createStore(combineReducers, composeEnhancers(applyMiddleware()));
 
 createRoot(document.getElementById('root')).render(
   <StyledRoot>

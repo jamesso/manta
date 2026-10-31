@@ -45,5 +45,4 @@ Logo.propTypes = {
   profile: PropTypes.object.isRequired,
 };
 
-
 export default Logo;

@@ -25,7 +25,6 @@ const FieldStyle = styled.div`
 
 const HeaderStyle = styled.h2``;
 
-
 // Components
 export const Part = props => <PartStyle>{props.children}</PartStyle>;
 export const Header = props => <HeaderStyle>{props.children}</HeaderStyle>;

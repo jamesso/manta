@@ -79,7 +79,7 @@ function getInvoiceData(formData) {
     _id: editMode.active ? editMode.data._id : crypto.randomUUID(),
     _rev: editMode.active ? editMode.data._rev : null,
     created_at: editMode.active ? editMode.data.created_at : Date.now(),
-    status: editMode.active ? editMode.data.status: 'pending',
+    status: editMode.active ? editMode.data.status : 'pending',
     // Alway calculate subtotal & grandTotal
     subtotal: getInvoiceValue(invoiceData).subtotal,
     grandTotal: getInvoiceValue(invoiceData).grandTotal,
@@ -113,7 +113,8 @@ function validateRecipient(recipient) {
       return false;
     }
     // Is email address valid?
-    const regex = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+    const regex =
+      /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
     if (!regex.test(recipient.new.email)) {
       openDialog({
         type: 'warning',
@@ -166,7 +167,7 @@ function validateRows(rows) {
 }
 
 function validateDueDate(isRequired, dueDate) {
-  const { selectedDate,paymentTerm, useCustom } = dueDate;
+  const { selectedDate, paymentTerm, useCustom } = dueDate;
   if (isRequired) {
     // If use customDate
     if (useCustom) {
@@ -187,7 +188,7 @@ function validateDueDate(isRequired, dueDate) {
 
 function validateCurrency(isRequired, currency) {
   if (isRequired) {
-    if (currency.fraction < 0 ) {
+    if (currency.fraction < 0) {
       openDialog({
         type: 'warning',
         title: i18n.t('dialog:validation:currency:fraction:title'),

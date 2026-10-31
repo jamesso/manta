@@ -59,13 +59,17 @@ describe('discount prop sync', () => {
       />
     );
     expect(container.querySelector('input[name="amount"]').value).toBe('10');
-    expect(container.querySelector('input[name="type"][value="flat"]').checked).toBe(true);
+    expect(
+      container.querySelector('input[name="type"][value="flat"]').checked
+    ).toBe(true);
 
     rerender(
       <Discount t={t} discount={{}} updateFieldData={updateFieldData} />
     );
     expect(container.querySelector('input[name="amount"]').value).toBe('');
-    expect(container.querySelector('input[name="type"][value="percentage"]').checked).toBe(true);
+    expect(
+      container.querySelector('input[name="type"][value="percentage"]').checked
+    ).toBe(true);
   });
 
   it('does not reset when the next discount is not empty', () => {
@@ -84,6 +88,8 @@ describe('discount prop sync', () => {
       />
     );
     expect(container.querySelector('input[name="amount"]').value).toBe('10');
-    expect(container.querySelector('input[name="type"][value="flat"]').checked).toBe(true);
+    expect(
+      container.querySelector('input[name="type"][value="flat"]').checked
+    ).toBe(true);
   });
 });

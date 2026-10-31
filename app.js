@@ -63,7 +63,8 @@ function createTourWindow() {
   loadPage(tourWindow, 'tour');
   // Add Event Listeners
   tourWindow.on('show', event => {
-    if (isDev || forceDevtools) tourWindow.webContents.openDevTools({ mode: 'detach' });
+    if (isDev || forceDevtools)
+      tourWindow.webContents.openDevTools({ mode: 'detach' });
   });
   tourWindow.on('close', event => {
     event.preventDefault();
@@ -96,7 +97,8 @@ function createMainWindow() {
   loadPage(mainWindow, 'app');
   // Add Event Listeners
   mainWindow.on('show', event => {
-    if (isDev || forceDevtools) mainWindow.webContents.openDevTools({ mode: 'detach' });
+    if (isDev || forceDevtools)
+      mainWindow.webContents.openDevTools({ mode: 'detach' });
   });
   mainWindow.on('close', event => {
     if (process.platform === 'darwin') {
@@ -133,7 +135,8 @@ function createPreviewWindow() {
   loadPage(previewWindow, 'preview');
   // Add Event Listener
   previewWindow.on('show', event => {
-    if (isDev || forceDevtools) previewWindow.webContents.openDevTools({ mode: 'detach' });
+    if (isDev || forceDevtools)
+      previewWindow.webContents.openDevTools({ mode: 'detach' });
   });
   previewWindow.on('close', event => {
     event.preventDefault();
@@ -211,7 +214,9 @@ function setInitialValues() {
       }
       // Add level 2 key if not exist
       for (const childKey in defaultOptions[key]) {
-        if (Object.prototype.hasOwnProperty.call(defaultOptions[key], childKey)) {
+        if (
+          Object.prototype.hasOwnProperty.call(defaultOptions[key], childKey)
+        ) {
           if (!appConfig.has(`${key}.${childKey}`)) {
             appConfig.set(`${key}.${childKey}`, defaultOptions[key][childKey]);
           }
@@ -269,7 +274,7 @@ function migrateData() {
 
     2: configs => {
       // Return current configs if this is the first time install
-      if ( configs.invoice.currency.placement !== undefined) {
+      if (configs.invoice.currency.placement !== undefined) {
         return configs;
       }
       // Update current configs
@@ -280,20 +285,20 @@ function migrateData() {
             placement: 'before',
             separator: 'commaDot',
             fraction: 2,
-          }
-        })
+          },
+        }),
       });
     },
 
     3: configs => {
       // Return current configs if checkUpdate and lastCheck do not exist
-      const { checkUpdate, lastCheck} = configs.general;
-      if ( checkUpdate === undefined || lastCheck === undefined ) {
+      const { checkUpdate, lastCheck } = configs.general;
+      if (checkUpdate === undefined || lastCheck === undefined) {
         return configs;
       }
       // Remove checkUpdate and lastCheck
       return Object.assign({}, configs, {
-        general: omit(configs.general, ['checkUpdate', 'lastCheck'])
+        general: omit(configs.general, ['checkUpdate', 'lastCheck']),
       });
     },
   };
@@ -329,14 +334,14 @@ function addEventListeners() {
   ipcMain.on('quit-and-install', () => {
     setImmediate(() => {
       // Remove this listener
-      app.removeAllListeners("window-all-closed");
+      app.removeAllListeners('window-all-closed');
       // Force close all windows
       tourWindow.destroy();
       mainWindow.destroy();
       previewWindow.destroy();
       // Start the quit and update sequence
       autoUpdater.quitAndInstall(false);
-    })
+    });
   });
 }
 
@@ -400,7 +405,8 @@ function initialize() {
   app.on('web-contents-created', (_event, contents) => {
     contents.setWindowOpenHandler(() => ({ action: 'deny' }));
     contents.on('will-navigate', (event, url) => {
-      if (url.split('#')[0] !== contents.getURL().split('#')[0]) event.preventDefault();
+      if (url.split('#')[0] !== contents.getURL().split('#')[0])
+        event.preventDefault();
     });
   });
   app.on('ready', () => {

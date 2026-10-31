@@ -29,8 +29,8 @@ const Type = styled.div`
     `
     i { color: #f0ad4e; }
   `} ${props =>
-      props.type === 'info' &&
-      `
+    props.type === 'info' &&
+    `
     i { color: #0275d8; }
   `};
 `;
@@ -56,8 +56,8 @@ const Title = styled.h4`
     `
     color: #f0ad4e;
   `} ${props =>
-      props.type === 'info' &&
-      `
+    props.type === 'info' &&
+    `
     color: #0275d8;
   `};
 `;
@@ -86,8 +86,8 @@ const Actions = styled.div`
     `
     border-top: 4px solid #f0ad4e;
   `} ${props =>
-      props.type === 'info' &&
-      `
+    props.type === 'info' &&
+    `
     border-top: 4px solid #0275d8;
   `} a {
     background: #ffffff;

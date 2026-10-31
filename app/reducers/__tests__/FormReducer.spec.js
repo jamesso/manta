@@ -29,7 +29,7 @@ describe('Form Reducer should handle', () => {
         code: 'USD',
         fraction: 2,
         placement: 'before',
-        separator: 'commaDot'
+        separator: 'commaDot',
       },
       discount: {},
       tax: {},
@@ -43,7 +43,7 @@ describe('Form Reducer should handle', () => {
           code: 'USD',
           fraction: 2,
           placement: 'before',
-          separator: 'commaDot'
+          separator: 'commaDot',
         },
         required_fields: {},
       },
@@ -115,7 +115,7 @@ describe('Form Reducer should handle', () => {
       code: 'USD',
       fraction: 2,
       placement: 'before',
-      separator: 'commaDot'
+      separator: 'commaDot',
     });
     expect(newState.discount).toEqual({});
     expect(newState.tax).toEqual({});
@@ -461,15 +461,15 @@ describe('Form Reducer should handle Invoice Edit', () => {
 
   it('should populate recipient field data correctly', () => {
     const invoiceData2 = Object.assign({}, invoiceData, {
-      recipient: invoiceData.contacts[0]
-    })
+      recipient: invoiceData.contacts[0],
+    });
     const newState2 = FormReducer(currentState, {
       type: ACTION_TYPES.INVOICE_EDIT,
       payload: invoiceData2,
     });
     expect(newState2.recipient.newRecipient).toEqual(false);
     expect(newState2.recipient.select).toEqual(invoiceData2.recipient);
-  })
+  });
 
   it('should create a new contact in form if all contacts are deleted', () => {
     expect(newState.recipient.newRecipient).toEqual(true);

@@ -58,7 +58,7 @@ class Settings extends Component {
 
   // controls if save button appears
   setSavable(settingsValid) {
-    this.setState({canSave: settingsValid});
+    this.setState({ canSave: settingsValid });
   }
 
   // Render Main Content
@@ -104,13 +104,28 @@ class Settings extends Component {
           </Tabs>
           <TabContent>
             {this.state.visibleTab === 1 && (
-              <Profile t={t} profile={profile} updateSettings={updateSettings} setSavable={this.setSavable} />
+              <Profile
+                t={t}
+                profile={profile}
+                updateSettings={updateSettings}
+                setSavable={this.setSavable}
+              />
             )}
             {this.state.visibleTab === 2 && (
-              <Invoice t={t} invoice={invoice} updateSettings={updateSettings} setSavable={this.setSavable} />
+              <Invoice
+                t={t}
+                invoice={invoice}
+                updateSettings={updateSettings}
+                setSavable={this.setSavable}
+              />
             )}
             {this.state.visibleTab === 3 && (
-              <General t={t} general={general} updateSettings={updateSettings} setSavable={this.setSavable} />
+              <General
+                t={t}
+                general={general}
+                updateSettings={updateSettings}
+                setSavable={this.setSavable}
+              />
             )}
           </TabContent>
         </PageContent>

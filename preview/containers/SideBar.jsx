@@ -120,7 +120,7 @@ class SideBar extends Component {
             fontSize={fontSize}
             handleInputChange={this.handleInputChange}
           />
-          { showLogo && (
+          {showLogo && (
             <LogoSize
               t={t}
               UILang={UILang}
@@ -134,7 +134,7 @@ class SideBar extends Component {
             configs={configs}
             handleInputChange={this.handleInputChange}
           />
-          { customAccentColor && (
+          {customAccentColor && (
             <AccentColor
               t={t}
               UILang={UILang}

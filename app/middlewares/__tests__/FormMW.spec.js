@@ -18,13 +18,13 @@ describe('Form Middleware', () => {
         form: {
           validation: true,
           recipient: {
-            newRecipient: true
+            newRecipient: true,
           },
           settings: {
             editMode: {
               active: false,
-            }
-          }
+            },
+          },
         },
       }));
       const middleware = FormMW({ dispatch, getState })(next);
@@ -47,8 +47,8 @@ describe('Form Middleware', () => {
           settings: {
             editMode: {
               active: false,
-            }
-          }
+            },
+          },
         },
       }));
       const middleware = FormMW({ dispatch, getState })(next);
@@ -74,9 +74,9 @@ describe('Form Middleware', () => {
           settings: {
             editMode: {
               active: true,
-              data: { _id: 'invoice-uuid' }
-            }
-          }
+              data: { _id: 'invoice-uuid' },
+            },
+          },
         },
       }));
       const middleware = FormMW({ dispatch, getState })(next);
@@ -100,9 +100,9 @@ describe('Form Middleware', () => {
           settings: {
             editMode: {
               active: true,
-              data: { _id: 'invoice-uuid' }
-            }
-          }
+              data: { _id: 'invoice-uuid' },
+            },
+          },
         },
       }));
       const middleware = FormMW({ dispatch, getState })(next);

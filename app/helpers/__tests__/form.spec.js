@@ -138,8 +138,8 @@ describe('getInvoiceData', () => {
     expect(invoiceData.recipient).not.toHaveProperty('phone');
 
     // Choose selected contact data
-    (formData.recipient.newRecipient = false),
-      (invoiceData = getInvoiceData(formData));
+    ((formData.recipient.newRecipient = false),
+      (invoiceData = getInvoiceData(formData)));
     expect(invoiceData.recipient).toHaveProperty('fullname');
     expect(invoiceData.recipient).toHaveProperty('email');
     expect(invoiceData.recipient).toHaveProperty('company');
@@ -276,13 +276,11 @@ describe('getInvoiceData', () => {
       settings: Object.assign({}, formData.settings, {
         editMode: Object.assign({}, formData.settings.editMode, {
           active: true,
-          data: Object.assign({}, omit(formData, ['settings, savedSettings']),
-            {
-              _id: invoiceID,
-              _rev: invoiceRev,
-              created_at: createdDate
-            }
-          )
+          data: Object.assign({}, omit(formData, ['settings, savedSettings']), {
+            _id: invoiceID,
+            _rev: invoiceRev,
+            created_at: createdDate,
+          }),
         }),
       }),
     });
@@ -412,7 +410,7 @@ describe('validateFormData', () => {
       code: 'USD',
       fraction: -1,
       separator: 'commaDot',
-      placement: 'before'
+      placement: 'before',
     };
     const validation = validateFormData(formData);
     expect(validation).toEqual(false);
@@ -627,7 +625,7 @@ describe('validateCurrency', () => {
       code: 'USD',
       fraction: -1,
       separator: 'commaDot',
-      placement: 'before'
+      placement: 'before',
     };
     const validation = validateCurrency(true, currency);
     expect(validation).toEqual(false);

@@ -44,7 +44,9 @@ beforeEach(() => {
 describe('render component correctly', () => {
   it('render correct number of invoices', () => {
     const { container } = renderInvoices();
-    expect(container.querySelectorAll('.invoice')).toHaveLength(invoices.length);
+    expect(container.querySelectorAll('.invoice')).toHaveLength(
+      invoices.length
+    );
   });
 
   it('render empty message when there is no invoice in the DB', () => {
@@ -72,13 +74,19 @@ describe('handle actions correcrtly', () => {
     expect(spySetFilter).toHaveBeenCalled();
     expect(container.querySelectorAll('.invoice')).toHaveLength(1);
     expect(container.querySelector('.invoice')).toHaveTextContent('paid');
-    expect(container.querySelector('.invoice')).not.toHaveTextContent('pending');
+    expect(container.querySelector('.invoice')).not.toHaveTextContent(
+      'pending'
+    );
   });
 
   it('display only invoices with matched status', () => {
     const { container } = renderInvoices();
     fireEvent.click(container.querySelector('button[data-filter="paid"]'));
-    const filteredInvoices = invoices.filter(invoice => invoice.status === 'paid');
-    expect(container.querySelectorAll('.invoice')).toHaveLength(filteredInvoices.length);
+    const filteredInvoices = invoices.filter(
+      invoice => invoice.status === 'paid'
+    );
+    expect(container.querySelectorAll('.invoice')).toHaveLength(
+      filteredInvoices.length
+    );
   });
 });

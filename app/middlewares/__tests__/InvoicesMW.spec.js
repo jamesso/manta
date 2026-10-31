@@ -25,7 +25,7 @@ describe('Invoices Middleware', () => {
     next = vi.fn();
     dispatch = vi.fn();
     getState = vi.fn(() => ({
-      form: { settings: { editMode: { active: false } } }
+      form: { settings: { editMode: { active: false } } },
     }));
     middleware = InvoicesMW({ dispatch, getState })(next);
   });
@@ -154,10 +154,7 @@ describe('Invoices Middleware', () => {
           expect(next.mock.calls.length).toBe(1);
           expect(next).toHaveBeenCalledWith(
             Object.assign({}, action, {
-              payload: [
-                ...mockData.invoicesRecords,
-                newInvoice
-              ],
+              payload: [...mockData.invoicesRecords, newInvoice],
             })
           );
           // Dispatch success notification
@@ -275,19 +272,19 @@ describe('Invoices Middleware', () => {
         expect(next).toHaveBeenCalledWith(
           Object.assign({}, action, {
             payload: Object.assign({}, action.payload, {
-              contacts: mockData.contactsRecords
-            })
+              contacts: mockData.contactsRecords,
+            }),
           })
         );
         // Dispatch change Tab action
         expect(dispatch.mock.calls.length).toBe(1);
         expect(dispatch).toHaveBeenCalledWith({
           type: ACTION_TYPES.UI_TAB_CHANGE,
-          payload: 'form'
+          payload: 'form',
         });
-      })
+      });
     });
-  })
+  });
 
   describe('should handle INVOICE_UPDATE action', () => {
     let currentInvoice;
@@ -364,7 +361,7 @@ describe('Invoices Middleware', () => {
         });
       });
     });
-  })
+  });
 
   describe('should handle INVOICE_DELETE action', () => {
     it('should remove record from DB correctly', () => {
@@ -410,10 +407,10 @@ describe('Invoices Middleware', () => {
           settings: {
             editMode: {
               active: true,
-              data: { _id: 'jon-invoice' }
-            }
-          }
-        }
+              data: { _id: 'jon-invoice' },
+            },
+          },
+        },
       }));
       const middleware = InvoicesMW({ dispatch, getState })(next);
       const invoiceID = 'jon-invoice';
@@ -431,11 +428,11 @@ describe('Invoices Middleware', () => {
           });
           // Dispatch clear Form action
           expect(dispatch.mock.calls[1][0]).toEqual({
-            type: ACTION_TYPES.FORM_CLEAR
+            type: ACTION_TYPES.FORM_CLEAR,
           });
         })
       );
-    })
+    });
 
     it('handle error correctly', () => {
       // Setup
@@ -462,7 +459,7 @@ describe('Invoices Middleware', () => {
         _id: 'a-random-string',
         _rev: 'another-random-string',
         created_at: 'yesterday',
-      }
+      };
       // Action
       middleware(Actions.duplicateInvoice(invoiceData));
       // Expect
@@ -476,7 +473,7 @@ describe('Invoices Middleware', () => {
         }),
       });
     });
-  })
+  });
 
   describe('should handle INVOICE_CONFIGS_SAVE action correctly', () => {
     it('get the doc, merge with config object and dispatch a new action', () => {
@@ -510,10 +507,10 @@ describe('Invoices Middleware', () => {
               message: expectedError.message,
             },
           });
-        })
+        });
       });
     });
-  })
+  });
 
   describe('should handle INVOICE_SET_STATUS action', () => {
     it('get the doc, merge with status object and dispatch a new action', () => {
@@ -547,7 +544,7 @@ describe('Invoices Middleware', () => {
               message: expectedError.message,
             },
           });
-        })
+        });
       });
     });
   });
@@ -583,5 +580,4 @@ describe('Invoices Middleware', () => {
     middleware(action);
     expect(next).toHaveBeenCalledWith(action);
   });
-
 });

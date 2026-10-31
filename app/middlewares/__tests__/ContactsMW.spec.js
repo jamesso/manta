@@ -136,10 +136,7 @@ describe('Contacts Middleware', () => {
           expect(next.mock.calls.length).toBe(1);
           expect(next).toHaveBeenCalledWith(
             Object.assign({}, action, {
-              payload: [
-                ...mockData.contactsRecords,
-                newContact
-              ],
+              payload: [...mockData.contactsRecords, newContact],
             })
           );
           // Dispatch success notification
@@ -148,7 +145,7 @@ describe('Contacts Middleware', () => {
             type: ACTION_TYPES.UI_NOTIFICATION_NEW,
             payload: {
               type: 'success',
-              message: i18n.t('messages:contact:saved')
+              message: i18n.t('messages:contact:saved'),
             },
           });
         })
@@ -223,7 +220,7 @@ describe('Contacts Middleware', () => {
             type: ACTION_TYPES.UI_NOTIFICATION_NEW,
             payload: {
               type: 'success',
-              message: i18n.t('messages:contact:deleted')
+              message: i18n.t('messages:contact:deleted'),
             },
           });
         })

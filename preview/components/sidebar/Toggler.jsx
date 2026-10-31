@@ -7,9 +7,7 @@ function Toggler({ t, configs, handleInputChange, UILang }) {
   const { showLogo, useSymbol, showRecipient, customAccentColor } = configs;
   return (
     <Section>
-      <Label>
-        { t('preview:sidebar:toggle:name', { lng: UILang }) }
-      </Label>
+      <Label>{t('preview:sidebar:toggle:name', { lng: UILang })}</Label>
       <label>
         <input
           name="showLogo"
@@ -18,7 +16,7 @@ function Toggler({ t, configs, handleInputChange, UILang }) {
           onChange={handleInputChange}
         />
         {'\u00A0'}
-        { t('preview:sidebar:toggle:logo', { lng: UILang }) }
+        {t('preview:sidebar:toggle:logo', { lng: UILang })}
       </label>
       <label>
         <input
@@ -28,7 +26,7 @@ function Toggler({ t, configs, handleInputChange, UILang }) {
           onChange={handleInputChange}
         />
         {'\u00A0'}
-        { t('preview:sidebar:toggle:symbol', { lng: UILang }) }
+        {t('preview:sidebar:toggle:symbol', { lng: UILang })}
       </label>
       <label>
         <input
@@ -38,7 +36,7 @@ function Toggler({ t, configs, handleInputChange, UILang }) {
           onChange={handleInputChange}
         />
         {'\u00A0'}
-        { t('preview:sidebar:toggle:recipient', { lng: UILang }) }
+        {t('preview:sidebar:toggle:recipient', { lng: UILang })}
       </label>
       <label>
         <input
@@ -48,7 +46,7 @@ function Toggler({ t, configs, handleInputChange, UILang }) {
           onChange={handleInputChange}
         />
         {'\u00A0'}
-        { t('preview:sidebar:accentColor:name', { lng: UILang }) }
+        {t('preview:sidebar:accentColor:name', { lng: UILang })}
       </label>
     </Section>
   );

@@ -143,8 +143,10 @@ function Main({ invoice, configs, t }) {
     <Table alignItems={setAlignItems(configs)}>
       <thead>
         <ItemsHeader>
-          <th>{t('preview:common:itemDescription', {lng: currentLanguage})}</th>
-          <th>{t('preview:common:price', {lng: currentLanguage})}</th>
+          <th>
+            {t('preview:common:itemDescription', { lng: currentLanguage })}
+          </th>
+          <th>{t('preview:common:price', { lng: currentLanguage })}</th>
         </ItemsHeader>
       </thead>
 
@@ -152,12 +154,10 @@ function Main({ invoice, configs, t }) {
 
       <InvoiceSummary>
         <Subtotal>
-          <td>{t('preview:common:subtotal', {lng: currentLanguage})}</td>
+          <td>{t('preview:common:subtotal', { lng: currentLanguage })}</td>
           <td>
-            {currencyBefore ? currency : null}
-            {' '}
-            {formatNumber(invoice.subtotal, fraction, separator)}
-            {' '}
+            {currencyBefore ? currency : null}{' '}
+            {formatNumber(invoice.subtotal, fraction, separator)}{' '}
             {currencyBefore ? null : currency}
           </td>
         </Subtotal>
@@ -165,10 +165,11 @@ function Main({ invoice, configs, t }) {
         {tax && (
           <Tax>
             <td>
-              {t('form:fields:tax:name', {lng: currentLanguage})} {tax.amount}%
+              {t('form:fields:tax:name', { lng: currentLanguage })} {tax.amount}
+              %
             </td>
             {tax.method === 'reverse' ? (
-              <td>{t('form:fields:tax:reverse', {lng: currentLanguage})}</td>
+              <td>{t('form:fields:tax:reverse', { lng: currentLanguage })}</td>
             ) : (
               <td>
                 {currencyBefore ? currency : null}{' '}
@@ -186,7 +187,7 @@ function Main({ invoice, configs, t }) {
         {discount && (
           <Discount>
             <td>
-              {t('form:fields:discount:name', {lng: currentLanguage})}{' '}
+              {t('form:fields:discount:name', { lng: currentLanguage })}{' '}
               {discount.type === 'percentage' && (
                 <span> {discount.amount}%</span>
               )}
@@ -204,12 +205,10 @@ function Main({ invoice, configs, t }) {
         )}
 
         <Total>
-          <td>{t('preview:common:total', {lng: currentLanguage})}</td>
+          <td>{t('preview:common:total', { lng: currentLanguage })}</td>
           <td>
-            {currencyBefore ? currency : null}
-            {' '}
-            {formatNumber(invoice.grandTotal, fraction, separator)}
-            {' '}
+            {currencyBefore ? currency : null}{' '}
+            {formatNumber(invoice.grandTotal, fraction, separator)}{' '}
             {currencyBefore ? null : currency}
           </td>
         </Total>

@@ -39,10 +39,13 @@ export class Currency extends PureComponent {
   handleInputChange(event) {
     const target = event.target;
     const name = target.name;
-    const value = name === 'fraction' ? parseInt(target.value, 10) : target.value;
-    this.setState({
-        [name]: value
-      }, () => {
+    const value =
+      name === 'fraction' ? parseInt(target.value, 10) : target.value;
+    this.setState(
+      {
+        [name]: value,
+      },
+      () => {
         this.updateCurrencyState();
       }
     );
@@ -91,9 +94,7 @@ export class Currency extends PureComponent {
     return (
       <Section>
         <Header>
-          <label className="itemLabel">
-            {t('form:fields:currency')}
-          </label>
+          <label className="itemLabel">{t('form:fields:currency')}</label>
           {!this.isSettingsSaved() && (
             <a href="#" onClick={this.saveAsDefault}>
               <i className="ion-checkmark" /> {t('common:saveAsDefault')}
@@ -103,9 +104,7 @@ export class Currency extends PureComponent {
         <Part>
           <Row>
             <Field>
-              <label className="itemLabel">
-                {t('form:fields:currency')}
-              </label>
+              <label className="itemLabel">{t('form:fields:currency')}</label>
               <select
                 name="code"
                 value={this.state.code}
@@ -115,7 +114,9 @@ export class Currency extends PureComponent {
               </select>
             </Field>
             <Field>
-              <label className="itemLabel">{t('settings:fields:currency:separator')}</label>
+              <label className="itemLabel">
+                {t('settings:fields:currency:separator')}
+              </label>
               <select
                 name="separator"
                 value={this.state.separator}
@@ -135,18 +136,26 @@ export class Currency extends PureComponent {
           </Row>
           <Row>
             <Field>
-              <label className="itemLabel">{t('settings:fields:currency:placement')}</label>
+              <label className="itemLabel">
+                {t('settings:fields:currency:placement')}
+              </label>
               <select
                 name="placement"
                 value={this.state.placement}
                 onChange={this.handleInputChange}
               >
-                <option value="before">{t('settings:fields:currency:beforeAmount')}</option>
-                <option value="after">{t('settings:fields:currency:afterAmount')}</option>
+                <option value="before">
+                  {t('settings:fields:currency:beforeAmount')}
+                </option>
+                <option value="after">
+                  {t('settings:fields:currency:afterAmount')}
+                </option>
               </select>
             </Field>
             <Field>
-              <label className="itemLabel">{t('settings:fields:currency:fraction')}</label>
+              <label className="itemLabel">
+                {t('settings:fields:currency:fraction')}
+              </label>
               <input
                 className="form-control"
                 name="fraction"

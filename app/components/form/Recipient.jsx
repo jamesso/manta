@@ -172,7 +172,4 @@ const mapStateToProps = state => ({
   recipient: getRecipient(state),
 });
 
-export default compose(
-  connect(mapStateToProps),
-  withTranslation(),
-)(Recipient);
+export default compose(connect(mapStateToProps), withTranslation())(Recipient);

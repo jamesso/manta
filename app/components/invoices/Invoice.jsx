@@ -40,9 +40,9 @@ const StatusBar = styled.div`
   height: 6px;
   border-radius: 4px 4px 0 0;
   ${props => props.status === 'pending' && `background: #469FE5;`} ${props =>
-      props.status === 'paid' && `background: #6BBB69;`} ${props =>
-      props.status === 'refunded' && `background: #4F555C;`} ${props =>
-      props.status === 'cancelled' && `background: #EC476E;`};
+    props.status === 'paid' && `background: #6BBB69;`} ${props =>
+    props.status === 'refunded' && `background: #4F555C;`} ${props =>
+    props.status === 'cancelled' && `background: #EC476E;`};
 `;
 
 const Status = styled.div`
@@ -51,9 +51,9 @@ const Status = styled.div`
   text-transform: uppercase;
   letter-spacing: 1px;
   ${props => props.status === 'pending' && `color: #469FE5;`} ${props =>
-      props.status === 'paid' && `color: #6BBB69;`} ${props =>
-      props.status === 'refunded' && `color: #4F555C;`} ${props =>
-      props.status === 'cancelled' && `color: #EC476E;`} span {
+    props.status === 'paid' && `color: #6BBB69;`} ${props =>
+    props.status === 'refunded' && `color: #4F555C;`} ${props =>
+    props.status === 'cancelled' && `color: #EC476E;`} span {
     display: flex;
     align-items: center;
     i {
@@ -239,14 +239,14 @@ class Invoice extends PureComponent {
     const dateFormat = configs ? configs.dateFormat : this.props.dateFormat;
     // If it's a custom date then return selectedDate
     if (useCustom === true) {
-      return  moment(selectedDate).format(dateFormat);
+      return moment(selectedDate).format(dateFormat);
     }
     // If it's a payment term, calculate the term date and print out
     const paymentTermDate = calTermDate(invoice.created_at, paymentTerm);
     return `
-      ${ t(`form:fields:dueDate:paymentTerms:${paymentTerm}:label`) }
+      ${t(`form:fields:dueDate:paymentTerms:${paymentTerm}:label`)}
       (
-      ${ moment(paymentTermDate).format(dateFormat) }
+      ${moment(paymentTermDate).format(dateFormat)}
       )
     `;
   }
@@ -254,7 +254,9 @@ class Invoice extends PureComponent {
   render() {
     const { invoice, setInvoiceStatus, t } = this.props;
     const { recipient, status, configs } = invoice;
-    const dateFormat = invoice.configs ? invoice.configs.dateFormat : this.props.dateFormat;
+    const dateFormat = invoice.configs
+      ? invoice.configs.dateFormat
+      : this.props.dateFormat;
     const statusActions = [
       {
         label: t('invoices:status:pending'),
@@ -307,14 +309,12 @@ class Invoice extends PureComponent {
               <Field>
                 <label>{t('invoices:fields:total')}</label>
                 <p>
-                  {currencyBefore ? invoice.currency.code : null}
-                  {' '}
-                  { formatNumber(
-                      invoice.grandTotal,
-                      invoice.currency.fraction,
-                      invoice.currency.separator)
-                  }
-                  {' '}
+                  {currencyBefore ? invoice.currency.code : null}{' '}
+                  {formatNumber(
+                    invoice.grandTotal,
+                    invoice.currency.fraction,
+                    invoice.currency.separator
+                  )}{' '}
                   {currencyBefore ? null : invoice.currency.code}
                 </p>
               </Field>
@@ -326,9 +326,7 @@ class Invoice extends PureComponent {
               </Field>
               <Field>
                 <label>{t('invoices:fields:dueDate')}</label>
-                <p>
-                  { invoice.dueDate && this.renderDueDate() }
-                </p>
+                <p>{invoice.dueDate && this.renderDueDate()}</p>
               </Field>
             </Row>
           </Body>

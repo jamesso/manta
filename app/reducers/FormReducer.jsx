@@ -22,7 +22,7 @@ const initialState = {
   },
   discount: {},
   note: {},
-  invoiceID: "",
+  invoiceID: '',
   // Set default values for currency and tax
   currency: invoiceSettings.currency,
   tax: invoiceSettings.tax,
@@ -61,8 +61,8 @@ const FormReducer = handleActions(
 
     [ACTION_TYPES.FORM_ITEM_UPDATE]: (state, action) =>
       Object.assign({}, state, {
-        rows: state.rows.map(
-          item => (item.id !== action.payload.id ? item : action.payload)
+        rows: state.rows.map(item =>
+          item.id !== action.payload.id ? item : action.payload
         ),
       }),
 
@@ -88,7 +88,7 @@ const FormReducer = handleActions(
         });
       }
       return Object.assign({}, state, {
-        [field]: data
+        [field]: data,
       });
     },
 

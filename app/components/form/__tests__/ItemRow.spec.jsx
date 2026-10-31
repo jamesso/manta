@@ -46,7 +46,9 @@ describe('Renders correctly to the DOM', () => {
     expect(container.querySelector('input[name="description"]')).toHaveValue(
       item.description
     );
-    expect(container.querySelector('input[name="price"]')).toHaveValue(item.price);
+    expect(container.querySelector('input[name="price"]')).toHaveValue(
+      item.price
+    );
     expect(container.querySelector('input[name="quantity"]')).toHaveValue(
       item.quantity
     );

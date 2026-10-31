@@ -34,13 +34,17 @@ beforeEach(() => {
 describe('DueDatePicker', () => {
   it('shows the placeholder and no clear button when the date is empty', () => {
     renderPicker(null);
-    expect(screen.getByRole('button', { name: 'form:fields:dueDate:placeHolder' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'form:fields:dueDate:placeHolder' })
+    ).toBeInTheDocument();
     expect(document.querySelector('.clearDateBtn')).toBeNull();
   });
 
   it('shows the saved date as DD/MM/YYYY', () => {
     renderPicker();
-    expect(screen.getByRole('button', { name: '20/11/2017' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: '20/11/2017' })
+    ).toBeInTheDocument();
   });
 
   it('writes a moment object and closes the calendar when a day is picked', () => {

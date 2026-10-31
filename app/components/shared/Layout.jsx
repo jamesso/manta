@@ -49,8 +49,12 @@ const PageHeaderActionsStyle = styled.div`
   flex-direction: row;
   align-items: center;
   justify-content: flex-end;
-  button {  margin-left: 10px; }
-  i { margin-right: 10px; }
+  button {
+    margin-left: 10px;
+  }
+  i {
+    margin-right: 10px;
+  }
 `;
 
 const PageContentStyle = styled.div`

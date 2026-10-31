@@ -27,7 +27,7 @@ const Indicator = styled.div`
   progress {
     width: 36px;
     height: 6px;
-    accent-color: #469FE5;
+    accent-color: #469fe5;
   }
 `;
 
@@ -54,10 +54,7 @@ class AppUpdate extends PureComponent {
           type: 'info',
           title: i18n.t('dialog:appUpdate:available:title'),
           message: i18n.t('dialog:appUpdate:available:message'),
-          buttons: [
-            i18n.t('common:yes'),
-            i18n.t('common:noThanks')
-          ],
+          buttons: [i18n.t('common:yes'), i18n.t('common:noThanks')],
         },
         'update-download-confirmed'
       );
@@ -118,7 +115,7 @@ class AppUpdate extends PureComponent {
           message: i18n.t('dialog:appUpdate:downloaded:message'),
           buttons: [
             i18n.t('dialog:appUpdate:downloaded:quitNow'),
-            i18n.t('dialog:appUpdate:downloaded:later')
+            i18n.t('dialog:appUpdate:downloaded:later'),
           ],
         },
         'upgrade-confirmed'

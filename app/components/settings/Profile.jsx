@@ -43,7 +43,7 @@ class Profile extends Component {
   }
 
   render() {
-   const { t } = this.props;
+    const { t } = this.props;
     return (
       <div>
         <div className="pageItem">

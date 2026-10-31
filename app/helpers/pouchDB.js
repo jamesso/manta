@@ -97,7 +97,7 @@ const invoicesMigrations = {
       customAccentColor: accentColor.useCustom,
     });
     return Object.assign({}, doc, {
-      configs: migratedConfigs
+      configs: migratedConfigs,
     });
   },
 };

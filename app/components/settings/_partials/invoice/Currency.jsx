@@ -36,16 +36,14 @@ function Currency({ t, currency, handleCurrencyChange }) {
       <Row>
         <Field>
           <label className="itemLabel">{t('form:fields:currency')}</label>
-          <select
-            name="code"
-            value={code}
-            onChange={handleCurrencyChange}
-          >
+          <select name="code" value={code} onChange={handleCurrencyChange}>
             {sortCurrencies()}
           </select>
         </Field>
         <Field>
-          <label className="itemLabel">{t('settings:fields:currency:separator')}</label>
+          <label className="itemLabel">
+            {t('settings:fields:currency:separator')}
+          </label>
           <select
             name="separator"
             value={separator}
@@ -59,18 +57,26 @@ function Currency({ t, currency, handleCurrencyChange }) {
       </Row>
       <Row>
         <Field>
-          <label className="itemLabel">{t('settings:fields:currency:placement')}</label>
+          <label className="itemLabel">
+            {t('settings:fields:currency:placement')}
+          </label>
           <select
             name="placement"
             value={placement}
             onChange={handleCurrencyChange}
           >
-            <option value="before">{t('settings:fields:currency:beforeAmount')}</option>
-            <option value="after">{t('settings:fields:currency:afterAmount')}</option>
+            <option value="before">
+              {t('settings:fields:currency:beforeAmount')}
+            </option>
+            <option value="after">
+              {t('settings:fields:currency:afterAmount')}
+            </option>
           </select>
         </Field>
         <Field>
-          <label className="itemLabel">{t('settings:fields:currency:fraction')}</label>
+          <label className="itemLabel">
+            {t('settings:fields:currency:fraction')}
+          </label>
           <input
             className="form-control"
             name="fraction"

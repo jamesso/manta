@@ -6,9 +6,7 @@ import { Section, Label, Range } from '../shared';
 function FontSize({ t, fontSize, handleInputChange, UILang }) {
   return (
     <Section>
-      <Label>
-        {t('preview:sidebar:fontSize', { lng: UILang })}
-      </Label>
+      <Label>{t('preview:sidebar:fontSize', { lng: UILang })}</Label>
       <Range
         name="fontSize"
         type="range"

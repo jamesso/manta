@@ -34,7 +34,9 @@ describe('Renders correctly to the DOM', () => {
   describe('renders buttons correctly', () => {
     it('handle click correctly', () => {
       const { container } = renderContact();
-      fireEvent.click(container.querySelector('.ion-plus-round').closest('button'));
+      fireEvent.click(
+        container.querySelector('.ion-plus-round').closest('button')
+      );
       expect(newInvoice).toHaveBeenCalled();
       expect(newInvoice).toHaveBeenCalledWith(contact);
 

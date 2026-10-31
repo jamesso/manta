@@ -44,11 +44,17 @@ describe('Renders correctly to the DOM', () => {
   it('handle change code correctly', async () => {
     const user = userEvent.setup();
     const { container } = renderCurrency();
-    await user.selectOptions(container.querySelector('select[name="code"]'), 'VND');
+    await user.selectOptions(
+      container.querySelector('select[name="code"]'),
+      'VND'
+    );
     expect(updateFieldData).toHaveBeenCalled();
-    expect(updateFieldData).toHaveBeenCalledWith('currency', Object.assign({}, currency, {
-      code: 'VND',
-    }));
+    expect(updateFieldData).toHaveBeenCalledWith(
+      'currency',
+      Object.assign({}, currency, {
+        code: 'VND',
+      })
+    );
   });
 
   it('handle change sign placement correctly', async () => {
@@ -59,9 +65,12 @@ describe('Renders correctly to the DOM', () => {
       'after'
     );
     expect(updateFieldData).toHaveBeenCalled();
-    expect(updateFieldData).toHaveBeenCalledWith('currency', Object.assign({}, currency, {
-      placement: 'after',
-    }));
+    expect(updateFieldData).toHaveBeenCalledWith(
+      'currency',
+      Object.assign({}, currency, {
+        placement: 'after',
+      })
+    );
   });
 
   it('handle change fraction correctly', () => {
@@ -70,9 +79,12 @@ describe('Renders correctly to the DOM', () => {
       target: { value: '3' },
     });
     expect(updateFieldData).toHaveBeenCalled();
-    expect(updateFieldData).toHaveBeenCalledWith('currency', Object.assign({}, currency, {
-      fraction: 3,
-    }));
+    expect(updateFieldData).toHaveBeenCalledWith(
+      'currency',
+      Object.assign({}, currency, {
+        fraction: 3,
+      })
+    );
   });
 
   it('handle change separator correctly', async () => {
@@ -83,9 +95,12 @@ describe('Renders correctly to the DOM', () => {
       'spaceDot'
     );
     expect(updateFieldData).toHaveBeenCalled();
-    expect(updateFieldData).toHaveBeenCalledWith('currency', Object.assign({}, currency, {
-      separator: 'spaceDot',
-    }));
+    expect(updateFieldData).toHaveBeenCalledWith(
+      'currency',
+      Object.assign({}, currency, {
+        separator: 'spaceDot',
+      })
+    );
   });
 
   it('restores saved settings when currency and saved settings are the same object', () => {
@@ -129,8 +144,12 @@ describe('Renders correctly to the DOM', () => {
         updateSavedSettings={updateSavedSettings}
       />
     );
-    expect(container.querySelector('select[name="separator"]').value).toBe('commaDot');
-    expect(container.querySelector('select[name="placement"]').value).toBe('after');
+    expect(container.querySelector('select[name="separator"]').value).toBe(
+      'commaDot'
+    );
+    expect(container.querySelector('select[name="placement"]').value).toBe(
+      'after'
+    );
     expect(updateFieldData).toHaveBeenCalledWith('currency', reset);
   });
 });

@@ -61,10 +61,7 @@ class Form extends PureComponent {
       <PageWrapper>
         <PageHeader>
           <PageHeaderTitle>
-            { editMode.active
-              ? t('form:header:edit')
-              : t('form:header:new')
-            }
+            {editMode.active ? t('form:header:edit') : t('form:header:new')}
           </PageHeaderTitle>
           <PageHeaderActions>
             <Button danger onClick={clearForm}>
@@ -132,11 +129,7 @@ class Form extends PureComponent {
             />
           )}
           {required_fields.note && (
-            <Note
-              t={t}
-              note={note}
-              updateFieldData={updateFieldData}
-            />
+            <Note t={t} note={note} updateFieldData={updateFieldData} />
           )}
         </PageContent>
       </PageWrapper>

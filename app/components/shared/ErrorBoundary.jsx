@@ -10,10 +10,10 @@ const ErrorContainer = styled.div`
   width: 100%;
   justify-content: center;
   align-items: center;
-  background: #2C323A;
+  background: #2c323a;
   h1 {
     font-size: 500%;
-    color: #CBC189;
+    color: #cbc189;
   }
   h2 {
     font-weight: 400;
@@ -22,7 +22,7 @@ const ErrorContainer = styled.div`
   p {
     margin: 0;
     font-weight: 100;
-    color: #C4C8CC;
+    color: #c4c8cc;
     line-height: 1.75;
     text-align: center;
   }
@@ -47,7 +47,7 @@ class ErrorBoundary extends Component {
       return (
         <ErrorContainer>
           <h1>
-            <i className='ion-bug' />
+            <i className="ion-bug" />
           </h1>
           <h2>You have found a bug!</h2>
           <p>

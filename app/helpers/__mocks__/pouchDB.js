@@ -89,11 +89,4 @@ const deleteDoc = vi.fn(
     })
 );
 
-export {
-  getAllDocs,
-  getSingleDoc,
-  saveDoc,
-  updateDoc,
-  deleteDoc,
-  mockData,
-};
+export { getAllDocs, getSingleDoc, saveDoc, updateDoc, deleteDoc, mockData };

@@ -73,7 +73,8 @@ class Invoice extends Component {
   handleCurrencyChange(event) {
     const target = event.target;
     const name = target.name;
-    const value = name === 'fraction' ? parseInt(target.value, 10) : target.value;
+    const value =
+      name === 'fraction' ? parseInt(target.value, 10) : target.value;
     this.setState(
       {
         currency: Object.assign({}, this.state.currency, {
@@ -108,14 +109,8 @@ class Invoice extends Component {
 
   render() {
     const { t } = this.props;
-    const {
-      exportDir,
-      template,
-      currency,
-      tax,
-      required_fields,
-      dateFormat,
-    } = this.state;
+    const { exportDir, template, currency, tax, required_fields, dateFormat } =
+      this.state;
     return [
       <Fields
         key="required_fields_settings"
@@ -143,7 +138,7 @@ class Invoice extends Component {
         handleInputChange={this.handleInputChange}
         selectExportDir={this.selectExportDir}
         t={t}
-      />
+      />,
     ];
   }
 }

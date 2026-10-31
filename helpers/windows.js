@@ -13,7 +13,9 @@ const SECURE_WEB_PREFERENCES = {
 // Production MUST stay on file:// — PouchDB data is stored per origin.
 function loadPage(win, name) {
   if (!app.isPackaged && process.env.ELECTRON_RENDERER_URL) {
-    return win.loadURL(`${process.env.ELECTRON_RENDERER_URL}/${name}/index.html`);
+    return win.loadURL(
+      `${process.env.ELECTRON_RENDERER_URL}/${name}/index.html`
+    );
   }
   return win.loadFile(path.join(__dirname, `../renderer/${name}/index.html`));
 }

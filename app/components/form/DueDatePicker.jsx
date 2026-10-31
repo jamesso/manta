@@ -87,8 +87,14 @@ export class DueDatePicker extends PureComponent {
     const dueDate = selectedDate === null ? null : moment(selectedDate);
     return (
       <Container>
-        <DateButton type="button" id="invoice-duedate" onClick={this.onFocusChange}>
-          {dueDate ? dueDate.format('DD/MM/YYYY') : t('form:fields:dueDate:placeHolder')}
+        <DateButton
+          type="button"
+          id="invoice-duedate"
+          onClick={this.onFocusChange}
+        >
+          {dueDate
+            ? dueDate.format('DD/MM/YYYY')
+            : t('form:fields:dueDate:placeHolder')}
         </DateButton>
         {this.state.focused && (
           <Overlay onClick={this.onFocusChange}>

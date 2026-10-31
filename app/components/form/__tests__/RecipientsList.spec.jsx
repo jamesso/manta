@@ -41,7 +41,10 @@ describe('Recipient List component', () => {
     expect(updateRecipientList).toHaveBeenCalledTimes(1);
     expect(updateRecipientList).toHaveBeenCalledWith(contacts[0]);
     updateRecipientList.mockClear();
-    await user.selectOptions(container.querySelector('select'), 'second-contact');
+    await user.selectOptions(
+      container.querySelector('select'),
+      'second-contact'
+    );
     expect(updateRecipientList).toHaveBeenCalled();
   });
 });

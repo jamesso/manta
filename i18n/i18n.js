@@ -29,9 +29,9 @@ i18n.use(initReactI18next).init({
     id,
     it,
     sk,
-    "ur-PK": urPK,
+    'ur-PK': urPK,
     vi,
-    "zh-CN": zhCN
+    'zh-CN': zhCN,
   },
   interpolation: {
     function(value, format, lng) {

@@ -24,9 +24,9 @@ const ButtonsGroup = styled.div`
   > * {
     margin-bottom: 10px;
     &:last-child {
-    margin-bottom: 0;
+      margin-bottom: 0;
     }
- }
+  }
 `;
 
 function Actions({ saveConfigs, savePDF, t, UILang }) {

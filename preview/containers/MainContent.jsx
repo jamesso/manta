@@ -33,8 +33,8 @@ const Page = styled.div`
   min-width: 21cm;
   margin-left: auto;
   margin-right: auto;
-  background: #FFFFFF;
-  box-shadow: 0 0 10px rgba(0,0,0,.1);
+  background: #ffffff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   display: flex;
   border-radius: 4px;
 `;
@@ -56,14 +56,12 @@ class MainContent extends Component {
   }
 
   render() {
-    const { t, invoice  } = this.props;
+    const { t, invoice } = this.props;
     return (
       <Wrapper>
         {invoice._id ? (
           <div className="print-area">
-            <Page>
-              {this.renderTemplate()}
-            </Page>
+            <Page>{this.renderTemplate()}</Page>
           </div>
         ) : (
           <Message>{t('preview:common:chooseInvoiceToPreview')}</Message>

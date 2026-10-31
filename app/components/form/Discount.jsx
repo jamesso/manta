@@ -82,9 +82,7 @@ export class Discount extends Component {
     return (
       <Section>
         <DiscountWrapper>
-          <label className="itemLabel">
-            {t('form:fields:discount.name')}
-          </label>
+          <label className="itemLabel">{t('form:fields:discount.name')}</label>
           <DiscountContent>
             <DiscountAmount>
               <input

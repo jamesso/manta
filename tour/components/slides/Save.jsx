@@ -2,7 +2,7 @@ import React from 'react';
 import saveImg from '../../imgs/Save.svg';
 import Slide from '../Slide';
 
-function Save({t}) {
+function Save({ t }) {
   return (
     <Slide
       fromColor="#FFD200"

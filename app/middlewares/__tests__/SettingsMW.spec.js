@@ -66,9 +66,15 @@ describe('Settings Middleware', () => {
     it('should validate currency and tax data', () => {
       middleware(action);
       expect(validateCurrency).toHaveBeenCalled();
-      expect(validateCurrency).toHaveBeenCalledWith(true, action.payload.invoice.currency);
+      expect(validateCurrency).toHaveBeenCalledWith(
+        true,
+        action.payload.invoice.currency
+      );
       expect(validateTax).toHaveBeenCalled();
-      expect(validateTax).toHaveBeenCalledWith(true, action.payload.invoice.tax);
+      expect(validateTax).toHaveBeenCalledWith(
+        true,
+        action.payload.invoice.tax
+      );
     });
 
     // TODO
@@ -86,10 +92,14 @@ describe('Settings Middleware', () => {
       expect(window.manta.ipc.send).toHaveBeenCalled();
       expect(window.manta.ipc.send.mock.calls.length).toEqual(2);
       // Notify about profile change
-      expect(window.manta.ipc.send.mock.calls[0][0]).toBe('change-preview-window-profile');
+      expect(window.manta.ipc.send.mock.calls[0][0]).toBe(
+        'change-preview-window-profile'
+      );
       expect(window.manta.ipc.send.mock.calls[0][1]).toBe('New Profile');
       // Notify about UI Lang change
-      expect(window.manta.ipc.send.mock.calls[1][0]).toBe('change-preview-window-language');
+      expect(window.manta.ipc.send.mock.calls[1][0]).toBe(
+        'change-preview-window-language'
+      );
       expect(window.manta.ipc.send.mock.calls[1][1]).toBe('fr');
     });
 
@@ -108,7 +118,6 @@ describe('Settings Middleware', () => {
         },
       });
     });
-
   });
 
   it('let other actions pass through', () => {

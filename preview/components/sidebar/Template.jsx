@@ -8,9 +8,7 @@ import { Section, Label } from '../shared';
 function Template({ t, template, handleInputChange, UILang }) {
   return (
     <Section>
-      <Label>
-        {t('preview:sidebar:template', { lng: UILang })}
-      </Label>
+      <Label>{t('preview:sidebar:template', { lng: UILang })}</Label>
       <select name="template" value={template} onChange={handleInputChange}>
         <option value="minimal">Minimal</option>
         <option value="business">Business</option>

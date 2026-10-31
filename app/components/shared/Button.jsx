@@ -22,20 +22,28 @@ const ButtonStyle = styled.button`
   /* Block Level Button */
   ${props => props.block && `width: 100%;`}
   /* Color */
-  ${props => props.primary &&  `
+  ${props =>
+    props.primary &&
+    `
     background: #469fe5;
     color: white;
   `}
-  ${props => props.success && `
+  ${props =>
+    props.success &&
+    `
     background: #6bbb69;
     color: white;
   `}
-  ${props => props.danger && `
+  ${props =>
+    props.danger &&
+    `
     background: #EC476E;
     color: white;
   `}
   /* Active state */
-  ${props => props.active && `
+  ${props =>
+    props.active &&
+    `
     background: #F2F3F4;
     color: #4F555C;
   `}
@@ -56,8 +64,8 @@ const ButtonLinkStyle = styled.button`
   padding: 0;
   margin: 0;
   ${props => props.primary && `color: #469fe5;`} ${props =>
-  props.success && `color: #6bbb69;`} ${props =>
-  props.danger && `color: #EC476E;`} &:hover {
+    props.success && `color: #6bbb69;`} ${props =>
+    props.danger && `color: #EC476E;`} &:hover {
     cursor: pointer;
   }
 `;
@@ -68,11 +76,17 @@ const ButtonsGroupStyle = styled.div`
   align-items: center;
   justify-content: flex-start;
   > button {
-    margin: 0!important;
+    margin: 0 !important;
     border-radius: 0;
-    &:first-child { border-radius: 4px 0 0 4px; }
-    &:last-child { border-radius: 0 4px 4px 0; }
-    &:not(:first-child) { border-left: 0; }
+    &:first-child {
+      border-radius: 4px 0 0 4px;
+    }
+    &:last-child {
+      border-radius: 0 4px 4px 0;
+    }
+    &:not(:first-child) {
+      border-left: 0;
+    }
   }
 `;
 

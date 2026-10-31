@@ -89,15 +89,15 @@ it('setInvoiceStatus should create INVOICE_SET_STATUS action', () => {
 it('saveInvoiceConfigs should create INVOICE_CONFIGS_SAVE action', () => {
   const invoiceID = 'jon_snow';
   const configs = {
-    color: 'red'
+    color: 'red',
   };
   expect(actions.saveInvoiceConfigs(invoiceID, configs)).toEqual({
     type: ACTION_TYPES.INVOICE_CONFIGS_SAVE,
     payload: {
       invoiceID: 'jon_snow',
       configs: {
-        color: 'red'
-      }
-    }
+        color: 'red',
+      },
+    },
   });
 });

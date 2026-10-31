@@ -18,8 +18,8 @@ const Column = styled.div`
     `
     align-items: flex-start;
   `} ${props =>
-      props.right &&
-      `
+    props.right &&
+    `
     align-items: flex-end;
   `};
 `;
@@ -36,11 +36,13 @@ function Footer({ t, invoice, profile, configs }) {
         <p>{profile.address}</p>
         <p>{profile.email}</p>
         <p>{profile.phone}</p>
-        { tax && <p>Tax ID: { tax.tin }</p> }
+        {tax && <p>Tax ID: {tax.tin}</p>}
       </Column>
       {configs.showRecipient && (
         <Column right>
-          <h4 className="label">{t('preview:common:billedTo', {lng: currentLanguage})}</h4>
+          <h4 className="label">
+            {t('preview:common:billedTo', { lng: currentLanguage })}
+          </h4>
           <p>{recipient.company}</p>
           <p>{recipient.fullname}</p>
           <p>{recipient.email}</p>

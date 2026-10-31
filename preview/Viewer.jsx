@@ -68,7 +68,7 @@ class Viewer extends Component {
   }
 
   render() {
-    const {  t, invoice, configs, profile, UILang } = this.props;
+    const { t, invoice, configs, profile, UILang } = this.props;
     return (
       <Wrapper>
         <SideBar
@@ -105,7 +105,4 @@ const mapStateToProps = state => ({
   UILang: getUILang(state),
 });
 
-export default compose(
-  connect(mapStateToProps),
-  withTranslation()
-)(Viewer);
+export default compose(connect(mapStateToProps), withTranslation())(Viewer);

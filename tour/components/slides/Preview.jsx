@@ -5,7 +5,7 @@ import Slide from '../Slide';
 const description = `
 `;
 
-function Preview({t}) {
+function Preview({ t }) {
   return (
     <Slide
       inverted

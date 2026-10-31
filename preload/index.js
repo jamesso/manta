@@ -48,7 +48,8 @@ const CHANNELS = new Set([
 ]);
 
 const check = channel => {
-  if (!CHANNELS.has(channel)) throw new Error(`Blocked IPC channel: ${channel}`);
+  if (!CHANNELS.has(channel))
+    throw new Error(`Blocked IPC channel: ${channel}`);
 };
 
 const ipc = {

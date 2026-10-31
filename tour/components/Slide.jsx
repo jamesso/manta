@@ -14,11 +14,11 @@ const Wrapper = styled.div`
   background: #f9fafa;
   ${props => `
     background: -webkit-linear-gradient(to bottom, ${props.fromColor}, ${
-    props.toColor
-  });
+      props.toColor
+    });
     background: linear-gradient(to bottom, ${props.fromColor}, ${
-    props.toColor
-  });
+      props.toColor
+    });
   `} > * {
     flex: 1;
   }

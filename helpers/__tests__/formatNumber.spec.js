@@ -1,9 +1,7 @@
 import { formatNumber } from '../formatNumber';
 
 describe('should return correct format number', () => {
-  let number1,
-      number2,
-      number3;
+  let number1, number2, number3;
 
   beforeEach(() => {
     number1 = 99;
@@ -37,5 +35,4 @@ describe('should return correct format number', () => {
     const formattedNumber3 = formatNumber(number3, 2, 'spaceDot');
     expect(formattedNumber3).toEqual('1 999.99');
   });
-})
-
+});

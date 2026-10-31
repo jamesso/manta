@@ -40,8 +40,12 @@ class TargetBox extends Component {
 
   render() {
     return (
-      <div style={style} onDragOver={this.onDragOver}
-           onDragLeave={this.onDragLeave} onDrop={this.onDrop}>
+      <div
+        style={style}
+        onDragOver={this.onDragOver}
+        onDragLeave={this.onDragLeave}
+        onDrop={this.onDrop}
+      >
         {this.state.isOver ? 'Release to drop' : 'Drag file here'}
       </div>
     );
