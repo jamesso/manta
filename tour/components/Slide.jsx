@@ -52,16 +52,15 @@ const Description = styled.p`
   margin: 0 auto 20px auto;
 `;
 
-function Slide(props) {
-  const {
-    inverted,
-    heading,
-    description,
-    imgSrc,
-    imgSize,
-    fromColor,
-    toColor,
-  } = props;
+function Slide({
+  inverted = false,
+  heading,
+  description,
+  imgSrc,
+  imgSize = '400px',
+  fromColor,
+  toColor,
+}) {
   return (
     <Wrapper fromColor={fromColor} toColor={toColor}>
       <Text inverted={inverted}>
@@ -81,11 +80,6 @@ Slide.propTypes = {
   imgSrc: PropTypes.string.isRequired,
   inverted: PropTypes.bool,
   toColor: PropTypes.string.isRequired,
-};
-
-Slide.defaultProps = {
-  imgSize: '400px',
-  inverted: false,
 };
 
 export default Slide;

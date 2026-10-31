@@ -76,8 +76,15 @@ const ButtonsGroupStyle = styled.div`
   }
 `;
 
-function Button(props) {
-  return props.link ? (
+function Button({
+  link = false,
+  primary = false,
+  success = false,
+  danger = false,
+  ...rest
+}) {
+  const props = { link, primary, success, danger, ...rest };
+  return link ? (
     <ButtonLinkStyle {...props}>{props.children}</ButtonLinkStyle>
   ) : (
     <ButtonStyle {...props}>{props.children}</ButtonStyle>
@@ -90,13 +97,6 @@ Button.propTypes = {
   onClick: PropTypes.func,
   primary: PropTypes.bool,
   success: PropTypes.bool,
-};
-
-Button.defaultProps = {
-  link: false,
-  primary: false,
-  success: false,
-  danger: false,
 };
 
 export const ButtonsGroup = props => (

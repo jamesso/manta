@@ -9,7 +9,7 @@ import _withFadeInAnimation from '../../components/shared/hoc/_withFadeInAnimati
 import styled from 'styled-components';
 import { Part, Row, Field } from '../shared/Part';
 
-export function RecipientForm({ t, formData, updateRecipientForm }) {
+export function RecipientForm({ t, formData = {}, updateRecipientForm }) {
   const { fullname, company, email, phone } = formData;
   return (
     <Part>
@@ -62,10 +62,6 @@ RecipientForm.propTypes = {
   formData: PropTypes.object,
   t: PropTypes.func.isRequired,
   updateRecipientForm: PropTypes.func.isRequired,
-};
-
-RecipientForm.defaultProps = {
-  formData: {},
 };
 
 export default _withFadeInAnimation(RecipientForm);

@@ -14,4 +14,13 @@ describe('Renders correct content passed via props', () => {
     render(<Message text="Bye, World" />);
     expect(screen.getByText('Bye, World')).toBeInTheDocument();
   });
+
+  it('uses the info style when no variant is given', () => {
+    render(<Message text="Hello, World" />);
+    const message = screen.getByText('Hello, World');
+    const style = window.getComputedStyle(message);
+    expect(style.borderLeftWidth).toBe('5px');
+    expect(style.borderLeftStyle).toBe('solid');
+    expect(style.borderLeftColor).toBe('rgb(70, 159, 229)');
+  });
 });

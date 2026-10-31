@@ -18,7 +18,16 @@ const MessageStyle = styled.div`
 `;
 
 // Component
-const Message = props => <MessageStyle {...props}>{props.text}</MessageStyle>;
+const Message = ({
+  info = true,
+  success = false,
+  danger = false,
+  warning = false,
+  ...rest
+}) => {
+  const props = { info, success, danger, warning, ...rest };
+  return <MessageStyle {...props}>{props.text}</MessageStyle>;
+};
 
 Message.propTypes = {
   text: PropTypes.string.isRequired,
@@ -26,13 +35,6 @@ Message.propTypes = {
   success: PropTypes.bool,
   danger: PropTypes.bool,
   warning: PropTypes.bool,
-};
-
-Message.defaultProps = {
-  info: true,
-  success: false,
-  danger: false,
-  warning: false,
 };
 
 export default Message;
