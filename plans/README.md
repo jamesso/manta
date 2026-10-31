@@ -15,7 +15,7 @@ Execute the plans in the order below. Each plan is self-contained. Each executor
 | [003](003-main-process-api-and-settings-store.md) | Fix main-process Electron APIs and replace electron-settings with electron-store | P1 | M | MED | 002 | DONE |
 | [004](004-react18-testing-library.md) | Run Manta on React 18.3 and test components with Testing Library | P1 | L | MED | 001, 002, 003 | DONE |
 | [005](005-state-i18n-styling-libraries.md) | Move Redux, i18n and styled-components to current versions; drop recompose and redux-logger | P1 | M | MED | 004 | DONE |
-| [006](006-replace-dead-ui-libraries.md) | Replace the dead UI libraries (drag and drop, animation, date picker, color picker, progress, uuid, faker) | P1 | L | MED | 005 | TODO |
+| [006](006-replace-dead-ui-libraries.md) | Replace the dead UI libraries (drag and drop, animation, date picker, color picker, progress, uuid, faker) | P1 | L | MED | 005 | DONE |
 | [007](007-pouchdb9-data-upgrade.md) | Upgrade PouchDB 6.2 → 9 without losing or hiding any saved invoice or contact | P1 | M | HIGH (user data) | 003 (run after 006) | TODO |
 | [008](008-react19.md) | Run Manta on React 19 with no legacy lifecycles and no function-component `defaultProps` | P2 | M | MED | 004, 005, 006 | TODO |
 | [009](009-context-isolation-preload-ipc.md) | Isolate every renderer (sandbox + contextIsolation + preload) and remove `@electron/remote` | P1 | L | HIGH | 008 | TODO |
