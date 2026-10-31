@@ -1,7 +1,6 @@
 // Libs
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { compose } from 'recompose';
 import { connect } from 'react-redux';
 import { getCurrentInvoice } from '../reducers/FormReducer';
 import { translate } from 'react-i18next';
@@ -9,7 +8,7 @@ import { translate } from 'react-i18next';
 // Actions
 import * as FormActions from '../actions/form';
 import * as SettingsActions from '../actions/settings';
-import { bindActionCreators } from 'redux';
+import { bindActionCreators, compose } from 'redux';
 
 // Components
 import Recipient from '../components/form/Recipient';

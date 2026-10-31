@@ -1,7 +1,7 @@
 // Libraries
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { compose } from 'recompose';
+import { compose } from 'redux';
 import { translate } from 'react-i18next';
 
 // Redux & Selectors

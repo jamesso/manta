@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
 import { Notify } from '../helpers/notify';
 import { connect } from 'react-redux';
-import { compose } from 'recompose';
+import { compose } from 'redux';
 import { ipcRenderer as ipc } from 'electron';
 
 // Style

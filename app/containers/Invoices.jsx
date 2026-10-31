@@ -1,7 +1,7 @@
 // Libs
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { compose } from 'recompose';
+import { compose } from 'redux';
 import { connect } from 'react-redux';
 import openDialog from '../renderers/dialog.js';
 import { ipcRenderer as ipc } from 'electron';

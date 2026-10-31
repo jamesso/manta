@@ -1,7 +1,7 @@
 // Libs
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { compose } from 'recompose';
+import { compose } from 'redux';
 
 // HOCs
 import _withDraggable from './hoc/_withDraggable';

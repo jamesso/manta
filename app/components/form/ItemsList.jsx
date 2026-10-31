@@ -4,9 +4,8 @@ import PropTypes from 'prop-types';
 import { translate } from 'react-i18next';
 
 // Redux
-import { compose } from 'recompose';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import { bindActionCreators, compose } from 'redux';
 import * as Actions from '../../actions/form.jsx';
 import { getRows } from '../../reducers/FormReducer';
 
