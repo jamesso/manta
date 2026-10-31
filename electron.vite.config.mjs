@@ -22,10 +22,8 @@ export default defineConfig({
     root: root('.'),
     plugins: [react()],
     resolve: {
-      // Renderer code imports 'electron'; with nodeIntegration on we
-      // read it from window.require instead of bundling the npm package.
       alias: [
-        { find: /^electron$/, replacement: root('./libs/electron-renderer.js') },
+        // PouchDB still imports the Node events module.
         { find: /^events$/, replacement: root('./node_modules/events/events.js') },
       ],
     },
