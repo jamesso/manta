@@ -1,7 +1,7 @@
 // Libs
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { DragDropContext, Droppable } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable } from '@hello-pangea/dnd';
 
 class DragNDrop extends PureComponent {
   constructor(props) {
@@ -20,8 +20,8 @@ class DragNDrop extends PureComponent {
     return (
       <DragDropContext onDragEnd={this.onDragEnd}>
         <Droppable droppableId="droppableList">
-          {(provided, snapshot) => (
-            <div ref={provided.innerRef}>
+          {provided => (
+            <div ref={provided.innerRef} {...provided.droppableProps}>
               {this.props.children}
               {provided.placeholder}
             </div>

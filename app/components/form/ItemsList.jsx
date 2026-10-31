@@ -75,6 +75,7 @@ export class ItemsList extends PureComponent {
       <ItemRow
         key={item.id}
         item={item}
+        index={index}
         t={t}
         hasHandler={rows.length > 1}
         actions={index !== 0}
