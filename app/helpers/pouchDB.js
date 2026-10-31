@@ -3,6 +3,11 @@ import PouchDB from 'pouchdb-browser';
 const contactsDB = new PouchDB('contacts');
 const invoicesDB = new PouchDB('invoices');
 
+// TEMP (plan 007): expose DBs for count checks. Removed in Step 6.
+if (localStorage.getItem('manta.debugDb') === '1') {
+  window.__mantaDb = { contactsDB, invoicesDB };
+}
+
 // Utility
 import { omit } from 'lodash';
 
