@@ -205,10 +205,7 @@ export default FormReducer;
 const getFormState = state => state.form;
 
 // Selectors
-export const getCurrentInvoice = createSelector(
-  getFormState,
-  formState => formState
-);
+export const getCurrentInvoice = state => state.form;
 
 export const getRows = createSelector(
   getFormState,
