@@ -9,7 +9,7 @@ import {
   saveDoc,
   deleteDoc,
   getAllDocs,
-  mockData, // eslint-disable-line import/named
+  mockData,
 } from '../../helpers/pouchDB';
 vi.mock('../../helpers/pouchDB');
 Date.now = vi.fn(() => 'now');

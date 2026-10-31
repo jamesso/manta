@@ -3,7 +3,9 @@ const app = testhelper.initializeSpectron();
 const { expect } = require('chai');
 
 describe('Application launch', () => {
+  // eslint-disable-next-line no-undef -- TODO plan 010 report (Mocha hook; legacy Spectron test)
   before(() => app.start());
+  // eslint-disable-next-line no-undef -- TODO plan 010 report
   after(() => {
     if (app && app.isRunning()) {
       return app.stop();
