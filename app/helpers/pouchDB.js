@@ -170,41 +170,20 @@ const getSingleDoc = (dbName, docID) =>
 
 // Save a Document
 const saveDoc = (dbName, doc) =>
-  new Promise((resolve, reject) => {
-    setDB(dbName)
-      .then(db => db.put(doc))
-      .then(getAllDocs(dbName).then(newDocs => resolve(newDocs)))
-      .catch(err => reject(err));
-  });
+  setDB(dbName)
+    .then(db => db.put(doc))
+    .then(() => getAllDocs(dbName));
 
 // Delete A Document
 const deleteDoc = (dbName, doc) =>
-  new Promise((resolve, reject) => {
-    setDB(dbName)
-      .then(db =>
-        db
-          .get(doc)
-          .then(record =>
-            db
-              .remove(record)
-              .then(
-                getAllDocs(dbName).then(remainingDocs => resolve(remainingDocs))
-              )
-          )
-      )
-      .catch(err => reject(err));
-  });
+  setDB(dbName)
+    .then(db => db.get(doc).then(record => db.remove(record)))
+    .then(() => getAllDocs(dbName));
 
 // Update A Document
 const updateDoc = (dbName, updatedDoc) =>
-  new Promise((resolve, reject) => {
-    setDB(dbName)
-      .then(db =>
-        db
-          .put(updatedDoc)
-          .then(getAllDocs(dbName).then(allDocs => resolve(allDocs)))
-      )
-      .catch(err => reject(err));
-  });
+  setDB(dbName)
+    .then(db => db.put(updatedDoc))
+    .then(() => getAllDocs(dbName));
 
 export { getAllDocs, getSingleDoc, deleteDoc, saveDoc, updateDoc };
