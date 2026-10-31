@@ -362,6 +362,7 @@ function loadMainProcessFiles() {
   require('./main/save-pdf');
   require('./main/select-export-directory');
   require('./main/select-logo-file');
+  require('./main/logo');
   require('./main/tour');
   require('./main/updater');
 }
