@@ -41,8 +41,9 @@ export class Discount extends Component {
   }
 
   // Handle Reset Form
-  componentWillReceiveProps(nextProps) {
-    const { discount } = nextProps;
+  componentDidUpdate(prevProps) {
+    if (prevProps === this.props) return;
+    const { discount } = this.props;
     if (isEmpty(discount)) {
       this.setState({
         amount: '',

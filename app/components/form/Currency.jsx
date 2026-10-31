@@ -25,12 +25,13 @@ export class Currency extends PureComponent {
   }
 
   // Handle Form Clear
-  componentWillReceiveProps(nextProps) {
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps === this.props) return;
     // Already made changes but not saved
-    if (this.state !== this.props.savedSettings) {
-      // Reset to savedSettings if the below confition is met
-      if (nextProps.currency === nextProps.savedSettings) {
-        this.setState(nextProps.savedSettings, () => {
+    if (prevState !== prevProps.savedSettings) {
+      // Reset to savedSettings if the below condition is met
+      if (this.props.currency === this.props.savedSettings) {
+        this.setState(this.props.savedSettings, () => {
           this.updateCurrencyState();
         });
       }

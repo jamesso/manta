@@ -22,10 +22,11 @@ export class DueDate extends Component {
   }
 
   // Handle Clear Form
-  componentWillReceiveProps(nextProps) {
-    const { selectedDate, paymentTerm, useCustom } = nextProps.dueDate;
+  componentDidUpdate(prevProps) {
+    if (prevProps === this.props) return;
+    const { selectedDate, paymentTerm, useCustom } = this.props.dueDate;
     if (selectedDate === null && paymentTerm === null && useCustom === true) {
-      this.setState(nextProps.dueDate);
+      this.setState(this.props.dueDate);
     }
   }
 

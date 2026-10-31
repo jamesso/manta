@@ -29,8 +29,9 @@ export class InvoiceID extends PureComponent {
     this.handleInputChange = this.handleInputChange.bind(this);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.invoiceID === "") {
+  componentDidUpdate(prevProps) {
+    if (prevProps === this.props) return;
+    if (this.props.invoiceID === "") {
       this.setState({ invoiceID: "" });
     }
   }

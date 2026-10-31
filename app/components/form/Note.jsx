@@ -29,8 +29,9 @@ export class Note extends Component {
     this.handleInputChange = this.handleInputChange.bind(this);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.note.content === undefined) {
+  componentDidUpdate(prevProps) {
+    if (prevProps === this.props) return;
+    if (this.props.note.content === undefined) {
       this.setState({ content: '' }, () => {
         this.props.updateFieldData('note', this.state);
       });

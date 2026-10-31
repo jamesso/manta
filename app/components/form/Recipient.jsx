@@ -29,15 +29,16 @@ export class Recipient extends Component {
   }
 
   // Handle Reset Form
-  componentWillReceiveProps(nextProps) {
-    const { recipient } = nextProps;
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps === this.props) return;
+    const { recipient } = this.props;
     if (
       isEmpty(recipient.new) &&
       isEmpty(recipient.select) &&
       recipient.newRecipient === true
     ) {
       this.setState(
-        Object.assign({}, this.state, {
+        Object.assign({}, prevState, {
           newRecipient: true,
           new: {},
           select: {},
