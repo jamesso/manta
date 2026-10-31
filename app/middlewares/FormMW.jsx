@@ -1,7 +1,6 @@
 // Node Libs
-import { remote } from 'electron';
-const appConfig = remote.getGlobal('mantaSettings');
 import i18n from '../../i18n/i18n';
+const appConfig = window.manta.settings;
 
 // Actions Verbs
 import * as ACTION_TYPES from '../constants/actions.jsx';

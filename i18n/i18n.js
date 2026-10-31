@@ -1,9 +1,8 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import { remote } from 'electron';
 import moment from 'moment';
 
-const appConfig = remote.getGlobal('mantaSettings');
+const appConfig = window.manta.settings;
 const defaultLanguage = appConfig.get('general.language');
 
 // Language Files

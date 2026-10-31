@@ -1,8 +1,7 @@
-import { remote } from 'electron';
 import cs_sounds from '../static/sounds/cs/index.js';
 import default_sounds from '../static/sounds/default/index.js';
 
-const appConfig = remote.getGlobal('mantaSettings');
+const appConfig = window.manta.settings;
 
 let cache;
 function preload() {

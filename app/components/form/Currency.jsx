@@ -1,8 +1,6 @@
 // Libs
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { remote } from 'electron';
-const appConfig = remote.getGlobal('mantaSettings');
 import currencies from '../../../libs/currencies.json';
 import { keys, sortBy, isEqual } from 'lodash';
 

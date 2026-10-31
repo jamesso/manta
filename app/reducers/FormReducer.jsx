@@ -3,9 +3,7 @@ import * as ACTION_TYPES from '../constants/actions.jsx';
 // Libs
 import { handleActions } from 'redux-actions';
 import { createSelector } from 'reselect';
-// Retrive settings
-import { remote } from 'electron';
-const appConfig = remote.getGlobal('mantaSettings');
+const appConfig = window.manta.settings;
 const invoiceSettings = appConfig.get('invoice');
 // Helper
 import { setEditRecipient } from '../helpers/form';

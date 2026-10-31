@@ -1,6 +1,5 @@
 import openDialog from '../renderers/dialog';
-import { remote } from 'electron';
-const appConfig = remote.getGlobal('mantaSettings');
+const appConfig = window.manta.settings;
 import { getInvoiceValue } from './invoice';
 import { isEmpty, pick, includes } from 'lodash';
 import i18n from '../../i18n/i18n';

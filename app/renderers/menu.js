@@ -2,7 +2,7 @@
 import { remote, shell } from 'electron';
 const ipc = window.manta.ipc;
 const { Menu, BrowserWindow } = remote;
-const appConfig = remote.getGlobal('mantaSettings');
+const appConfig = window.manta.settings;
 const isDev = import.meta.env.DEV;
 
 // Get mainWindow Object

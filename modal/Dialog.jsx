@@ -3,7 +3,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { remote } from 'electron';
 const ipc = window.manta.ipc;
-const appConfig = remote.getGlobal('mantaSettings');
+const appConfig = window.manta.settings;
 const BrowserWindow = remote.BrowserWindow;
 const mainWindow = BrowserWindow.fromId(appConfig.get('mainWindowID'));
 
