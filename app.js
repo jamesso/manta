@@ -9,12 +9,7 @@ const omit = require('lodash').omit;
 // Electron Libs
 const { app, BrowserWindow, ipcMain } = require('electron');
 const { autoUpdater } = require('electron-updater');
-const remoteMain = require('@electron/remote/main');
-const {
-  COMPAT_WEB_PREFERENCES,
-  enableRemote,
-  loadPage,
-} = require('./helpers/windows');
+const { SECURE_WEB_PREFERENCES, loadPage } = require('./helpers/windows');
 const isDev = !app.isPackaged;
 
 // Never let dev/test runs touch the real user profile.
@@ -23,13 +18,6 @@ if (process.env.MANTA_USER_DATA) {
 } else if (!app.isPackaged) {
   app.setPath('userData', path.join(app.getPath('appData'), 'Manta-dev'));
 }
-remoteMain.initialize();
-
-const { createRequire } = require('module');
-const appRequire = createRequire(path.join(app.getAppPath(), 'package.json'));
-app.on('remote-require', (event, _webContents, moduleName) => {
-  event.returnValue = appRequire(moduleName);
-});
 
 // Place a BrowserWindow in center of primary display
 const centerOnPrimaryDisplay = require('./helpers/center-on-primary-display');
@@ -43,7 +31,6 @@ if (process.argv.includes('--disable-hardware-acceleration')) {
 // 3rd Party Libs
 const appConfig = require('./main/settings');
 require('./main/settings-ipc');
-global.mantaSettings = appConfig;
 
 let tourWindow = null;
 let mainWindow = null;
@@ -68,9 +55,8 @@ function createTourWindow() {
     movable: false,
     title: 'Tour Window',
     backgroundColor: '#F9FAFA',
-    webPreferences: COMPAT_WEB_PREFERENCES,
+    webPreferences: SECURE_WEB_PREFERENCES,
   });
-  enableRemote(tourWindow);
   // Register WindowID with appConfig
   appConfig.set('tourWindowID', parseInt(tourWindow.id));
   // Load Content
@@ -100,9 +86,8 @@ function createMainWindow() {
     backgroundColor: '#2e2c29',
     show: false,
     title: 'Main Window',
-    webPreferences: COMPAT_WEB_PREFERENCES,
+    webPreferences: SECURE_WEB_PREFERENCES,
   });
-  enableRemote(mainWindow);
   // Register WindowID
   appConfig.set('mainWindowID', parseInt(mainWindow.id));
   // Track window state
@@ -138,9 +123,8 @@ function createPreviewWindow() {
     backgroundColor: '#2e2c29',
     show: false,
     title: 'Preview Window',
-    webPreferences: COMPAT_WEB_PREFERENCES,
+    webPreferences: SECURE_WEB_PREFERENCES,
   });
-  enableRemote(previewWindow);
   // Register WindowID
   appConfig.set('previewWindowID', parseInt(previewWindow.id));
   // Track window state
@@ -413,6 +397,12 @@ function windowStateKeeper(windowName) {
 }
 
 function initialize() {
+  app.on('web-contents-created', (_event, contents) => {
+    contents.setWindowOpenHandler(() => ({ action: 'deny' }));
+    contents.on('will-navigate', (event, url) => {
+      if (url.split('#')[0] !== contents.getURL().split('#')[0]) event.preventDefault();
+    });
+  });
   app.on('ready', () => {
     createTourWindow();
     createMainWindow();

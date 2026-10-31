@@ -1,20 +1,14 @@
 const path = require('path');
 const { app } = require('electron');
-const remoteMain = require('@electron/remote/main');
 
 const PRELOAD_PATH = path.join(__dirname, '../preload/index.js');
 
-// Compatibility settings until isolation is turned on.
-const COMPAT_WEB_PREFERENCES = {
+const SECURE_WEB_PREFERENCES = {
   preload: PRELOAD_PATH,
-  nodeIntegration: true,
-  contextIsolation: false,
-  sandbox: false,
+  contextIsolation: true,
+  sandbox: true,
+  nodeIntegration: false,
 };
-
-function enableRemote(win) {
-  remoteMain.enable(win.webContents);
-}
 
 // Production MUST stay on file:// — PouchDB data is stored per origin.
 function loadPage(win, name) {
@@ -24,4 +18,4 @@ function loadPage(win, name) {
   return win.loadFile(path.join(__dirname, `../renderer/${name}/index.html`));
 }
 
-module.exports = { COMPAT_WEB_PREFERENCES, enableRemote, loadPage };
+module.exports = { SECURE_WEB_PREFERENCES, loadPage };
