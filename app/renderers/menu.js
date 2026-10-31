@@ -1,7 +1,7 @@
 // Libs
 import { remote, ipcRenderer as ipc, shell } from 'electron';
 const { Menu, BrowserWindow } = remote;
-const appConfig = remote.require('electron-settings');
+const appConfig = remote.getGlobal('mantaSettings');
 const isDev = import.meta.env.DEV;
 
 // Get mainWindow Object

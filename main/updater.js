@@ -1,7 +1,7 @@
 // Libs
 const { BrowserWindow, ipcMain, app } = require('electron');
 const { autoUpdater } = require('electron-updater');
-const appConfig = require('electron-settings');
+const appConfig = require('./settings');
 const isDev = !app.isPackaged;
 
 // Set mainWindow
@@ -32,20 +32,20 @@ ipcMain.on('update-download-started', () => {
 autoUpdater.on('checking-for-update', () => {
   // Only notice user when they checked manually
   if (!silentMode) {
-    mainWindow.send('update-checking');
+    mainWindow.webContents.send('update-checking');
   }
 });
 
 // Update Available
 autoUpdater.on('update-available', info => {
-  mainWindow.send('update-available', info);
+  mainWindow.webContents.send('update-available', info);
 });
 
 // Update Not Available
 autoUpdater.on('update-not-available', () => {
   // Only notice user when they checked manually
   if (!silentMode) {
-    mainWindow.send('update-not-available');
+    mainWindow.webContents.send('update-not-available');
   }
 });
 
@@ -57,18 +57,18 @@ autoUpdater.on('error', error => {
   } else {
     errMessage = error.message;
   };
-  mainWindow.send('update-error', errMessage);
+  mainWindow.webContents.send('update-error', errMessage);
 });
 
 // DOWNLOADING UPDATE EVENTS
 // Download Progress
 autoUpdater.on('download-progress', progressObj => {
-  mainWindow.send('update-download-progress', progressObj.percent);
+  mainWindow.webContents.send('update-download-progress', progressObj.percent);
 });
 
 // Update Downloaded
 autoUpdater.on('update-downloaded', info => {
-  mainWindow.send('update-downloaded', info);
+  mainWindow.webContents.send('update-downloaded', info);
 });
 
 // Main Function

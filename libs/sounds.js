@@ -2,7 +2,7 @@ import { remote } from 'electron';
 import cs_sounds from '../static/sounds/cs/index.js';
 import default_sounds from '../static/sounds/default/index.js';
 
-const appConfig = remote.require('electron-settings');
+const appConfig = remote.getGlobal('mantaSettings');
 
 let cache;
 function preload() {

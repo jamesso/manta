@@ -1,6 +1,6 @@
 // Libs
 const { BrowserWindow, ipcMain } = require('electron');
-const appConfig = require('electron-settings');
+const appConfig = require('./settings');
 
 // Get Windows Instance
 const tourWindowID = appConfig.get('tourWindowID');

@@ -5,7 +5,7 @@ import { handleActions } from 'redux-actions';
 import { createSelector } from 'reselect';
 // Retrive settings
 import { remote } from 'electron';
-const appConfig = remote.require('electron-settings');
+const appConfig = remote.getGlobal('mantaSettings');
 const invoiceSettings = appConfig.get('invoice');
 // Helper
 import { setEditRecipient } from '../helpers/form';

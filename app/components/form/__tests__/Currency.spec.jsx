@@ -4,7 +4,7 @@ import renderer from 'react-test-renderer';
 import { mount } from 'enzyme';
 import currencies from '../../../../libs/currencies.json';
 import { remote } from 'electron';
-const appConfig = remote.require('electron-settings');
+const appConfig = remote.getGlobal('mantaSettings');
 
 // Component
 import { Currency } from '../Currency';

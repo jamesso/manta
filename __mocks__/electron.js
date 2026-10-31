@@ -6,11 +6,13 @@ export const ipcRenderer = {
   on: vi.fn(),
 };
 export const remote = {
-  require: vi.fn(name => {
-    if (name === 'electron-settings') {
+  require: vi.fn(),
+  getGlobal: vi.fn(name => {
+    if (name === 'mantaSettings') {
       return {
         set: vi.fn(),
         get: vi.fn(() => 'someSettings'),
+        has: vi.fn(() => false),
       };
     }
   }),

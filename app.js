@@ -41,7 +41,8 @@ if (process.argv.includes('--disable-hardware-acceleration')) {
 }
 
 // 3rd Party Libs
-const appConfig = require('electron-settings');
+const appConfig = require('./main/settings');
+global.mantaSettings = appConfig;
 
 let tourWindow = null;
 let mainWindow = null;
@@ -154,15 +155,6 @@ function createPreviewWindow() {
     if (isDev || forceDevtools) previewWindow.webContents.closeDevTools();
     previewWindow.hide();
   });
-}
-
-function addDevToolsExtension() {
-  if (process.env.DEVTRON_DEV_TOOLS_PATH)
-    BrowserWindow.addDevToolsExtension(process.env.DEVTRON_DEV_TOOLS_PATH);
-  if (process.env.REACT_DEV_TOOLS_PATH)
-    BrowserWindow.addDevToolsExtension(process.env.REACT_DEV_TOOLS_PATH);
-  if (process.env.REDUX_DEV_TOOLS_PATH)
-    BrowserWindow.addDevToolsExtension(process.env.REDUX_DEV_TOOLS_PATH);
 }
 
 function setInitialValues() {
@@ -321,7 +313,7 @@ function migrateData() {
     },
   };
   // Get the current Config
-  const configs = appConfig.getAll();
+  const configs = appConfig.store;
   // Get the current configs
   const version = appConfig.get('version') || 0;
   // Handle migration
@@ -337,7 +329,8 @@ function migrateData() {
     configs
   );
   // Save the final config to DB
-  appConfig.deleteAll().setAll(migratedConfigs);
+  appConfig.clear();
+  appConfig.store = migratedConfigs;
   // Update the latest config version
   appConfig.set('version', newMigrations[newMigrations.length - 1]);
 }
@@ -424,7 +417,6 @@ function initialize() {
     createPreviewWindow();
     setInitialValues();
     migrateData();
-    if (isDev) addDevToolsExtension();
     addEventListeners();
     loadMainProcessFiles();
     // Show Window

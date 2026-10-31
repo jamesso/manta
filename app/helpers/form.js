@@ -1,6 +1,6 @@
 import openDialog from '../renderers/dialog';
 import { remote } from 'electron';
-const appConfig = remote.require('electron-settings');
+const appConfig = remote.getGlobal('mantaSettings');
 import { getInvoiceValue } from './invoice';
 import { isEmpty, pick, includes } from 'lodash';
 import i18n from '../../i18n/i18n';

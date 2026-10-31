@@ -1,6 +1,6 @@
 // Libs
 const { BrowserWindow, ipcMain } = require('electron');
-const appConfig = require('electron-settings');
+const appConfig = require('./settings');
 const previewWindowID = appConfig.get('previewWindowID');
 const previewWindow = BrowserWindow.fromId(previewWindowID);
 const mainWindowID = appConfig.get('mainWindowID');

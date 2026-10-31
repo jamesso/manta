@@ -3,7 +3,7 @@ import { reactI18nextModule } from 'react-i18next';
 import { remote } from 'electron';
 import moment from 'moment';
 
-const appConfig = remote.require('electron-settings');
+const appConfig = remote.getGlobal('mantaSettings');
 const defaultLanguage = appConfig.get('general.language');
 
 // Language Files
