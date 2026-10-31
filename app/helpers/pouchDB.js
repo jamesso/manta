@@ -1,7 +1,11 @@
 // Setup PouchDB
 import PouchDB from 'pouchdb-browser';
-const contactsDB = new PouchDB('contacts');
-const invoicesDB = new PouchDB('invoices');
+import { omit } from 'lodash';
+
+// Keep the 'idb' adapter: existing user data was written by it.
+// The newer 'indexeddb' adapter cannot read these databases.
+const contactsDB = new PouchDB('contacts', { adapter: 'idb' });
+const invoicesDB = new PouchDB('invoices', { adapter: 'idb' });
 
 // TEMP (plan 007): expose DBs for count checks. Removed in Step 6.
 if (localStorage.getItem('manta.debugDb') === '1') {
@@ -9,7 +13,6 @@ if (localStorage.getItem('manta.debugDb') === '1') {
 }
 
 // Utility
-import { omit } from 'lodash';
 
 // Handle Data Migration
 async function runMigration(db, version, migrations, done) {
