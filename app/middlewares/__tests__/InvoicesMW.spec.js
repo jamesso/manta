@@ -33,7 +33,7 @@ describe('Invoices Middleware', () => {
   });
 
   describe('should handle INVOICE_GET_ALL action', () => {
-    it('retrieves data from correct DB', () => {
+    it('retrieves data from correct DB', async () => {
       middleware(Actions.getInvoices());
 
       // Call correct function
@@ -42,7 +42,9 @@ describe('Invoices Middleware', () => {
       expect(getAllDocs).not.toHaveBeenCalledWith('contacts');
       expect(getAllDocs).not.toHaveBeenCalledWith('');
       // Correctly resolves
-      expect(getAllDocs('invoices')).resolves.toBe(mockData.invoicesRecords);
+      await expect(getAllDocs('invoices')).resolves.toBe(
+        mockData.invoicesRecords
+      );
     });
 
     it('calls next after the promised is returned', () => {
@@ -206,19 +208,18 @@ describe('Invoices Middleware', () => {
       );
     });
 
-    it('handle syntax error correctly', () => {
+    it('handle syntax error correctly', async () => {
       const newInvoice = {
         recipient: {
           fullname: faker.name.findName(),
           email: faker.internet.email(),
         },
       };
-      middleware(Actions.saveInvoice(newInvoice)).then(() => {
-        const dbError = new Error('No database found!');
-        const docError = new Error('No doc found!');
-        expect(saveDoc()).rejects.toEqual(dbError);
-        expect(saveDoc('invoices')).rejects.toEqual(docError);
-      });
+      await middleware(Actions.saveInvoice(newInvoice));
+      const dbError = new Error('No database found!');
+      const docError = new Error('No doc found!');
+      await expect(saveDoc()).rejects.toEqual(dbError);
+      await expect(saveDoc('invoices')).rejects.toEqual(docError);
     });
 
     it('handle unknown error correctly', () => {
@@ -343,13 +344,12 @@ describe('Invoices Middleware', () => {
       );
     });
 
-    it('should handle syntax error correctly', () => {
-      middleware(Actions.updateInvoice(currentInvoice)).then(() => {
-        const dbError = new Error('No database found!');
-        const docError = new Error('No doc found!');
-        expect(updateDoc()).rejects.toEqual(dbError);
-        expect(updateDoc('invoices')).rejects.toEqual(docError);
-      });
+    it('should handle syntax error correctly', async () => {
+      await middleware(Actions.updateInvoice(currentInvoice));
+      const dbError = new Error('No database found!');
+      const docError = new Error('No doc found!');
+      await expect(updateDoc()).rejects.toEqual(dbError);
+      await expect(updateDoc('invoices')).rejects.toEqual(docError);
     });
 
     it('should handle unkown error correctly', () => {

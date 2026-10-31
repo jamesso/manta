@@ -1,0 +1,28 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Renders correctly to the DOM > matches snapshot 1`] = `
+<div>
+  <div
+    className="sc-bdVaJa EXKLM"
+  >
+    <div
+      className="sc-bwzfXH fDlUge"
+    >
+      <a
+        href="#"
+        onClick={[Function]}
+      >
+        Main Action
+      </a>
+      <a
+        href="#"
+        onClick={[Function]}
+      >
+        <i
+          className="ion-arrow-down-b"
+        />
+      </a>
+    </div>
+  </div>
+</div>
+`;

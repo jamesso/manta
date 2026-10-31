@@ -1,17 +1,18 @@
-module.exports = {
-  app: jest.fn(),
-  ipcRenderer: {
-    send: jest.fn(),
-    on: jest.fn(),
-  },
-  remote: {
-    require: jest.fn(name => {
-      if (name === 'electron-settings') {
-        return {
-          set: jest.fn(),
-          get: jest.fn(() => 'someSettings'),
-        };
-      }
-    }),
-  },
+import { vi } from 'vitest';
+
+export const app = vi.fn();
+export const ipcRenderer = {
+  send: vi.fn(),
+  on: vi.fn(),
 };
+export const remote = {
+  require: vi.fn(name => {
+    if (name === 'electron-settings') {
+      return {
+        set: vi.fn(),
+        get: vi.fn(() => 'someSettings'),
+      };
+    }
+  }),
+};
+export default { app, ipcRenderer, remote };

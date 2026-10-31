@@ -31,6 +31,11 @@ const options = [
   },
 ];
 
+const optionLinks = wrapper =>
+  wrapper.find('a').filterWhere(a =>
+    options.some(option => option.label === a.text())
+  );
+
 describe('Renders correctly to the DOM', () => {
   let wrapper, toggleBtn, mainBtn;
   beforeEach(() => {
@@ -48,16 +53,13 @@ describe('Renders correctly to the DOM', () => {
 
   it('hide options by default', () => {
     expect(wrapper.state().showOptions).toEqual(false);
-    expect(wrapper.find('SplitButton__Addon')).toHaveLength(0);
+    expect(optionLinks(wrapper)).toHaveLength(0);
   });
 
   it('renders options list correctly', () => {
     toggleBtn.simulate('click');
     expect(wrapper.state().showOptions).toEqual(true);
-    expect(wrapper.find('SplitButton__Addon')).toHaveLength(1);
-    expect(wrapper.find('SplitButton__Addon').children()).toHaveLength(
-      options.length
-    );
+    expect(optionLinks(wrapper)).toHaveLength(options.length);
   });
 
   it('matches snapshot', () => {
@@ -91,19 +93,12 @@ describe('Handles click correctly', () => {
   it('handle options click correcrtly', () => {
     // Show the dropdown
     toggleBtn.simulate('click');
-    const firstBtn = wrapper
-      .find('SplitButton__Addon')
-      .find('a')
-      .first();
-    const lastBtn = wrapper
-      .find('SplitButton__Addon')
-      .find('a')
-      .last();
+    const links = optionLinks(wrapper);
     // Click the first btn
-    firstBtn.simulate('click');
+    links.first().simulate('click');
     expect(optionAction1).toHaveBeenCalled();
     // Click the second btn
-    lastBtn.simulate('click');
+    links.last().simulate('click');
     expect(optionAction3).toHaveBeenCalled();
   });
 
@@ -114,6 +109,6 @@ describe('Handles click correctly', () => {
     mainBtn.simulate('click');
     // The dropdown will be removed
     expect(wrapper.state().showOptions).toEqual(false);
-    expect(wrapper.find('SplitButton__Addon')).toHaveLength(0);
+    expect(optionLinks(wrapper)).toHaveLength(0);
   });
 });

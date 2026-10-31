@@ -1,0 +1,43 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Renders correctly to the DOM > matches snapshot 1`] = `
+<tr
+  className="sc-ifAKCX glurcG"
+>
+  <td
+    className="sc-EHOje cvrnoJ"
+  >
+    Jon Snow
+  </td>
+  <td
+    className="sc-EHOje kLLcvP"
+  >
+    jon@snow.hbo
+  </td>
+  <td
+    className="sc-EHOje kLLcvP"
+  >
+    000-000-000
+  </td>
+  <td
+    className="sc-EHOje fzkDdb"
+  >
+    <button
+      className="sc-gzVnrw iRJgxU"
+      onClick={[Function]}
+    >
+      <i
+        className="ion-plus-round"
+      />
+    </button>
+    <button
+      className="sc-gzVnrw kBwFPt"
+      onClick={[Function]}
+    >
+      <i
+        className="ion-close-circled"
+      />
+    </button>
+  </td>
+</tr>
+`;

@@ -1,1 +1,3 @@
-module.exports = jest.fn(() => 'id-string');
+import { vi } from 'vitest';
+
+export default vi.fn(() => 'id-string');

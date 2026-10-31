@@ -1,0 +1,17 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`InvoiceID component > matches snapshot 1`] = `
+<div
+  className="sc-bdVaJa jWLdfg"
+>
+  <label
+    className="itemLabel"
+  />
+  <input
+    name="invoiceID"
+    onChange={[Function]}
+    type="text"
+    value="Invoice: 123-456-789"
+  />
+</div>
+`;

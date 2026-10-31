@@ -1,0 +1,66 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`render component correctly > matches snapshot 1`] = `
+<div
+  className="sc-htpNat eIeegq"
+>
+  <div
+    className="sc-bxivhb jqkSwK"
+  >
+    <p
+      className="sc-ifAKCX gtswMS"
+    />
+    <div
+      className="sc-EHOje hsNxgv"
+    >
+      <i
+        className="ion-funnel"
+      />
+      <div
+        className="sc-iwsKbI fQeAkm"
+      >
+        <button
+          className="sc-htoDjs iZUHUo"
+          data-filter="paid"
+          onClick={[Function]}
+        />
+        <button
+          className="sc-htoDjs iZUHUo"
+          data-filter="pending"
+          onClick={[Function]}
+        />
+        <button
+          className="sc-htoDjs iZUHUo"
+          data-filter="refunded"
+          onClick={[Function]}
+        />
+        <button
+          className="sc-htoDjs iZUHUo"
+          data-filter="cancelled"
+          onClick={[Function]}
+        />
+      </div>
+    </div>
+  </div>
+  <div
+    className="sc-bZQynM hglXjn"
+  >
+    <div
+      className="row"
+    >
+      <div
+        className="invoice"
+      />
+      <div
+        className="invoice"
+      />
+      <div
+        className="invoice"
+      />
+      <div
+        className="invoice"
+      />
+    </div>
+  </div>
+</div>
+`;

@@ -1,0 +1,156 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Renders correctly to the DOM > matches snapshot 1`] = `
+<div
+  className="col-lg-6"
+>
+  <div
+    className="sc-bZQynM hYJqjE"
+  >
+    <div
+      className="sc-htoDjs Cofxj"
+    />
+    <div
+      className="sc-gzVnrw enxtcO"
+    >
+      <div
+        className="sc-dnqmqq gDiuCF"
+      >
+        <span>
+          <i
+            className="ion-loop"
+          />
+          Pending
+        </span>
+      </div>
+      <div
+        className="sc-iwsKbI cJUgdY"
+      >
+        <button
+          className="sc-bwzfXH gGKuiA"
+          onClick={[Function]}
+        >
+          <i
+            className="ion-ios-copy"
+          />
+        </button>
+        <button
+          className="sc-bwzfXH gGKuiA"
+          onClick={[Function]}
+        >
+          <i
+            className="ion-trash-a"
+          />
+        </button>
+      </div>
+    </div>
+    <div
+      className="sc-gZMcBi dwSAcp"
+    >
+      <div
+        className="sc-VigVT eOJRtA"
+      >
+        <div
+          className="sc-jTzLTM fSjqIi"
+        >
+          <label>
+            Pending
+          </label>
+          <h2>
+            Penelope Hettinger
+          </h2>
+        </div>
+      </div>
+      <div
+        className="sc-VigVT eOJRtA"
+      >
+        <div
+          className="sc-jTzLTM fSjqIi"
+        >
+          <label>
+            Pending
+          </label>
+          <p>
+            37b2804e
+          </p>
+        </div>
+        <div
+          className="sc-jTzLTM fSjqIi"
+        >
+          <label>
+            Pending
+          </label>
+          <p>
+             
+            3 843
+             
+            USD
+          </p>
+        </div>
+      </div>
+      <div
+        className="sc-VigVT eOJRtA"
+      >
+        <div
+          className="sc-jTzLTM fSjqIi"
+        >
+          <label>
+            Pending
+          </label>
+          <p>
+            12/31/69
+          </p>
+        </div>
+        <div
+          className="sc-jTzLTM fSjqIi"
+        >
+          <label>
+            Pending
+          </label>
+          <p />
+        </div>
+      </div>
+    </div>
+    <div
+      className="sc-gqjmRU hPLovi"
+    >
+      <div>
+        <div
+          className="sc-bxivhb cdiCYE"
+        >
+          <div
+            className="sc-ifAKCX jHrXBz"
+          >
+            <a
+              href="#"
+              onClick={[Function]}
+            >
+              Pending
+            </a>
+            <a
+              href="#"
+              onClick={[Function]}
+            >
+              <i
+                className="ion-arrow-down-b"
+              />
+            </a>
+          </div>
+        </div>
+      </div>
+      <button
+        className="sc-bdVaJa likAPK"
+        onClick={[Function]}
+      >
+        Pending
+      </button>
+      <button
+        className="sc-bdVaJa likAPK"
+        onClick={[Function]}
+      >
+        Pending
+      </button>
+    </div>
+  </div>
+</div>
+`;

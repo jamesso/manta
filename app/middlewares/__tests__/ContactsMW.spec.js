@@ -23,7 +23,7 @@ describe('Contacts Middleware', () => {
   });
 
   describe('should handle CONTACT_GET_ALL action', () => {
-    it('retrieves data correct DB', () => {
+    it('retrieves data correct DB', async () => {
       // Execute
       middleware(Actions.getAllContacts());
       // Expect
@@ -33,7 +33,9 @@ describe('Contacts Middleware', () => {
       expect(getAllDocs).not.toHaveBeenCalledWith('invoices');
       expect(getAllDocs).not.toHaveBeenCalledWith('');
       // Correctly resolves
-      expect(getAllDocs('contacts')).resolves.toBe(mockData.contactsRecords);
+      await expect(getAllDocs('contacts')).resolves.toBe(
+        mockData.contactsRecords
+      );
     });
 
     it('calls next after the promised is returned', () => {
@@ -153,17 +155,16 @@ describe('Contacts Middleware', () => {
       );
     });
 
-    it('handle syntax error correctly', () => {
+    it('handle syntax error correctly', async () => {
       const newContact = {
         fullname: faker.name.findName(),
         email: faker.internet.email(),
       };
-      middleware(Actions.saveContact(newContact)).then(() => {
-        const dbError = new Error('No database found!');
-        const docError = new Error('No doc found!');
-        expect(saveDoc()).rejects.toEqual(dbError);
-        expect(saveDoc('invoices')).rejects.toEqual(docError);
-      });
+      await middleware(Actions.saveContact(newContact));
+      const dbError = new Error('No database found!');
+      const docError = new Error('No doc found!');
+      await expect(saveDoc()).rejects.toEqual(dbError);
+      await expect(saveDoc('invoices')).rejects.toEqual(docError);
     });
 
     it('handle unknown error correctly', () => {
