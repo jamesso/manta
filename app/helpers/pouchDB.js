@@ -7,13 +7,6 @@ import { omit } from 'lodash';
 const contactsDB = new PouchDB('contacts', { adapter: 'idb' });
 const invoicesDB = new PouchDB('invoices', { adapter: 'idb' });
 
-// TEMP (plan 007): expose DBs for count checks. Removed in Step 6.
-if (localStorage.getItem('manta.debugDb') === '1') {
-  window.__mantaDb = { contactsDB, invoicesDB };
-}
-
-// Utility
-
 // Handle Data Migration
 async function runMigration(db, version, migrations, done) {
   try {
