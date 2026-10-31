@@ -3,6 +3,18 @@ process.env.TZ = 'UTC';
 import { afterEach, beforeEach, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 
+window.manta = {
+  ipc: { send: vi.fn(), on: vi.fn(), removeAllListeners: vi.fn() },
+  settings: {
+    get: vi.fn(() => 'someSettings'),
+    set: vi.fn(),
+    has: vi.fn(() => true),
+  },
+  processLogo: vi.fn(async () => ({ dataUrl: 'data:image/png;base64,' })),
+  getPathForFile: vi.fn(() => '/tmp/file.png'),
+  platform: 'darwin',
+};
+
 // The old setTimeout(0) shim runs after jsdom teardown.
 const rafTimers = new Set();
 global.requestAnimationFrame = callback => {

@@ -4,7 +4,6 @@ import * as ACTION_TYPES from '../../constants/actions.jsx';
 import SettingsMW from '../SettingsMW';
 import i18n from '../../../i18n/i18n';
 import sounds from '../../../libs/sounds';
-import { ipcRenderer as ipc } from 'electron';
 import openDialog from '../../renderers/dialog';
 import { validateCurrency, validateTax } from '../../helpers/form.js';
 
@@ -82,16 +81,16 @@ describe('Settings Middleware', () => {
 
     it('should notify previewWindow of language & profile change', () => {
       // Clear calls count
-      ipc.send.mockClear();
+      window.manta.ipc.send.mockClear();
       middleware(action);
-      expect(ipc.send).toHaveBeenCalled();
-      expect(ipc.send.mock.calls.length).toEqual(2);
+      expect(window.manta.ipc.send).toHaveBeenCalled();
+      expect(window.manta.ipc.send.mock.calls.length).toEqual(2);
       // Notify about profile change
-      expect(ipc.send.mock.calls[0][0]).toBe('change-preview-window-profile');
-      expect(ipc.send.mock.calls[0][1]).toBe('New Profile');
+      expect(window.manta.ipc.send.mock.calls[0][0]).toBe('change-preview-window-profile');
+      expect(window.manta.ipc.send.mock.calls[0][1]).toBe('New Profile');
       // Notify about UI Lang change
-      expect(ipc.send.mock.calls[1][0]).toBe('change-preview-window-language');
-      expect(ipc.send.mock.calls[1][1]).toBe('fr');
+      expect(window.manta.ipc.send.mock.calls[1][0]).toBe('change-preview-window-language');
+      expect(window.manta.ipc.send.mock.calls[1][1]).toBe('fr');
     });
 
     it('should call next and dispatch notification', () => {

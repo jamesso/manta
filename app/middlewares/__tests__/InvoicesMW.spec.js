@@ -16,7 +16,6 @@ import {
   mockData,
 } from '../../helpers/pouchDB';
 import { getInvoiceValue } from '../../helpers/invoice';
-import { ipcRenderer } from 'electron';
 Date.now = vi.fn(() => 'now');
 
 describe('Invoices Middleware', () => {
@@ -198,8 +197,8 @@ describe('Invoices Middleware', () => {
       middleware(Actions.saveInvoice(newInvoice)).then(() =>
         saveDoc('invoices', newInvoice).then(data => {
           // ipc to main process
-          expect(ipcRenderer.send).toHaveBeenCalled();
-          expect(ipcRenderer.send).toHaveBeenCalledWith(
+          expect(window.manta.ipc.send).toHaveBeenCalled();
+          expect(window.manta.ipc.send).toHaveBeenCalledWith(
             'preview-invoice',
             newInvoice
           );

@@ -1,11 +1,8 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
-import { ipcRenderer } from 'electron';
 
 // Component
 import { Invoices } from '../Invoices';
-
-ipcRenderer.removeAllListeners = vi.fn();
 
 // Mocks
 const dispatch = vi.fn();
