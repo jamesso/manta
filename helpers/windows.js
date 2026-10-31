@@ -2,8 +2,11 @@ const path = require('path');
 const { app } = require('electron');
 const remoteMain = require('@electron/remote/main');
 
-// Compatibility settings until plan 009 adds a preload script.
+const PRELOAD_PATH = path.join(__dirname, '../preload/index.js');
+
+// Compatibility settings until isolation is turned on.
 const COMPAT_WEB_PREFERENCES = {
+  preload: PRELOAD_PATH,
   nodeIntegration: true,
   contextIsolation: false,
   sandbox: false,

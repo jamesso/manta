@@ -10,6 +10,14 @@ export default defineConfig({
       rollupOptions: { input: { index: root('./app.js') } },
     },
   },
+  preload: {
+    build: {
+      rollupOptions: {
+        input: { index: root('./preload/index.js') },
+        output: { format: 'cjs', entryFileNames: '[name].js' },
+      },
+    },
+  },
   renderer: {
     root: root('.'),
     plugins: [react()],
