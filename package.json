@@ -10,13 +10,15 @@
     "email": "lequochung@me.com"
   },
   "main": "app.js",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "start": "electron .",
     "dev": "webpack-dev-server --mode development",
     "build": "webpack --env.production --mode production",
-    "test": "jest",
-    "test:e2e": "mocha",
-    "test:watch": "jest --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "dist:linux": "electron-builder --linux",
     "dist:win": "electron-builder --win",
     "dist:mac": "electron-builder --mac",
@@ -57,13 +59,11 @@
     "redux": "^3.7.2",
     "redux-actions": "^2.3.0",
     "reselect": "^3.0.1",
-    "spectron": "^3.8.0",
     "styled-components": "^3.2.1",
     "uuid": "^3.2.1"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
-    "babel-jest": "^22.4.1",
     "babel-loader": "^7.1.4",
     "babel-minify-webpack-plugin": "^0.3.0",
     "babel-plugin-styled-components": "^1.5.1",
@@ -71,7 +71,6 @@
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-react": "^6.24.1",
-    "chai": "^4.1.2",
     "clean-webpack-plugin": "^0.1.19",
     "compression-webpack-plugin": "^1.1.11",
     "devtron": "^1.4.0",
@@ -89,15 +88,15 @@
     "eslint-plugin-prettier": "^2.6.0",
     "eslint-plugin-react": "^7.7.0",
     "faker": "^4.1.0",
-    "jest": "^22.4.2",
     "jest-styled-components": "^5.0.0",
+    "jsdom": "^30.1.3",
     "lint-staged": "^7.0.0",
-    "mocha": "^5.0.5",
-    "pre-commit": "^1.2.2",
     "prettier": "^1.11.1",
     "react-hot-loader": "^4.0.0",
     "react-test-renderer": "^16.2.0",
     "redux-logger": "^3.0.6",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5",
     "webpack": "^4.1.1",
     "webpack-bundle-analyzer": "^2.11.1",
     "webpack-cli": "^2.0.11",
@@ -105,9 +104,6 @@
     "webpack-merge": "^4.1.2",
     "webpack-node-externals": "^1.6.0"
   },
-  "pre-commit": [
-    "lint-staged"
-  ],
   "lint-staged": {
     "*.jsx?": [
       "npm run prettier:base",
