@@ -1,16 +1,15 @@
-import Jimp from 'jimp';
-import fs from 'fs';
-import isSvg from 'is-svg';
 import openDialog from '../renderers/dialog';
 import i18n from '../../i18n/i18n';
 
+const nodeRequire = name => window.require(name);
+
 function detectSVG(filePath) {
-  const data = fs.readFileSync(filePath);
-  return isSvg(data);
+  const data = nodeRequire('fs').readFileSync(filePath);
+  return nodeRequire('is-svg')(data);
 }
 
 function svg2Base64(filePath) {
-  const data = fs.readFileSync(filePath);
+  const data = nodeRequire('fs').readFileSync(filePath);
   const base64String = 'data:image/svg+xml;base64,' + data.toString('base64');
   return base64String;
 }
@@ -24,6 +23,7 @@ function processImg(filePath, callback) {
   }
 
   // Normal Image File such as PNG or JPEG
+  const Jimp = nodeRequire('jimp');
   Jimp.read(filePath, (err, image) => {
     if (err) handleError(err);
     try {
@@ -34,7 +34,7 @@ function processImg(filePath, callback) {
           if (err) handleError(err);
           callback(result);
         });
-    } catch(err) {
+    } catch (err) {
       if (err) handleError(err);
     }
   });

@@ -1,7 +1,6 @@
 import i18n from 'i18next';
 import { reactI18nextModule } from 'react-i18next';
 import { remote } from 'electron';
-import isDev from 'electron-is-dev';
 import moment from 'moment';
 
 const appConfig = remote.require('electron-settings');
@@ -21,7 +20,7 @@ import zhCN from './zh-CN';
 i18n.use(reactI18nextModule).init({
   lng: defaultLanguage,
   fallbackLng: 'en',
-  debug: isDev,
+  debug: import.meta.env.DEV,
   defaultNS: 'form',
   resources: {
     de,

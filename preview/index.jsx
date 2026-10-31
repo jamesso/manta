@@ -1,10 +1,8 @@
-// Prevent window to open dropped file
-require('../libs/dragNdrop.js');
+import '../libs/dragNdrop.js';
 
 // Libraries
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { AppContainer } from 'react-hot-loader';
 import { createStore, applyMiddleware, compose } from 'redux';
 import { Provider } from 'react-redux';
 import i18n from '../i18n/i18n';
@@ -28,14 +26,9 @@ const store = createStore(
 
 ReactDOM.render(
   <Provider store={store}>
-    <AppContainer>
-      <ErrorBoundary>
-        <Viewer />
-      </ErrorBoundary>
-    </AppContainer>
+    <ErrorBoundary>
+      <Viewer />
+    </ErrorBoundary>
   </Provider>,
   document.getElementById('root')
 );
-
-// Accepting Hot Updates
-module.hot && module.hot.accept();

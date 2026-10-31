@@ -1,6 +1,5 @@
 // Redux
 import { createStore, applyMiddleware, compose } from 'redux';
-import isDev from 'electron-is-dev';
 
 // Root Reducer
 import rootReducer from '../reducers';
@@ -20,6 +19,7 @@ import UIMiddleware from '../middlewares/UIMiddleware';
 const middlewares = [FormMW, ContactsMW, InvoicesMW, SettingsMW, UIMiddleware];
 
 // Dev Mode Middlewares
+const isDev = import.meta.env.DEV;
 if (isDev) {
   middlewares.unshift(MeasureMW);
   middlewares.push(Logger);
@@ -34,12 +34,5 @@ export default function configureStore(initialState) {
     initialState,
     composeEnhancers(applyMiddleware(...middlewares))
   );
-  if (module.hot) {
-    // Enable Webpack hot module replacement for reducers
-    module.hot.accept('../reducers', () => {
-      const nextReducer = require('../reducers/index').default;
-      store.replaceReducer(nextReducer);
-    });
-  }
   return store;
 }

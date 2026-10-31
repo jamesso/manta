@@ -10,25 +10,6 @@
   </head>
   <body>
     <div id="root"></div>
-    <script>
-      {
-        const scripts = [];
-        const isDev = require('electron-is-dev');
-        if (isDev) {
-          scripts.push(
-            'http://localhost:3000/modal.dev.js'
-          );
-        } else {
-          scripts.push(
-            '../prod/modal.prod.js'
-          );
-        }
-        document.write(
-          scripts
-            .map(script => '<script defer src="' + script + '"><\/script>')
-            .join('')
-        );
-      }
-    </script>
+    <script type="module" src="./index.jsx"></script>
   </body>
 </html>

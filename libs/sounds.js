@@ -1,9 +1,8 @@
-// 3rd Party Libs
-const appConfig = require('electron').remote.require('electron-settings');
+import { remote } from 'electron';
+import cs_sounds from '../static/sounds/cs/index.js';
+import default_sounds from '../static/sounds/default/index.js';
 
-// Sound Themes
-const cs_sounds = require('../static/sounds/cs/index.js');
-const default_sounds = require('../static/sounds/default/index.js');
+const appConfig = remote.require('electron-settings');
 
 let cache;
 function preload() {
@@ -52,7 +51,7 @@ function play(name) {
   }
 }
 
-module.exports = {
+export default {
   preload,
   play,
 };

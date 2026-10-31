@@ -1,5 +1,5 @@
 import React from 'react';
-import path from 'path';
+import welcomeImg from '../../imgs/Welcome.svg';
 import Slide from '../Slide';
 
 function Welcome({t}) {
@@ -10,7 +10,7 @@ function Welcome({t}) {
       toColor="#6979A4"
       heading={t('tour:slides:welcome:heading')}
       description={t('tour:slides:welcome:description')}
-      imgSrc={path.resolve(__dirname, './imgs/Welcome.svg')}
+      imgSrc={welcomeImg}
       imgSize="475px"
     />
   );

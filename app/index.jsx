@@ -1,7 +1,9 @@
+import './renderers/startup.js';
+import './renderers/menu.js';
+
 // Libraries
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { AppContainer } from 'react-hot-loader';
 import { Provider } from 'react-redux';
 import configureStore from './store';
 import i18n from '../i18n/i18n';
@@ -16,14 +18,9 @@ const store = configureStore();
 // Render
 ReactDOM.render(
   <Provider store={store}>
-    <AppContainer>
-      <ErrorBoundary>
-        <App />
-      </ErrorBoundary>
-    </AppContainer>
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
   </Provider>,
   document.getElementById('root')
 );
-
-// Accepting Hot Updates
-module.hot && module.hot.accept();

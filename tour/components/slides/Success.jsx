@@ -1,5 +1,5 @@
 import React from 'react';
-import path from 'path';
+import successImg from '../../imgs/Success.svg';
 import Slide from '../Slide';
 
 function Success({t}) {
@@ -9,7 +9,7 @@ function Success({t}) {
       toColor="#ECE9E6"
       heading={t('tour:slides:success:heading')}
       description={t('tour:slides:success:description')}
-      imgSrc={path.resolve(__dirname, './imgs/Success.svg')}
+      imgSrc={successImg}
       imgSize="425px"
     />
   );

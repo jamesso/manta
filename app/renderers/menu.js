@@ -1,8 +1,8 @@
 // Libs
-const { Menu, BrowserWindow } = require('electron').remote;
-const appConfig = require('electron').remote.require('electron-settings');
-const ipc = require('electron').ipcRenderer;
-const isDev = require('electron-is-dev');
+import { remote, ipcRenderer as ipc, shell } from 'electron';
+const { Menu, BrowserWindow } = remote;
+const appConfig = remote.require('electron-settings');
+const isDev = import.meta.env.DEV;
 
 // Get mainWindow Object
 const mainWindowID = appConfig.get('mainWindowID');
@@ -191,7 +191,7 @@ const helpMenu = {
     {
       label: 'Learn More',
       click() {
-        require('electron').shell.openExternal('https://manta.life');
+        shell.openExternal('https://manta.life');
       },
     },
   ],

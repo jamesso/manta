@@ -1,44 +1,52 @@
-const path = require('path');
+import startup from './startup.wav';
+import dialog from './dialog.wav';
+import success from './success.wav';
+import warning from './warning.wav';
+import add from './add.wav';
+import remove from './remove.wav';
+import reload from './reload.wav';
+import tap from './tap.wav';
+
 const VOLUME = 0.25;
 
-module.exports = {
+export default {
   STARTUP: {
-    url: path.resolve(__dirname, '../static/sounds/cs/startup.wav'),
+    url: startup,
     volume: VOLUME * 2,
   },
 
   DIALOG: {
-    url: path.resolve(__dirname, '../static/sounds/cs/dialog.wav'),
+    url: dialog,
     volume: VOLUME,
   },
 
   SUCCESS: {
-    url: path.resolve(__dirname, '../static/sounds/cs/success.wav'),
+    url: success,
     volume: VOLUME,
   },
 
   WARNING: {
-    url: path.resolve(__dirname, '../static/sounds/cs/warning.wav'),
+    url: warning,
     volume: VOLUME,
   },
 
   ADD: {
-    url: path.resolve(__dirname, '../static/sounds/cs/add.wav'),
+    url: add,
     volume: VOLUME,
   },
 
   REMOVE: {
-    url: path.resolve(__dirname, '../static/sounds/cs/remove.wav'),
+    url: remove,
     volume: VOLUME,
   },
 
   RELOAD: {
-    url: path.resolve(__dirname, '../static/sounds/cs/reload.wav'),
+    url: reload,
     volume: VOLUME,
   },
 
   TAP: {
-    url: path.resolve(__dirname, '../static/sounds/cs/tap.wav'),
+    url: tap,
     volume: VOLUME,
   },
 };
