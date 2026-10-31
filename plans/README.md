@@ -13,7 +13,7 @@ Execute the plans in the order below. Each plan is self-contained. Each executor
 | [001](001-npm-node24-vitest-baseline.md) | Install with npm on Node 24 and run the unit tests on Vitest | P1 | M | MED | — | DONE |
 | [002](002-electron45-electron-vite-boot.md) | Boot Manta on Electron 45 with electron-vite (compatibility mode) | P1 | L | HIGH | 001 | DONE |
 | [003](003-main-process-api-and-settings-store.md) | Fix main-process Electron APIs and replace electron-settings with electron-store | P1 | M | MED | 002 | DONE |
-| [004](004-react18-testing-library.md) | Run Manta on React 18.3 and test components with Testing Library | P1 | L | MED | 001, 002, 003 | TODO |
+| [004](004-react18-testing-library.md) | Run Manta on React 18.3 and test components with Testing Library | P1 | L | MED | 001, 002, 003 | DONE |
 | [005](005-state-i18n-styling-libraries.md) | Move Redux, i18n and styled-components to current versions; drop recompose and redux-logger | P1 | M | MED | 004 | TODO |
 | [006](006-replace-dead-ui-libraries.md) | Replace the dead UI libraries (drag and drop, animation, date picker, color picker, progress, uuid, faker) | P1 | L | MED | 005 | TODO |
 | [007](007-pouchdb9-data-upgrade.md) | Upgrade PouchDB 6.2 → 9 without losing or hiding any saved invoice or contact | P1 | M | HIGH (user data) | 003 (run after 006) | TODO |
