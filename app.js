@@ -420,6 +420,7 @@ function initialize() {
     migrateData();
     addEventListeners();
     loadMainProcessFiles();
+    require('./main/menu').buildMenu();
     // Show Window
     const { showWindow } = require('./main/tour');
     showWindow('startup');

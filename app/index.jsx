@@ -8,7 +8,6 @@ import '../static/css/items.css';
 import '../static/css/date-picker.css';
 
 import './renderers/startup.js';
-import './renderers/menu.js';
 
 // Libraries
 import React from 'react';
