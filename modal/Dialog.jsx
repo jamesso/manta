@@ -1,11 +1,7 @@
 // Libs
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { remote } from 'electron';
 const ipc = window.manta.ipc;
-const appConfig = window.manta.settings;
-const BrowserWindow = remote.BrowserWindow;
-const mainWindow = BrowserWindow.fromId(appConfig.get('mainWindowID'));
 
 import styled from 'styled-components';
 
@@ -141,12 +137,7 @@ class Dialog extends PureComponent {
     // Get index of buttons
     const index = event.target.getAttribute('alt');
     const { rest, returnChannel } = this.state;
-    // Only send IPC back if there's a channel present
-    if (returnChannel !== '') {
-      mainWindow.webContents.send(returnChannel, parseInt(index), ...rest);
-    }
-    // Close the windows
-    remote.getCurrentWindow().close();
+    ipc.send('modal-response', returnChannel, parseInt(index), ...rest);
   }
 
   renderIconClass() {

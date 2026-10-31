@@ -1,6 +1,7 @@
 const { BrowserWindow, ipcMain } = require('electron');
 const centerOnPrimaryDisplay = require('../helpers/center-on-primary-display');
 const { COMPAT_WEB_PREFERENCES, enableRemote, loadPage } = require('../helpers/windows');
+const store = require('./settings');
 
 ipcMain.on('show-modal', (event, dialogOptions, returnChannel = '', ...rest) => {
   const width = 450;
@@ -25,4 +26,12 @@ ipcMain.on('show-modal', (event, dialogOptions, returnChannel = '', ...rest) => 
     modalWin.show();
     modalWin.focus();
   });
+});
+
+ipcMain.on('modal-response', (event, returnChannel, index, ...rest) => {
+  if (returnChannel) {
+    const mainWindow = BrowserWindow.fromId(store.get('mainWindowID'));
+    mainWindow.webContents.send(returnChannel, index, ...rest);
+  }
+  BrowserWindow.fromWebContents(event.sender).close();
 });
