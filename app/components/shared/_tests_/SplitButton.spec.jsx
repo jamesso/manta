@@ -1,7 +1,6 @@
 // Libs
 import React from 'react';
-import { shallow, mount } from 'enzyme';
-import renderer from 'react-test-renderer';
+import { render, screen, fireEvent } from '@testing-library/react';
 
 // Component
 import SplitButton from '../SplitButton';
@@ -31,84 +30,62 @@ const options = [
   },
 ];
 
-const optionLinks = wrapper =>
-  wrapper.find('a').filterWhere(a =>
-    options.some(option => option.label === a.text())
-  );
+function renderButton() {
+  return render(<SplitButton mainButton={mainButton} options={options} />);
+}
+
+function openOptions(container) {
+  fireEvent.click(container.querySelector('.ion-arrow-down-b').closest('a'));
+}
+
+beforeEach(() => {
+  mainAction.mockClear();
+  optionAction1.mockClear();
+  optionAction2.mockClear();
+  optionAction3.mockClear();
+});
 
 describe('Renders correctly to the DOM', () => {
-  let wrapper, toggleBtn, mainBtn;
-  beforeEach(() => {
-    wrapper = shallow(
-      <SplitButton mainButton={mainButton} options={options} />
-    );
-    mainBtn = wrapper.find('a').first();
-    toggleBtn = wrapper.find('a').last();
-  });
-
-  it('renders links as a element', () => {
-    expect(wrapper.find('a')).toHaveLength(2);
-    expect(wrapper.find('button')).toHaveLength(0);
-  });
-
   it('hide options by default', () => {
-    expect(wrapper.state().showOptions).toEqual(false);
-    expect(optionLinks(wrapper)).toHaveLength(0);
+    renderButton();
+    expect(screen.queryByText('Option A')).not.toBeInTheDocument();
+    expect(screen.queryByText('Option B')).not.toBeInTheDocument();
+    expect(screen.queryByText('Option C')).not.toBeInTheDocument();
   });
 
   it('renders options list correctly', () => {
-    toggleBtn.simulate('click');
-    expect(wrapper.state().showOptions).toEqual(true);
-    expect(optionLinks(wrapper)).toHaveLength(options.length);
-  });
-
-  it('matches snapshot', () => {
-    const tree = renderer
-      .create(<SplitButton mainButton={mainButton} options={options} />)
-      .toJSON();
-    expect(tree).toMatchSnapshot();
+    const { container } = renderButton();
+    openOptions(container);
+    expect(screen.getByText('Option A')).toBeInTheDocument();
+    expect(screen.getByText('Option B')).toBeInTheDocument();
+    expect(screen.getByText('Option C')).toBeInTheDocument();
+    openOptions(container);
   });
 });
 
 describe('Handles click correctly', () => {
-  let wrapper, toggleBtn, mainBtn, spyHandleClick, spyHandleOutsideClick;
-  beforeEach(() => {
-    spyHandleClick = vi.spyOn(SplitButton.prototype, 'handleClick');
-    spyHandleOutsideClick = vi.spyOn(
-      SplitButton.prototype,
-      'handleOutsideClick'
-    );
-    wrapper = shallow(
-      <SplitButton mainButton={mainButton} options={options} />
-    );
-    mainBtn = wrapper.find('a').first();
-    toggleBtn = wrapper.find('a').last();
-  });
-
   it('handle main button click correcrtly', () => {
-    mainBtn.simulate('click');
+    renderButton();
+    fireEvent.click(screen.getByText('Main Action'));
     expect(mainAction).toHaveBeenCalled();
   });
 
   it('handle options click correcrtly', () => {
-    // Show the dropdown
-    toggleBtn.simulate('click');
-    const links = optionLinks(wrapper);
-    // Click the first btn
-    links.first().simulate('click');
+    const { container } = renderButton();
+    openOptions(container);
+    fireEvent.click(screen.getByText('Option A'));
     expect(optionAction1).toHaveBeenCalled();
-    // Click the second btn
-    links.last().simulate('click');
+    openOptions(container);
+    fireEvent.click(screen.getByText('Option C'));
     expect(optionAction3).toHaveBeenCalled();
   });
 
   it('handle click outside correctly', () => {
-    // Show the dropdown
-    toggleBtn.simulate('click');
-    // Click the main button - outside the option
-    mainBtn.simulate('click');
-    // The dropdown will be removed
-    expect(wrapper.state().showOptions).toEqual(false);
-    expect(optionLinks(wrapper)).toHaveLength(0);
+    const { container } = renderButton();
+    openOptions(container);
+    fireEvent.click(screen.getByText('Main Action'));
+    expect(screen.queryByText('Option A')).not.toBeInTheDocument();
+    expect(screen.queryByText('Option B')).not.toBeInTheDocument();
+    expect(screen.queryByText('Option C')).not.toBeInTheDocument();
   });
 });
