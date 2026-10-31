@@ -18,7 +18,7 @@ Execute the plans in the order below. Each plan is self-contained. Each executor
 | [006](006-replace-dead-ui-libraries.md) | Replace the dead UI libraries (drag and drop, animation, date picker, color picker, progress, uuid, faker) | P1 | L | MED | 005 | DONE |
 | [007](007-pouchdb9-data-upgrade.md) | Upgrade PouchDB 6.2 → 9 without losing or hiding any saved invoice or contact | P1 | M | HIGH (user data) | 003 (run after 006) | DONE |
 | [008](008-react19.md) | Run Manta on React 19 with no legacy lifecycles and no function-component `defaultProps` | P2 | M | MED | 004, 005, 006 | DONE |
-| [009](009-context-isolation-preload-ipc.md) | Isolate every renderer (sandbox + contextIsolation + preload) and remove `@electron/remote` | P1 | L | HIGH | 008 | TODO |
+| [009](009-context-isolation-preload-ipc.md) | Isolate every renderer (sandbox + contextIsolation + preload) and remove `@electron/remote` | P1 | L | HIGH | 008 | DONE |
 | [010](010-eslint-prettier-hooks.md) | Replace ESLint 4 / airbnb / Prettier 1 / pre-commit with ESLint 9 flat config, Prettier 3, husky + lint-staged | P3 | M | LOW | 009 | TODO |
 | [011](011-packaging-ci-e2e.md) | Ship 64-bit macOS (universal), Windows and Linux builds from GitHub Actions, with Playwright e2e smoke tests | P1 | L | MED | 009 (010 optional) | TODO |
 
