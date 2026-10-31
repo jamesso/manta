@@ -48,3 +48,42 @@ describe('Renders correctly to the DOM', () => {
     });
   });
 });
+
+describe('discount prop sync', () => {
+  it('shows the given discount and resets when the discount is cleared', () => {
+    const { container, rerender } = render(
+      <Discount
+        t={t}
+        discount={{ amount: 10, type: 'flat' }}
+        updateFieldData={updateFieldData}
+      />
+    );
+    expect(container.querySelector('input[name="amount"]').value).toBe('10');
+    expect(container.querySelector('input[name="type"][value="flat"]').checked).toBe(true);
+
+    rerender(
+      <Discount t={t} discount={{}} updateFieldData={updateFieldData} />
+    );
+    expect(container.querySelector('input[name="amount"]').value).toBe('');
+    expect(container.querySelector('input[name="type"][value="percentage"]').checked).toBe(true);
+  });
+
+  it('does not reset when the next discount is not empty', () => {
+    const { container, rerender } = render(
+      <Discount
+        t={t}
+        discount={{ amount: 10, type: 'flat' }}
+        updateFieldData={updateFieldData}
+      />
+    );
+    rerender(
+      <Discount
+        t={t}
+        discount={{ amount: 5, type: 'percentage' }}
+        updateFieldData={updateFieldData}
+      />
+    );
+    expect(container.querySelector('input[name="amount"]').value).toBe('10');
+    expect(container.querySelector('input[name="type"][value="flat"]').checked).toBe(true);
+  });
+});

@@ -95,6 +95,21 @@ describe('Renders correctly to the DOM', () => {
     spy.mockRestore();
   });
 
+  it('uses an empty price when the item has none', () => {
+    const { container } = render(
+      <ItemRow
+        t={t}
+        actions={actions}
+        addItem={addItem}
+        hasHandler={hasHandler}
+        item={{ id: 'row-1', description: 'Service', quantity: 1, subtotal: 0 }}
+        removeRow={removeRow}
+        updateRow={updateRow}
+      />
+    );
+    expect(container.querySelector('input[name="price"]').value).toBe('');
+  });
+
   it('handle removeRow correctly', () => {
     const { container } = renderRow();
     fireEvent.click(container.querySelector('a'));

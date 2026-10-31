@@ -87,4 +87,50 @@ describe('Renders correctly to the DOM', () => {
       separator: 'spaceDot',
     }));
   });
+
+  it('restores saved settings when currency and saved settings are the same object', () => {
+    const initial = {
+      code: 'USD',
+      placement: 'before',
+      fraction: 2,
+      separator: 'commaDot',
+    };
+    const saved = {
+      code: 'USD',
+      placement: 'before',
+      fraction: 2,
+      separator: 'dotComma',
+    };
+    const { container, rerender } = render(
+      <Currency
+        t={t}
+        currency={initial}
+        savedSettings={saved}
+        updateFieldData={updateFieldData}
+        updateSavedSettings={updateSavedSettings}
+      />
+    );
+    fireEvent.change(container.querySelector('select[name="separator"]'), {
+      target: { value: 'spaceDot' },
+    });
+    updateFieldData.mockClear();
+    const reset = {
+      code: 'USD',
+      placement: 'after',
+      fraction: 2,
+      separator: 'commaDot',
+    };
+    rerender(
+      <Currency
+        t={t}
+        currency={reset}
+        savedSettings={reset}
+        updateFieldData={updateFieldData}
+        updateSavedSettings={updateSavedSettings}
+      />
+    );
+    expect(container.querySelector('select[name="separator"]').value).toBe('commaDot');
+    expect(container.querySelector('select[name="placement"]').value).toBe('after');
+    expect(updateFieldData).toHaveBeenCalledWith('currency', reset);
+  });
 });

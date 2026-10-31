@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 
 // Component
 import { DueDateTerms } from '../DueDateTerms.jsx';
+import { paymentTerms } from '../../../../libs/paymentTerms';
 
 // Mocks
 const t = vi.fn();
@@ -29,5 +30,17 @@ describe('Renders correctly to the DOM', () => {
     await user.selectOptions(container.querySelector('select'), 'net90');
     expect(spy).toHaveBeenCalled();
     spy.mockRestore();
+  });
+
+  it('selects the first payment term when none is set', () => {
+    render(
+      <DueDateTerms
+        t={t}
+        paymentTerm={null}
+        updatePaymentTerm={updatePaymentTerm}
+      />
+    );
+    expect(updatePaymentTerm).toHaveBeenCalledTimes(1);
+    expect(updatePaymentTerm).toHaveBeenCalledWith(paymentTerms[0]);
   });
 });

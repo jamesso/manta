@@ -51,4 +51,35 @@ describe('Note component', () => {
     expect(spy).toHaveBeenCalled();
     spy.mockRestore();
   });
+
+  it('restores saved settings when tax and saved settings are the same object', () => {
+    const initial = { amount: 10, tin: '123', method: 'default' };
+    const saved = { amount: 10, tin: '456', method: 'default' };
+    const { container, rerender } = render(
+      <Tax
+        t={t}
+        tax={initial}
+        savedSettings={saved}
+        updateFieldData={updateFieldData}
+        updateSavedSettings={updateSavedSettings}
+      />
+    );
+    fireEvent.change(container.querySelector('input[name="tin"]'), {
+      target: { value: '999' },
+    });
+    updateFieldData.mockClear();
+    const reset = { amount: 4, tin: 'ABC', method: 'reverse' };
+    rerender(
+      <Tax
+        t={t}
+        tax={reset}
+        savedSettings={reset}
+        updateFieldData={updateFieldData}
+        updateSavedSettings={updateSavedSettings}
+      />
+    );
+    expect(container.querySelector('input[name="tin"]').value).toBe('ABC');
+    expect(container.querySelector('input[name="amount"]').value).toBe('4');
+    expect(updateFieldData).toHaveBeenCalledWith('tax', reset);
+  });
 });

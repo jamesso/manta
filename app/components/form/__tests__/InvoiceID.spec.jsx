@@ -30,4 +30,17 @@ describe('InvoiceID component', () => {
     expect(spy).toHaveBeenCalled();
     spy.mockRestore();
   });
+
+  it('clears the input when the invoice id prop is cleared', () => {
+    const { container, rerender } = render(
+      <InvoiceID t={t} invoiceID="start" updateFieldData={updateFieldData} />
+    );
+    const input = container.querySelector('input[name="invoiceID"]');
+    fireEvent.change(input, { target: { value: 'ABC' } });
+    expect(input.value).toBe('ABC');
+    rerender(
+      <InvoiceID t={t} invoiceID="" updateFieldData={updateFieldData} />
+    );
+    expect(container.querySelector('input[name="invoiceID"]').value).toBe('');
+  });
 });

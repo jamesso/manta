@@ -52,4 +52,30 @@ describe('Recipient component', () => {
     expect(dispatch).toHaveBeenCalled();
     spy.mockRestore();
   });
+
+  it('shows the new recipient form when the recipient is reset', () => {
+    const { container, rerender } = render(
+      <Recipient
+        t={t}
+        contacts={contacts}
+        dispatch={dispatch}
+        recipient={{
+          new: { fullname: 'Jon Snow' },
+          select: { _id: 'first-contact' },
+          newRecipient: false,
+        }}
+      />
+    );
+    expect(container.querySelector('select')).toBeTruthy();
+    rerender(
+      <Recipient
+        t={t}
+        contacts={contacts}
+        dispatch={dispatch}
+        recipient={{ new: {}, select: {}, newRecipient: true }}
+      />
+    );
+    expect(container.querySelector('input[name="fullname"]')).toBeTruthy();
+    expect(container.querySelector('select')).toBeNull();
+  });
 });

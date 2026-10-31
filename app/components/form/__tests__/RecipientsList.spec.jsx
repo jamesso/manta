@@ -38,6 +38,8 @@ describe('Recipient List component', () => {
         updateRecipientList={updateRecipientList}
       />
     );
+    expect(updateRecipientList).toHaveBeenCalledTimes(1);
+    expect(updateRecipientList).toHaveBeenCalledWith(contacts[0]);
     updateRecipientList.mockClear();
     await user.selectOptions(container.querySelector('select'), 'second-contact');
     expect(updateRecipientList).toHaveBeenCalled();
