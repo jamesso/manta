@@ -118,13 +118,17 @@ Repo conventions: 2-space indent, single quotes, semicolons, trailing commas `es
 
 | Purpose | Command | Expected on success |
 |---|---|---|
-| Install (this plan only) | `ELECTRON_SKIP_BINARY_DOWNLOAD=1 npm install` | exit 0 |
-| Clean install | `ELECTRON_SKIP_BINARY_DOWNLOAD=1 npm ci` | exit 0 |
+| Install (this plan only) | `ELECTRON_SKIP_BINARY_DOWNLOAD=1 npm install --ignore-scripts` | exit 0 |
+| Clean install | `ELECTRON_SKIP_BINARY_DOWNLOAD=1 npm ci --ignore-scripts` | exit 0 |
 | Tests | `npm test` | all files pass (exit 0) |
 | One file | `npx vitest run app/helpers/__tests__/form.spec.js` | pass |
 | Update snapshots (Step 7 only) | `npx vitest run -u` | exit 0 |
 
-`ELECTRON_SKIP_BINARY_DOWNLOAD=1` is needed until plan 002 replaces Electron 1.8 (no darwin-arm64 binary exists for it). Do not run `npm run build`, `npm start`, `npm run dev` or `npm run lint` in this plan: the old webpack 4 / ESLint 4 toolchain is replaced by plans 002 and 010.
+`ELECTRON_SKIP_BINARY_DOWNLOAD=1` is set until plan 002 replaces Electron 1.8, but **Electron 1.8.8 `install.js` does not read that variable** and there is no `darwin-arm64` binary (404). Plan 001 therefore also passes **`--ignore-scripts`** on install and ci so postinstall does not download Electron; unit tests mock `electron` and do not need the binary. Do **not** put `ignore-scripts` in `.npmrc` (that would suppress every dependency’s install scripts). `.npmrc` keeps only `legacy-peer-deps=true`. Plan 002 must run a normal install **without** `--ignore-scripts` so the Electron 45 binary installs.
+
+Vitest sets **`test.env.TZ` to `UTC`** (and `vitest.setup.js` sets `process.env.TZ`) so Moment-based snapshots (for example invoice created date `01/01/70`) do not depend on the machine time zone.
+
+`ELECTRON_SKIP_BINARY_DOWNLOAD=1` alone is not sufficient on Apple Silicon until plan 002 replaces Electron 1.8 (no darwin-arm64 binary exists for it). Do not run `npm run build`, `npm start`, `npm run dev` or `npm run lint` in this plan: the old webpack 4 / ESLint 4 toolchain is replaced by plans 002 and 010.
 
 ## Suggested executor toolkit
 
@@ -139,6 +143,7 @@ Repo conventions: 2-space indent, single quotes, semicolons, trailing commas `es
 - Every spec file and every `__snapshots__/*.snap` file
 - Every file under `__mocks__/`, `libs/__mocks__/`, `app/renderers/__mocks__/`, `app/helpers/__mocks__/`
 - The application files listed in the table above, plus `helpers/notify.js` — **only** import/require/export lines
+- Approved exception (import line only, for Step 6 require-grep): `app/components/settings/_partials/invoice/Other.jsx`, `preview/components/sidebar/DateFormat.jsx`, `preview/templates/business/components/Header.jsx`, `preview/templates/minimal/components/Header.jsx` (`moment` default import)
 
 **Out of scope** (do NOT touch):
 - `app.js`, `main/**`, `app/renderers/*.js`, `libs/sounds.js`, `libs/dragNdrop.js`, `helpers/center-on-primary-display.js`, `static/**`, all `*/index.jsx` and `*/index.html` entry files — plan 002 rewrites them for the new build tool.
@@ -177,7 +182,7 @@ Create `.npmrc` with one line: `legacy-peer-deps=true` (the 2018 packages declar
 
 ### Step 3: Switch from Yarn to npm
 
-`git rm yarn.lock`, then `ELECTRON_SKIP_BINARY_DOWNLOAD=1 npm install`.
+`git rm yarn.lock`, then `ELECTRON_SKIP_BINARY_DOWNLOAD=1 npm install --ignore-scripts`.
 
 **Verify**: `test -f package-lock.json && echo ok` → `ok`; `npm ls react enzyme-adapter-react-16 vitest --depth=0` shows `react@16.x`, `enzyme-adapter-react-16@1.x`, `vitest@5.x` and exits 0.
 
@@ -337,7 +342,7 @@ Commit: `Migrate tests from Jest to Vitest`.
 
 ### Step 9: Prove the install is reproducible
 
-`rm -rf node_modules && ELECTRON_SKIP_BINARY_DOWNLOAD=1 npm ci && npm test`
+`rm -rf node_modules && ELECTRON_SKIP_BINARY_DOWNLOAD=1 npm ci --ignore-scripts && npm test`
 
 **Verify**: both commands exit 0.
 
@@ -347,8 +352,8 @@ No new tests. The deliverable is the existing suite running green on Vitest. Rec
 
 ## Done criteria
 
-- [ ] `test -f yarn.lock` fails; `package-lock.json`, `.nvmrc` (`24`), `.npmrc` exist
-- [ ] `ELECTRON_SKIP_BINARY_DOWNLOAD=1 npm ci` exits 0 on Node 24
+- [ ] `test -f yarn.lock` fails; `package-lock.json`, `.nvmrc` (`24`), `.npmrc` exist (`.npmrc` contains only `legacy-peer-deps=true`, not `ignore-scripts`)
+- [ ] `ELECTRON_SKIP_BINARY_DOWNLOAD=1 npm ci --ignore-scripts` exits 0 on Node 24
 - [ ] `npm test` exits 0
 - [ ] `grep -rn "jest" package.json` prints only `jest-styled-components` or nothing
 - [ ] `ls jest.config.js jest.setup.js jest.shim.js 2>/dev/null` prints nothing
@@ -359,7 +364,7 @@ No new tests. The deliverable is the existing suite running green on Vitest. Rec
 
 ## STOP conditions
 
-- `npm install` fails for a reason other than peer ranges (for example a native build or a binary download that `ELECTRON_SKIP_BINARY_DOWNLOAD` does not cover). Report the package and error.
+- `npm install` or `npm ci` fails for a reason other than peer ranges or the documented Electron 1.8 binary limitation (see Commands: use `--ignore-scripts` with `ELECTRON_SKIP_BINARY_DOWNLOAD=1`; do not patch `electron`). Report the package and error.
 - A test can only pass if you change application behaviour (not just an import line).
 - More than 5 tests fail for application reasons (the baseline is too weak; report the list).
 - `vi.mock` in `vitest.setup.js` does not apply to test files (tests still load the real `app/renderers/dialog.js` or `libs/sounds.js`; you will see errors about `remote` or `__dirname`). Report; do not convert those two files here.

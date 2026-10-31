@@ -39,7 +39,7 @@ Rough total: 1–2 weeks of focused work. After 001–003, the app runs on Elect
 
 ## Dependency notes
 
-- **001 before everything.** It gives a working install and a green test baseline on Node 24. The 2018 toolchain (Jest 22, Babel 6, webpack 4) does not install or run on Node 24. Electron 1.8 has no `darwin-arm64` binary, so 001 installs with `ELECTRON_SKIP_BINARY_DOWNLOAD=1`.
+- **001 before everything.** It gives a working install and a green test baseline on Node 24. The 2018 toolchain (Jest 22, Babel 6, webpack 4) does not install or run on Node 24. Electron 1.8 has no `darwin-arm64` binary and its npm postinstall ignores `ELECTRON_SKIP_BINARY_DOWNLOAD=1`, so plan 001 uses `ELECTRON_SKIP_BINARY_DOWNLOAD=1 npm install --ignore-scripts` and `npm ci --ignore-scripts` (not in `.npmrc`); plan 002 must run lifecycle scripts so the Electron 45 binary installs.
 - **001 changes some renderer code.** It changes `require(...)` lines into `import` lines, because Vitest's `vi.mock` does not catch `require`. Only import, require and export lines change, and a grep in 001 checks this. 001 also removes Spectron, mocha, chai and pre-commit, because Spectron's chromedriver does not install on arm64. 001 keeps `test/` for plan 011. Plans 010 and 011 check whether a package is still installed before they remove it.
 - **002 → 003:** 002 starts the app in compatibility mode with these parts:
   - `nodeIntegration` on, through the shared `COMPAT_WEB_PREFERENCES` constant in `helpers/windows.js`.

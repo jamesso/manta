@@ -4,7 +4,7 @@ import { shallow, mount } from 'enzyme';
 import renderer from 'react-test-renderer';
 
 // Component
-import Invoice from '../Invoice';
+import Invoice, { Header, Status, Footer } from '../Invoice';
 import Button from '../../shared/Button';
 import SplitButton from '../../shared/SplitButton';
 
@@ -99,15 +99,17 @@ describe('Renders correctly to the DOM', () => {
   });
 
   it('render invoice status in the header', () => {
-    expect(
-      wrapper.find('span').filterWhere(span => span.text() === 'Pending')
-    ).toHaveLength(1);
+    expect(wrapper.find(Header).find(Status)).toHaveLength(1);
   });
 
   it('render invoice status correctly', () => {
     // Pending Invoice (default)
     expect(
-      wrapper.find('span').filterWhere(span => span.text() === 'Pending').text()
+      wrapper
+        .find(Header)
+        .find(Status)
+        .find('span')
+        .text()
     ).toEqual('Pending');
 
     // Paid Invoice
@@ -127,8 +129,9 @@ describe('Renders correctly to the DOM', () => {
     );
     expect(
       paidInvoiceWapper
+        .find(Header)
+        .find(Status)
         .find('span')
-        .filterWhere(span => span.text() === 'Paid')
         .text()
     ).toEqual('Paid');
 
@@ -151,8 +154,9 @@ describe('Renders correctly to the DOM', () => {
     );
     expect(
       cancelledInvoiceWapper
+        .find(Header)
+        .find(Status)
         .find('span')
-        .filterWhere(span => span.text() === 'Cancelled')
         .text()
     ).toEqual('Cancelled');
 
@@ -173,23 +177,20 @@ describe('Renders correctly to the DOM', () => {
     );
     expect(
       refundedInvoiceWapper
+        .find(Header)
+        .find(Status)
         .find('span')
-        .filterWhere(span => span.text() === 'Refunded')
         .text()
     ).toEqual('Refunded');
   });
 
   it('render delete and duplicate button in the header', () => {
-    expect(wrapper.find(Button).filterWhere(btn => btn.prop('link'))).toHaveLength(
-      2
-    );
+    expect(wrapper.find(Header).find(Button)).toHaveLength(2);
   });
 
   it('render a split button and 2 buttons in the footer', () => {
-    expect(wrapper.find(SplitButton)).toHaveLength(1);
-    expect(
-      wrapper.find(Button).filterWhere(btn => !btn.prop('link'))
-    ).toHaveLength(2);
+    expect(wrapper.find(Footer).find(SplitButton)).toHaveLength(1);
+    expect(wrapper.find(Footer).find(Button)).toHaveLength(2);
   });
 
   it('matches snapshot', () => {

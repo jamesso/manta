@@ -118,6 +118,8 @@
     "semi": true
   },
   "overrides": {
-    "cheerio": "0.22.0"
+    "enzyme": {
+      "cheerio": "1.0.0-rc.12"
+    }
   }
 }

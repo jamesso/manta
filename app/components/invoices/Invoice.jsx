@@ -364,3 +364,4 @@ Invoice.propTypes = {
 };
 
 export default Invoice;
+export { Header, Status, Footer };

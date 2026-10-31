@@ -1,3 +1,5 @@
+process.env.TZ = 'UTC';
+
 import { vi } from 'vitest';
 import Enzyme from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
