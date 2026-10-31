@@ -10,10 +10,7 @@ class General extends Component {
   constructor(props) {
     super(props);
     this.handleInputChange = this.handleInputChange.bind(this);
-  }
-
-  componentWillMount() {
-    this.setState(this.props.general);
+    this.state = { ...props.general };
   }
 
   handleInputChange(event) {

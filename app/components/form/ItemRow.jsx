@@ -63,17 +63,14 @@ export class ItemRow extends Component {
     this.updateSubtotal = this.updateSubtotal.bind(this);
     this.uploadRowState = this.uploadRowState.bind(this);
     this.removeRow = this.removeRow.bind(this);
-  }
-
-  componentWillMount() {
-    const { id, description, quantity, price, subtotal } = this.props.item;
-    this.setState({
+    const { id, description, quantity, price, subtotal } = props.item;
+    this.state = {
       id,
       description: description || '',
       price: price || '',
       quantity: quantity || '',
       subtotal: subtotal || '',
-    });
+    };
   }
 
   handleKeyDown(e) {

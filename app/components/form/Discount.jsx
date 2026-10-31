@@ -33,14 +33,11 @@ export class Discount extends Component {
     super(props);
     this.handleInputChange = this.handleInputChange.bind(this);
     this.updateDiscountState = this.updateDiscountState.bind(this);
-  }
-
-  componentWillMount() {
-    const { discount } = this.props;
-    this.setState({
+    const { discount } = props;
+    this.state = {
       amount: discount.amount ? discount.amount : '',
       type: discount.type ? discount.type : 'percentage',
-    });
+    };
   }
 
   // Handle Reset Form
