@@ -3,9 +3,6 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { isEqual } from 'lodash';
 
-// Animation
-import { Motion, spring } from 'react-motion';
-
 // Styles
 import styled from 'styled-components';
 
@@ -108,19 +105,13 @@ class Settings extends PureComponent {
     const { t, toggleFormSettings, settings } = this.props;
     const { required_fields, open } = settings;
     return (
-      <Motion
-        style={{
-          height: spring(open ? 180 : 45),
-          rotate: spring(open ? 180 : 0),
-        }}
-      >
-        {({ height, rotate }) => (
-          <Wrapper style={{ height: `${height}px` }}>
+          <Wrapper style={{ height: open ? '180px' : '45px', transition: 'height 300ms ease' }}>
             <SettingsHeader href="#" onClick={toggleFormSettings}>
               <Label>{t('form:settings:name')}</Label>
               <div
                 style={{
-                  transform: `rotate(${rotate}deg)`,
+                  transform: `rotate(${open ? 180 : 0}deg)`,
+                  transition: 'transform 300ms ease',
                 }}
               >
                 <i className="ion-arrow-down-b" />
@@ -193,8 +184,6 @@ class Settings extends PureComponent {
               </Setting>
             </AllSettings>
           </Wrapper>
-        )}
-      </Motion>
     );
   }
 }

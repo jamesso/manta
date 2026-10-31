@@ -1,80 +1,24 @@
-// Libs
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
+import { AnimatePresence, motion } from 'motion/react';
 
-// React Motion
-import { TransitionMotion, spring } from 'react-motion';
-
-// HOC Componen
-class TransitionList extends Component {
-  constructor(props) {
-    super(props);
-    this.getDefaultStyles = this.getDefaultStyles.bind(this);
-    this.getStyles = this.getStyles.bind(this);
-    this.willEnter = this.willEnter.bind(this);
-    this.willLeave = this.willLeave.bind(this);
-  }
-
-  getDefaultStyles() {
-    const { children, componentHeight } = this.props;
-    const defaultStyles = children.map(child => ({
-      key: child.key,
-      data: { child },
-      style: {
-        height: componentHeight,
-        opacity: 0,
-      },
-    }));
-    return defaultStyles;
-  }
-
-  getStyles() {
-    const { children, componentHeight } = this.props;
-    const styles = children.map(child => ({
-      key: child.key,
-      data: { child },
-      style: {
-        height: spring(componentHeight),
-        opacity: spring(1),
-      },
-    }));
-    return styles;
-  }
-
-  willEnter() {
-    return {
-      height: 0,
-      opacity: 0,
-    };
-  }
-
-  willLeave() {
-    return {
-      height: spring(0),
-      opacity: spring(0),
-    };
-  }
-
-  render() {
-    return (
-      <TransitionMotion
-        willEnter={this.willEnter}
-        willLeave={this.willLeave}
-        styles={this.getStyles()}
-        defaultStyles={this.getDefaultStyles()}
-      >
-        {values => (
-          <div>
-            {values.map(({ key, style, data }) => (
-              <div key={key} style={style}>
-                {data.child}
-              </div>
-            ))}
-          </div>
-        )}
-      </TransitionMotion>
-    );
-  }
+function TransitionList({ children, componentHeight }) {
+  return (
+    <div>
+      <AnimatePresence>
+        {React.Children.map(children, child => (
+          <motion.div
+            key={child.key}
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: componentHeight, opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+          >
+            {child}
+          </motion.div>
+        ))}
+      </AnimatePresence>
+    </div>
+  );
 }
 
 TransitionList.propTypes = {

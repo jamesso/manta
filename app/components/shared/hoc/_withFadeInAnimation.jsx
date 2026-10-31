@@ -1,62 +1,20 @@
-// Libs
 import React from 'react';
-import { TransitionMotion, spring, presets } from 'react-motion';
+import styled, { keyframes } from 'styled-components';
 
-function getDefaultStyles() {
-  return [
-    {
-      key: 'randomString',
-      style: {
-        opacity: 0,
-      },
-    },
-  ];
-}
+const fadeIn = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
+`;
 
-function getStyles() {
-  return [
-    {
-      key: 'randomString',
-      style: {
-        opacity: spring(1, presets.gentle),
-      },
-    },
-  ];
-}
+const FadeIn = styled.div`
+  height: 100%;
+  animation: ${fadeIn} 400ms ease-out;
+`;
 
-function willEnter() {
-  return {
-    opacity: 0,
-  };
-}
-
-function willLeave() {
-  return {
-    opacity: spring(0, presets.gentle),
-  };
-}
-
-// HOC Component
-const _withFadeInTransition = ComposedComponent => props => {
-  const wrapperStyle = { height: '100%' };
-  return (
-    <TransitionMotion
-      willEnter={() => willEnter()}
-      willLeave={() => willLeave()}
-      defaultStyles={getDefaultStyles()}
-      styles={getStyles()}
-    >
-      {values => (
-        <div style={wrapperStyle}>
-          {values.map(({ key, style }) => (
-            <div key={key} style={{ ...style, ...wrapperStyle }}>
-              <ComposedComponent {...props} />
-            </div>
-          ))}
-        </div>
-      )}
-    </TransitionMotion>
-  );
-};
+const _withFadeInTransition = ComposedComponent => props => (
+  <FadeIn>
+    <ComposedComponent {...props} />
+  </FadeIn>
+);
 
 export default _withFadeInTransition;

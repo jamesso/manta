@@ -3,15 +3,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { findIndex } from 'lodash';
 
-// Animation
-import { Motion, spring } from 'react-motion';
-
-const springConfig = {
-  stiffness: 350,
-  damping: 18,
-  precision: 0.01,
-};
-
 const setMarginValue = activeTab => {
   const multiplier = 100 / allTabs.length;
   const activeTabIndex = findIndex(allTabs, { name: activeTab });
@@ -105,18 +96,15 @@ function AppNav({ activeTab, changeTab }) {
   return (
     <SideBar>
       <div>
-        <Motion style={{ marginTop: spring(marginTopValue, springConfig) }}>
-          {({ marginTop }) => (
-            <ActiveIndicator>
-              <div
-                style={{
-                  height: `${100 / allTabs.length}%`,
-                  top: `${marginTop}%`,
-                }}
-              />
-            </ActiveIndicator>
-          )}
-        </Motion>
+        <ActiveIndicator>
+          <div
+            style={{
+              height: `${100 / allTabs.length}%`,
+              top: `${marginTopValue}%`,
+              transition: 'top 350ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+            }}
+          />
+        </ActiveIndicator>
         {allTabsComponent}
       </div>
       <AppUpdate />
