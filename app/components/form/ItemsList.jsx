@@ -1,7 +1,7 @@
 // Libs
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 
 // Redux
 import { connect } from 'react-redux';
@@ -124,6 +124,6 @@ const mapDispatchToProps = dispatch => ({
 // Export
 export default compose(
   connect(mapStateToProps, mapDispatchToProps),
-  translate(),
+  withTranslation(),
   _withDragNDrop
 )(ItemsList);

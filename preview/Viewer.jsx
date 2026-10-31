@@ -1,7 +1,7 @@
 // Libs
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import { Notify } from '../helpers/notify';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
@@ -107,5 +107,5 @@ const mapStateToProps = state => ({
 
 export default compose(
   connect(mapStateToProps),
-  translate()
+  withTranslation()
 )(Viewer);

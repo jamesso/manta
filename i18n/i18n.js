@@ -1,5 +1,5 @@
 import i18n from 'i18next';
-import { reactI18nextModule } from 'react-i18next';
+import { initReactI18next } from 'react-i18next';
 import { remote } from 'electron';
 import moment from 'moment';
 
@@ -17,7 +17,8 @@ import urPK from './ur-PK';
 import vi from './vi';
 import zhCN from './zh-CN';
 
-i18n.use(reactI18nextModule).init({
+i18n.use(initReactI18next).init({
+  initAsync: false,
   lng: defaultLanguage,
   fallbackLng: 'en',
   debug: import.meta.env.DEV,
@@ -40,10 +41,7 @@ i18n.use(reactI18nextModule).init({
     },
   },
   react: {
-    wait: false,
-    bindI18n: false,
-    bindStore: false,
-    nsMode: false,
+    useSuspense: false,
   },
 });
 

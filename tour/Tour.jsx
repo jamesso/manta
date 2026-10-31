@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import { compose } from 'redux';
 import { ipcRenderer as ipc } from 'electron';
-import { translate } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 
 import styled from 'styled-components';
 const Wrapper = styled.div`
@@ -55,4 +55,4 @@ class Tour extends Component {
   }
 }
 
-export default compose(translate(['common', 'tour']))(Tour);
+export default compose(withTranslation(['common', 'tour']))(Tour);
