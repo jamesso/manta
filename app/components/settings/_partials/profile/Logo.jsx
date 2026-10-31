@@ -2,15 +2,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-// DragNDrop
-import HTML5Backend, { NativeTypes } from 'react-dnd-html5-backend';
-import { DragDropContext } from 'react-dnd';
-
 // Helpers
 import { processImg } from '../../../../helpers/image';
 
 // Node Libs
-import { ipcRenderer as ipc } from 'electron';
+import { ipcRenderer as ipc, webUtils } from 'electron';
 
 // Component
 import TargetBox from './TargetBox';
@@ -108,12 +104,8 @@ class Logo extends Component {
     });
   }
 
-  handleFileDrop(item, monitor) {
-    if (monitor) {
-      const droppedFiles = monitor.getItem().files;
-      const filePath = droppedFiles[0].path;
-      this.handleFileUpload(filePath);
-    }
+  handleFileDrop(file) {
+    this.handleFileUpload(webUtils.getPathForFile(file));
   }
 
   selectLogo() {
@@ -125,7 +117,6 @@ class Logo extends Component {
   }
 
   render() {
-    const { FILE } = NativeTypes;
     return (
       <LogoContainer>
         {this.props.logo ? (
@@ -137,11 +128,7 @@ class Logo extends Component {
           </LogoDisplayzone>
         ) : (
           <LogoDropzone>
-            <TargetBox
-              accepts={[FILE]}
-              selectLogo={this.selectLogo}
-              onDrop={this.handleFileDrop}
-            />
+            <TargetBox onDrop={this.handleFileDrop} />
             <SelectLogoBtn onClick={this.selectLogo}>
               Or Select Photo
             </SelectLogoBtn>
@@ -161,4 +148,4 @@ Logo.defaultProps = {
   logo: null,
 };
 
-export default DragDropContext(HTML5Backend)(Logo);
+export default Logo;

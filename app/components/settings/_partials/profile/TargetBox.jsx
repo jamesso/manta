@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { DropTarget } from 'react-dnd';
 
 const style = {
   flex: '1',
   background: '#F9FAFA',
-  border: '2px dashed #469FE5k',
+  border: '2px dashed #469FE5',
   borderRadius: '4px',
   marginBottom: '20px',
   display: 'flex',
@@ -14,42 +13,41 @@ const style = {
   margin: '-20px',
 };
 
-const boxTarget = {
-  drop(props, monitor) {
-    if (props.onDrop) {
-      props.onDrop(props, monitor);
-    }
-  },
-};
-
 class TargetBox extends Component {
-  shouldComponentUpdate() {
-    return true;
+  constructor(props) {
+    super(props);
+    this.state = { isOver: false };
+    this.onDragOver = this.onDragOver.bind(this);
+    this.onDragLeave = this.onDragLeave.bind(this);
+    this.onDrop = this.onDrop.bind(this);
+  }
+
+  onDragOver(event) {
+    event.preventDefault();
+    if (!this.state.isOver) this.setState({ isOver: true });
+  }
+
+  onDragLeave() {
+    this.setState({ isOver: false });
+  }
+
+  onDrop(event) {
+    event.preventDefault();
+    this.setState({ isOver: false });
+    const file = event.dataTransfer.files[0];
+    if (file && this.props.onDrop) this.props.onDrop(file);
   }
 
   render() {
-    const { canDrop, isOver, connectDropTarget } = this.props;
-    const isActive = canDrop && isOver;
-    return connectDropTarget(
-      <div style={style}>{isActive ? 'Release to drop' : 'Drag file here'}</div>
+    return (
+      <div style={style} onDragOver={this.onDragOver}
+           onDragLeave={this.onDragLeave} onDrop={this.onDrop}>
+        {this.state.isOver ? 'Release to drop' : 'Drag file here'}
+      </div>
     );
   }
 }
 
-TargetBox.propTypes = {
-  connectDropTarget: PropTypes.func.isRequired,
-  isOver: PropTypes.bool.isRequired,
-  canDrop: PropTypes.bool.isRequired,
-  accepts: PropTypes.arrayOf(PropTypes.string).isRequired,
-  onDrop: PropTypes.func,
-};
+TargetBox.propTypes = { onDrop: PropTypes.func };
 
-export default DropTarget(
-  props => props.accepts,
-  boxTarget,
-  (connect, monitor) => ({
-    connectDropTarget: connect.dropTarget(),
-    isOver: monitor.isOver(),
-    canDrop: monitor.canDrop(),
-  })
-)(TargetBox);
+export default TargetBox;
