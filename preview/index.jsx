@@ -8,7 +8,7 @@ import '../libs/dragNdrop.js';
 
 // Libraries
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { createStore, applyMiddleware, compose } from 'redux';
 import { Provider } from 'react-redux';
 import i18n from '../i18n/i18n';
@@ -30,11 +30,10 @@ const store = createStore(
   composeEnhancers(applyMiddleware(Logger))
 );
 
-ReactDOM.render(
+createRoot(document.getElementById('root')).render(
   <Provider store={store}>
     <ErrorBoundary>
       <Viewer />
     </ErrorBoundary>
-  </Provider>,
-  document.getElementById('root')
+  </Provider>
 );

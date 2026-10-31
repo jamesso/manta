@@ -6,10 +6,9 @@ import '../libs/dragNdrop.js';
 
 // Libraries
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import Dialog from './Dialog';
 
-ReactDOM.render(
-  <Dialog />,
-  document.getElementById('root')
+createRoot(document.getElementById('root')).render(
+  <Dialog />
 );

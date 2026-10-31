@@ -6,10 +6,12 @@ import '../libs/dragNdrop.js';
 
 // Libraries
 import React from 'react';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import i18n from '../i18n/i18n';
 
 // Root Component
 import Tour from './Tour';
 
-render(<Tour />, document.getElementById('root'));
+createRoot(document.getElementById('root')).render(
+  <Tour />
+);
