@@ -2,7 +2,6 @@ import * as ACTION_TYPES from '../../constants/actions.jsx';
 import * as Actions from '../../actions/invoices';
 import InvoicesMW from '../InvoicesMW';
 import faker from 'faker';
-import uuidv4 from 'uuid/v4';
 import i18n from '../../../i18n/i18n';
 
 // Mock Functions
@@ -110,7 +109,7 @@ describe('Invoices Middleware', () => {
         },
         rows: [
           {
-            id: uuidv4(),
+            id: crypto.randomUUID(),
             description: faker.commerce.productName(),
             price: faker.commerce.price(),
             quantity: faker.random.number(10),
@@ -140,7 +139,7 @@ describe('Invoices Middleware', () => {
         },
         rows: [
           {
-            id: uuidv4(),
+            id: crypto.randomUUID(),
             description: faker.commerce.productName(),
             price: faker.commerce.price(),
             quantity: faker.random.number(10),
@@ -189,7 +188,7 @@ describe('Invoices Middleware', () => {
         },
         rows: [
           {
-            id: uuidv4(),
+            id: crypto.randomUUID(),
             description: faker.commerce.productName(),
             price: faker.commerce.price(),
             quantity: faker.random.number(10),
@@ -262,7 +261,7 @@ describe('Invoices Middleware', () => {
         },
         rows: [
           {
-            id: uuidv4(),
+            id: crypto.randomUUID(),
             description: faker.commerce.productName(),
             price: faker.commerce.price(),
             quantity: faker.random.number(10),
@@ -305,7 +304,7 @@ describe('Invoices Middleware', () => {
         },
         rows: [
           {
-            id: uuidv4(),
+            id: crypto.randomUUID(),
             description: faker.commerce.productName(),
             price: faker.commerce.price(),
             quantity: faker.random.number(10),

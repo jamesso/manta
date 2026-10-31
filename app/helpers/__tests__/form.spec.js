@@ -1,6 +1,5 @@
 // Libs
 import faker from 'faker';
-import uuidv4 from 'uuid/v4';
 import i18n from '../../../i18n/i18n';
 import omit from 'lodash';
 
@@ -30,7 +29,7 @@ describe('getInvoiceData', () => {
       recipient: {
         newRecipient: true,
         select: {
-          id: uuidv4(),
+          id: crypto.randomUUID(),
           fullname: faker.name.findName(),
           email: faker.internet.email(),
           company: faker.company.companyName(),
@@ -43,13 +42,13 @@ describe('getInvoiceData', () => {
       },
       rows: [
         {
-          id: uuidv4(),
+          id: crypto.randomUUID(),
           description: faker.commerce.productName(),
           price: faker.commerce.price(),
           quantity: faker.random.number(100),
         },
         {
-          id: uuidv4(),
+          id: crypto.randomUUID(),
           description: faker.commerce.productName(),
           price: faker.commerce.price(),
           quantity: faker.random.number(100),
@@ -270,8 +269,8 @@ describe('getInvoiceData', () => {
   });
 
   it('should return correct metadata on editMode', () => {
-    const invoiceID = uuidv4();
-    const invoiceRev = uuidv4();
+    const invoiceID = crypto.randomUUID();
+    const invoiceRev = crypto.randomUUID();
     const createdDate = Date.now();
     const newFormData = Object.assign({}, formData, {
       settings: Object.assign({}, formData.settings, {
@@ -317,7 +316,7 @@ describe('validateFormData', () => {
       },
       rows: [
         {
-          id: uuidv4(),
+          id: crypto.randomUUID(),
           description: faker.commerce.productName(),
           price: faker.commerce.price(),
           quantity: faker.random.number(100),
@@ -767,21 +766,21 @@ describe('set correct recipient information to use in edit mode', () => {
   beforeEach(() => {
     allContacts = [
       {
-        _id: uuidv4(),
+        _id: crypto.randomUUID(),
         fullname: faker.name.findName(),
         email: faker.internet.email(),
         company: faker.company.companyName(),
         phone: faker.phone.phoneNumber(),
       },
       {
-        _id: uuidv4(),
+        _id: crypto.randomUUID(),
         fullname: faker.name.findName(),
         email: faker.internet.email(),
         company: faker.company.companyName(),
         phone: faker.phone.phoneNumber(),
       },
       {
-        _id: uuidv4(),
+        _id: crypto.randomUUID(),
         fullname: faker.name.findName(),
         email: faker.internet.email(),
         company: faker.company.companyName(),

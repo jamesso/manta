@@ -6,7 +6,6 @@ import FormReducer, {
 import * as ACTION_TYPES from '../../constants/actions.jsx';
 import currencies from '../../../libs/currencies.json';
 
-import uuidv4 from 'uuid/v4';
 import faker from 'faker';
 import { pick } from 'lodash';
 

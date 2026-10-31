@@ -1,7 +1,6 @@
 // Node Libs
 import { remote } from 'electron';
 const appConfig = remote.getGlobal('mantaSettings');
-import uuidv4 from 'uuid/v4';
 import i18n from '../../i18n/i18n';
 
 // Actions Verbs
@@ -47,7 +46,7 @@ const FormMW = ({ dispatch, getState }) => next => action => {
     case ACTION_TYPES.FORM_ITEM_ADD: {
       return next(
         Object.assign({}, action, {
-          payload: { id: uuidv4() },
+          payload: { id: crypto.randomUUID() },
         })
       );
     }

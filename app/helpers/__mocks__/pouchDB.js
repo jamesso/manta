@@ -1,7 +1,5 @@
 import { vi } from 'vitest';
 import faker from 'faker';
-import uuidv4 from 'uuid/v4';
-
 const contactDoc = {
   id: 'jon-snow',
   fullname: 'Jon Snow',
@@ -16,7 +14,7 @@ const invoiceDoc = {
   },
   rows: [
     {
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       description: 'Dragons',
       price: '100',
       quantity: '3',

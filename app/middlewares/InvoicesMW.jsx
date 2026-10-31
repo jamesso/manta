@@ -1,5 +1,4 @@
 // Node Libs
-import uuidv4 from 'uuid/v4';
 import currencies from '../../libs/currencies.json';
 import { remote, ipcRenderer as ipc } from 'electron';
 const appConfig = remote.getGlobal('mantaSettings');
@@ -141,7 +140,7 @@ const InvoicesMW = ({ dispatch, getState }) => next => action => {
     case ACTION_TYPES.INVOICE_DUPLICATE: {
       const duplicateInvoice = Object.assign({}, action.payload, {
         created_at: Date.now(),
-        _id: uuidv4(),
+        _id: crypto.randomUUID(),
         _rev: null,
       })
       return dispatch({

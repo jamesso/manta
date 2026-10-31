@@ -4,8 +4,6 @@ const appConfig = remote.getGlobal('mantaSettings');
 import { getInvoiceValue } from './invoice';
 import { isEmpty, pick, includes } from 'lodash';
 import i18n from '../../i18n/i18n';
-import uuidv4 from 'uuid/v4';
-
 function validateFormData(formData) {
   const {
     invoiceID,
@@ -51,7 +49,7 @@ function getInvoiceData(formData) {
   if (recipient.newRecipient) {
     // Add id & created_at so the invoice records will remembers
     invoiceData.recipient = Object.assign({}, recipient.new, {
-      _id: uuidv4(),
+      _id: crypto.randomUUID(),
       created_at: Date.now(),
     });
   } else {
@@ -79,7 +77,7 @@ function getInvoiceData(formData) {
   // Return final value
   return Object.assign({}, invoiceData, {
     // Metadata
-    _id: editMode.active ? editMode.data._id : uuidv4(),
+    _id: editMode.active ? editMode.data._id : crypto.randomUUID(),
     _rev: editMode.active ? editMode.data._rev : null,
     created_at: editMode.active ? editMode.data.created_at : Date.now(),
     status: editMode.active ? editMode.data.status: 'pending',

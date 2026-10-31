@@ -46,7 +46,7 @@ describe('UI Middleware', () => {
       middleware(action);
       expect(getState.mock.calls.length).toBe(0);
       expect(next.mock.calls.length).toBe(1);
-      // Add id field with uuidv4 string to payload
+      // Add id field with fixed id string to payload
       expect(next).toHaveBeenCalledWith(
         Object.assign({}, action, {
           payload: Object.assign({}, action.payload, {
@@ -63,7 +63,7 @@ describe('UI Middleware', () => {
       middleware(action);
       expect(getState.mock.calls.length).toBe(0);
       expect(next.mock.calls.length).toBe(1);
-      // Add id field with uuidv4 string to payload
+      // Add id field with fixed id string to payload
       expect(next).toHaveBeenCalledWith(
         Object.assign({}, action, {
           payload: Object.assign({}, action.payload, {

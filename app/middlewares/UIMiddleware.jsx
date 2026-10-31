@@ -1,7 +1,5 @@
 import * as ACTION_TYPES from '../constants/actions.jsx';
 import sounds from '../../libs/sounds';
-import uuidv4 from 'uuid/v4';
-
 const UIMiddleware = ({ getState }) => next => action => {
   switch (action.type) {
     // Changing Tabs
@@ -32,7 +30,7 @@ const UIMiddleware = ({ getState }) => next => action => {
       return next(
         Object.assign({}, action, {
           payload: Object.assign({}, action.payload, {
-            id: uuidv4(),
+            id: crypto.randomUUID(),
           }),
         })
       );

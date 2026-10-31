@@ -1,6 +1,5 @@
 import * as ACTION_TYPES from '../../constants/actions.jsx';
 import faker from 'faker';
-import uuidv4 from 'uuid/v4';
 import RootReducer, {
   getConfigs,
   getInvoice,

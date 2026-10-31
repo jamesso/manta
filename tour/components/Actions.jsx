@@ -1,7 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import uuidv4 from 'uuid/v4';
-
 import styled from 'styled-components';
 
 const Content = styled.div`
@@ -38,7 +36,7 @@ import Button from '../../app/components/shared/Button';
 function Actions({ t, endTour, nextSlide, currentSlide, totalSlide }) {
   const indicators = [];
   for (let i = 0; i < totalSlide; i++) {
-    indicators.push(<Dot key={uuidv4()} active={i + 1 === currentSlide} />);
+    indicators.push(<Dot key={i} active={i + 1 === currentSlide} />);
   }
 
   return (
