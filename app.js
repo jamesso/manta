@@ -25,6 +25,12 @@ if (process.env.MANTA_USER_DATA) {
 }
 remoteMain.initialize();
 
+const { createRequire } = require('module');
+const appRequire = createRequire(path.join(app.getAppPath(), 'package.json'));
+app.on('remote-require', (event, _webContents, moduleName) => {
+  event.returnValue = appRequire(moduleName);
+});
+
 // Place a BrowserWindow in center of primary display
 const centerOnPrimaryDisplay = require('./helpers/center-on-primary-display');
 
