@@ -4,9 +4,6 @@ import { createStore, applyMiddleware, compose } from 'redux';
 // Root Reducer
 import rootReducer from '../reducers';
 
-// 3rd Party MWs
-import Logger from 'redux-logger';
-
 // Custom Middleware
 import MeasureMW from '../middlewares/MeasureMW';
 import FormMW from '../middlewares/FormMW';
@@ -22,7 +19,6 @@ const middlewares = [FormMW, ContactsMW, InvoicesMW, SettingsMW, UIMiddleware];
 const isDev = import.meta.env.DEV;
 if (isDev) {
   middlewares.unshift(MeasureMW);
-  middlewares.push(Logger);
 }
 
 // Redux Devtool

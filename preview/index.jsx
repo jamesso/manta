@@ -21,13 +21,12 @@ import combineReducers from './reducers';
 import Viewer from './Viewer';
 
 // Middleware
-import Logger from 'redux-logger';
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
 // Create Store
 const store = createStore(
   combineReducers,
-  composeEnhancers(applyMiddleware(Logger))
+  composeEnhancers(applyMiddleware())
 );
 
 createRoot(document.getElementById('root')).render(
