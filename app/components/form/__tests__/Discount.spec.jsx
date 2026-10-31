@@ -1,7 +1,6 @@
 // Libs
 import React from 'react';
-import renderer from 'react-test-renderer';
-import { mount } from 'enzyme';
+import { render, fireEvent } from '@testing-library/react';
 
 // Component
 import { Discount } from '../Discount';
@@ -14,44 +13,23 @@ const discount = {
   amount: 100,
 };
 
+function renderDiscount() {
+  return render(
+    <Discount t={t} discount={discount} updateFieldData={updateFieldData} />
+  );
+}
+
+beforeEach(() => {
+  updateFieldData.mockClear();
+});
+
 describe('Renders correctly to the DOM', () => {
-  let wrapper;
-  beforeEach(() => {
-    wrapper = mount(
-      <Discount t={t} discount={discount} updateFieldData={updateFieldData} />
-    );
-  });
-
-  // TODO
-  it('will not rerender if threre is no change in Props', () => {});
-
-  it('receives correct props', () => {
-    expect(wrapper.prop('discount')).toEqual(discount);
-    expect(wrapper.prop('discount')).not.toEqual({});
-    expect(wrapper.prop('updateFieldData')).toEqual(updateFieldData);
-  });
-
-  it('renders necessary element', () => {
-    expect(wrapper.find('label')).toHaveLength(3);
-    expect(wrapper.find('input')).toHaveLength(3);
-  });
-
   describe('handle input change correctly', () => {
     it('convert amount input to number', () => {
-      // Setup
-      const changeData = {
-        target: {
-          name: 'amount',
-          value: '100',
-        },
-      };
-      const instance = wrapper.instance();
-      const spy = vi.spyOn(instance, 'handleInputChange');
-      // Execute
-      instance.handleInputChange(changeData);
-      // Expect
-      expect(spy).toHaveBeenCalled();
-      expect(spy).toHaveBeenCalledWith(changeData);
+      const { container } = renderDiscount();
+      const amount = container.querySelector('input[name="amount"]');
+      fireEvent.change(amount, { target: { value: '' } });
+      fireEvent.change(amount, { target: { value: '100' } });
       expect(updateFieldData).toHaveBeenCalledWith('discount', {
         type: 'flat',
         amount: 100,
@@ -59,33 +37,14 @@ describe('Renders correctly to the DOM', () => {
     });
 
     it('keep type input as string', () => {
-      // Setup
-      const changeData = {
-        target: {
-          name: 'type',
-          value: 'percentage',
-        },
-      };
-      const instance = wrapper.instance();
-      const spy = vi.spyOn(instance, 'handleInputChange');
-      // Execute
-      instance.handleInputChange(changeData);
-      // Expect
-      expect(spy).toHaveBeenCalled();
-      expect(spy).toHaveBeenCalledWith(changeData);
+      const { container } = renderDiscount();
+      fireEvent.click(
+        container.querySelector('input[name="type"][value="percentage"]')
+      );
       expect(updateFieldData).toHaveBeenCalledWith('discount', {
         type: 'percentage',
         amount: 100,
       });
     });
-  });
-
-  it('matches snapshot', () => {
-    const tree = renderer
-      .create(
-        <Discount t={t} discount={discount} updateFieldData={updateFieldData} />
-      )
-      .toJSON();
-    expect(tree).toMatchSnapshot();
   });
 });

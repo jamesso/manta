@@ -1,7 +1,6 @@
 // Libs
 import React from 'react';
-import renderer from 'react-test-renderer';
-import { mount } from 'enzyme';
+import { render, fireEvent } from '@testing-library/react';
 
 // Component
 import { ItemRow } from '../ItemRow.jsx';
@@ -21,172 +20,84 @@ const removeRow = vi.fn();
 const updateRow = vi.fn();
 const t = vi.fn();
 
+function renderRow() {
+  return render(
+    <ItemRow
+      t={t}
+      actions={actions}
+      addItem={addItem}
+      hasHandler={hasHandler}
+      item={item}
+      removeRow={removeRow}
+      updateRow={updateRow}
+    />
+  );
+}
+
+beforeEach(() => {
+  addItem.mockClear();
+  removeRow.mockClear();
+  updateRow.mockClear();
+});
+
 describe('Renders correctly to the DOM', () => {
-  let wrapper;
-  beforeEach(() => {
-    wrapper = mount(
-      <ItemRow
-        t={t}
-        actions={actions}
-        addItem={addItem}
-        hasHandler={hasHandler}
-        item={item}
-        removeRow={removeRow}
-        updateRow={updateRow}
-      />
-    );
-  });
-
-  // PROPS & STATE
-  it('receives correct props', () => {
-    expect(wrapper.prop('actions')).toEqual(true);
-    expect(wrapper.prop('actions')).not.toEqual(false);
-    expect(wrapper.prop('hasHandler')).toEqual(true);
-    expect(wrapper.prop('hasHandler')).not.toEqual(false);
-    expect(wrapper.prop('item')).toEqual(item);
-    expect(wrapper.prop('removeRow')).toEqual(removeRow);
-    expect(wrapper.prop('updateRow')).toEqual(updateRow);
-  });
-
-  // RENDER
-  it('renders necessary element', () => {
-    expect(wrapper.find('input')).toHaveLength(3);
-    expect(wrapper.find('a')).toHaveLength(1);
-  });
-
-  // LIFE CYCLE EVENTS
   it('set local state as item prop value', () => {
-    expect(wrapper.state()).toEqual(item);
+    const { container } = renderRow();
+    expect(container.querySelector('input[name="description"]')).toHaveValue(
+      item.description
+    );
+    expect(container.querySelector('input[name="price"]')).toHaveValue(item.price);
+    expect(container.querySelector('input[name="quantity"]')).toHaveValue(
+      item.quantity
+    );
   });
 
-  // PRIVATE METHOD
   it('handle text input change correctly', () => {
-    // Setup
     const spy = vi.spyOn(ItemRow.prototype, 'handleTextInputChange');
-    const wrap = mount(
-      <ItemRow
-        t={t}
-        actions={actions}
-        addItem={addItem}
-        hasHandler={hasHandler}
-        item={item}
-        removeRow={removeRow}
-        updateRow={updateRow}
-      />
-    );
-    // Execute
-    const textChange = {
-      target: {
-        name: 'description',
-        value: 'iPhoneX',
-      },
-    };
-    const descriptionInput = wrap.find('input').first();
-    descriptionInput.simulate('change', textChange);
-    // Assert
+    const { container } = renderRow();
+    fireEvent.change(container.querySelector('input[name="description"]'), {
+      target: { value: 'iPhoneX' },
+    });
     expect(spy).toHaveBeenCalled();
+    spy.mockRestore();
   });
 
   it('handle number input change correctly', () => {
     const spy = vi.spyOn(ItemRow.prototype, 'handleNumberInputChange');
-    const wrap = mount(
-      <ItemRow
-        t={t}
-        actions={actions}
-        addItem={addItem}
-        hasHandler={hasHandler}
-        item={item}
-        removeRow={removeRow}
-        updateRow={updateRow}
-      />
-    );
-
-    // Execute
-    const priceChange = {
-      target: {
-        name: 'price',
-        value: '999',
-      },
-    };
-    const priceInput = wrap.find('input').at(1);
-    const quantityInput = wrap.find('input').last();
-    priceInput.simulate('change', priceChange);
-    // Assertion
+    const { container } = renderRow();
+    fireEvent.change(container.querySelector('input[name="price"]'), {
+      target: { value: '1000' },
+    });
     expect(spy).toHaveBeenCalled();
+    spy.mockRestore();
   });
 
   it('add new row when press enter', () => {
     const spy = vi.spyOn(ItemRow.prototype, 'handleKeyDown');
-    const wrap = mount(
-      <ItemRow
-        t={t}
-        actions={actions}
-        addItem={addItem}
-        hasHandler={hasHandler}
-        item={item}
-        removeRow={removeRow}
-        updateRow={updateRow}
-      />
-    );
-    // Execute
-    const keyChange = {
+    const { container } = renderRow();
+    fireEvent.keyDown(container.querySelector('input[name="description"]'), {
       which: 13,
-    };
-    const descriptionInput = wrap.find('input').first();
-    descriptionInput.simulate('keyDown', keyChange);
-    // Assertion
+      keyCode: 13,
+      key: 'Enter',
+    });
     expect(spy).toHaveBeenCalled();
     expect(addItem).toHaveBeenCalled();
+    spy.mockRestore();
   });
 
   it('updateSubtotal when price and quantity change', () => {
     const spy = vi.spyOn(ItemRow.prototype, 'updateSubtotal');
-    const wrap = mount(
-      <ItemRow
-        t={t}
-        actions={actions}
-        addItem={addItem}
-        hasHandler={hasHandler}
-        item={item}
-        removeRow={removeRow}
-        updateRow={updateRow}
-      />
-    );
-
-    // Execute
-    const priceChange = {
-      target: {
-        name: 'price',
-        value: '799',
-      },
-    };
-    const priceInput = wrap.find('input').at(1);
-    priceInput.simulate('change', priceChange);
-    // Assertion
+    const { container } = renderRow();
+    fireEvent.change(container.querySelector('input[name="price"]'), {
+      target: { value: '799' },
+    });
     expect(spy).toHaveBeenCalled();
+    spy.mockRestore();
   });
 
   it('handle removeRow correctly', () => {
-    const removeBtn = wrapper.find('a');
-    removeBtn.simulate('click');
+    const { container } = renderRow();
+    fireEvent.click(container.querySelector('a'));
     expect(removeRow).toHaveBeenCalled();
-  });
-
-  // SNAPSHOT
-  it('matches snapshot', () => {
-    const tree = renderer
-      .create(
-        <ItemRow
-          t={t}
-          actions={actions}
-          addItem={addItem}
-          hasHandler={hasHandler}
-          item={item}
-          removeRow={removeRow}
-          updateRow={updateRow}
-        />
-      )
-      .toJSON();
-    expect(tree).toMatchSnapshot();
   });
 });

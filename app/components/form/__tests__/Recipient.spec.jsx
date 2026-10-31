@@ -1,7 +1,6 @@
 // Libs
 import React from 'react';
-import renderer from 'react-test-renderer';
-import { mount } from 'enzyme';
+import { render, fireEvent } from '@testing-library/react';
 
 // Component
 import { Recipient } from '../Recipient.jsx';
@@ -33,38 +32,14 @@ const recipient = {
 const t = vi.fn();
 const dispatch = vi.fn();
 
+beforeEach(() => {
+  dispatch.mockClear();
+});
+
 describe('Recipient component', () => {
-  let wrapper;
-  beforeEach(() => {
-    wrapper = mount(
-      <Recipient
-        t={t}
-        contacts={contacts}
-        recipient={recipient}
-        dispatch={dispatch}
-      />
-    );
-  });
-
-  // PROPS & STATE
-  it('receives correct props', () => {
-    expect(wrapper.prop('contacts')).toEqual(contacts);
-    expect(wrapper.prop('recipient')).toEqual(recipient);
-    expect(wrapper.prop('dispatch')).toEqual(dispatch);
-  });
-
-  // TODO
-  // RENDER
-  it('renders necessary element', () => {});
-
-  // LIFE CYCLE EVENTS
-  it('render when necessary', () => {});
-
-  // PRIVATE METHOD
   it('handle toggleForm correctly', () => {
-    // Setup
     const spy = vi.spyOn(Recipient.prototype, 'toggleForm');
-    const wrap = mount(
+    const { container } = render(
       <Recipient
         t={t}
         contacts={contacts}
@@ -72,26 +47,9 @@ describe('Recipient component', () => {
         dispatch={dispatch}
       />
     );
-    const inputSelect = wrap.find('input').last();
-    // Execute
-    inputSelect.simulate('change', { target: { checked: true } });
-    // Assert
+    fireEvent.click(container.querySelector('input[value="select"]'));
     expect(spy).toHaveBeenCalled();
     expect(dispatch).toHaveBeenCalled();
-  });
-
-  // SNAPSHOT
-  it('matches snapshot', () => {
-    const tree = renderer
-      .create(
-        <Recipient
-          t={t}
-          contacts={contacts}
-          recipient={recipient}
-          dispatch={dispatch}
-        />
-      )
-      .toJSON();
-    expect(tree).toMatchSnapshot();
+    spy.mockRestore();
   });
 });

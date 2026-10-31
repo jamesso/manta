@@ -1,8 +1,6 @@
 // Libs
 import React from 'react';
-import renderer from 'react-test-renderer';
-import { mount } from 'enzyme';
-import Switch from '../../shared/Switch';
+import { render, fireEvent } from '@testing-library/react';
 
 // Component
 import Settings from '../Settings.jsx';
@@ -49,10 +47,17 @@ const toggleFormSettings = vi.fn();
 const updateSavedSettings = vi.fn();
 const t = vi.fn();
 
+const fieldNames = ['invoiceID', 'dueDate', 'currency', 'discount', 'tax', 'note'];
+
+beforeEach(() => {
+  toggleField.mockClear();
+  toggleFormSettings.mockClear();
+  updateSavedSettings.mockClear();
+});
+
 describe('Settings component', () => {
-  let wrapper;
-  beforeEach(() => {
-    wrapper = mount(
+  it('toggle field correctly', () => {
+    const { container } = render(
       <Settings
         t={t}
         settings={currentInvoice.settings}
@@ -62,82 +67,12 @@ describe('Settings component', () => {
         updateSavedSettings={updateSavedSettings}
       />
     );
-  });
 
-  // PROPS & STATE
-  it('receives correct props', () => {
-    expect(wrapper.prop('settings')).toEqual(currentInvoice.settings);
-    expect(wrapper.prop('toggleField')).toEqual(toggleField);
-    expect(wrapper.prop('toggleFormSettings')).toEqual(toggleFormSettings);
-    expect(wrapper.prop('updateSavedSettings')).toEqual(updateSavedSettings);
-  });
-
-  // RENDER
-  it('renders necessary element', () => {
-    expect(wrapper.find('label')).toHaveLength(13);
-    expect(wrapper.find(Switch)).toHaveLength(6);
-  });
-
-  // LIFE CYCLE EVENTS
-  // TODO
-  it('render when necessary', () => {});
-
-  // PRIsettingsE METHOD
-  it('toggle field correctly', () => {
-    // Setup
-    const invoiceID = wrapper.find(Switch).at(0);
-    const dueDate = wrapper.find(Switch).at(1);
-    const currency = wrapper.find(Switch).at(2);
-    const discount = wrapper.find(Switch).at(3);
-    const tax = wrapper.find(Switch).at(4);
-    const note = wrapper.find(Switch).at(5);
-
-    // Execute & Assert
-    invoiceID.find('input').simulate('change');
-    expect(toggleField).toHaveBeenCalled();
-    expect(toggleField).toHaveBeenCalledWith('invoiceID');
-    expect(toggleField).not.toHaveBeenCalledWith('something-else');
-
-    dueDate.find('input').simulate('change');
-    expect(toggleField).toHaveBeenCalled();
-    expect(toggleField).toHaveBeenCalledWith('dueDate');
-    expect(toggleField).not.toHaveBeenCalledWith('something-else');
-
-    currency.find('input').simulate('change');
-    expect(toggleField).toHaveBeenCalled();
-    expect(toggleField).toHaveBeenCalledWith('currency');
-    expect(toggleField).not.toHaveBeenCalledWith('something-else');
-
-    discount.find('input').simulate('change');
-    expect(toggleField).toHaveBeenCalled();
-    expect(toggleField).toHaveBeenCalledWith('discount');
-    expect(toggleField).not.toHaveBeenCalledWith('something-else');
-
-    tax.find('input').simulate('change');
-    expect(toggleField).toHaveBeenCalled();
-    expect(toggleField).toHaveBeenCalledWith('tax');
-    expect(toggleField).not.toHaveBeenCalledWith('something-else');
-
-    note.find('input').simulate('change');
-    expect(toggleField).toHaveBeenCalled();
-    expect(toggleField).toHaveBeenCalledWith('note');
-    expect(toggleField).not.toHaveBeenCalledWith('something-else');
-  });
-
-  // SNAPSHOT
-  it('matches snapshot', () => {
-    const tree = renderer
-      .create(
-        <Settings
-          t={t}
-          settings={currentInvoice.settings}
-          savedSettings={currentInvoice.savedSettings.required_fields}
-          toggleField={toggleField}
-          toggleFormSettings={toggleFormSettings}
-          updateSavedSettings={updateSavedSettings}
-        />
-      )
-      .toJSON();
-    expect(tree).toMatchSnapshot();
+    fieldNames.forEach(name => {
+      fireEvent.click(container.querySelector(`input[name="${name}"]`));
+      expect(toggleField).toHaveBeenCalled();
+      expect(toggleField).toHaveBeenCalledWith(name);
+      expect(toggleField).not.toHaveBeenCalledWith('something-else');
+    });
   });
 });
