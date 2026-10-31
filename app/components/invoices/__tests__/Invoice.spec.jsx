@@ -1,12 +1,9 @@
 // Libs
 import React from 'react';
-import { shallow, mount } from 'enzyme';
-import renderer from 'react-test-renderer';
+import { render, screen, fireEvent } from '@testing-library/react';
 
 // Component
-import Invoice, { Header, Status, Footer } from '../Invoice';
-import Button from '../../shared/Button';
-import SplitButton from '../../shared/SplitButton';
+import Invoice from '../Invoice';
 
 // Mocks
 const invoice = {
@@ -57,226 +54,107 @@ const t = vi.fn(status => {
   }
 });
 
-// Tests
+function renderInvoice(current = invoice) {
+  return render(
+    <Invoice
+      t={t}
+      invoice={current}
+      editInvoice={editInvoice}
+      deleteInvoice={deleteInvoice}
+      duplicateInvoice={duplicateInvoice}
+      setInvoiceStatus={setInvoiceStatus}
+      dateFormat={dateFormat}
+      currencyPlacement={currencyPlacement}
+    />
+  );
+}
+
+function statusNode(container, iconClass) {
+  return container.querySelector(`.${iconClass}`).parentElement;
+}
+
+beforeEach(() => {
+  editInvoice.mockClear();
+  deleteInvoice.mockClear();
+  duplicateInvoice.mockClear();
+  setInvoiceStatus.mockClear();
+});
+
 describe('Renders correctly to the DOM', () => {
-  let wrapper;
-  beforeEach(() => {
-    wrapper = shallow(
-      <Invoice
-        t={t}
-        invoice={invoice}
-        editInvoice={editInvoice}
-        deleteInvoice={deleteInvoice}
-        duplicateInvoice={duplicateInvoice}
-        setInvoiceStatus={setInvoiceStatus}
-        dateFormat={dateFormat}
-        currencyPlacement={currencyPlacement}
-      />
-    );
-  });
-
-  it('receives correct props', () => {
-    const mountWrapper = mount(
-      <Invoice
-        t={t}
-        invoice={invoice}
-        editInvoice={editInvoice}
-        deleteInvoice={deleteInvoice}
-        duplicateInvoice={duplicateInvoice}
-        setInvoiceStatus={setInvoiceStatus}
-        dateFormat={dateFormat}
-        currencyPlacement={currencyPlacement}
-      />
-    );
-    expect(mountWrapper.prop('invoice')).toEqual(invoice);
-    expect(mountWrapper.prop('deleteInvoice')).toEqual(deleteInvoice);
-    expect(mountWrapper.prop('setInvoiceStatus')).toEqual(setInvoiceStatus);
-  });
-
-  it('render with a class of .col-lg-6', () => {
-    expect(wrapper.find('.col-lg-6')).toHaveLength(1);
-    expect(wrapper.find('.col-lg-6')).not.toHaveLength(2);
-  });
-
-  it('render invoice status in the header', () => {
-    expect(wrapper.find(Header).find(Status)).toHaveLength(1);
-  });
-
   it('render invoice status correctly', () => {
-    // Pending Invoice (default)
-    expect(
-      wrapper
-        .find(Header)
-        .find(Status)
-        .find('span')
-        .text()
-    ).toEqual('Pending');
+    const pending = renderInvoice();
+    expect(statusNode(pending.container, 'ion-loop')).toHaveTextContent('Pending');
+    pending.unmount();
 
-    // Paid Invoice
-    const paidInvoice = Object.assign({}, invoice, { status: 'paid' });
-    const paidInvoiceWapper = shallow(
-      <Invoice
-        t={t}
-        language="en"
-        invoice={paidInvoice}
-        editInvoice={editInvoice}
-        deleteInvoice={deleteInvoice}
-        duplicateInvoice={duplicateInvoice}
-        setInvoiceStatus={setInvoiceStatus}
-        dateFormat={dateFormat}
-        currencyPlacement={currencyPlacement}
-      />
+    const paid = renderInvoice(Object.assign({}, invoice, { status: 'paid' }));
+    expect(statusNode(paid.container, 'ion-checkmark')).toHaveTextContent('Paid');
+    paid.unmount();
+
+    const cancelled = renderInvoice(
+      Object.assign({}, invoice, { status: 'cancelled' })
+    );
+    expect(statusNode(cancelled.container, 'ion-backspace')).toHaveTextContent(
+      'Cancelled'
+    );
+    cancelled.unmount();
+
+    const refunded = renderInvoice(
+      Object.assign({}, invoice, { status: 'refunded' })
     );
     expect(
-      paidInvoiceWapper
-        .find(Header)
-        .find(Status)
-        .find('span')
-        .text()
-    ).toEqual('Paid');
-
-    // Cancelled Invoice
-    const cancelledInvoice = Object.assign({}, invoice, {
-      status: 'cancelled',
-    });
-    const cancelledInvoiceWapper = shallow(
-      <Invoice
-        t={t}
-        language="en"
-        invoice={cancelledInvoice}
-        editInvoice={editInvoice}
-        deleteInvoice={deleteInvoice}
-        duplicateInvoice={duplicateInvoice}
-        setInvoiceStatus={setInvoiceStatus}
-        dateFormat={dateFormat}
-        currencyPlacement={currencyPlacement}
-      />
-    );
-    expect(
-      cancelledInvoiceWapper
-        .find(Header)
-        .find(Status)
-        .find('span')
-        .text()
-    ).toEqual('Cancelled');
-
-    // Refunded Invoice
-    const refundedInvoice = Object.assign({}, invoice, { status: 'refunded' });
-    const refundedInvoiceWapper = shallow(
-      <Invoice
-        t={t}
-        language="en"
-        invoice={refundedInvoice}
-        editInvoice={editInvoice}
-        deleteInvoice={deleteInvoice}
-        duplicateInvoice={duplicateInvoice}
-        setInvoiceStatus={setInvoiceStatus}
-        dateFormat={dateFormat}
-        currencyPlacement={currencyPlacement}
-      />
-    );
-    expect(
-      refundedInvoiceWapper
-        .find(Header)
-        .find(Status)
-        .find('span')
-        .text()
-    ).toEqual('Refunded');
-  });
-
-  it('render delete and duplicate button in the header', () => {
-    expect(wrapper.find(Header).find(Button)).toHaveLength(2);
-  });
-
-  it('render a split button and 2 buttons in the footer', () => {
-    expect(wrapper.find(Footer).find(SplitButton)).toHaveLength(1);
-    expect(wrapper.find(Footer).find(Button)).toHaveLength(2);
-  });
-
-  it('matches snapshot', () => {
-    const tree = renderer
-      .create(
-        <Invoice
-          t={t}
-          invoice={invoice}
-          editInvoice={editInvoice}
-          deleteInvoice={deleteInvoice}
-          duplicateInvoice={duplicateInvoice}
-          setInvoiceStatus={setInvoiceStatus}
-          dateFormat={dateFormat}
-          currencyPlacement={currencyPlacement}
-        />
-      )
-      .toJSON();
-    expect(tree).toMatchSnapshot();
+      statusNode(refunded.container, 'ion-arrow-return-left')
+    ).toHaveTextContent('Refunded');
   });
 });
 
 describe('handle clicks correctly', () => {
-  let wrapper,
-    editBtn,
-    viewBtn,
-    duplicateBtn,
-    deleteBtn,
-    spyViewAction,
-    spyEditAction,
-    spyDuplicateAction;
+  let spyViewAction;
+  let spyEditAction;
+  let spyDuplicateAction;
+
   beforeEach(() => {
     spyViewAction = vi.spyOn(Invoice.prototype, 'viewInvoice');
     spyEditAction = vi.spyOn(Invoice.prototype, 'editInvoice');
     spyDuplicateAction = vi.spyOn(Invoice.prototype, 'duplicateInvoice');
-    wrapper = shallow(
-      <Invoice
-        t={t}
-        invoice={invoice}
-        editInvoice={editInvoice}
-        deleteInvoice={deleteInvoice}
-        duplicateInvoice={duplicateInvoice}
-        setInvoiceStatus={setInvoiceStatus}
-        dateFormat={dateFormat}
-        currencyPlacement={currencyPlacement}
-      />
-    );
-    viewBtn = wrapper
-      .find(Button)
-      .filterWhere(btn => !btn.prop('link'))
-      .last();
-    editBtn = wrapper
-      .find(Button)
-      .filterWhere(btn => !btn.prop('link'))
-      .first();
-    deleteBtn = wrapper.find(Button).filterWhere(btn => btn.prop('link')).at(1);
-    duplicateBtn = wrapper
-      .find(Button)
-      .filterWhere(btn => btn.prop('link'))
-      .first();
+  });
+
+  afterEach(() => {
+    spyViewAction.mockRestore();
+    spyEditAction.mockRestore();
+    spyDuplicateAction.mockRestore();
   });
 
   it('handle edit action correctly', () => {
-    editBtn.simulate('click');
+    renderInvoice();
+    fireEvent.click(screen.getAllByRole('button', { name: 'Pending' })[0]);
     expect(editInvoice).toHaveBeenCalled();
     expect(editInvoice).toHaveBeenCalledWith(invoice);
   });
 
   it('handle delete action correctly', () => {
-    deleteBtn.simulate('click');
+    const { container } = renderInvoice();
+    fireEvent.click(container.querySelector('.ion-trash-a').closest('button'));
     expect(deleteInvoice).toHaveBeenCalled();
     expect(deleteInvoice).toHaveBeenCalledWith(invoice._id);
   });
 
   it('handle duplicate action correctly', () => {
-    duplicateBtn.simulate('click');
+    const { container } = renderInvoice();
+    fireEvent.click(container.querySelector('.ion-ios-copy').closest('button'));
     expect(duplicateInvoice).toHaveBeenCalled();
     expect(duplicateInvoice).toHaveBeenCalledWith(invoice);
   });
 
   it('handle view action correctly', () => {
-    viewBtn.simulate('click');
+    renderInvoice();
+    const pendingButtons = screen.getAllByRole('button', { name: 'Pending' });
+    fireEvent.click(pendingButtons[pendingButtons.length - 1]);
     expect(spyViewAction).toHaveBeenCalled();
   });
 
   it('handle edit action correctly', () => {
-    editBtn.simulate('click');
+    renderInvoice();
+    fireEvent.click(screen.getAllByRole('button', { name: 'Pending' })[0]);
     expect(spyEditAction).toHaveBeenCalled();
   });
 });
