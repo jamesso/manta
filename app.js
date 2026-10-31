@@ -42,6 +42,7 @@ if (process.argv.includes('--disable-hardware-acceleration')) {
 
 // 3rd Party Libs
 const appConfig = require('./main/settings');
+require('./main/settings-ipc');
 global.mantaSettings = appConfig;
 
 let tourWindow = null;
