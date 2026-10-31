@@ -1,5 +1,5 @@
 // Libs
-import faker from 'faker';
+import { faker } from '@faker-js/faker';
 import i18n from '../../../i18n/i18n';
 import omit from 'lodash';
 
@@ -30,13 +30,13 @@ describe('getInvoiceData', () => {
         newRecipient: true,
         select: {
           id: crypto.randomUUID(),
-          fullname: faker.name.findName(),
+          fullname: faker.person.fullName(),
           email: faker.internet.email(),
-          company: faker.company.companyName(),
-          phone: faker.phone.phoneNumber(),
+          company: faker.company.name(),
+          phone: faker.phone.number(),
         },
         new: {
-          fullname: faker.name.findName(),
+          fullname: faker.person.fullName(),
           email: faker.internet.email(),
         },
       },
@@ -45,13 +45,13 @@ describe('getInvoiceData', () => {
           id: crypto.randomUUID(),
           description: faker.commerce.productName(),
           price: faker.commerce.price(),
-          quantity: faker.random.number(100),
+          quantity: faker.number.int({ max: 100 }),
         },
         {
           id: crypto.randomUUID(),
           description: faker.commerce.productName(),
           price: faker.commerce.price(),
-          quantity: faker.random.number(100),
+          quantity: faker.number.int({ max: 100 }),
         },
       ],
       dueDate: {
@@ -208,7 +208,7 @@ describe('getInvoiceData', () => {
   it('should return tax data when required', () => {
     const newFormData = Object.assign({}, formData, {
       tax: {
-        amount: faker.random.number(20),
+        amount: faker.number.int({ max: 20 }),
         method: 'reverse',
         tin: '123-456-789',
       },
@@ -225,7 +225,7 @@ describe('getInvoiceData', () => {
   it('should return discount when required', () => {
     const newFormData = Object.assign({}, formData, {
       discount: {
-        amount: faker.random.number(20),
+        amount: faker.number.int({ max: 20 }),
         type: 'flat',
       },
       settings: Object.assign({}, formData.settings, {
@@ -308,10 +308,10 @@ describe('validateFormData', () => {
         newRecipient: true,
         select: {},
         new: {
-          fullname: faker.name.findName(),
+          fullname: faker.person.fullName(),
           email: faker.internet.email(),
-          company: faker.company.companyName(),
-          phone: faker.phone.phoneNumber(),
+          company: faker.company.name(),
+          phone: faker.phone.number(),
         },
       },
       rows: [
@@ -319,7 +319,7 @@ describe('validateFormData', () => {
           id: crypto.randomUUID(),
           description: faker.commerce.productName(),
           price: faker.commerce.price(),
-          quantity: faker.random.number(100),
+          quantity: faker.number.int({ max: 100 }),
         },
       ],
       dueDate: {
@@ -463,7 +463,7 @@ describe('validateRecipient', () => {
       newRecipient: true,
       new: {
         email: faker.internet.email(),
-        company: faker.company.companyName(),
+        company: faker.company.name(),
       },
     };
     const validation = validateRecipient(recipient);
@@ -479,7 +479,7 @@ describe('validateRecipient', () => {
     const recipient = {
       newRecipient: true,
       new: {
-        fullname: faker.name.findName(),
+        fullname: faker.person.fullName(),
         email: 'invalid-email-address',
       },
     };
@@ -504,10 +504,10 @@ describe('validateRecipient', () => {
     const recipient = {
       newRecipient: true,
       new: {
-        fullname: faker.name.findName(),
-        company: faker.company.companyName(),
+        fullname: faker.person.fullName(),
+        company: faker.company.name(),
         email: faker.internet.email(),
-        phone: faker.phone.phoneNumber(),
+        phone: faker.phone.number(),
       },
     };
     const validation = validateRecipient(recipient);
@@ -580,7 +580,7 @@ describe('validateRows', () => {
       {
         description: faker.commerce.productName(),
         price: faker.commerce.price(),
-        quantity: faker.random.number(100),
+        quantity: faker.number.int({ max: 100 }),
       },
     ];
     const validation = validateRows(rows);
@@ -767,24 +767,24 @@ describe('set correct recipient information to use in edit mode', () => {
     allContacts = [
       {
         _id: crypto.randomUUID(),
-        fullname: faker.name.findName(),
+        fullname: faker.person.fullName(),
         email: faker.internet.email(),
-        company: faker.company.companyName(),
-        phone: faker.phone.phoneNumber(),
+        company: faker.company.name(),
+        phone: faker.phone.number(),
       },
       {
         _id: crypto.randomUUID(),
-        fullname: faker.name.findName(),
+        fullname: faker.person.fullName(),
         email: faker.internet.email(),
-        company: faker.company.companyName(),
-        phone: faker.phone.phoneNumber(),
+        company: faker.company.name(),
+        phone: faker.phone.number(),
       },
       {
         _id: crypto.randomUUID(),
-        fullname: faker.name.findName(),
+        fullname: faker.person.fullName(),
         email: faker.internet.email(),
-        company: faker.company.companyName(),
-        phone: faker.phone.phoneNumber(),
+        company: faker.company.name(),
+        phone: faker.phone.number(),
       },
     ];
   });
@@ -801,10 +801,10 @@ describe('set correct recipient information to use in edit mode', () => {
   it('should create a new contact if the current contact does not exist', () => {
     const currentContact = {
       _id: 'random-string',
-      fullname: faker.name.findName(),
+      fullname: faker.person.fullName(),
       email: faker.internet.email(),
-      company: faker.company.companyName(),
-      phone: faker.phone.phoneNumber(),
+      company: faker.company.name(),
+      phone: faker.phone.number(),
     };
     const editRecipient = setEditRecipient(allContacts, currentContact);
     expect(editRecipient).toEqual({

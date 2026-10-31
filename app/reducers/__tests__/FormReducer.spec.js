@@ -6,7 +6,7 @@ import FormReducer, {
 import * as ACTION_TYPES from '../../constants/actions.jsx';
 import currencies from '../../../libs/currencies.json';
 
-import faker from 'faker';
+import { faker } from '@faker-js/faker';
 import { pick } from 'lodash';
 
 describe('Form Reducer should handle', () => {
@@ -382,32 +382,32 @@ describe('Form Reducer should handle Invoice Edit', () => {
       contacts: [
         {
           _id: 'first-contact',
-          fullname: faker.name.findName(),
+          fullname: faker.person.fullName(),
           email: faker.internet.email(),
-          company: faker.company.companyName(),
-          phone: faker.phone.phoneNumber(),
+          company: faker.company.name(),
+          phone: faker.phone.number(),
         },
         {
           _id: 'second-contact',
-          fullname: faker.name.findName(),
+          fullname: faker.person.fullName(),
           email: faker.internet.email(),
-          company: faker.company.companyName(),
-          phone: faker.phone.phoneNumber(),
+          company: faker.company.name(),
+          phone: faker.phone.number(),
         },
         {
           _id: 'third-contact',
-          fullname: faker.name.findName(),
+          fullname: faker.person.fullName(),
           email: faker.internet.email(),
-          company: faker.company.companyName(),
-          phone: faker.phone.phoneNumber(),
+          company: faker.company.name(),
+          phone: faker.phone.number(),
         },
       ],
       recipient: {
         _id: 'random-string',
-        fullname: faker.name.findName(),
+        fullname: faker.person.fullName(),
         email: faker.internet.email(),
-        company: faker.company.companyName(),
-        phone: faker.phone.phoneNumber(),
+        company: faker.company.name(),
+        phone: faker.phone.number(),
       },
       rows: [
         {

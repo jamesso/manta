@@ -1,6 +1,6 @@
 import InvoicesReducer, { getInvoices } from '../InvoicesReducer';
 import * as ACTION_TYPES from '../../constants/actions.jsx';
-import faker from 'faker';
+import { faker } from '@faker-js/faker';
 const initialState = [];
 
 describe('Invoices Reducer', () => {
@@ -11,9 +11,9 @@ describe('Invoices Reducer', () => {
   let docs;
   beforeEach(() => {
     docs = [
-      { id: crypto.randomUUID(), name: faker.name.findName() },
-      { id: crypto.randomUUID(), name: faker.name.findName() },
-      { id: crypto.randomUUID(), name: faker.name.findName() },
+      { id: crypto.randomUUID(), name: faker.person.fullName() },
+      { id: crypto.randomUUID(), name: faker.person.fullName() },
+      { id: crypto.randomUUID(), name: faker.person.fullName() },
     ];
   });
 

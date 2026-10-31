@@ -1,7 +1,7 @@
 import * as ACTION_TYPES from '../../constants/actions.jsx';
 import * as Actions from '../../actions/contacts';
 import ContactsMW from '../ContactsMW';
-import faker from 'faker';
+import { faker } from '@faker-js/faker';
 import i18n from '../../../i18n/i18n';
 
 // Mocks
@@ -94,7 +94,7 @@ describe('Contacts Middleware', () => {
     it('addes id and timestamp to contact data', () => {
       // Setup
       const newContact = {
-        fullname: faker.name.findName(),
+        fullname: faker.person.fullName(),
         email: faker.internet.email(),
       };
       // Execute
@@ -107,7 +107,7 @@ describe('Contacts Middleware', () => {
     it('should save records to DB', () => {
       // Setup
       const newContact = {
-        fullname: faker.name.findName(),
+        fullname: faker.person.fullName(),
         email: faker.internet.email(),
       };
       // Execute
@@ -124,7 +124,7 @@ describe('Contacts Middleware', () => {
       const newContact = {
         _id: 'id-string',
         created_at: 'now',
-        fullname: faker.name.findName(),
+        fullname: faker.person.fullName(),
         email: faker.internet.email(),
       };
       const action = Actions.saveContact(newContact);
@@ -157,7 +157,7 @@ describe('Contacts Middleware', () => {
 
     it('handle syntax error correctly', async () => {
       const newContact = {
-        fullname: faker.name.findName(),
+        fullname: faker.person.fullName(),
         email: faker.internet.email(),
       };
       await middleware(Actions.saveContact(newContact));
@@ -170,7 +170,7 @@ describe('Contacts Middleware', () => {
     it('handle unknown error correctly', () => {
       // Setup
       const newContact = {
-        fullname: faker.name.findName(),
+        fullname: faker.person.fullName(),
         email: faker.internet.email(),
       };
       const expectedError = new Error('Something Broken!');

@@ -1,7 +1,7 @@
 import * as ACTION_TYPES from '../../constants/actions.jsx';
 import * as Actions from '../../actions/invoices';
 import InvoicesMW from '../InvoicesMW';
-import faker from 'faker';
+import { faker } from '@faker-js/faker';
 import i18n from '../../../i18n/i18n';
 
 // Mock Functions
@@ -104,7 +104,7 @@ describe('Invoices Middleware', () => {
       // Setup
       const newInvoice = {
         recipient: {
-          fullname: faker.name.findName(),
+          fullname: faker.person.fullName(),
           email: faker.internet.email(),
         },
         rows: [
@@ -112,7 +112,7 @@ describe('Invoices Middleware', () => {
             id: crypto.randomUUID(),
             description: faker.commerce.productName(),
             price: faker.commerce.price(),
-            quantity: faker.random.number(10),
+            quantity: faker.number.int({ max: 10 }),
           },
         ],
       };
@@ -128,7 +128,7 @@ describe('Invoices Middleware', () => {
     it('should call next and dispatch notification ', () => {
       const newInvoice = {
         recipient: {
-          fullname: faker.name.findName(),
+          fullname: faker.person.fullName(),
           email: faker.internet.email(),
         },
         currency: {
@@ -142,7 +142,7 @@ describe('Invoices Middleware', () => {
             id: crypto.randomUUID(),
             description: faker.commerce.productName(),
             price: faker.commerce.price(),
-            quantity: faker.random.number(10),
+            quantity: faker.number.int({ max: 10 }),
           },
         ],
       };
@@ -177,7 +177,7 @@ describe('Invoices Middleware', () => {
     it('tell main process to open preview window with invoice data', () => {
       const newInvoice = {
         recipient: {
-          fullname: faker.name.findName(),
+          fullname: faker.person.fullName(),
           email: faker.internet.email(),
         },
         currency: {
@@ -191,7 +191,7 @@ describe('Invoices Middleware', () => {
             id: crypto.randomUUID(),
             description: faker.commerce.productName(),
             price: faker.commerce.price(),
-            quantity: faker.random.number(10),
+            quantity: faker.number.int({ max: 10 }),
           },
         ],
       };
@@ -210,7 +210,7 @@ describe('Invoices Middleware', () => {
     it('handle syntax error correctly', async () => {
       const newInvoice = {
         recipient: {
-          fullname: faker.name.findName(),
+          fullname: faker.person.fullName(),
           email: faker.internet.email(),
         },
       };
@@ -225,7 +225,7 @@ describe('Invoices Middleware', () => {
       // Setup
       const newInvoice = {
         recipient: {
-          fullname: faker.name.findName(),
+          fullname: faker.person.fullName(),
           email: faker.internet.email(),
         },
       };
@@ -252,7 +252,7 @@ describe('Invoices Middleware', () => {
       // Setup
       const currentInvoice = {
         recipient: {
-          fullname: faker.name.findName(),
+          fullname: faker.person.fullName(),
           email: faker.internet.email(),
         },
         currency: {
@@ -264,7 +264,7 @@ describe('Invoices Middleware', () => {
             id: crypto.randomUUID(),
             description: faker.commerce.productName(),
             price: faker.commerce.price(),
-            quantity: faker.random.number(10),
+            quantity: faker.number.int({ max: 10 }),
           },
         ],
       };
@@ -295,7 +295,7 @@ describe('Invoices Middleware', () => {
     beforeEach(() => {
       currentInvoice = {
         recipient: {
-          fullname: faker.name.findName(),
+          fullname: faker.person.fullName(),
           email: faker.internet.email(),
         },
         currency: {
@@ -307,7 +307,7 @@ describe('Invoices Middleware', () => {
             id: crypto.randomUUID(),
             description: faker.commerce.productName(),
             price: faker.commerce.price(),
-            quantity: faker.random.number(10),
+            quantity: faker.number.int({ max: 10 }),
           },
         ],
       };

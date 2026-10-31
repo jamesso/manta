@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
-import faker from 'faker';
+import { faker } from '@faker-js/faker';
 const contactDoc = {
   id: 'jon-snow',
   fullname: 'Jon Snow',
