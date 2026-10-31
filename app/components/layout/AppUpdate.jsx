@@ -1,7 +1,6 @@
 // Libraries
 import React, { PureComponent } from 'react';
 import openDialog from '../../renderers/dialog';
-import { Circle } from 'rc-progress';
 import i18n from '../../../i18n/i18n';
 import { Notify } from '../../../helpers/notify';
 import { ipcRenderer as ipc } from 'electron';
@@ -25,9 +24,10 @@ const Indicator = styled.div`
     font-size: 24px;
     animation: ${breathing} 1s infinite alternate;
   }
-  svg {
-    width: 24px;
-    height: 24px;
+  progress {
+    width: 36px;
+    height: 6px;
+    accent-color: #469FE5;
   }
 `;
 
@@ -159,13 +159,7 @@ class AppUpdate extends PureComponent {
       <Indicator>
         {this.state.checking && <i className="ion-cloud" />}
         {this.state.downloading && (
-          <Circle
-            percent={this.state.progress}
-            strokeWidth={16}
-            trailWidth={16}
-            trailColor="#4F555C"
-            strokeColor="#469FE5"
-          />
+          <progress max="100" value={this.state.progress || 0} />
         )}
       </Indicator>
     );
