@@ -9,7 +9,6 @@ export default defineConfig({
     // automatically. Vitest does not, so alias them.
     alias: [
       { find: /^electron$/, replacement: root('./__mocks__/electron.js') },
-      { find: /^pouchdb-browser$/, replacement: root('./__mocks__/pouchdb-browser.js') },
     ],
   },
   test: {
