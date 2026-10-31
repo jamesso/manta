@@ -4,6 +4,17 @@ import { fileURLToPath } from 'node:url';
 
 const root = p => fileURLToPath(new URL(p, import.meta.url));
 
+const CSP = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; media-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'";
+const cspPlugin = {
+  name: 'manta-csp',
+  apply: 'build',
+  transformIndexHtml: html =>
+    html.replace(
+      '<head>',
+      `<head>\n    <meta http-equiv="Content-Security-Policy" content="${CSP}">`
+    ),
+};
+
 export default defineConfig({
   main: {
     build: {
@@ -20,7 +31,7 @@ export default defineConfig({
   },
   renderer: {
     root: root('.'),
-    plugins: [react()],
+    plugins: [react(), cspPlugin],
     resolve: {
       alias: [
         // PouchDB still imports the Node events module.
