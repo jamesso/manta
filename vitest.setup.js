@@ -1,8 +1,7 @@
 process.env.TZ = 'UTC';
 
 import { afterEach, vi } from 'vitest';
-import Enzyme from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
+import '@testing-library/jest-dom/vitest';
 
 // The old setTimeout(0) shim runs after jsdom teardown.
 const rafTimers = new Set();
@@ -23,8 +22,6 @@ afterEach(() => {
   for (const id of rafTimers) clearTimeout(id);
   rafTimers.clear();
 });
-
-Enzyme.configure({ adapter: new Adapter() });
 
 vi.mock('./app/renderers/dialog.js');
 vi.mock('./libs/sounds.js');
