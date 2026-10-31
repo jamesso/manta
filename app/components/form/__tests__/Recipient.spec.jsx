@@ -30,8 +30,8 @@ const recipient = {
   newRecipient: true,
 };
 
-const t = jest.fn();
-const dispatch = jest.fn();
+const t = vi.fn();
+const dispatch = vi.fn();
 
 describe('Recipient component', () => {
   let wrapper;
@@ -63,7 +63,7 @@ describe('Recipient component', () => {
   // PRIVATE METHOD
   it('handle toggleForm correctly', () => {
     // Setup
-    const spy = jest.spyOn(Recipient.prototype, 'toggleForm');
+    const spy = vi.spyOn(Recipient.prototype, 'toggleForm');
     const wrap = mount(
       <Recipient
         t={t}

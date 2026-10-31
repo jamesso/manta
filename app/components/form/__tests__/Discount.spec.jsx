@@ -7,8 +7,8 @@ import { mount } from 'enzyme';
 import { Discount } from '../Discount';
 
 // Mocks
-const t = jest.fn();
-const updateFieldData = jest.fn();
+const t = vi.fn();
+const updateFieldData = vi.fn();
 const discount = {
   type: 'flat',
   amount: 100,
@@ -46,7 +46,7 @@ describe('Renders correctly to the DOM', () => {
         },
       };
       const instance = wrapper.instance();
-      const spy = jest.spyOn(instance, 'handleInputChange');
+      const spy = vi.spyOn(instance, 'handleInputChange');
       // Execute
       instance.handleInputChange(changeData);
       // Expect
@@ -67,7 +67,7 @@ describe('Renders correctly to the DOM', () => {
         },
       };
       const instance = wrapper.instance();
-      const spy = jest.spyOn(instance, 'handleInputChange');
+      const spy = vi.spyOn(instance, 'handleInputChange');
       // Execute
       instance.handleInputChange(changeData);
       // Expect

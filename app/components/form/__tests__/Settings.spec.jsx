@@ -44,10 +44,10 @@ const currentInvoice = {
     },
   },
 };
-const toggleField = jest.fn();
-const toggleFormSettings = jest.fn();
-const updateSavedSettings = jest.fn();
-const t = jest.fn();
+const toggleField = vi.fn();
+const toggleFormSettings = vi.fn();
+const updateSavedSettings = vi.fn();
+const t = vi.fn();
 
 describe('Settings component', () => {
   let wrapper;

@@ -3,14 +3,14 @@ import * as FormActions from '../../actions/form';
 import UIMiddleware from '../UIMiddleware';
 
 // Use the mock
-jest.mock('../../../libs/sounds');
-const sounds = require('../../../libs/sounds');
+vi.mock('../../../libs/sounds');
+import sounds from '../../../libs/sounds';
 
 describe('UI Middleware', () => {
   let next, getState, middleware;
   beforeEach(() => {
-    next = jest.fn();
-    getState = jest.fn(() => ({
+    next = vi.fn();
+    getState = vi.fn(() => ({
       ui: {
         activeTab: 'form',
         notifications: [],

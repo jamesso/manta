@@ -8,7 +8,7 @@ import { ItemRow } from '../ItemRow.jsx';
 
 // Mocks
 const actions = true;
-const addItem = jest.fn();
+const addItem = vi.fn();
 const hasHandler = true;
 const item = {
   id: '638fd7e3-217b-4a29-87f7-5ec539f73af9',
@@ -17,9 +17,9 @@ const item = {
   quantity: 1,
   subtotal: 999,
 };
-const removeRow = jest.fn();
-const updateRow = jest.fn();
-const t = jest.fn();
+const removeRow = vi.fn();
+const updateRow = vi.fn();
+const t = vi.fn();
 
 describe('Renders correctly to the DOM', () => {
   let wrapper;
@@ -62,7 +62,7 @@ describe('Renders correctly to the DOM', () => {
   // PRIVATE METHOD
   it('handle text input change correctly', () => {
     // Setup
-    const spy = jest.spyOn(ItemRow.prototype, 'handleTextInputChange');
+    const spy = vi.spyOn(ItemRow.prototype, 'handleTextInputChange');
     const wrap = mount(
       <ItemRow
         t={t}
@@ -88,7 +88,7 @@ describe('Renders correctly to the DOM', () => {
   });
 
   it('handle number input change correctly', () => {
-    const spy = jest.spyOn(ItemRow.prototype, 'handleNumberInputChange');
+    const spy = vi.spyOn(ItemRow.prototype, 'handleNumberInputChange');
     const wrap = mount(
       <ItemRow
         t={t}
@@ -116,7 +116,7 @@ describe('Renders correctly to the DOM', () => {
   });
 
   it('add new row when press enter', () => {
-    const spy = jest.spyOn(ItemRow.prototype, 'handleKeyDown');
+    const spy = vi.spyOn(ItemRow.prototype, 'handleKeyDown');
     const wrap = mount(
       <ItemRow
         t={t}
@@ -140,7 +140,7 @@ describe('Renders correctly to the DOM', () => {
   });
 
   it('updateSubtotal when price and quantity change', () => {
-    const spy = jest.spyOn(ItemRow.prototype, 'updateSubtotal');
+    const spy = vi.spyOn(ItemRow.prototype, 'updateSubtotal');
     const wrap = mount(
       <ItemRow
         t={t}

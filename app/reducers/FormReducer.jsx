@@ -4,7 +4,8 @@ import * as ACTION_TYPES from '../constants/actions.jsx';
 import { handleActions } from 'redux-actions';
 import { createSelector } from 'reselect';
 // Retrive settings
-const appConfig = require('electron').remote.require('electron-settings');
+import { remote } from 'electron';
+const appConfig = remote.require('electron-settings');
 const invoiceSettings = appConfig.get('invoice');
 // Helper
 import { setEditRecipient } from '../helpers/form';

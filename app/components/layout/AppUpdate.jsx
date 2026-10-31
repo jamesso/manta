@@ -4,7 +4,7 @@ import openDialog from '../../renderers/dialog';
 import { Circle } from 'rc-progress';
 import i18n from '../../../i18n/i18n';
 import { Notify } from '../../../helpers/notify';
-const ipc = require('electron').ipcRenderer
+import { ipcRenderer as ipc } from 'electron';
 
 // Styled Components
 import styled, { keyframes } from 'styled-components';

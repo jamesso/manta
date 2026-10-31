@@ -1,10 +1,11 @@
 import i18n from 'i18next';
 import { reactI18nextModule } from 'react-i18next';
+import { remote } from 'electron';
+import isDev from 'electron-is-dev';
+import moment from 'moment';
 
-const appConfig = require('electron').remote.require('electron-settings');
+const appConfig = remote.require('electron-settings');
 const defaultLanguage = appConfig.get('general.language');
-const isDev = require('electron-is-dev');
-const moment = require('moment');
 
 // Language Files
 import de from './de';

@@ -11,14 +11,14 @@ import {
   getAllDocs,
   mockData, // eslint-disable-line import/named
 } from '../../helpers/pouchDB';
-jest.mock('../../helpers/pouchDB');
-Date.now = jest.fn(() => 'now');
+vi.mock('../../helpers/pouchDB');
+Date.now = vi.fn(() => 'now');
 
 describe('Contacts Middleware', () => {
   let next, dispatch, middleware;
   beforeEach(() => {
-    next = jest.fn();
-    dispatch = jest.fn();
+    next = vi.fn();
+    dispatch = vi.fn();
     middleware = ContactsMW({ dispatch })(next);
   });
 

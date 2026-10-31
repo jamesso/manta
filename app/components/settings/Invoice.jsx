@@ -1,10 +1,10 @@
 // Libraries
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-const ipc = require('electron').ipcRenderer;
+import { ipcRenderer as ipc } from 'electron';
 
 // Custom Libs
-const openDialog = require('../../renderers/dialog.js');
+import openDialog from '../../renderers/dialog.js';
 import _withFadeInAnimation from '../shared/hoc/_withFadeInAnimation';
 
 import Currency from './_partials/invoice/Currency';

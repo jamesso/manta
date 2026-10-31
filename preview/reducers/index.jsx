@@ -2,7 +2,8 @@
 import * as ACTION_TYPES from '../constants/actions';
 import { createSelector } from 'reselect';
 import { handleActions } from 'redux-actions';
-const appConfig = require('electron').remote.require('electron-settings');
+import { remote } from 'electron';
+const appConfig = remote.require('electron-settings');
 const invoiceSettings = appConfig.get('invoice');
 const profileSettings = appConfig.get('profile');
 const generalSettings = appConfig.get('general');

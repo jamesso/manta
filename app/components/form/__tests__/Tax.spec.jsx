@@ -17,9 +17,9 @@ const savedSettings = {
   tin: '123-456-789',
   mode: 'default',
 };
-const t = jest.fn();
-const updateFieldData = jest.fn();
-const updateSavedSettings = jest.fn();
+const t = vi.fn();
+const updateFieldData = vi.fn();
+const updateSavedSettings = vi.fn();
 
 describe('Note component', () => {
   let wrapper;
@@ -54,7 +54,7 @@ describe('Note component', () => {
 
   // PRIVATE METHOD
   it('handleInputChange correctly', () => {
-    const spy = jest.spyOn(Tax.prototype, 'handleInputChange');
+    const spy = vi.spyOn(Tax.prototype, 'handleInputChange');
     const wrap = mount(
       <Tax
         t={t}

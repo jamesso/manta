@@ -10,12 +10,12 @@ import { ItemsList } from '../ItemsList.jsx';
 const rows = [];
 const formState = {};
 const boundActionCreators = {
-  addItem: jest.fn(),
-  moveRow: jest.fn(),
-  removeItem: jest.fn(),
-  updateItem: jest.fn(),
+  addItem: vi.fn(),
+  moveRow: vi.fn(),
+  removeItem: vi.fn(),
+  updateItem: vi.fn(),
 };
-const t = jest.fn();
+const t = vi.fn();
 
 describe('Note component', () => {
   let wrapper;

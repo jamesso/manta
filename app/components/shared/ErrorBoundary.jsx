@@ -1,6 +1,6 @@
 // Libs
 import React, { Component } from 'react';
-const openDialog = require('../../renderers/dialog');
+import openDialog from '../../renderers/dialog';
 import Message from './Message';
 import styled from 'styled-components';
 const ErrorContainer = styled.div`

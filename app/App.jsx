@@ -2,7 +2,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-const ipc = require('electron').ipcRenderer;
+import { ipcRenderer as ipc } from 'electron';
 
 // Actions
 import * as UIActions from './actions/ui';

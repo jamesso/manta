@@ -3,8 +3,8 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { compose } from 'recompose';
 import { connect } from 'react-redux';
-const openDialog = require('../renderers/dialog.js');
-const ipc = require('electron').ipcRenderer;
+import openDialog from '../renderers/dialog.js';
+import { ipcRenderer as ipc } from 'electron';
 import { translate } from 'react-i18next';
 
 // Actions

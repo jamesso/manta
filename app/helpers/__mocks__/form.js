@@ -1,6 +1,6 @@
-module.exports = {
-  validateFormData: jest.fn(currentFormData => currentFormData.validation),
-  validateCurrency: jest.fn((required, currency) => true),
-  validateTax: jest.fn((required, currency) => true),
-  getInvoiceData: jest.fn(currentFormData => currentFormData),
-};
+import { vi } from 'vitest';
+
+export const validateFormData = vi.fn(currentFormData => currentFormData.validation);
+export const validateCurrency = vi.fn((required, currency) => true);
+export const validateTax = vi.fn((required, currency) => true);
+export const getInvoiceData = vi.fn(currentFormData => currentFormData);

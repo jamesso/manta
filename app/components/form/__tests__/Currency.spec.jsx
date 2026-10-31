@@ -3,7 +3,8 @@ import React from 'react';
 import renderer from 'react-test-renderer';
 import { mount } from 'enzyme';
 import currencies from '../../../../libs/currencies.json';
-const appConfig = require('electron').remote.require('electron-settings');
+import { remote } from 'electron';
+const appConfig = remote.require('electron-settings');
 
 // Component
 import { Currency } from '../Currency';
@@ -22,9 +23,9 @@ const savedSettings = {
   fraction: 2,
   separator: 'commaDot'
 };
-const t = jest.fn();
-const updateFieldData = jest.fn();
-const updateSavedSettings = jest.fn();
+const t = vi.fn();
+const updateFieldData = vi.fn();
+const updateSavedSettings = vi.fn();
 
 describe('Renders correctly to the DOM', () => {
   let wrapper;

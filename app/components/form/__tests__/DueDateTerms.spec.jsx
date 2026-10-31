@@ -8,8 +8,8 @@ import { DueDateTerms } from '../DueDateTerms.jsx';
 import { paymentTerms } from '../../../../libs/paymentTerms';
 
 // Mocks
-const t = jest.fn();
-const updatePaymentTerm = jest.fn();
+const t = vi.fn();
+const updatePaymentTerm = vi.fn();
 const paymentTerm = 'net10';
 
 describe('Renders correctly to the DOM', () => {
@@ -37,7 +37,7 @@ describe('Renders correctly to the DOM', () => {
 
   it('handle input change correctly', () => {
     // Setup
-    const spy = jest.spyOn(DueDateTerms.prototype, 'handleInputChange');
+    const spy = vi.spyOn(DueDateTerms.prototype, 'handleInputChange');
     const wrap = mount(
       <DueDateTerms t={t} paymentTerm={paymentTerm} updatePaymentTerm={updatePaymentTerm} />
     );

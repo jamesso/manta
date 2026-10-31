@@ -7,8 +7,8 @@ import { mount } from 'enzyme';
 import { InvoiceID } from '../InvoiceID.jsx';
 
 // Mocks
-const t = jest.fn();
-const updateFieldData = jest.fn();
+const t = vi.fn();
+const updateFieldData = vi.fn();
 const invoiceID = "Invoice: 123-456-789"
 
 describe('InvoiceID component', () => {
@@ -41,7 +41,7 @@ describe('InvoiceID component', () => {
 
   // PRIVATE METHOD
   it('handleInputChange correctly', () => {
-    const spy = jest.spyOn(InvoiceID.prototype, 'handleInputChange');
+    const spy = vi.spyOn(InvoiceID.prototype, 'handleInputChange');
     const wrap = mount(
       <InvoiceID
         t={t}

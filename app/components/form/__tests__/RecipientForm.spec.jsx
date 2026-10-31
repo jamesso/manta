@@ -11,8 +11,8 @@ const formData = {
   fullname: 'Jon Snow',
   email: 'john@hbo.com',
 };
-const t = jest.fn();
-const updateRecipientForm = jest.fn();
+const t = vi.fn();
+const updateRecipientForm = vi.fn();
 
 describe('Recipient Form component', () => {
   let wrapper;

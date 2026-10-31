@@ -32,15 +32,15 @@ const invoice = {
   },
 };
 
-const editInvoice = jest.fn();
-const deleteInvoice = jest.fn();
-const duplicateInvoice = jest.fn();
-const setInvoiceStatus = jest.fn();
+const editInvoice = vi.fn();
+const deleteInvoice = vi.fn();
+const duplicateInvoice = vi.fn();
+const setInvoiceStatus = vi.fn();
 const dateFormat = 'MM/DD/YY';
 const currencyPlacement = 'before';
-Date.now = jest.genMockFunction().mockReturnValue(0);
+Date.now = vi.fn().mockReturnValue(0);
 
-const t = jest.fn(status => {
+const t = vi.fn(status => {
   switch (status) {
     case 'invoices:status:cancelled': {
       return 'Cancelled';
@@ -224,9 +224,9 @@ describe('handle clicks correctly', () => {
     spyEditAction,
     spyDuplicateAction;
   beforeEach(() => {
-    spyViewAction = jest.spyOn(Invoice.prototype, 'viewInvoice');
-    spyEditAction = jest.spyOn(Invoice.prototype, 'editInvoice');
-    spyDuplicateAction = jest.spyOn(Invoice.prototype, 'duplicateInvoice');
+    spyViewAction = vi.spyOn(Invoice.prototype, 'viewInvoice');
+    spyEditAction = vi.spyOn(Invoice.prototype, 'editInvoice');
+    spyDuplicateAction = vi.spyOn(Invoice.prototype, 'duplicateInvoice');
     wrapper = shallow(
       <Invoice
         t={t}

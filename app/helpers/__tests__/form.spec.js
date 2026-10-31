@@ -19,8 +19,8 @@ import {
 } from '../form';
 
 // Mocks
-jest.mock('../../renderers/dialog');
-const openDialog = require('../../renderers/dialog');
+vi.mock('../../renderers/dialog');
+import openDialog from '../../renderers/dialog';
 
 describe('getInvoiceData', () => {
   let formData;

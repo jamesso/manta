@@ -2,7 +2,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { truncate } from 'lodash';
-const moment = require('moment');
+import moment from 'moment';
 
 // Helper
 import { calTermDate } from '../../../../helpers/date';

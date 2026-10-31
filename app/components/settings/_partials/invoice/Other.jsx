@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-const moment = require('moment');
+import moment from 'moment';
 
 import { Row, Field, Header, Part } from '../../../shared/Part';
 import styled from 'styled-components';

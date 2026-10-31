@@ -1,7 +1,7 @@
-const Jimp = require('jimp');
-const fs = require('fs');
-const isSvg = require('is-svg');
-const openDialog = require('../renderers/dialog');
+import Jimp from 'jimp';
+import fs from 'fs';
+import isSvg from 'is-svg';
+import openDialog from '../renderers/dialog';
 import i18n from '../../i18n/i18n';
 
 function detectSVG(filePath) {

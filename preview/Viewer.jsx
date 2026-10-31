@@ -5,7 +5,7 @@ import { translate } from 'react-i18next';
 import { Notify } from '../helpers/notify';
 import { connect } from 'react-redux';
 import { compose } from 'recompose';
-const ipc = require('electron').ipcRenderer;
+import { ipcRenderer as ipc } from 'electron';
 
 // Style
 import styled from 'styled-components';

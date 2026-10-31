@@ -1,7 +1,7 @@
 // Libs
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-const ipc = require('electron').ipcRenderer;
+import { ipcRenderer as ipc } from 'electron';
 import i18n from '../../i18n/i18n';
 
 // Style

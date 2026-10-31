@@ -7,15 +7,15 @@ import renderer from 'react-test-renderer';
 import SplitButton from '../SplitButton';
 
 // Mocks
-const mainAction = jest.fn();
+const mainAction = vi.fn();
 const mainButton = {
   label: 'Main Action',
   action: mainAction,
 };
 
-const optionAction1 = jest.fn();
-const optionAction2 = jest.fn();
-const optionAction3 = jest.fn();
+const optionAction1 = vi.fn();
+const optionAction2 = vi.fn();
+const optionAction3 = vi.fn();
 const options = [
   {
     label: 'Option A',
@@ -71,8 +71,8 @@ describe('Renders correctly to the DOM', () => {
 describe('Handles click correctly', () => {
   let wrapper, toggleBtn, mainBtn, spyHandleClick, spyHandleOutsideClick;
   beforeEach(() => {
-    spyHandleClick = jest.spyOn(SplitButton.prototype, 'handleClick');
-    spyHandleOutsideClick = jest.spyOn(
+    spyHandleClick = vi.spyOn(SplitButton.prototype, 'handleClick');
+    spyHandleOutsideClick = vi.spyOn(
       SplitButton.prototype,
       'handleOutsideClick'
     );

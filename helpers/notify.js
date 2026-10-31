@@ -3,4 +3,4 @@ const Notify = ({ title, body }) =>
     body,
   });
 
-module.exports = { Notify };
+export { Notify };

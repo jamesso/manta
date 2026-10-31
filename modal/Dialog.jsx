@@ -1,9 +1,9 @@
 // Libs
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-const appConfig = require('electron').remote.require('electron-settings');
-const BrowserWindow = require('electron').remote.BrowserWindow;
-const ipc = require('electron').ipcRenderer;
+import { remote, ipcRenderer as ipc } from 'electron';
+const appConfig = remote.require('electron-settings');
+const BrowserWindow = remote.BrowserWindow;
 const mainWindow = BrowserWindow.fromId(appConfig.get('mainWindowID'));
 
 import styled from 'styled-components';

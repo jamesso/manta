@@ -8,8 +8,8 @@ import { SingleDatePicker } from 'react-dates';
 import { DueDatePicker } from '../DueDatePicker.jsx';
 
 // Mocks
-const t = jest.fn();
-const updateCustomDate = jest.fn();
+const t = vi.fn();
+const updateCustomDate = vi.fn();
 const selectedDate = {
   milliseconds: 0,
   seconds: 0,
@@ -44,7 +44,7 @@ describe('Renders correctly to the DOM', () => {
 
   it('call clearDate when click clearDate Button', () => {
     // Setup
-    const spy = jest.spyOn(DueDatePicker.prototype, 'clearDate');
+    const spy = vi.spyOn(DueDatePicker.prototype, 'clearDate');
     const wrap = mount(
       <DueDatePicker t={t} selectedDate={selectedDate} updateCustomDate={updateCustomDate} />
     );
@@ -58,7 +58,7 @@ describe('Renders correctly to the DOM', () => {
   it('clearDate clears selectedDate', () => {
     // Setup
     const instance = wrapper.instance();
-    const spy = jest.spyOn(instance, 'clearDate');
+    const spy = vi.spyOn(instance, 'clearDate');
     // Execute
     instance.clearDate();
     // Assertion

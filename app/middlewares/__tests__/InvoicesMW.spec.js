@@ -6,27 +6,27 @@ import uuidv4 from 'uuid/v4';
 import i18n from '../../../i18n/i18n';
 
 // Mock Functions
-const {
+vi.mock('../../helpers/pouchDB');
+vi.mock('../../helpers/invoice');
+import {
   getAllDocs,
   getSingleDoc,
   saveDoc,
   deleteDoc,
   updateDoc,
   mockData,
-} = require('../../helpers/pouchDB');
+} from '../../helpers/pouchDB';
 import { getInvoiceValue } from '../../helpers/invoice';
 import { ipcRenderer } from 'electron';
-jest.mock('../../helpers/pouchDB');
-jest.mock('../../helpers/invoice');
-Date.now = jest.fn(() => 'now');
+Date.now = vi.fn(() => 'now');
 
 describe('Invoices Middleware', () => {
   let next, dispatch, middleware, getState;
 
   beforeEach(() => {
-    next = jest.fn();
-    dispatch = jest.fn();
-    getState = jest.fn(() => ({
+    next = vi.fn();
+    dispatch = vi.fn();
+    getState = vi.fn(() => ({
       form: { settings: { editMode: { active: false } } }
     }));
     middleware = InvoicesMW({ dispatch, getState })(next);
@@ -407,7 +407,7 @@ describe('Invoices Middleware', () => {
     });
 
     it('should clear the form if this invoice is being editted', () => {
-      const getState = jest.fn(() => ({
+      const getState = vi.fn(() => ({
         form: {
           settings: {
             editMode: {

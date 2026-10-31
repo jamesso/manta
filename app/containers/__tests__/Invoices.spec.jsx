@@ -14,8 +14,8 @@ import { Invoices } from '../Invoices';
 import Button, { ButtonsGroup } from '../../components/shared/Button';
 
 // Mocks
-const dispatch = jest.fn();
-const t = jest.fn();
+const dispatch = vi.fn();
+const t = vi.fn();
 const invoices = [
   {
     _id: 'first-invoice',
@@ -34,13 +34,13 @@ const invoices = [
     status: 'cancelled',
   },
 ];
-jest.mock('../../components/invoices/Invoice', () => () => (
-  <div className="invoice" />
-));
+vi.mock('../../components/invoices/Invoice', () => ({
+  default: () => <div className="invoice" />,
+}));
 
-jest.mock('../../components/shared/Message', () => () => (
-  <div className="message" />
-));
+vi.mock('../../components/shared/Message', () => ({
+  default: () => <div className="message" />,
+}));
 
 describe('render component correctly', () => {
   let wrapper;
@@ -93,7 +93,7 @@ describe('render component correctly', () => {
 describe('handle actions correcrtly', () => {
   let wrapper, spySetFilter, actions, filterBtn;
   beforeEach(() => {
-    spySetFilter = jest.spyOn(Invoices.prototype, 'setFilter');
+    spySetFilter = vi.spyOn(Invoices.prototype, 'setFilter');
     wrapper = mount(
       <Invoices t={t} invoices={invoices} dispatch={dispatch} />
     );

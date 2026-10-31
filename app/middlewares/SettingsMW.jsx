@@ -1,7 +1,7 @@
 // Node Libs
-const appConfig = require('electron').remote.require('electron-settings');
+import { remote, ipcRenderer as ipc } from 'electron';
+const appConfig = remote.require('electron-settings');
 import sounds from '../../libs/sounds';
-const ipc = require('electron').ipcRenderer;
 import i18n from '../../i18n/i18n';
 
 // Actions Verbs

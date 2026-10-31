@@ -15,8 +15,8 @@ const contact = {
   email: 'jon@snow.hbo',
   phone: '000-000-000',
 };
-const newInvoice = jest.fn();
-const deleteContact = jest.fn();
+const newInvoice = vi.fn();
+const deleteContact = vi.fn();
 
 describe('Renders correctly to the DOM', () => {
   let wrapper;

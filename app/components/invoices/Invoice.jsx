@@ -3,8 +3,8 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { truncate } from 'lodash';
 import styled from 'styled-components';
-const moment = require('moment');
-const ipc = require('electron').ipcRenderer;
+import moment from 'moment';
+import { ipcRenderer as ipc } from 'electron';
 
 // Helper
 import { formatNumber } from '../../../helpers/formatNumber';

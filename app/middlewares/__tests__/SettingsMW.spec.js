@@ -3,20 +3,20 @@ import * as Actions from '../../actions/settings';
 import * as ACTION_TYPES from '../../constants/actions.jsx';
 import SettingsMW from '../SettingsMW';
 import i18n from '../../../i18n/i18n';
-const sounds = require('../../../libs/sounds');
-const ipc = require('electron').ipcRenderer;
-const openDialog = require('../../renderers/dialog');
+import sounds from '../../../libs/sounds';
+import { ipcRenderer as ipc } from 'electron';
+import openDialog from '../../renderers/dialog';
 import { validateCurrency, validateTax } from '../../helpers/form.js';
 
 // Mocking
-jest.mock('../../../libs/sounds');
-jest.mock('../../helpers/form');
+vi.mock('../../../libs/sounds');
+vi.mock('../../helpers/form');
 
 describe('Settings Middleware', () => {
   let next, dispatch, middleware;
   beforeEach(() => {
-    next = jest.fn();
-    dispatch = jest.fn();
+    next = vi.fn();
+    dispatch = vi.fn();
     middleware = SettingsMW({ dispatch })(next);
   });
 

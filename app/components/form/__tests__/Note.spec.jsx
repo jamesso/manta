@@ -7,8 +7,8 @@ import { mount } from 'enzyme';
 import { Note } from '../Note.jsx';
 
 // Mocks
-const t = jest.fn();
-const updateFieldData = jest.fn();
+const t = vi.fn();
+const updateFieldData = vi.fn();
 const note = {
   required: true,
   content: 'something',
@@ -38,7 +38,7 @@ describe('Note component', () => {
 
   // PRIVATE METHOD
   it('handleInputChange correctly', () => {
-    const spy = jest.spyOn(Note.prototype, 'handleInputChange');
+    const spy = vi.spyOn(Note.prototype, 'handleInputChange');
     const wrap = mount(<Note t={t} note={note} updateFieldData={updateFieldData} />);
     const textArea = wrap.find('textarea');
     textArea.simulate('change', { target: { value: 'Something Else' } });

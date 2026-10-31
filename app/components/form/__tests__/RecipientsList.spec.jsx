@@ -22,7 +22,7 @@ const contacts = [
   },
 ];
 const selectedContact = {};
-const updateRecipientList = jest.fn();
+const updateRecipientList = vi.fn();
 
 describe('Recipient List component', () => {
   let wrapper;

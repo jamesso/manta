@@ -6,7 +6,7 @@ import { shallow, mount } from 'enzyme';
 import AppNav, { SideBar, Tab, Icon, ActiveIndicator } from '../AppNav';
 
 // Mocks
-const changeTab = jest.fn();
+const changeTab = vi.fn();
 
 describe('Renders correctly to the DOM', () => {
   let wrapper;

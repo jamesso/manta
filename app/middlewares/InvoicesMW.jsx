@@ -1,8 +1,8 @@
 // Node Libs
 import uuidv4 from 'uuid/v4';
 import currencies from '../../libs/currencies.json';
-const appConfig = require('electron').remote.require('electron-settings');
-const ipc = require('electron').ipcRenderer;
+import { remote, ipcRenderer as ipc } from 'electron';
+const appConfig = remote.require('electron-settings');
 import i18n from '../../i18n/i18n';
 
 // Actions & Verbs

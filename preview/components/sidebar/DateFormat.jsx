@@ -1,7 +1,7 @@
 // Libs
 import React from 'react';
 import PropTypes from 'prop-types';
-const moment = require('moment');
+import moment from 'moment';
 
 // Styling
 import { Section, Label } from '../shared';

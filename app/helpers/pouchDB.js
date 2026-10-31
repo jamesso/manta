@@ -1,5 +1,5 @@
 // Setup PouchDB
-const PouchDB = require('pouchdb-browser');
+import PouchDB from 'pouchdb-browser';
 const contactsDB = new PouchDB('contacts');
 const invoicesDB = new PouchDB('invoices');
 

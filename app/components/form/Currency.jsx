@@ -1,7 +1,8 @@
 // Libs
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-const appConfig = require('electron').remote.require('electron-settings');
+import { remote } from 'electron';
+const appConfig = remote.require('electron-settings');
 import currencies from '../../../libs/currencies.json';
 import { keys, sortBy, isEqual } from 'lodash';
 

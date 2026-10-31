@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import faker from 'faker';
 import uuidv4 from 'uuid/v4';
 
@@ -28,7 +29,7 @@ const mockData = {
   invoicesRecords: [invoiceDoc],
 };
 
-const getAllDocs = jest.fn(
+const getAllDocs = vi.fn(
   dbName =>
     new Promise((resolve, reject) => {
       switch (dbName) {
@@ -42,7 +43,7 @@ const getAllDocs = jest.fn(
     })
 );
 
-const saveDoc = jest.fn(
+const saveDoc = vi.fn(
   (dbName, doc) =>
     new Promise((resolve, reject) => {
       !dbName && reject(new Error('No database found!'));
@@ -52,7 +53,7 @@ const saveDoc = jest.fn(
     })
 );
 
-const updateDoc = jest.fn(
+const updateDoc = vi.fn(
   (dbName, doc) =>
     new Promise((resolve, reject) => {
       !dbName && reject(new Error('No database found!'));
@@ -62,7 +63,7 @@ const updateDoc = jest.fn(
     })
 );
 
-const getSingleDoc = jest.fn(
+const getSingleDoc = vi.fn(
   (dbName, docID) =>
     new Promise((resolve, reject) => {
       !dbName && reject(new Error('No database found!'));
@@ -72,7 +73,7 @@ const getSingleDoc = jest.fn(
     })
 );
 
-const deleteDoc = jest.fn(
+const deleteDoc = vi.fn(
   (dbName, docId) =>
     new Promise((resolve, reject) => {
       !dbName && reject(new Error('No database found!'));
@@ -90,8 +91,7 @@ const deleteDoc = jest.fn(
     })
 );
 
-
-module.exports = {
+export {
   getAllDocs,
   getSingleDoc,
   saveDoc,

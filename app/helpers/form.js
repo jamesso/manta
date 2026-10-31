@@ -1,5 +1,6 @@
-const openDialog = require('../renderers/dialog');
-const appConfig = require('electron').remote.require('electron-settings');
+import openDialog from '../renderers/dialog';
+import { remote } from 'electron';
+const appConfig = remote.require('electron-settings');
 import { getInvoiceValue } from './invoice';
 import { isEmpty, pick, includes } from 'lodash';
 import i18n from '../../i18n/i18n';

@@ -1,20 +1,20 @@
 import * as Actions from '../../actions/form';
 import FormMW from '../FormMW';
 
-jest.mock('../../helpers/form');
+vi.mock('../../helpers/form');
 
 describe('Form Middleware', () => {
   let next, dispatch, getState;
 
   beforeEach(() => {
-    next = jest.fn();
-    dispatch = jest.fn();
+    next = vi.fn();
+    dispatch = vi.fn();
   });
 
   describe('should handle FORM_SAVE action', () => {
     it('should save Invocie, save Contact and Clear the Form', () => {
       // Setup
-      getState = jest.fn(() => ({
+      getState = vi.fn(() => ({
         form: {
           validation: true,
           recipient: {
@@ -40,7 +40,7 @@ describe('Form Middleware', () => {
 
     it('should save Invocie, NOT save Contact and Clear the Form', () => {
       // Setup
-      getState = jest.fn(() => ({
+      getState = vi.fn(() => ({
         form: {
           validation: true,
           recipient: { newRecipient: false },
@@ -67,7 +67,7 @@ describe('Form Middleware', () => {
 
     it('should update Invocie, save Contact, Clear the Form and Switch Tab', () => {
       // Setup
-      getState = jest.fn(() => ({
+      getState = vi.fn(() => ({
         form: {
           validation: true,
           recipient: { newRecipient: true },
@@ -93,7 +93,7 @@ describe('Form Middleware', () => {
 
     it('should update Invocie, NOT add new Contact, Clear the Form and Switch Tab', () => {
       // Setup
-      getState = jest.fn(() => ({
+      getState = vi.fn(() => ({
         form: {
           validation: true,
           recipient: { newRecipient: false },
@@ -122,7 +122,7 @@ describe('Form Middleware', () => {
 
   it('should NOT pass validation', () => {
     // Setup
-    getState = jest.fn(() => ({
+    getState = vi.fn(() => ({
       form: { validation: false },
     }));
     const middleware = FormMW({ dispatch, getState })(next);
@@ -140,7 +140,7 @@ describe('Form Middleware', () => {
 
   it('should hanlde FORM_ITEM_ADD action', () => {
     // Setup
-    getState = jest.fn();
+    getState = vi.fn();
     const middleware = FormMW({ dispatch, getState })(next);
 
     // Action
@@ -161,7 +161,7 @@ describe('Form Middleware', () => {
 
   it('should hanlde FORM_CLEAR action', () => {
     // Setup
-    getState = jest.fn();
+    getState = vi.fn();
     const middleware = FormMW({ dispatch, getState })(next);
 
     // Action
@@ -177,7 +177,7 @@ describe('Form Middleware', () => {
   });
 
   it('let other actions pass through', () => {
-    getState = jest.fn();
+    getState = vi.fn();
     const middleware = FormMW({ dispatch, getState })(next);
     const action = { type: 'TEST' };
     middleware(action);
