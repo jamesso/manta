@@ -8,7 +8,10 @@ import '../libs/dragNdrop.js';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import Dialog from './Dialog';
+import StyledRoot from '../app/components/shared/StyledRoot';
 
 createRoot(document.getElementById('root')).render(
-  <Dialog />
+  <StyledRoot>
+    <Dialog />
+  </StyledRoot>
 );

@@ -13,6 +13,7 @@ import { createStore, applyMiddleware, compose } from 'redux';
 import { Provider } from 'react-redux';
 import i18n from '../i18n/i18n';
 import ErrorBoundary from '../app/components/shared/ErrorBoundary';
+import StyledRoot from '../app/components/shared/StyledRoot';
 
 // Root Reducer
 import combineReducers from './reducers';
@@ -30,9 +31,11 @@ const store = createStore(
 );
 
 createRoot(document.getElementById('root')).render(
-  <Provider store={store}>
-    <ErrorBoundary>
-      <Viewer />
-    </ErrorBoundary>
-  </Provider>
+  <StyledRoot>
+    <Provider store={store}>
+      <ErrorBoundary>
+        <Viewer />
+      </ErrorBoundary>
+    </Provider>
+  </StyledRoot>
 );

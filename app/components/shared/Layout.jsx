@@ -54,8 +54,8 @@ const PageHeaderActionsStyle = styled.div`
 `;
 
 const PageContentStyle = styled.div`
-  // flex: 1;
-  // overflow: hidden;
+  /* flex: 1; */
+  /* overflow: hidden; */
   margin: 90px 40px 40px 40px;
   ${props =>
     !props.bare &&

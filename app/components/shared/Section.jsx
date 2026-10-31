@@ -19,7 +19,7 @@ const HeaderStyle = styled.div`
   a {
     font-size: 14px;
     line-height: 12px;
-    // margin-bottom: 20px;
+    /* margin-bottom: 20px; */
     margin-left: 10px;
   }
 `;

@@ -11,7 +11,10 @@ import i18n from '../i18n/i18n';
 
 // Root Component
 import Tour from './Tour';
+import StyledRoot from '../app/components/shared/StyledRoot';
 
 createRoot(document.getElementById('root')).render(
-  <Tour />
+  <StyledRoot>
+    <Tour />
+  </StyledRoot>
 );

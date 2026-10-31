@@ -18,7 +18,7 @@ const ButtonsGroup = styled.div`
     border: 1px solid rgba(0, 0, 0, 0.1);
     display: flex;
     justify-content: center;
-    // align-items: center;
+    /* align-items: center; */
     padding: 4px 0;
     font-size: 12px;
     text-decoration: none;
@@ -31,7 +31,7 @@ const ButtonsGroup = styled.div`
       padding: 4px 12px;
       text-align: left;
       justify-content: flext-start;
-      // align-items: flext-start;
+      /* align-items: flext-start; */
     }
     &:last-child {
       border-radius: 0 4px 4px 0;

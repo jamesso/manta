@@ -20,15 +20,18 @@ import i18n from '../i18n/i18n';
 // Root Component
 import App from './App';
 import ErrorBoundary from './components/shared/ErrorBoundary';
+import StyledRoot from './components/shared/StyledRoot';
 
 // Store
 const store = configureStore();
 
 // Render
 createRoot(document.getElementById('root')).render(
-  <Provider store={store}>
-    <ErrorBoundary>
-      <App />
-    </ErrorBoundary>
-  </Provider>
+  <StyledRoot>
+    <Provider store={store}>
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
+    </Provider>
+  </StyledRoot>
 );

@@ -19,9 +19,9 @@ const ButtonStyle = styled.button`
   border: 1px solid #e0e1e1;
   text-transform: uppercase;
   letter-spacing: 1px;
-  // Block Level Button
+  /* Block Level Button */
   ${props => props.block && `width: 100%;`}
-  // Color
+  /* Color */
   ${props => props.primary &&  `
     background: #469fe5;
     color: white;
@@ -34,16 +34,16 @@ const ButtonStyle = styled.button`
     background: #EC476E;
     color: white;
   `}
-  // Active state
+  /* Active state */
   ${props => props.active && `
     background: #F2F3F4;
     color: #4F555C;
   `}
-  // Hover
+  /* Hover */
   &:hover {
     cursor: pointer;
     text-decoration: none;
-    // color: white;
+    /* color: white; */
   }
 `;
 
