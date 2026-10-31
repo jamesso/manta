@@ -2,7 +2,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { ipcRenderer as ipc } from 'electron';
+const ipc = window.manta.ipc;
 
 // Actions
 import * as UIActions from './actions/ui';

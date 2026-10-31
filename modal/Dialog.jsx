@@ -1,7 +1,8 @@
 // Libs
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { remote, ipcRenderer as ipc } from 'electron';
+import { remote } from 'electron';
+const ipc = window.manta.ipc;
 const appConfig = remote.getGlobal('mantaSettings');
 const BrowserWindow = remote.BrowserWindow;
 const mainWindow = BrowserWindow.fromId(appConfig.get('mainWindowID'));

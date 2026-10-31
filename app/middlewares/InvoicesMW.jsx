@@ -1,6 +1,7 @@
 // Node Libs
 import currencies from '../../libs/currencies.json';
-import { remote, ipcRenderer as ipc } from 'electron';
+import { remote } from 'electron';
+const ipc = window.manta.ipc;
 const appConfig = remote.getGlobal('mantaSettings');
 import i18n from '../../i18n/i18n';
 

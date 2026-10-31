@@ -1,7 +1,7 @@
 // Libraries
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ipcRenderer as ipc } from 'electron';
+const ipc = window.manta.ipc;
 
 // Custom Libs
 import openDialog from '../../renderers/dialog.js';

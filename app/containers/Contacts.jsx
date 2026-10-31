@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 import openDialog from '../renderers/dialog.js';
-import { ipcRenderer as ipc } from 'electron';
+const ipc = window.manta.ipc;
 import { withTranslation } from 'react-i18next';
 
 // Actions

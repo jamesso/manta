@@ -1,7 +1,7 @@
 // Libs
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ipcRenderer as ipc } from 'electron';
+const ipc = window.manta.ipc;
 import i18n from '../../i18n/i18n';
 
 // Style

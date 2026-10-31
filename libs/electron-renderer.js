@@ -4,6 +4,6 @@
 const electron = window.require('electron');
 const remote = window.require('@electron/remote');
 
-export const { ipcRenderer, shell, clipboard, webFrame, webUtils } = electron;
+export const { shell, clipboard, webFrame, webUtils } = electron;
 export { remote };
 export default { ...electron, remote };

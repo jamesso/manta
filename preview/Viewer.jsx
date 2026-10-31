@@ -5,7 +5,7 @@ import { withTranslation } from 'react-i18next';
 import { Notify } from '../helpers/notify';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
-import { ipcRenderer as ipc } from 'electron';
+const ipc = window.manta.ipc;
 
 // Style
 import styled from 'styled-components';

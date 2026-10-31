@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { truncate } from 'lodash';
 import styled from 'styled-components';
 import moment from 'moment';
-import { ipcRenderer as ipc } from 'electron';
+const ipc = window.manta.ipc;
 
 // Helper
 import { formatNumber } from '../../../helpers/formatNumber';

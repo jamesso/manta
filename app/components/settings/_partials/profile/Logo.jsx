@@ -6,7 +6,8 @@ import PropTypes from 'prop-types';
 import { processImg } from '../../../../helpers/image';
 
 // Node Libs
-import { ipcRenderer as ipc, webUtils } from 'electron';
+import { webUtils } from 'electron';
+const ipc = window.manta.ipc;
 
 // Component
 import TargetBox from './TargetBox';

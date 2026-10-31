@@ -3,7 +3,7 @@ import React, { PureComponent } from 'react';
 import openDialog from '../../renderers/dialog';
 import i18n from '../../../i18n/i18n';
 import { Notify } from '../../../helpers/notify';
-import { ipcRenderer as ipc } from 'electron';
+const ipc = window.manta.ipc;
 
 // Styled Components
 import styled, { keyframes } from 'styled-components';

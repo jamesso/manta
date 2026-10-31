@@ -1,5 +1,6 @@
 // Node Libs
-import { remote, ipcRenderer as ipc } from 'electron';
+import { remote } from 'electron';
+const ipc = window.manta.ipc;
 const appConfig = remote.getGlobal('mantaSettings');
 import sounds from '../../libs/sounds';
 import i18n from '../../i18n/i18n';
