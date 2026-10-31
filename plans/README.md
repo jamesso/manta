@@ -11,7 +11,7 @@ Execute the plans in the order below. Each plan is self-contained. Each executor
 | Plan | Title | Priority | Effort | Risk | Depends on | Status |
 |------|-------|----------|--------|------|------------|--------|
 | [001](001-npm-node24-vitest-baseline.md) | Install with npm on Node 24 and run the unit tests on Vitest | P1 | M | MED | — | DONE |
-| [002](002-electron45-electron-vite-boot.md) | Boot Manta on Electron 45 with electron-vite (compatibility mode) | P1 | L | HIGH | 001 | BLOCKED — Step 11 manual smoke not verified in this environment (no GUI observation) |
+| [002](002-electron45-electron-vite-boot.md) | Boot Manta on Electron 45 with electron-vite (compatibility mode) | P1 | L | HIGH | 001 | DONE |
 | [003](003-main-process-api-and-settings-store.md) | Fix main-process Electron APIs and replace electron-settings with electron-store | P1 | M | MED | 002 | TODO |
 | [004](004-react18-testing-library.md) | Run Manta on React 18.3 and test components with Testing Library | P1 | L | MED | 001, 002, 003 | TODO |
 | [005](005-state-i18n-styling-libraries.md) | Move Redux, i18n and styled-components to current versions; drop recompose and redux-logger | P1 | M | MED | 004 | TODO |

@@ -16,7 +16,10 @@ export default defineConfig({
     resolve: {
       // Renderer code imports 'electron'; with nodeIntegration on we
       // read it from window.require instead of bundling the npm package.
-      alias: [{ find: /^electron$/, replacement: root('./libs/electron-renderer.js') }],
+      alias: [
+        { find: /^electron$/, replacement: root('./libs/electron-renderer.js') },
+        { find: /^events$/, replacement: root('./node_modules/events/events.js') },
+      ],
     },
     build: {
       rollupOptions: {
