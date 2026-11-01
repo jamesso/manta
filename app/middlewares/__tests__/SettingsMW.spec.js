@@ -107,6 +107,59 @@ describe('Settings Middleware', () => {
       window.manta.settings.get.mockImplementation(() => 'someSettings');
     });
 
+    it('does not change the theme when validation rejects the save', () => {
+      const general = { language: 'fr', theme: 'system' };
+      window.manta.settings.get.mockImplementation(key =>
+        key === 'general' ? general : 'saved'
+      );
+      validateTax.mockReturnValueOnce(false);
+      window.manta.ipc.send.mockClear();
+      window.manta.settings.set.mockClear();
+      try {
+        middleware(
+          Actions.saveSettings({
+            ...action.payload,
+            general: { language: 'fr', theme: 'dark' },
+          })
+        );
+        expect(general.theme).toBe('system');
+        expect(window.manta.settings.set).not.toHaveBeenCalled();
+        expect(
+          window.manta.ipc.send.mock.calls.map(call => call[0])
+        ).not.toContain('set-theme');
+      } finally {
+        window.manta.settings.get.mockImplementation(() => 'someSettings');
+      }
+    });
+
+    it('does not change the theme when a settings write throws', () => {
+      const general = { language: 'fr', theme: 'system' };
+      window.manta.settings.get.mockImplementation(key =>
+        key === 'general' ? general : 'saved'
+      );
+      window.manta.settings.set.mockImplementation(key => {
+        if (key === 'general') throw new Error('disk full');
+      });
+      window.manta.ipc.send.mockClear();
+      try {
+        expect(() =>
+          middleware(
+            Actions.saveSettings({
+              ...action.payload,
+              general: { language: 'fr', theme: 'dark' },
+            })
+          )
+        ).toThrow('disk full');
+        expect(general.theme).toBe('system');
+        expect(
+          window.manta.ipc.send.mock.calls.map(call => call[0])
+        ).not.toContain('set-theme');
+      } finally {
+        window.manta.settings.set.mockReset();
+        window.manta.settings.get.mockImplementation(() => 'someSettings');
+      }
+    });
+
     it('should notify previewWindow of language & profile change', () => {
       // Clear calls count
       window.manta.ipc.send.mockClear();

@@ -50,16 +50,18 @@ const SettingsMW =
           // Notify previewWindow to update
           ipc.send('change-preview-window-language', newLang);
         }
-        // Change theme (main process sets nativeTheme for all windows)
+        // Read the saved theme before the write. A rejected save must not
+        // change general.theme or themeSource.
         const { theme } = appConfig.get('general') || {};
         const newTheme = action.payload.general.theme;
-        if (newTheme && theme !== newTheme) {
-          ipc.send('set-theme', newTheme);
-        }
         // Save Settings
         appConfig.set('profile', action.payload.profile);
         appConfig.set('invoice', action.payload.invoice);
         appConfig.set('general', action.payload.general);
+        // Change theme (main process sets nativeTheme for all windows)
+        if (newTheme && theme !== newTheme) {
+          ipc.send('set-theme', newTheme);
+        }
         // Reload Sounds Cache
         sounds.preload();
         // Continue

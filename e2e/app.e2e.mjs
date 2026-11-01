@@ -20,6 +20,9 @@ test.beforeAll(async () => {
       ...(process.platform === 'linux' ? ['--no-sandbox'] : []),
     ],
     env: { ...process.env, MANTA_USER_DATA: userData, NODE_ENV: 'production' },
+    // Playwright's default colorScheme is light. That sends
+    // Emulation.setEmulatedMedia and hides nativeTheme.themeSource.
+    colorScheme: null,
   });
 
   const watch = p => {

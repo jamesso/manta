@@ -2,7 +2,7 @@ const { BrowserWindow, ipcMain, nativeTheme } = require('electron');
 const centerOnPrimaryDisplay = require('../helpers/center-on-primary-display');
 const { SECURE_WEB_PREFERENCES, loadPage } = require('../helpers/windows');
 const store = require('./settings');
-const { getBackgroundColor, applyRendererColorScheme } = require('./theme');
+const { getBackgroundColor } = require('./theme');
 
 ipcMain.on(
   'show-modal',
@@ -22,7 +22,6 @@ ipcMain.on(
     });
     loadPage(modalWin, 'modal');
     modalWin.webContents.on('did-finish-load', () => {
-      applyRendererColorScheme(modalWin, nativeTheme);
       modalWin.webContents.send(
         'update-modal',
         dialogOptions,
