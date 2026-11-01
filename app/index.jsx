@@ -1,6 +1,5 @@
-import '../static/css/bootstrap.min.css';
+import '../ui/styles/globals.css';
 import '../static/css/ionicons.min.css';
-import '../static/css/general.css';
 import '../static/css/layout.css';
 import '../static/css/form.css';
 import '../static/css/contact.css';
