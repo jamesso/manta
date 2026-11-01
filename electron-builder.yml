@@ -3,27 +3,42 @@ copyright: Hung Q. Le
 productName: Manta
 publish:
   - provider: github
-    owner: hql287
-    repo: Manta
+    owner: jamesso
+    repo: manta
 directories:
   output: dist/
+  buildResources: build
+files:
+  - out/**/*
+  - package.json
+  - static/**/*
 mac:
   category: public.app-category.business
+  minimumSystemVersion: '13.0'
+  hardenedRuntime: true
   target:
-    - zip
-    - dmg
+    - target: dmg
+      arch: universal
+    - target: zip
+      arch: universal
 win:
   target:
     - target: nsis
       arch:
         - x64
-        - ia32
+        - arm64
     - target: portable
       arch:
         - x64
-        - ia32
+        - arm64
 linux:
   category: Office
   target:
-    - deb
-    - AppImage
+    - target: deb
+      arch:
+        - x64
+        - arm64
+    - target: AppImage
+      arch:
+        - x64
+        - arm64
