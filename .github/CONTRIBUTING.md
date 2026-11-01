@@ -1,63 +1,77 @@
 # Contributing to Manta
 
-Thank you for considering a contribution to Manta! This guide explains how to:
+Thank you for helping with Manta. This guide tells you how to:
 
-* Work on the Manta code base
-* Get help if you encounter trouble
-* Maximize the chance of your changes being accepted
+- Work on the Manta code
+- Get help
+- Make it more likely that your change is accepted
+
+This repository continues the original [hql287/Manta](https://github.com/hql287/Manta). Open issues and pull requests here, not in the original project.
 
 ## Get in touch
 
-Before starting to work on a feature or a fix, please open an issue so we can discuss about it first. I believe this can save us a lot of time. For any non-trivial change, it would be best if you can create a short design/mockup/document explaining:
+Before you start a feature or a fix, open an issue so we can discuss it. For a change that is not small, describe:
 
-* Why is this change necessary? What's the use case?
-* What will the UI look like? (If the changes will alter the UI in someway)
-* What could go wrong? What test cases should it have?
-* How will it roughly be implemented? (If you don't know where to begin and need some pointers, feel free to ask)
+- Why the change is necessary, and the use case.
+- How the UI will look, if the change alters the UI.
+- What could go wrong, and which tests it needs.
+- How you plan to implement it. If you do not know where to start, ask.
 
 ## Follow the Code of Conduct
 
-In order to foster a more inclusive community, Manta has adopted the [Contributor Covenant](https://www.contributor-covenant.org/version/1/4/code-of-conduct/) and all contributors are expected to follow the Code of Conduct outlined in this document.
+Manta uses the [Contributor Covenant](https://www.contributor-covenant.org/version/1/4/code-of-conduct/). All contributors must follow the [Code of Conduct](./CODE_OF_CONDUCT.md).
 
-## Making Changes
+## Making changes
 
-### Development Setup
+### Development setup
 
-It's very easy to get started working on Manta, just follow these steps:
+1. Install the Node version in `.nvmrc` (Node 24). Use npm.
+2. Clone the project and install dependencies:
 
-- Clone this project to your local machine.
-- Open terminal and `cd` into the cloned folder, usually `cd Manta`.
-- Run `yarn install` to install dependencies.
-- Run `yarn dev` in one tab to start `webpack-dev-server`.
-- Run `yarn start` in another tab to open the app.
+   ```sh
+   git clone https://github.com/jamesso/manta.git
+   cd manta
+   npm ci
+   ```
 
-> Note that on Linux you will need additional dependencies to provide the icns2png and gm commands. Ubuntu/Debian users can run: sudo apt install -y icnsutils graphicsmagick.
+3. Run `npm run dev` to start the app with hot reload.
 
-### Code Change General Guidelines
+Development runs use a separate `Manta-dev` data folder, so they do not touch your real invoices. See [Development in the README](../README.md#development) for all commands, and for how to test with a copy of real data.
 
-* All code contribution need to contain at least some unit tests (using [Jest](https://github.com/facebook/jest)) for any logic, components, helpers ... that it introduces.
+### Code guidelines
 
-Also, please make sure your changes:
+- Add unit tests with [Vitest](https://vitest.dev/) and [Testing Library](https://testing-library.com/) for new logic, components and helpers.
+- Add or update a [Playwright](https://playwright.dev/) test in `e2e/` when you change an app-level flow (windows, startup, tour).
+- Renderer code has no Node access. To call the main process, add a channel to the preload bridge in `preload/` and its allow-list.
+- Do not include code that is not related to your issue.
 
-* Do not break existing tests.
-* Do not include unnecessary code (code that's meant to solve other issues or not related to the current issue)
+Before you open a pull request, make sure these pass:
 
-### Creating Commits And Writing Commit Messages
+```sh
+npm run lint
+npm run format:check
+npm test
+npm run test:e2e
+```
 
-The commit messages that accompany your code changes are an important piece of documentation, please follow these guidelines when writing commit messages:
+A pre-commit hook runs ESLint and Prettier on staged files.
 
-* Keep commits discrete: avoid including multiple unrelated changes in a single commit
-* Keep commits self-contained: avoid spreading a single change across multiple commits. A single commit should make sense in isolation
-* If your commit pertains to a GitHub issue, include (`Issue: #123`) in the commit message on a separate line
+### Commits and commit messages
 
-### Adding/Refactoring Custom Fields
+- Keep commits discrete: do not put unrelated changes in one commit.
+- Keep commits self-contained: each commit must make sense alone.
+- Write a short, imperative subject with no prefix (for example `Fix tax rounding on the invoice total`).
+- If the commit is for an issue, add `Issue: #123` on a separate line.
+- Do not add AI or tool attribution lines (such as `Co-authored-by` for an AI tool, or "Generated with ..."). A `commit-msg` hook removes them.
 
-If you're planning to add a new custom field, or refactoring old ones, please read this guide: [Adding and Refactoring Custom Fields](https://github.com/hql287/Manta/wiki/Adding-and-Refactoring-Custom-Fields)
+### Adding or refactoring custom fields
 
-### Submitting Your Change
+The original project has a guide for this: [Adding and Refactoring Custom Fields](https://github.com/hql287/Manta/wiki/Adding-and-Refactoring-Custom-Fields). It was written for the old code, so the file names and tools in it can be out of date.
 
-Your PR will be reviewed once you submitted it. It is normal that this takes several iterations so don't get discouraged by change requests. They ensure the high quality that we all enjoy.
+### Submitting your change
+
+Open a pull request against `main`. CI runs lint, format check, unit tests, end-to-end tests and a packaging build on macOS, Windows and Linux. A review can take several rounds. Change requests help keep the quality high.
 
 ## Thanks
 
-Your effort toward improving Manta is deeply appreciated. For any contribution, large or small, you will be immortalized in the release notes for the version you've contributed to.
+Thank you for your help, large or small.

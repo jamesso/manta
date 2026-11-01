@@ -1,7 +1,7 @@
 ### Prerequisites
 
 - We realize there is a lot of data requested here. We ask only that you do your best to provide as much information as possible so we can better help you.
-- Read the [contributing guidelines](https://github.com/hql287/Manta/blob/dev/.github/CONTRIBUTING.md).
+- Read the [contributing guidelines](https://github.com/jamesso/manta/blob/main/.github/CONTRIBUTING.md).
 - Ensure the issue isn't already reported.
 - Should be reproducible with the latest version of Manta.
 

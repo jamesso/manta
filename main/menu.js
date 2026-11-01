@@ -188,7 +188,7 @@ function buildMenu() {
       {
         label: 'Learn More',
         click() {
-          shell.openExternal('https://manta.life');
+          shell.openExternal('https://github.com/jamesso/manta');
         },
       },
     ],

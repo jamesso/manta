@@ -1,6 +1,8 @@
 {
   "name": "Manta",
-  "homepage": "https://manta.life",
+  "homepage": "https://github.com/jamesso/manta",
+  "repository": "github:jamesso/manta",
+  "bugs": "https://github.com/jamesso/manta/issues",
   "productName": "Manta",
   "version": "1.1.4",
   "license": "GPL-3.0",
