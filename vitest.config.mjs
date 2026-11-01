@@ -9,6 +9,6 @@ export default defineConfig({
     },
     setupFiles: ['./vitest.setup.js'],
     include: ['**/*.spec.{js,jsx}'],
-    exclude: ['node_modules/**', 'test/**', 'dist/**', 'prod/**', 'out/**'],
+    exclude: ['node_modules/**', 'dist/**', 'prod/**', 'out/**'],
   },
 });

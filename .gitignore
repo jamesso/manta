@@ -6,3 +6,5 @@
 /monitor
 /out
 .vitest/
+/playwright-report
+/test-results
