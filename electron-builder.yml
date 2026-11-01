@@ -33,6 +33,8 @@ win:
         - arm64
 linux:
   category: Office
+  # electron-builder cannot read the JPEG 2000 frames in icon.icns.
+  icon: build/icon.png
   target:
     - target: deb
       arch:

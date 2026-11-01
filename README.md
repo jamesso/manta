@@ -164,8 +164,6 @@ MANTA_USER_DATA=/tmp/manta-profile-copy npm start
 
 A pre-commit hook runs ESLint and Prettier on staged files.
 
-If packaging on Linux fails because `icns2png` or `gm` is missing, install them. On Ubuntu/Debian: `sudo apt install -y icnsutils graphicsmagick`.
-
 #### Releases
 
 Push a tag that starts with `v` (for example `v1.2.0`). The [Release workflow](./.github/workflows/release.yml) builds macOS, Windows and Linux installers and publishes them to GitHub Releases. It signs and notarizes the macOS build, and signs the Windows build, only when the signing secrets are set. Otherwise it publishes unsigned builds.
