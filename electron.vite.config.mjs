@@ -1,5 +1,6 @@
 import { defineConfig } from 'electron-vite';
 import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 import { fileURLToPath } from 'node:url';
 
 const root = p => fileURLToPath(new URL(p, import.meta.url));
@@ -32,9 +33,11 @@ export default defineConfig({
   },
   renderer: {
     root: root('.'),
-    plugins: [react(), cspPlugin],
+    plugins: [react(), tailwindcss(), cspPlugin],
     resolve: {
       alias: [
+        // Shared redesign code (shadcn components, lib, styles).
+        { find: '@', replacement: root('./ui') },
         // PouchDB still imports the Node events module.
         {
           find: /^events$/,
