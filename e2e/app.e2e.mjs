@@ -104,6 +104,24 @@ test('fresh profile shows the tour window', async () => {
   expect(preview.visible).toBe(false);
 });
 
+test('tour next control is on screen and advances', async () => {
+  let page;
+  for (const p of app.windows()) {
+    if ((await p.title()) === TOUR_TITLE) page = p;
+  }
+  expect(page).toBeTruthy();
+  const next = page.getByRole('button', { name: 'Next' });
+  const box = await next.boundingBox();
+  const viewportHeight = await page.evaluate(() => window.innerHeight);
+  expect(box).toBeTruthy();
+  expect(box.y).toBeGreaterThanOrEqual(0);
+  expect(box.y + box.height).toBeLessThanOrEqual(viewportHeight);
+  await next.click();
+  await expect(
+    page.getByRole('heading', { name: 'Step 1. Create' })
+  ).toBeVisible();
+});
+
 test('main window is resizable and movable', async () => {
   const infos = await windowInfo();
   const main = infos.find(w => w.title === MAIN_TITLE);

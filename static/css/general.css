@@ -36,6 +36,10 @@ body {
 .non-draggable {
   -webkit-app-region: no-drag !important;
 }
+button,
+a {
+  -webkit-app-region: no-drag;
+}
 select,
 input[type="text"],
 input[type="number"] {

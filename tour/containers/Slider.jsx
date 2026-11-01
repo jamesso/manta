@@ -4,9 +4,10 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 const Content = styled.div`
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  overflow: hidden;
 `;
 
 import Save from '../components/slides/Save'; // Save PDF & Send

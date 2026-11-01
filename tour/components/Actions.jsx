@@ -3,13 +3,13 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 const Content = styled.div`
-  flex: 1;
-  max-height: 80px;
+  flex: 0 0 80px;
   background: #f9fafa;
   border-top: 1px solid rgba(0, 0, 0, 0.1);
   justify-content: space-around;
   display: flex;
   align-items: center;
+  -webkit-app-region: no-drag;
   > * {
     flex: 1;
     display: flex;

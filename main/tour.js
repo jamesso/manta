@@ -40,14 +40,21 @@ function endTour() {
   saveWinsVisibleState();
 }
 
+function showWhenReady(win) {
+  const show = () => {
+    if (win.isDestroyed()) return;
+    win.show();
+    win.focus();
+  };
+  if (win.webContents.isLoading()) win.once('ready-to-show', show);
+  else show();
+}
+
 function showWindow(context) {
   const tour = appConfig.get('tour');
   if (tour.isActive) {
     if (context === 'startup') {
-      tourWindow.on('ready-to-show', () => {
-        tourWindow.show();
-        tourWindow.focus();
-      });
+      showWhenReady(tourWindow);
       return;
     }
     if (context === 'activate') {
@@ -58,10 +65,7 @@ function showWindow(context) {
   }
   if (tour.hasBeenTaken) {
     if (context === 'startup') {
-      mainWindow.once('ready-to-show', () => {
-        mainWindow.show();
-        mainWindow.focus();
-      });
+      showWhenReady(mainWindow);
       return;
     }
     if (context === 'activate') {
