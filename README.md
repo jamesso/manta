@@ -81,26 +81,15 @@ The following languages are currently being translated, if you would like to Man
 
 macOS | Windows | Linux
 -----------------| ---| ---|
-<a href='https://github.com/hql287/Manta/releases/download/v1.1.4/Manta-1.1.4.dmg'>Download v1.1.4</a> | <a href='https://github.com/hql287/Manta/releases/download/v1.1.4/Manta.Setup.1.1.4.exe'>Download v1.1.4</a> | <a href='https://github.com/hql287/Manta/releases/download/v1.1.4/Manta-1.1.4-x86_64.AppImage'>Download v1.1.4</a> |
-
-[More Download Options](https://github.com/hql287/Manta/releases)
+[Download latest release](https://github.com/jamesso/manta/releases/latest)
 
 #### Supported Platforms
-Following platforms are supported by Electron:
 
-**macOS**
-The minimum version supported is macOS 10.9.
+- **macOS** 13 (Ventura) or later — one universal download for Apple Silicon and Intel Macs (no Rosetta needed).
+- **Windows** 10 or 11, 64-bit (x64 or Arm64). 32-bit Windows is no longer supported.
+- **Linux** 64-bit (x64 or arm64) distributions supported by current Chromium — see [Chrome system requirements](https://support.google.com/chrome/a/answer/7100626). Packages: `.deb` and `AppImage`.
 
-**Windows**
-Windows 7 and later are supported
-
-**Linux:**
-
-- Ubuntu 12.04 and later
-- Fedora 21
-- Debian 8
-
-[More information](https://github.com/electron/electron/blob/master/docs/tutorial/supported-platforms.md).
+These limits come from Electron 45 (see the [Electron 45 release notes](https://www.electronjs.org/blog/electron-45-0) and [breaking changes](https://www.electronjs.org/docs/latest/breaking-changes)).
 
 Note that on Linux, some users might experience a GPU bug where the select options rendered as a black box, see [issue #128 of Manta](https://github.com/hql287/Manta/pull/128) and [issue #4322 of Electron](https://github.com/electron/electron/issues/4322). This can be fixed by disabling hardware acceleration like so:
 
@@ -149,13 +138,15 @@ With that in mind, I know that Manta would need to satisfy these criteria:
 
 ### Development
 
-It's very easy to get started with these 3 steps:
+Use the Node version in `.nvmrc`.
 
 * Clone this project to your local machine.
 * Open terminal and `cd` into the cloned folder, usually `cd Manta`.
-* Run `yarn install` to install dependencies.
-* Run `yarn dev` in one tab to start `webpack-dev-server`.
-* Run `yarn start` in another tab to open the app.
+* Run `npm ci` to install dependencies.
+* Run `npm run dev` to start the app with hot reload.
+* Run `npm test` for unit tests.
+* Run `npm run test:e2e` for end-to-end tests.
+* Run `npx electron-builder --publish never` to build installers into `dist/`.
 
 This is still in beta and it's far from perfect so feedbacks, issues or PRs are greatly appreciated! :)
 
