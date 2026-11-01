@@ -1,9 +1,3 @@
-*:focus,
-*:active {
-  outline: none !important;
-  box-shadow: none !important;
-}
-
 body,
 #root,
 .appWrapper {
@@ -73,12 +67,7 @@ input[type="radio"] {
   margin-right: 8px;
 }
 
-textarea:focus,
-input:focus {
-  outline: none;
-}
-
-input:disabled {
+input:disabled:not([data-slot]) {
   background: #f2f3f4 !important;
 }
 
