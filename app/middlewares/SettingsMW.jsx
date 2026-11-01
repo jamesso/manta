@@ -50,6 +50,12 @@ const SettingsMW =
           // Notify previewWindow to update
           ipc.send('change-preview-window-language', newLang);
         }
+        // Change theme (main process sets nativeTheme for all windows)
+        const { theme } = appConfig.get('general') || {};
+        const newTheme = action.payload.general.theme;
+        if (newTheme && theme !== newTheme) {
+          ipc.send('set-theme', newTheme);
+        }
         // Save Settings
         appConfig.set('profile', action.payload.profile);
         appConfig.set('invoice', action.payload.invoice);

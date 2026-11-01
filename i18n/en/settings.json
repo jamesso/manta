@@ -33,6 +33,12 @@
       "spaceDot": "Space & Dot"
     },
     "openPDFReader": "Open PDF after Export",
+    "theme": {
+      "name": "Theme",
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark"
+    },
     "language": {
       "name": "Language",
       "ar": "Arabic",

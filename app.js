@@ -7,7 +7,7 @@ const path = require('path');
 const omit = require('lodash').omit;
 
 // Electron Libs
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, nativeTheme } = require('electron');
 const { autoUpdater } = require('electron-updater');
 const { SECURE_WEB_PREFERENCES, loadPage } = require('./helpers/windows');
 // Only the dev server (`npm run dev`) opens DevTools by default. Built
@@ -33,6 +33,7 @@ if (process.argv.includes('--disable-hardware-acceleration')) {
 // 3rd Party Libs
 const appConfig = require('./main/settings');
 require('./main/settings-ipc');
+const { setupTheme, getBackgroundColor } = require('./main/theme');
 
 let tourWindow = null;
 let mainWindow = null;
@@ -56,7 +57,7 @@ function createTourWindow() {
     resizable: false,
     movable: false,
     title: 'Tour Window',
-    backgroundColor: '#F9FAFA',
+    backgroundColor: getBackgroundColor(nativeTheme),
     webPreferences: SECURE_WEB_PREFERENCES,
   });
   // Register WindowID with appConfig
@@ -86,7 +87,7 @@ function createMainWindow() {
     height: mainWindownStateKeeper.height,
     minWidth: 600,
     minHeight: 400,
-    backgroundColor: '#2e2c29',
+    backgroundColor: getBackgroundColor(nativeTheme),
     show: false,
     title: 'Main Window',
     webPreferences: SECURE_WEB_PREFERENCES,
@@ -124,7 +125,7 @@ function createPreviewWindow() {
     height: previewWindownStateKeeper.height,
     minWidth: 1024,
     minHeight: 800,
-    backgroundColor: '#2e2c29',
+    backgroundColor: getBackgroundColor(nativeTheme),
     show: false,
     title: 'Preview Window',
     webPreferences: SECURE_WEB_PREFERENCES,
@@ -189,6 +190,7 @@ function setInitialValues() {
       sound: 'default',
       muted: false,
       previewPDF: true,
+      theme: 'system',
       checkUpdate: 'daily',
       lastCheck: Date.now(),
     },
@@ -424,6 +426,7 @@ function initialize() {
     });
   });
   app.on('ready', () => {
+    setupTheme({ nativeTheme, ipcMain, BrowserWindow, store: appConfig });
     createTourWindow();
     createMainWindow();
     createPreviewWindow();

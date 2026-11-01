@@ -85,6 +85,28 @@ describe('Settings Middleware', () => {
       expect(sounds.preload).toHaveBeenCalled();
     });
 
+    it('sends set-theme only when the theme changes', () => {
+      window.manta.settings.get.mockImplementation(key =>
+        key === 'general' ? { language: 'fr', theme: 'system' } : 'someSettings'
+      );
+      const save = theme =>
+        middleware(
+          Actions.saveSettings({
+            ...action.payload,
+            general: { language: 'fr', theme },
+          })
+        );
+      window.manta.ipc.send.mockClear();
+      save('dark');
+      expect(window.manta.ipc.send).toHaveBeenCalledWith('set-theme', 'dark');
+      window.manta.ipc.send.mockClear();
+      save('system');
+      expect(window.manta.ipc.send.mock.calls.map(c => c[0])).not.toContain(
+        'set-theme'
+      );
+      window.manta.settings.get.mockImplementation(() => 'someSettings');
+    });
+
     it('should notify previewWindow of language & profile change', () => {
       // Clear calls count
       window.manta.ipc.send.mockClear();

@@ -30,6 +30,7 @@ const CHANNELS = new Set([
   'save-configs-to-invoice',
   'save-pdf',
   'select-export-directory',
+  'set-theme',
   'show-modal',
   'start-tour',
   'update-available',

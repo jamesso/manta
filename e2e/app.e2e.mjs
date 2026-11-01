@@ -10,6 +10,7 @@ const PREVIEW_TITLE = 'Previewer';
 let app;
 let userData;
 const errors = [];
+const cspErrors = [];
 
 test.beforeAll(async () => {
   userData = fs.mkdtempSync(path.join(os.tmpdir(), 'manta-e2e-'));
@@ -21,10 +22,14 @@ test.beforeAll(async () => {
     env: { ...process.env, MANTA_USER_DATA: userData, NODE_ENV: 'production' },
   });
 
-  for (const p of app.windows()) {
+  const watch = p => {
     p.on('pageerror', e => errors.push(e.message));
-  }
-  app.on('window', p => p.on('pageerror', e => errors.push(e.message)));
+    p.on('console', m => {
+      if (/Content Security Policy/i.test(m.text())) cspErrors.push(m.text());
+    });
+  };
+  for (const p of app.windows()) watch(p);
+  app.on('window', watch);
 
   await expect
     .poll(
@@ -150,4 +155,77 @@ test('main window renders without page errors', async () => {
     .poll(() => page.locator('#root > *').count(), { timeout: 30_000 })
     .toBeGreaterThan(0);
   expect(errors).toEqual([]);
+});
+
+async function pageByTitle(title) {
+  let found;
+  await expect
+    .poll(
+      async () => {
+        for (const p of app.windows())
+          if ((await p.title()) === title) found = p;
+        return Boolean(found);
+      },
+      { timeout: 30_000 }
+    )
+    .toBe(true);
+  return found;
+}
+
+test('theme setting reaches every window', async () => {
+  const main = await pageByTitle(MAIN_TITLE);
+  await main.evaluate(() =>
+    window.manta.ipc.send('show-modal', {
+      type: 'info',
+      title: 'Theme check',
+      message: 'Theme check',
+      buttons: ['OK'],
+    })
+  );
+  await pageByTitle('Dialog');
+  expect(app.windows().length).toBeGreaterThanOrEqual(4);
+  for (const theme of ['dark', 'light']) {
+    await main.evaluate(t => window.manta.ipc.send('set-theme', t), theme);
+    await expect
+      .poll(() => app.evaluate(({ nativeTheme }) => nativeTheme.themeSource))
+      .toBe(theme);
+    for (const p of app.windows()) {
+      await expect
+        .poll(() =>
+          p.evaluate(() => matchMedia('(prefers-color-scheme: dark)').matches)
+        )
+        .toBe(theme === 'dark');
+    }
+    const expected = theme === 'dark' ? '#0a0a0a' : '#ffffff';
+    await expect
+      .poll(async () => {
+        const colors = await app.evaluate(({ BrowserWindow }) =>
+          BrowserWindow.getAllWindows().map(w =>
+            w.getBackgroundColor().toLowerCase()
+          )
+        );
+        return colors.every(c => c.slice(0, 7) === expected);
+      })
+      .toBe(true);
+    await expect
+      .poll(
+        () =>
+          JSON.parse(fs.readFileSync(path.join(userData, 'Settings'), 'utf8'))
+            .general?.theme
+      )
+      .toBe(theme);
+  }
+  await main.evaluate(() => window.manta.ipc.send('set-theme', 'bogus'));
+  await expect
+    .poll(() => app.evaluate(({ nativeTheme }) => nativeTheme.themeSource))
+    .toBe('system');
+  await app.evaluate(({ BrowserWindow }) =>
+    BrowserWindow.getAllWindows()
+      .find(w => w.getTitle() === 'Dialog')
+      ?.close()
+  );
+});
+
+test('no window reports a CSP violation', async () => {
+  expect(cspErrors).toEqual([]);
 });

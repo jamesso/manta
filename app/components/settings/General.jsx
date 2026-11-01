@@ -4,12 +4,21 @@ import PropTypes from 'prop-types';
 
 // Custom Libs
 import _withFadeInAnimation from '../shared/hoc/_withFadeInAnimation';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 // Component
 class General extends Component {
   constructor(props) {
     super(props);
     this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleThemeChange = this.handleThemeChange.bind(this);
     this.state = { ...props.general };
   }
 
@@ -22,8 +31,18 @@ class General extends Component {
     });
   }
 
+  handleThemeChange(value) {
+    this.setState({ theme: value }, () => {
+      this.props.updateSettings('general', this.state);
+    });
+  }
+
   render() {
     const { t } = this.props;
+    const themeItems = ['system', 'light', 'dark'].map(value => ({
+      value,
+      label: t(`settings:fields:theme:${value}`),
+    }));
     return (
       <div>
         <div className="row">
@@ -110,6 +129,36 @@ class General extends Component {
                 />
                 <span className="slider round" />
               </label>
+            </div>
+          </div>
+        </div>
+        <div className="row">
+          <div className="col-md-6">
+            <div className="pageItem">
+              <label className="itemLabel" id="settings-theme-label">
+                {t('settings:fields:theme:name')}
+              </label>
+              <Select
+                items={themeItems}
+                value={this.state.theme || 'system'}
+                onValueChange={this.handleThemeChange}
+              >
+                <SelectTrigger
+                  className="w-full bg-background text-foreground"
+                  aria-labelledby="settings-theme-label"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {themeItems.map(item => (
+                      <SelectItem key={item.value} value={item.value}>
+                        {item.label}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>
