@@ -24,7 +24,7 @@ ipcMain.on('check-for-updates', event => {
 
 // Start Download
 ipcMain.on('update-download-started', () => {
-  autoUpdater.downloadUpdate();
+  autoUpdater.downloadUpdate().catch(() => {});
 });
 
 // CHECKING FOR UPDATE EVENTS
@@ -75,7 +75,7 @@ autoUpdater.on('update-downloaded', info => {
 function checkForUpdate() {
   // Only check for update in Production
   if (!isDev) {
-    autoUpdater.checkForUpdates();
+    autoUpdater.checkForUpdates().catch(() => {});
   }
 }
 
