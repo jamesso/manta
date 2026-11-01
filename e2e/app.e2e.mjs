@@ -95,7 +95,8 @@ test('fresh profile shows the tour window', async () => {
   expect(tour).toBeTruthy();
   expect(tour.visible).toBe(true);
   expect(tour.resizable).toBe(false);
-  expect(tour.movable).toBe(false);
+  // Electron does not implement `movable` on Linux; isMovable() is always true there.
+  expect(tour.movable).toBe(process.platform === 'linux');
   expect(tour.minimized).toBe(false);
   expect(tour.devTools).toBe(false);
   expect(tour.bounds.width).toBe(700);
