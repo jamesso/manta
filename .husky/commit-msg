@@ -1,0 +1,5 @@
+# Strip AI-agent co-author and "Generated with" lines from commit messages.
+sed -i.bak -E \
+  -e '/^[Cc]o-[Aa]uthored-[Bb]y:.*([Cc]ursor|[Cc]laude|[Aa]nthropic|[Cc]odex|[Oo]pen[Aa][Ii]|[Cc]opilot|[Gg]emini|[Aa]ider|[Dd]evin|[Ww]indsurf|bot)/d' \
+  -e '/[Gg]enerated (with|by) .*([Cc]laude|[Cc]ursor|[Cc]odex|[Cc]opilot|AI)/d' \
+  "$1" && rm -f "$1.bak"
