@@ -10,7 +10,9 @@ const omit = require('lodash').omit;
 const { app, BrowserWindow, ipcMain } = require('electron');
 const { autoUpdater } = require('electron-updater');
 const { SECURE_WEB_PREFERENCES, loadPage } = require('./helpers/windows');
-const isDev = !app.isPackaged;
+// Only the dev server (`npm run dev`) opens DevTools by default. Built
+// runs (`npm start`, e2e) behave like the packaged app.
+const isDev = !app.isPackaged && Boolean(process.env.ELECTRON_RENDERER_URL);
 
 // Never let dev/test runs touch the real user profile.
 if (process.env.MANTA_USER_DATA) {
