@@ -11,17 +11,7 @@ let app;
 let userData;
 const errors = [];
 
-let staticCopyDest;
-
-function syncStaticForUnpackagedMain() {
-  staticCopyDest = path.join(process.cwd(), 'out', 'main', 'static');
-  fs.cpSync(path.join(process.cwd(), 'static'), staticCopyDest, {
-    recursive: true,
-  });
-}
-
 test.beforeAll(async () => {
-  syncStaticForUnpackagedMain();
   userData = fs.mkdtempSync(path.join(os.tmpdir(), 'manta-e2e-'));
   app = await electron.launch({
     args: [
@@ -62,8 +52,6 @@ test.beforeAll(async () => {
 test.afterAll(async () => {
   await app?.close();
   fs.rmSync(userData, { recursive: true, force: true });
-  if (staticCopyDest)
-    fs.rmSync(staticCopyDest, { recursive: true, force: true });
 });
 
 async function windowInfo() {

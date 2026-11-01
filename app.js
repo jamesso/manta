@@ -145,9 +145,21 @@ function createPreviewWindow() {
   });
 }
 
+// `electron .` sets the app path to the package root. Launching
+// out/main/index.js directly sets it to out/main, which has no static/.
+function bundledFile(...segments) {
+  const candidates = [
+    path.join(app.getAppPath(), ...segments),
+    path.join(__dirname, '..', '..', ...segments),
+  ];
+  return (
+    candidates.find(candidate => fs.existsSync(candidate)) || candidates[0]
+  );
+}
+
 function setInitialValues() {
   // Default Logo
-  const logoPath = path.join(app.getAppPath(), 'static/imgs/default_logo.svg');
+  const logoPath = bundledFile('static', 'imgs', 'default_logo.svg');
   const logoData = fs.readFileSync(logoPath);
   const logoBase64String =
     'data:image/svg+xml;base64,' + logoData.toString('base64');

@@ -57,6 +57,8 @@ autoUpdater.on('error', error => {
   } else {
     errMessage = error.message;
   }
+  // Startup checks stay quiet. A missing release feed must not open a dialog.
+  if (silentMode) return;
   mainWindow.webContents.send('update-error', errMessage);
 });
 

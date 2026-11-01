@@ -28,7 +28,6 @@ jobs:
       - run: npm run format:check
       - run: npm test
       - run: npm run build
-      - run: node -e "require('fs').cpSync('static','out/main/static',{recursive:true})"
       - name: e2e (Linux needs a virtual display)
         if: runner.os == 'Linux'
         run: xvfb-run --auto-servernum npx playwright test

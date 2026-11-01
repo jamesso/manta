@@ -23,8 +23,30 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
+      - name: Detect signing credentials
+        id: signing
+        shell: bash
+        run: |
+          if [ -n "$MAC_CSC_LINK" ] && [ -n "$MAC_CSC_KEY_PASSWORD" ] && [ -n "$APPLE_API_KEY" ] && [ -n "$APPLE_API_KEY_ID" ] && [ -n "$APPLE_API_ISSUER" ]; then
+            echo "mac=signed" >> "$GITHUB_OUTPUT"
+          else
+            echo "mac=unsigned" >> "$GITHUB_OUTPUT"
+          fi
+          if [ -n "$WIN_CSC_LINK" ] && [ -n "$WIN_CSC_KEY_PASSWORD" ]; then
+            echo "win=signed" >> "$GITHUB_OUTPUT"
+          else
+            echo "win=unsigned" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          MAC_CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
+          MAC_CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
+          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+          WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
+          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
       - name: Publish macOS (signed + notarized)
-        if: runner.os == 'macOS'
+        if: runner.os == 'macOS' && steps.signing.outputs.mac == 'signed'
         run: npx electron-builder --mac --publish always -c.mac.notarize=true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -33,13 +55,24 @@ jobs:
           APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
           APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
           APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
-      - name: Publish Windows
-        if: runner.os == 'Windows'
+      - name: Publish macOS (unsigned)
+        if: runner.os == 'macOS' && steps.signing.outputs.mac == 'unsigned'
+        run: npx electron-builder --mac --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      - name: Publish Windows (signed)
+        if: runner.os == 'Windows' && steps.signing.outputs.win == 'signed'
         run: npx electron-builder --win --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
           WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+      - name: Publish Windows (unsigned)
+        if: runner.os == 'Windows' && steps.signing.outputs.win == 'unsigned'
+        run: npx electron-builder --win --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish Linux
         if: runner.os == 'Linux'
         run: npx electron-builder --linux --publish always
