@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { padStart } from 'lodash';
 import { formatNumber } from '../../../../helpers/formatNumber';
 import {
-  getInvoiceValue,
+  getInvoiceTotals,
   getPayments,
   getAmountPaid,
   getBalanceDue,
@@ -125,6 +125,7 @@ function setAlignItems(configs) {
 function Main({ invoice, configs, t }) {
   // Get currentLanguage
   const currentLanguage = configs.language;
+  const totals = getInvoiceTotals(invoice);
   // Destructuring values
   const { tax, discount } = invoice;
   const { code, placement, fraction, separator } = invoice.currency;
@@ -146,11 +147,21 @@ function Main({ invoice, configs, t }) {
       <td>
         {padStart(index + 1, 2, 0)}
         {'. '}
-        {row.description} ({row.quantity})
+        {row.description} ({row.quantity}
+        {totals.mode === 'line' &&
+        totals.taxBreakdown.length > 1 &&
+        row.taxRate != null
+          ? ` · ${row.taxRate}%`
+          : ''}
+        )
       </td>
       <td>
         {currencyBefore ? currency : null}{' '}
-        {formatNumber(row.subtotal, fraction, separator)}{' '}
+        {formatNumber(
+          totals.mode === 'line' ? totals.lines[index]?.net : row.subtotal,
+          fraction,
+          separator
+        )}{' '}
         {currencyBefore ? null : currency}
       </td>
     </Item>
@@ -174,12 +185,16 @@ function Main({ invoice, configs, t }) {
           <td>{t('preview:common:subtotal', { lng: currentLanguage })}</td>
           <td>
             {currencyBefore ? currency : null}{' '}
-            {formatNumber(invoice.subtotal, fraction, separator)}{' '}
+            {formatNumber(
+              totals.mode === 'line' ? totals.subtotal : invoice.subtotal,
+              fraction,
+              separator
+            )}{' '}
             {currencyBefore ? null : currency}
           </td>
         </Subtotal>
 
-        {tax && (
+        {totals.mode === 'invoice' && tax && (
           <Tax>
             <td>
               {t('form:fields:tax:name', { lng: currentLanguage })} {tax.amount}
@@ -190,16 +205,37 @@ function Main({ invoice, configs, t }) {
             ) : (
               <td>
                 {currencyBefore ? currency : null}{' '}
-                {formatNumber(
-                  getInvoiceValue(invoice).taxAmount,
-                  fraction,
-                  separator
-                )}{' '}
+                {formatNumber(totals.taxTotal, fraction, separator)}{' '}
                 {currencyBefore ? null : currency}
               </td>
             )}
           </Tax>
         )}
+
+        {totals.mode === 'line'
+          ? totals.taxBreakdown.map(group => (
+              <Tax key={group.key}>
+                <td>
+                  {t(`preview:tax:category:${group.category}`, {
+                    lng: currentLanguage,
+                  })}{' '}
+                  {group.rate}%
+                  <br />
+                  <small>
+                    {t('preview:tax:on', {
+                      lng: currentLanguage,
+                      amount: formatNumber(group.base, fraction, separator),
+                    })}
+                  </small>
+                </td>
+                <td>
+                  {currencyBefore ? currency : null}{' '}
+                  {formatNumber(group.amount, fraction, separator)}{' '}
+                  {currencyBefore ? null : currency}
+                </td>
+              </Tax>
+            ))
+          : null}
 
         {discount && (
           <Discount>
@@ -211,11 +247,7 @@ function Main({ invoice, configs, t }) {
             </td>
             <td>
               {currencyBefore ? currency : null}{' '}
-              {formatNumber(
-                getInvoiceValue(invoice).discount,
-                fraction,
-                separator
-              )}{' '}
+              {formatNumber(totals.discount, fraction, separator)}{' '}
               {currencyBefore ? null : currency}
             </td>
           </Discount>
@@ -225,10 +257,30 @@ function Main({ invoice, configs, t }) {
           <td>{t('preview:common:total', { lng: currentLanguage })}</td>
           <td>
             {currencyBefore ? currency : null}{' '}
-            {formatNumber(invoice.grandTotal, fraction, separator)}{' '}
+            {formatNumber(
+              totals.mode === 'line' ? totals.grandTotal : invoice.grandTotal,
+              fraction,
+              separator
+            )}{' '}
             {currencyBefore ? null : currency}
           </td>
         </Total>
+        {totals.mode === 'line'
+          ? totals.taxBreakdown
+              .filter(g => g.exemptionReason)
+              .map(g => (
+                <tr key={`${g.key}-reason`}>
+                  <td colSpan="2">
+                    <small>
+                      {t(`preview:tax:category:${g.category}`, {
+                        lng: currentLanguage,
+                      })}
+                      : {g.exemptionReason}
+                    </small>
+                  </td>
+                </tr>
+              ))
+          : null}
         {hasPayments ? (
           <>
             <AmountPaid>

@@ -41,5 +41,20 @@
     "total": "Total",
     "amountPaid": "Amount paid",
     "balanceDue": "Balance due"
+  },
+  "tax": {
+    "taxId": "Tax ID",
+    "vatId": "VAT ID",
+    "recipientTaxId": "Client VAT ID",
+    "on": "on {{amount}}",
+    "category": {
+      "S": "VAT",
+      "Z": "VAT 0 %",
+      "E": "VAT exempt",
+      "AE": "Reverse charge",
+      "K": "Intra-community supply",
+      "G": "Export",
+      "O": "Outside the scope of VAT"
+    }
   }
 }

@@ -36,7 +36,24 @@ function Footer({ t, invoice, profile, configs }) {
         <p>{profile.address}</p>
         <p>{profile.email}</p>
         <p>{profile.phone}</p>
-        {tax && <p>Tax ID: {tax.tin}</p>}
+        {invoice.seller ? (
+          <>
+            {invoice.seller.taxId ? (
+              <p>
+                {t('preview:tax:taxId', { lng: currentLanguage })}:{' '}
+                {invoice.seller.taxId}
+              </p>
+            ) : null}
+            {invoice.seller.vatId ? (
+              <p>
+                {t('preview:tax:vatId', { lng: currentLanguage })}:{' '}
+                {invoice.seller.vatId}
+              </p>
+            ) : null}
+          </>
+        ) : (
+          tax && <p>Tax ID: {tax.tin}</p>
+        )}
       </Column>
       {configs.showRecipient && (
         <Column right>
@@ -46,6 +63,12 @@ function Footer({ t, invoice, profile, configs }) {
           <p>{recipient.company}</p>
           <p>{recipient.fullname}</p>
           <p>{recipient.email}</p>
+          {recipient.taxId ? (
+            <p>
+              {t('preview:tax:recipientTaxId', { lng: currentLanguage })}:{' '}
+              {recipient.taxId}
+            </p>
+          ) : null}
           <p>{recipient.phone}</p>
         </Column>
       )}

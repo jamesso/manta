@@ -24,9 +24,8 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 export default function AdjustmentsCard() {
   const dispatch = useDispatch();
   const { t } = useTranslation();
-  const { discount, tax, settings, savedSettings, errors, taxMode } = useSelector(
-    state => state.form
-  );
+  const { discount, tax, settings, savedSettings, errors, taxMode } =
+    useSelector(state => state.form);
   const update = (field, value) => dispatch(updateFieldData(field, value));
   return (
     <Card>

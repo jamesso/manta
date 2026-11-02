@@ -1,7 +1,7 @@
 import { getSettingsErrors, getRawNumberingErrors } from './settings';
 
 export const BACKUP_APP = 'Manta';
-export const BACKUP_VERSION = 2;
+export const BACKUP_VERSION = 3;
 
 const DANGEROUS_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
 

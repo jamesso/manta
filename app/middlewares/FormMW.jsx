@@ -57,9 +57,7 @@ function syncLineTaxRows(dispatch, getState, { overwriteAll = false } = {}) {
   if (!defaultRate) {
     return;
   }
-  const legacyRate = overwriteAll
-    ? matchLegacyTaxRate(form.tax, rates)
-    : null;
+  const legacyRate = overwriteAll ? matchLegacyTaxRate(form.tax, rates) : null;
   for (const row of form.rows) {
     if (overwriteAll) {
       dispatch(
@@ -126,8 +124,7 @@ async function handleSave({ dispatch, getState }, mode) {
         const paymentErrors = getPaymentEditErrors(data, editMode.data);
         if (paymentErrors.length) {
           for (const err of paymentErrors) {
-            const currency =
-              data.currency ?? appConfig.get('invoice.currency');
+            const currency = data.currency ?? appConfig.get('invoice.currency');
             const values = err.values
               ? {
                   ...err.values,

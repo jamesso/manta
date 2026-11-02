@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { padStart } from 'lodash';
 import { formatNumber } from '../../../../helpers/formatNumber';
 import {
-  getInvoiceValue,
+  getInvoiceTotals,
   getPayments,
   getAmountPaid,
   getBalanceDue,
@@ -124,6 +124,7 @@ function setAlignItems(configs) {
 function Main({ invoice, configs, t }) {
   // Set language
   const { language, accentColor, customAccentColor } = configs;
+  const totals = getInvoiceTotals(invoice);
   // Others
   const { tax, discount } = invoice;
   const { code, placement, fraction, separator } = invoice.currency;
@@ -150,9 +151,16 @@ function Main({ invoice, configs, t }) {
         {currencyBefore ? null : currency}
       </td>
       <td className="w10">{row.quantity}</td>
+      {totals.mode === 'line' && totals.taxBreakdown.length > 1 ? (
+        <td className="w10">{row.taxRate != null ? `${row.taxRate}%` : ''}</td>
+      ) : null}
       <td className="w15">
         {currencyBefore ? currency : null}{' '}
-        {formatNumber(row.subtotal, fraction, separator)}{' '}
+        {formatNumber(
+          totals.mode === 'line' ? totals.lines[index]?.net : row.subtotal,
+          fraction,
+          separator
+        )}{' '}
         {currencyBefore ? null : currency}
       </td>
     </tr>
@@ -173,6 +181,11 @@ function Main({ invoice, configs, t }) {
             <th className="w10">
               {t('preview:common:qty', { lng: language })}
             </th>
+            {totals.mode === 'line' && totals.taxBreakdown.length > 1 ? (
+              <th className="w10">
+                {t('form:fields:tax:name', { lng: language })}
+              </th>
+            ) : null}
             <th className="w15">
               {t('preview:common:subtotal', { lng: language })}
             </th>
@@ -187,7 +200,11 @@ function Main({ invoice, configs, t }) {
             </td>
             <td>
               {currencyBefore ? currency : null}{' '}
-              {formatNumber(invoice.subtotal, fraction, separator)}{' '}
+              {formatNumber(
+                totals.mode === 'line' ? totals.subtotal : invoice.subtotal,
+                fraction,
+                separator
+              )}{' '}
               {currencyBefore ? null : currency}
             </td>
           </tr>
@@ -203,17 +220,13 @@ function Main({ invoice, configs, t }) {
               </td>
               <td>
                 {currencyBefore ? currency : null}{' '}
-                {formatNumber(
-                  getInvoiceValue(invoice).discount,
-                  fraction,
-                  separator
-                )}{' '}
+                {formatNumber(totals.discount, fraction, separator)}{' '}
                 {currencyBefore ? null : currency}
               </td>
             </InvoiceDiscount>
           )}
 
-          {tax && (
+          {totals.mode === 'invoice' && tax && (
             <InvoiceTax>
               <td colSpan="2" />
               <td className="label" colSpan={tax.method === 'reverse' ? 1 : 2}>
@@ -229,16 +242,38 @@ function Main({ invoice, configs, t }) {
               ) : (
                 <td>
                   {currencyBefore ? currency : null}{' '}
-                  {formatNumber(
-                    getInvoiceValue(invoice).taxAmount,
-                    fraction,
-                    separator
-                  )}{' '}
+                  {formatNumber(totals.taxTotal, fraction, separator)}{' '}
                   {currencyBefore ? null : currency}
                 </td>
               )}
             </InvoiceTax>
           )}
+
+          {totals.mode === 'line'
+            ? totals.taxBreakdown.map(group => (
+                <InvoiceTax key={group.key}>
+                  <td colSpan="2" />
+                  <td className="label" colSpan="2">
+                    {t(`preview:tax:category:${group.category}`, {
+                      lng: language,
+                    })}{' '}
+                    {group.rate}%
+                    <br />
+                    <small>
+                      {t('preview:tax:on', {
+                        lng: language,
+                        amount: formatNumber(group.base, fraction, separator),
+                      })}
+                    </small>
+                  </td>
+                  <td>
+                    {currencyBefore ? currency : null}{' '}
+                    {formatNumber(group.amount, fraction, separator)}{' '}
+                    {currencyBefore ? null : currency}
+                  </td>
+                </InvoiceTax>
+              ))
+            : null}
 
           <InvoiceTotal
             accentColor={accentColor}
@@ -250,10 +285,30 @@ function Main({ invoice, configs, t }) {
             </td>
             <td colSpan="2">
               {currencyBefore ? currency : null}{' '}
-              {formatNumber(invoice.grandTotal, fraction, separator)}{' '}
+              {formatNumber(
+                totals.mode === 'line' ? totals.grandTotal : invoice.grandTotal,
+                fraction,
+                separator
+              )}{' '}
               {currencyBefore ? null : currency}
             </td>
           </InvoiceTotal>
+          {totals.mode === 'line'
+            ? totals.taxBreakdown
+                .filter(g => g.exemptionReason)
+                .map(g => (
+                  <tr key={`${g.key}-reason`}>
+                    <td colSpan="5">
+                      <small>
+                        {t(`preview:tax:category:${g.category}`, {
+                          lng: language,
+                        })}
+                        : {g.exemptionReason}
+                      </small>
+                    </td>
+                  </tr>
+                ))
+            : null}
           {hasPayments ? (
             <>
               <tr>

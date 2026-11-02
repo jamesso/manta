@@ -3,13 +3,14 @@ import { isEmpty, pick, includes } from 'lodash';
 import moment from 'moment';
 
 import i18n from '../../i18n/i18n';
-import { getCurrencyFraction, getInvoiceTotals, getIssuedAt, isLineTaxInvoice } from './invoice';
-import { roundMoney } from './money';
 import {
-  clearRowTax,
-  getSellerTaxIds,
-  getTaxRateErrors,
-} from './tax';
+  getCurrencyFraction,
+  getInvoiceTotals,
+  getIssuedAt,
+  isLineTaxInvoice,
+} from './invoice';
+import { roundMoney } from './money';
+import { clearRowTax, getSellerTaxIds, getTaxRateErrors } from './tax';
 import { reconcilePaymentStatus } from './payments';
 
 const EMAIL_RE =
@@ -361,7 +362,8 @@ function getLineTaxFormErrors(form, mode) {
         'form:errors:exemptionReasonRequired';
     }
     if (!Number.isFinite(Number(row.subtotal)) || Number(row.subtotal) < 0) {
-      errors[`rows.${row.id}.price`] = 'dialog:validation:rows:priceZero:message';
+      errors[`rows.${row.id}.price`] =
+        'dialog:validation:rows:priceZero:message';
     }
   }
   for (const group of totals.taxBreakdown) {
@@ -671,7 +673,13 @@ function setEditRecipient(allContacts, currentContact) {
   }
   return {
     newRecipient: true,
-    new: pick(currentContact, ['fullname', 'company', 'phone', 'email', 'taxId']),
+    new: pick(currentContact, [
+      'fullname',
+      'company',
+      'phone',
+      'email',
+      'taxId',
+    ]),
   };
 }
 

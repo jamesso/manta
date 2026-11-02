@@ -45,15 +45,16 @@ export default function LineItemRow({
 }) {
   const dispatch = useDispatch();
   const { t } = useTranslation();
-  const { errors, currency, settings, taxMode } = useSelector(state => state.form);
+  const { errors, currency, settings, taxMode } = useSelector(
+    state => state.form
+  );
   const invoiceSettings = useSelector(
     state => state.settings.saved?.invoice ?? state.form.savedSettings
   );
   const displayCurrency = settings.required_fields.currency
     ? currency
     : invoiceSettings?.currency;
-  const showTaxColumn =
-    taxMode === 'line' && settings.required_fields.tax;
+  const showTaxColumn = taxMode === 'line' && settings.required_fields.tax;
   const gridClass = showTaxColumn
     ? 'grid grid-cols-[1.5rem_minmax(8rem,1fr)_7rem_6rem_6rem_8rem_7rem_4.5rem] items-start gap-2'
     : 'grid grid-cols-[1.5rem_minmax(8rem,1fr)_7rem_6rem_6rem_7rem_4.5rem] items-start gap-2';
@@ -178,9 +179,7 @@ export default function LineItemRow({
             <div>
               <TaxRateSelect row={item} index={index} />
               {errors[`rows.${item.id}.taxRate`] && (
-                <FieldError>
-                  {t(errors[`rows.${item.id}.taxRate`])}
-                </FieldError>
+                <FieldError>{t(errors[`rows.${item.id}.taxRate`])}</FieldError>
               )}
             </div>
           ) : null}

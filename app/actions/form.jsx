@@ -34,9 +34,8 @@ export const clearForm = createAction(
   // the second one will be used to determined whether to play a sound or not
 );
 
-export const saveFormData = createAction(
-  ACTION_TYPES.FORM_SAVE,
-  mode => (mode === 'draft' ? 'draft' : 'final')
+export const saveFormData = createAction(ACTION_TYPES.FORM_SAVE, mode =>
+  mode === 'draft' ? 'draft' : 'final'
 );
 
 export const setFormErrors = createAction(

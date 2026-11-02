@@ -9,7 +9,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { updateItem } from '../../../actions/form';
-import { applyTaxRate, getActiveTaxRates, getTaxRates } from '../../../helpers/tax';
+import {
+  applyTaxRate,
+  getActiveTaxRates,
+  getTaxRates,
+} from '../../../helpers/tax';
 
 export default function TaxRateSelect({ row, index }) {
   const dispatch = useDispatch();
@@ -20,10 +24,7 @@ export default function TaxRateSelect({ row, index }) {
   const rates = getTaxRates(invoiceSettings);
   const active = getActiveTaxRates(rates);
   const options = [...active];
-  if (
-    row.taxRateId &&
-    !options.some(r => r.id === row.taxRateId)
-  ) {
+  if (row.taxRateId && !options.some(r => r.id === row.taxRateId)) {
     options.push({
       id: row.taxRateId,
       name: `${row.taxRate ?? 0}%`,
@@ -39,7 +40,8 @@ export default function TaxRateSelect({ row, index }) {
     <Select
       value={value}
       onValueChange={id => {
-        const rate = rates.find(r => r.id === id) ?? active.find(r => r.id === id);
+        const rate =
+          rates.find(r => r.id === id) ?? active.find(r => r.id === id);
         dispatch(updateItem(applyTaxRate(row, rate ?? null)));
       }}
     >
@@ -53,7 +55,9 @@ export default function TaxRateSelect({ row, index }) {
         {options.map(rate => (
           <SelectItem key={rate.id} value={rate.id}>
             {rate.name}
-            {rate.active === false ? ` (${t('settings:taxRates:inactive')})` : ''}
+            {rate.active === false
+              ? ` (${t('settings:taxRates:inactive')})`
+              : ''}
             {rate.category === 'S' ? ` · ${rate.rate}%` : ''}
           </SelectItem>
         ))}

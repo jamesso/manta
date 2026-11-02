@@ -75,7 +75,24 @@ function Header({ t, invoice, profile, configs }) {
           <p>{profile.address}</p>
           <p>{profile.email}</p>
           <p>{profile.phone}</p>
-          {tax && <p>Tax ID: {tax.tin}</p>}
+          {invoice.seller ? (
+            <>
+              {invoice.seller.taxId ? (
+                <p>
+                  {t('preview:tax:taxId', { lng: language })}:{' '}
+                  {invoice.seller.taxId}
+                </p>
+              ) : null}
+              {invoice.seller.vatId ? (
+                <p>
+                  {t('preview:tax:vatId', { lng: language })}:{' '}
+                  {invoice.seller.vatId}
+                </p>
+              ) : null}
+            </>
+          ) : (
+            tax && <p>Tax ID: {tax.tin}</p>
+          )}
         </Company>
 
         {configs.showRecipient && (
@@ -84,6 +101,12 @@ function Header({ t, invoice, profile, configs }) {
             <p>{recipient.company}</p>
             <p>{recipient.fullname}</p>
             <p>{recipient.email}</p>
+            {recipient.taxId ? (
+              <p>
+                {t('preview:tax:recipientTaxId', { lng: language })}:{' '}
+                {recipient.taxId}
+              </p>
+            ) : null}
             <p>{recipient.phone}</p>
           </Recipient>
         )}
@@ -106,7 +129,9 @@ function Header({ t, invoice, profile, configs }) {
         </h4>
         <p>
           {t('preview:common:created', { lng: language })}:{' '}
-          {moment(getIssuedAt(invoice)).lang(language).format(configs.dateFormat)}
+          {moment(getIssuedAt(invoice))
+            .lang(language)
+            .format(configs.dateFormat)}
         </p>
         {invoice.dueDate && [
           <p key="dueDate">

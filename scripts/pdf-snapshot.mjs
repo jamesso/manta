@@ -134,6 +134,98 @@ for (const template of ['minimal', 'business']) {
   };
 }
 
+const SNAPSHOT_SET = process.env.SNAPSHOT_SET || 'legacy';
+
+const LINE_BASE = {
+  ...BASE,
+  tax: undefined,
+  discount: undefined,
+  taxMode: 'line',
+  taxCalc: 1,
+  seller: { taxId: 'DE-TAX-1', vatId: 'DE123456789' },
+  recipient: {
+    ...BASE.recipient,
+    taxId: 'FR12345678901',
+  },
+};
+
+const LINE = {
+  ...LINE_BASE,
+  rows: [
+    {
+      id: 'r1',
+      description: 'Standard rated',
+      quantity: 1,
+      price: 100,
+      subtotal: 100,
+      taxRate: 19,
+      taxCategory: 'S',
+      taxRateId: 's19',
+    },
+    {
+      id: 'r2',
+      description: 'Reduced rate',
+      quantity: 1,
+      price: 50,
+      subtotal: 50,
+      taxRate: 7,
+      taxCategory: 'S',
+      taxRateId: 's7',
+    },
+    {
+      id: 'r3',
+      description: 'Exempt',
+      quantity: 1,
+      price: 30,
+      subtotal: 30,
+      taxRate: 0,
+      taxCategory: 'E',
+      taxExemptionReason: 'Exempt under §4 UStG',
+      taxRateId: 'e0',
+    },
+  ],
+  subtotal: 180,
+  grandTotal: 202.15,
+};
+
+const LINE_AE = {
+  ...LINE_BASE,
+  rows: [
+    {
+      id: 'r1',
+      description: 'Service A',
+      quantity: 1,
+      price: 200,
+      subtotal: 200,
+      taxRate: 0,
+      taxCategory: 'AE',
+      taxExemptionReason: 'Reverse charge',
+      taxRateId: 'ae',
+    },
+    {
+      id: 'r2',
+      description: 'Service B',
+      quantity: 1,
+      price: 100,
+      subtotal: 100,
+      taxRate: 0,
+      taxCategory: 'AE',
+      taxExemptionReason: 'Reverse charge',
+      taxRateId: 'ae',
+    },
+  ],
+  subtotal: 300,
+  grandTotal: 300,
+};
+
+const LINE_CASES = {};
+for (const template of ['minimal', 'business']) {
+  LINE_CASES[`${template}-line`] = { template, invoice: LINE };
+  LINE_CASES[`${template}-line-ae`] = { template, invoice: LINE_AE };
+}
+
+const ACTIVE_CASES = SNAPSHOT_SET === 'line' ? LINE_CASES : CASES;
+
 const PROPS = [
   'font-family',
   'font-size',
@@ -375,7 +467,7 @@ async function main() {
       await app.evaluate(({ nativeTheme }, t) => {
         nativeTheme.themeSource = t;
       }, theme);
-      for (const [name, cfg] of Object.entries(CASES)) {
+      for (const [name, cfg] of Object.entries(ACTIVE_CASES)) {
         const { invoice: extra = {}, ...rest } = cfg;
         const invoice = {
           ...BASE,
@@ -432,7 +524,9 @@ async function main() {
     await closeAndRemoveOwnedProfile(app, launchProfile);
   }
 
-  console.log(`Wrote ${Object.keys(CASES).length * 2} PDFs to ${outDir}`);
+  console.log(
+    `Wrote ${Object.keys(ACTIVE_CASES).length * 2} PDFs to ${outDir}`
+  );
   console.log(`Profile ${launchProfile} (removed: true)`);
 }
 

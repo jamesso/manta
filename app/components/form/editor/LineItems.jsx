@@ -16,8 +16,7 @@ export default function LineItems() {
   const dispatch = useDispatch();
   const { t } = useTranslation();
   const { rows, errors, taxMode, settings } = useSelector(state => state.form);
-  const showTaxColumn =
-    taxMode === 'line' && settings.required_fields.tax;
+  const showTaxColumn = taxMode === 'line' && settings.required_fields.tax;
   const headerGrid = showTaxColumn
     ? 'grid grid-cols-[1.5rem_minmax(8rem,1fr)_7rem_6rem_6rem_8rem_7rem_4.5rem] gap-2 text-xs text-muted-foreground'
     : 'grid grid-cols-[1.5rem_minmax(8rem,1fr)_7rem_6rem_6rem_7rem_4.5rem] gap-2 text-xs text-muted-foreground';
