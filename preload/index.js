@@ -6,6 +6,7 @@ const CHANNELS = new Set([
   'backup-snapshot',
   'csv-export',
   'einvoice-export',
+  'preview-export-freeze',
   'change-preview-window-language',
   'change-preview-window-profile',
   'check-for-updates',

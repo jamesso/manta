@@ -6,6 +6,7 @@ import EInvoiceChecklist from '../../../app/components/einvoice/EInvoiceChecklis
 import { getEInvoiceDerived } from '../../../app/helpers/einvoice.js';
 import { toEn16931 } from '../../../helpers/einvoice/toEn16931.js';
 import { getEInvoiceIssues } from '../../../helpers/einvoice/getEInvoiceIssues.js';
+import { exportKey } from '../../../helpers/einvoice/exportKey.js';
 
 const ipc = window.manta.ipc;
 const settings = window.manta.settings;
@@ -62,6 +63,7 @@ export default function EInvoiceSidebar({ t, UILang, invoice, profile }) {
         kind,
         invoice,
         derived,
+        exportKey: exportKey(invoice, profile),
       });
       setResult(res);
     } catch (err) {

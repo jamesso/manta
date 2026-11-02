@@ -6,10 +6,12 @@ import {
   getInvoiceTotals,
   getIssuedAt,
 } from './invoice';
+import { getSellerTaxIds } from './tax';
 import { cents } from '../../helpers/einvoice/money.js';
 
 const MAX_ROWS = 500;
 const MAX_TEXT = 10_000;
+const PRICE_SCALE = 10_000;
 
 function textTooLong(value) {
   return typeof value === 'string' && value.length > MAX_TEXT;
@@ -35,8 +37,30 @@ function taxGroupKey(g) {
   return `${g.category ?? 'S'}\0${Number(g.rate) || 0}`;
 }
 
+function taxGroupMultisetSignature(groups) {
+  return (groups ?? [])
+    .map(
+      g =>
+        `${taxGroupKey(g)}\0${cents(g.base ?? 0)}\0${cents(g.amount ?? 0)}`
+    )
+    .sort()
+    .join('\n');
+}
+
+function priceWithinFourDecimals(price) {
+  const n = Number(price);
+  if (!Number.isFinite(n)) {
+    return false;
+  }
+  const scaled = n * PRICE_SCALE;
+  return Math.abs(scaled - Math.round(scaled)) < 1e-6;
+}
+
 function totalsMatch(recomputed, derivedTotals) {
   if (!derivedTotals || derivedTotals.mode !== 'line') {
+    return false;
+  }
+  if (recomputed.mode !== 'line') {
     return false;
   }
   if (cents(recomputed.subtotal) !== cents(derivedTotals.subtotal)) {
@@ -61,22 +85,10 @@ function totalsMatch(recomputed, derivedTotals) {
       return false;
     }
   }
-  const rBreakdown = recomputed.taxBreakdown ?? [];
-  const dBreakdown = derivedTotals.taxBreakdown ?? [];
-  if (rBreakdown.length !== dBreakdown.length) {
-    return false;
-  }
-  const rGroups = new Map(rBreakdown.map(g => [taxGroupKey(g), g]));
-  for (const g of dBreakdown) {
-    const r = rGroups.get(taxGroupKey(g));
-    if (!r) {
-      return false;
-    }
-    if (cents(r.base) !== cents(g.base) || cents(r.amount) !== cents(g.amount)) {
-      return false;
-    }
-  }
-  return true;
+  return (
+    taxGroupMultisetSignature(recomputed.taxBreakdown) ===
+    taxGroupMultisetSignature(derivedTotals.taxBreakdown)
+  );
 }
 
 function sameOptionalMs(a, b) {
@@ -91,10 +103,41 @@ function sameOptionalMs(a, b) {
   return Number.isFinite(left) && Number.isFinite(right) && left === right;
 }
 
+function expectedSellerTax(invoice, profile, invoiceSettings) {
+  if (invoice.seller && typeof invoice.seller === 'object') {
+    return {
+      taxId: String(invoice.seller.taxId ?? '').trim(),
+      vatId: String(invoice.seller.vatId ?? '').trim(),
+    };
+  }
+  return getSellerTaxIds(profile, invoiceSettings);
+}
+
+function precedingMatches(invoice, derived) {
+  if (getDocType(invoice) !== 'creditNote') {
+    return true;
+  }
+  const ref = invoice.creditedInvoice;
+  if (!ref) {
+    return derived.preceding == null;
+  }
+  const expectedNumber = String(ref.invoiceID ?? '').trim();
+  const expectedIssued = ref.issuedAt ?? null;
+  const d = derived.preceding ?? {};
+  if (String(d.number ?? '').trim() !== expectedNumber) {
+    return false;
+  }
+  return sameOptionalMs(d.issuedAt, expectedIssued);
+}
+
 /**
  * Pure integrity check for IPC export payloads. Returns an error code or null if OK.
  */
-export function validateEInvoiceExportPayload(invoice, derived) {
+export function validateEInvoiceExportPayload(
+  invoice,
+  derived,
+  { profile = {}, invoiceSettings = {} } = {}
+) {
   if (!invoice || typeof invoice !== 'object') {
     return 'invalid-invoice';
   }
@@ -103,6 +146,26 @@ export function validateEInvoiceExportPayload(invoice, derived) {
   }
   if (hasOversizedText(invoice)) {
     return 'text-too-long';
+  }
+
+  if (derived.docType !== getDocType(invoice)) {
+    return 'derived-doc-type-mismatch';
+  }
+  if (derived.status !== invoice.status) {
+    return 'derived-status-mismatch';
+  }
+
+  const expectedTax = expectedSellerTax(invoice, profile, invoiceSettings);
+  const derivedTax = derived.seller ?? {};
+  if (
+    String(derivedTax.taxId ?? '').trim() !== expectedTax.taxId ||
+    String(derivedTax.vatId ?? '').trim() !== expectedTax.vatId
+  ) {
+    return 'derived-seller-mismatch';
+  }
+
+  if (!precedingMatches(invoice, derived)) {
+    return 'derived-preceding-mismatch';
   }
 
   const rows = Array.isArray(invoice.rows) ? invoice.rows : [];
@@ -118,6 +181,9 @@ export function validateEInvoiceExportPayload(invoice, derived) {
     }
     if (!Number.isFinite(p) || p < 0) {
       return 'invalid-price';
+    }
+    if (!priceWithinFourDecimals(p)) {
+      return 'invalid-price-precision';
     }
     const unit = row.unitCode;
     if (unit != null && String(unit).trim() !== '') {
@@ -150,8 +216,35 @@ export function validateEInvoiceExportPayload(invoice, derived) {
   }
 
   const recomputed = getInvoiceTotals(invoice);
-  if (!totalsMatch(recomputed, derived.totals)) {
-    return 'derived-total-mismatch';
+
+  for (const line of recomputed.lines ?? []) {
+    if (cents(line?.net ?? 0) < 0) {
+      return 'negative-line-net';
+    }
+  }
+  if (cents(recomputed.grandTotal) < 0) {
+    return 'negative-grand-total';
+  }
+
+  const storedSubtotal = Number(invoice.subtotal);
+  if (
+    Number.isFinite(storedSubtotal) &&
+    cents(storedSubtotal) !== cents(recomputed.subtotal)
+  ) {
+    return 'stored-total-mismatch';
+  }
+  const storedGrand = Number(invoice.grandTotal);
+  if (
+    Number.isFinite(storedGrand) &&
+    cents(storedGrand) !== cents(recomputed.grandTotal)
+  ) {
+    return 'stored-total-mismatch';
+  }
+
+  if (recomputed.mode === 'line') {
+    if (!totalsMatch(recomputed, derived.totals)) {
+      return 'derived-total-mismatch';
+    }
   }
 
   const docType = getDocType(invoice);
@@ -163,3 +256,5 @@ export function validateEInvoiceExportPayload(invoice, derived) {
 
   return null;
 }
+
+export { taxGroupMultisetSignature, priceWithinFourDecimals };

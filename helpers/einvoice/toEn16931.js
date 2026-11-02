@@ -8,6 +8,7 @@ import {
 } from './codes.js';
 import { looksLikeVatId } from './identifiers.js';
 import { round2 } from './money.js';
+import { getSellerTaxIds } from '../../app/helpers/tax.js';
 
 function trim(s) {
   return String(s ?? '').trim();
@@ -50,6 +51,17 @@ function groupLineNetSum(invoice, category, rate, lines) {
   return round2(sum);
 }
 
+function sellerTaxIdentity(invoice, settings) {
+  if (invoice.seller && typeof invoice.seller === 'object') {
+    return {
+      taxId: trim(invoice.seller.taxId),
+      vatId: trim(invoice.seller.vatId),
+    };
+  }
+  const ids = getSellerTaxIds(settings?.profile, settings?.invoice);
+  return { taxId: trim(ids.taxId), vatId: trim(ids.vatId) };
+}
+
 export function toEn16931(invoice, settings, derived) {
   const profile = resolveProfile(invoice, settings);
   const recipient = invoice.recipient ?? {};
@@ -60,6 +72,7 @@ export function toEn16931(invoice, settings, derived) {
   const hasCategoryO = (invoice.rows ?? []).some(
     r => (r.taxCategory ?? 'S') === 'O'
   );
+  const sellerTax = sellerTaxIdentity(invoice, settings);
 
   const sellerName =
     trim(profile.legalName) || trim(profile.company) || trim(profile.fullname);
@@ -134,8 +147,8 @@ export function toEn16931(invoice, settings, derived) {
     seller: {
       name: sellerName,
       tradingName,
-      vatId: hasCategoryO ? '' : trim(derived.seller?.vatId),
-      taxNumber: trim(derived.seller?.taxId),
+      vatId: hasCategoryO ? '' : sellerTax.vatId,
+      taxNumber: sellerTax.taxId,
       electronicAddress: trim(profile.email),
       address: profile.postalAddress ?? {},
       contact: {

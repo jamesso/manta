@@ -357,13 +357,21 @@ export function requiredTaxFieldFromDoc(doc) {
   return doc?.tax !== undefined;
 }
 
-export function resolveSellerForSave(form, profile, invoiceSettings) {
+export function resolveSellerForSave(
+  form,
+  profile,
+  invoiceSettings,
+  mode = 'final'
+) {
   if (form.docType === 'creditNote') {
     if (form.seller) {
       return form.seller;
     }
     if (form.settings.editMode.active && form.settings.editMode.data?.seller) {
       return form.settings.editMode.data.seller;
+    }
+    if (mode === 'final') {
+      return buildSellerSnapshot(profile, invoiceSettings);
     }
     return undefined;
   }
@@ -719,7 +727,7 @@ export function getInvoiceData(
   const { editMode } = settings;
   const docType = formData.docType || 'invoice';
   const fields = pickInvoiceFields(formData, defaultCurrency);
-  const seller = resolveSellerForSave(formData, profile, invoiceSettings);
+  const seller = resolveSellerForSave(formData, profile, invoiceSettings, mode);
   if (seller) {
     fields.seller = seller;
   }

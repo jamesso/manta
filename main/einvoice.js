@@ -10,6 +10,10 @@ import { validateEInvoiceExportPayload } from '../app/helpers/einvoiceExportInte
 import { toEn16931 } from '../helpers/einvoice/toEn16931.js';
 import { getEInvoiceIssues } from '../helpers/einvoice/getEInvoiceIssues.js';
 import { toUblJson } from '../helpers/einvoice/toUblJson.js';
+import {
+  EINVOICE_PREVIEW_READY_SCRIPT,
+  exportKey,
+} from '../helpers/einvoice/exportKey.js';
 
 const RESERVED = new Set([
   'CON',
@@ -95,26 +99,25 @@ function collectWarnings(logger) {
   };
 }
 
-async function waitForPreviewInvoice(win, invoiceId) {
+async function waitForPreviewExportReady(win) {
   const deadline = Date.now() + 30_000;
-  const idLiteral = JSON.stringify(String(invoiceId ?? ''));
   while (Date.now() < deadline) {
     const ready = await win.webContents.executeJavaScript(
-      `(function () {
-        const id = ${idLiteral};
-        const el = document.querySelector('.print-area');
-        if (!el || el.getAttribute('data-invoice-id') !== id) return false;
-        if (document.fonts && document.fonts.status !== 'loaded') return false;
-        return true;
-      })()`,
+      EINVOICE_PREVIEW_READY_SCRIPT,
       true
     );
-    if (ready) {
-      return;
+    if (ready && typeof ready === 'object') {
+      return ready;
     }
     await new Promise(r => setTimeout(r, 50));
   }
   throw new Error('preview-not-ready');
+}
+
+function setPreviewExportFrozen(win, frozen) {
+  if (win && !win.isDestroyed()) {
+    win.webContents.send('preview-export-freeze', frozen);
+  }
 }
 
 ipcMain.handle('einvoice-export', async (event, payload) => {
@@ -122,7 +125,7 @@ ipcMain.handle('einvoice-export', async (event, payload) => {
     return { ok: false, error: 'untrusted-sender' };
   }
 
-  const { kind, invoice, derived } = payload ?? {};
+  const { kind, invoice, derived, exportKey: payloadExportKey } = payload ?? {};
   if (kind !== 'xrechnung' && kind !== 'facturx') {
     return { ok: false, error: 'unknown-kind' };
   }
@@ -135,7 +138,10 @@ ipcMain.handle('einvoice-export', async (event, payload) => {
     return { ok: false, error: 'disabled' };
   }
 
-  const integrityError = validateEInvoiceExportPayload(invoice, derived);
+  const integrityError = validateEInvoiceExportPayload(invoice, derived, {
+    profile: settings.profile,
+    invoiceSettings: settings.invoice,
+  });
   if (integrityError) {
     return { ok: false, error: integrityError };
   }
@@ -153,6 +159,13 @@ ipcMain.handle('einvoice-export', async (event, payload) => {
   const exportDir = settings.invoice.exportDir;
   const win = BrowserWindow.fromWebContents(event.sender);
   const base = safeInvoiceFileName(model.number);
+  const expectedExportKey = exportKey(invoice, settings.profile);
+
+  if (kind === 'facturx') {
+    if (payloadExportKey !== expectedExportKey) {
+      return { ok: false, error: 'export-key-mismatch' };
+    }
+  }
 
   try {
     if (kind === 'xrechnung') {
@@ -171,36 +184,47 @@ ipcMain.handle('einvoice-export', async (event, payload) => {
       return { ok: true, path: filePath, warnings };
     }
 
-    await waitForPreviewInvoice(win, invoice._id);
-    const pdf = await win.webContents.printToPDF(
-      getPrintOptions(appConfig.get('general.printOptions'))
-    );
-    const out = await service.generate(toUblJson(model), {
-      format: 'Factur-X-EN16931',
-      lang: derived.lang ?? 'en',
-      pdf: {
-        buffer: pdf,
-        filename: `${base}.pdf`,
-        mimetype: 'application/pdf',
-      },
-    });
-    const { canceled, filePath } = await dialog.showSaveDialog(win, {
-      defaultPath: path.join(exportDir, `${base}.pdf`),
-      filters: [{ name: 'PDF', extensions: ['pdf'] }],
-    });
-    if (canceled || !filePath) {
-      return { ok: false, canceled: true };
+    setPreviewExportFrozen(win, true);
+    try {
+      const ready = await waitForPreviewExportReady(win);
+      if (
+        ready.id !== String(invoice._id ?? '') ||
+        ready.key !== expectedExportKey
+      ) {
+        return { ok: false, error: 'preview-not-ready' };
+      }
+      const pdf = await win.webContents.printToPDF(
+        getPrintOptions(appConfig.get('general.printOptions'))
+      );
+      const out = await service.generate(toUblJson(model), {
+        format: 'Factur-X-EN16931',
+        lang: derived.lang ?? 'en',
+        pdf: {
+          buffer: pdf,
+          filename: `${base}.pdf`,
+          mimetype: 'application/pdf',
+        },
+      });
+      const { canceled, filePath } = await dialog.showSaveDialog(win, {
+        defaultPath: path.join(exportDir, `${base}.pdf`),
+        filters: [{ name: 'PDF', extensions: ['pdf'] }],
+      });
+      if (canceled || !filePath) {
+        return { ok: false, canceled: true };
+      }
+      await fs.writeFile(filePath, Buffer.from(out));
+      if (appConfig.get('general.previewPDF')) {
+        await shell.openPath(filePath);
+      }
+      win.webContents.send('pfd-exported', {
+        title: 'PDF Exported',
+        body: 'Click to reveal file.',
+        location: filePath,
+      });
+      return { ok: true, path: filePath, warnings };
+    } finally {
+      setPreviewExportFrozen(win, false);
     }
-    await fs.writeFile(filePath, Buffer.from(out));
-    if (appConfig.get('general.previewPDF')) {
-      await shell.openPath(filePath);
-    }
-    win.webContents.send('pfd-exported', {
-      title: 'PDF Exported',
-      body: 'Click to reveal file.',
-      location: filePath,
-    });
-    return { ok: true, path: filePath, warnings };
   } catch (err) {
     return { ok: false, error: err.message };
   }

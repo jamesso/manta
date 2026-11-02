@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import i18n from '../i18n/i18n';
@@ -17,6 +17,7 @@ export default function Viewer() {
   const invoice = useSelector(getInvoice);
   const profile = useSelector(getProfile);
   const UILang = useSelector(getUILang);
+  const exportFrozenRef = useRef(false);
 
   useEffect(() => {
     if (!UILang) return;
@@ -25,13 +26,22 @@ export default function Viewer() {
 
   useEffect(() => {
     const onPreview = (_event, invoiceData) => {
+      if (exportFrozenRef.current) {
+        return;
+      }
       dispatch(ActionsCreator.updateInvoice(invoiceData));
     };
     const onLanguage = (_event, newLang) => {
       dispatch(ActionsCreator.changeUILanguage(newLang));
     };
     const onProfile = (_event, newProfile) => {
+      if (exportFrozenRef.current) {
+        return;
+      }
       dispatch(ActionsCreator.updateProfile(newProfile));
+    };
+    const onFreeze = (_event, frozen) => {
+      exportFrozenRef.current = Boolean(frozen);
     };
     const onExported = (_event, options) => {
       const noti = Notify(options);
@@ -42,12 +52,14 @@ export default function Viewer() {
     ipc.on('update-preview', onPreview);
     ipc.on('change-preview-window-language', onLanguage);
     ipc.on('change-preview-window-profile', onProfile);
+    ipc.on('preview-export-freeze', onFreeze);
     ipc.on('pfd-exported', onExported);
     return () => {
       ipc.removeAllListeners([
         'update-preview',
         'change-preview-window-language',
         'change-preview-window-profile',
+        'preview-export-freeze',
         'pfd-exported',
       ]);
     };

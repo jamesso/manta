@@ -199,6 +199,7 @@ describe('toEn16931', () => {
       invoiceID: 'E1',
       currency: { code: 'EUR' },
       recipient: { fullname: 'B', email: 'b@de.de' },
+      seller: { taxId: '27/1/1', vatId: '' },
       rows: [
         {
           price: 100,

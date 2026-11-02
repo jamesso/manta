@@ -1,11 +1,17 @@
 import React from 'react';
 import { InvoiceTemplate } from '../templates';
+import { exportKey } from '../../helpers/einvoice/exportKey.js';
 
 export default function MainContent({ t, invoice, configs, profile, UILang }) {
+  const key = invoice._id ? exportKey(invoice, profile) : '';
   return (
     <main className="min-w-0 flex-1 overflow-auto bg-muted/40 pt-8 pb-8">
       {invoice._id ? (
-        <div className="print-area" data-invoice-id={invoice._id}>
+        <div
+          className="print-area"
+          data-invoice-id={invoice._id}
+          data-export-key={key}
+        >
           <div className="paper" dir="ltr">
             <InvoiceTemplate
               t={t}

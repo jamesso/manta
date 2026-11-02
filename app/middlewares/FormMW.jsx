@@ -22,6 +22,7 @@ import {
   getRecipientErrors,
   hasUnsavedFormChanges,
   pickInvoiceFields,
+  resolveSellerForSave,
 } from '../helpers/form';
 import { buildTemplateFromInvoice } from '../helpers/recurring';
 import { toDateKey } from '../helpers/recurringSchedule';
@@ -129,6 +130,18 @@ async function saveInvoiceWithNumberingQueue({
       invoices,
     });
     const payload = { ...data, invoiceID };
+    const form = getState().form;
+    const freshProfile = appConfig.get('profile') ?? {};
+    const freshInvoiceSettings = appConfig.get('invoice') ?? {};
+    const seller = resolveSellerForSave(
+      form,
+      freshProfile,
+      freshInvoiceSettings,
+      'final'
+    );
+    if (seller) {
+      payload.seller = seller;
+    }
     const writeOk = editMode.active
       ? await dispatch(InvoicesActions.updateInvoice(payload))
       : await dispatch(InvoicesActions.saveInvoice(payload));

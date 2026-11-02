@@ -559,15 +559,17 @@ test('exports a Factur-X PDF', async () => {
     });
   }, outPath);
 
-  const result = await preview.evaluate(
-    async ({ invoice: inv, derived: d }) =>
-      window.manta.ipc.invoke('einvoice-export', {
-        kind: 'facturx',
-        invoice: inv,
-        derived: d,
-      }),
-    { invoice, derived: fixture.derived }
-  );
+  const result = await preview.evaluate(async ({ invoice: inv, derived: d }) => {
+    const exportKeyAttr = document
+      .querySelector('.print-area')
+      ?.getAttribute('data-export-key');
+    return window.manta.ipc.invoke('einvoice-export', {
+      kind: 'facturx',
+      invoice: inv,
+      derived: d,
+      exportKey: exportKeyAttr,
+    });
+  }, { invoice, derived: fixture.derived });
 
   expect(result.ok).toBe(true);
   expect(fs.existsSync(outPath)).toBe(true);

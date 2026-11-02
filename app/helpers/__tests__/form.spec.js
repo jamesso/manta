@@ -186,6 +186,19 @@ describe('form helpers', () => {
       seller
     );
   });
+  it('resolveSellerForSave snapshots profile on final credit note without seller', () => {
+    const f = form();
+    f.docType = 'creditNote';
+    f.settings.editMode = { active: true, data: { status: 'draft' } };
+    const profile = { fullname: 'Seller', taxId: 'T-1', address: 'Street' };
+    const settings = { tax: { tin: '' } };
+    expect(resolveSellerForSave(f, profile, settings, 'final')).toMatchObject({
+      taxId: 'T-1',
+      address: 'Street',
+      version: 1,
+    });
+    expect(resolveSellerForSave(f, profile, settings, 'draft')).toBeUndefined();
+  });
   it('keeps settings validators boolean', () => {
     expect(validateTax(false, {})).toBe(true);
     expect(validateCurrency(true, currency)).toBe(true);
