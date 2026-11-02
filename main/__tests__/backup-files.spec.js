@@ -20,6 +20,36 @@ describe('backup-files', () => {
 
   it('serializeBackup throws for bad payload', () => {
     expect(() => serializeBackup({ app: 'Other' }, '1', new Date())).toThrow();
+    expect(() =>
+      serializeBackup(
+        {
+          app: 'Manta',
+          version: 2,
+          invoices: [],
+          contacts: [],
+          items: {},
+        },
+        '1',
+        new Date()
+      )
+    ).toThrow();
+  });
+
+  it('serializeBackup writes items array', () => {
+    const text = serializeBackup(
+      {
+        app: 'Manta',
+        version: 2,
+        settings: null,
+        invoices: [],
+        contacts: [],
+        items: [{ _id: 'i1', name: 'A' }],
+      },
+      '1.1.4',
+      new Date('2026-01-01T00:00:00.000Z')
+    );
+    const parsed = JSON.parse(text);
+    expect(parsed.items).toHaveLength(1);
   });
 
   it('autoBackupFileName sorts in time order', () => {

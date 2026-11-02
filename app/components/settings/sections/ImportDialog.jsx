@@ -44,26 +44,37 @@ export default function ImportDialog({
               <p>{fileName}</p>
               {exportedAt ? <p>{exportedAt}</p> : null}
               <p>
-                {t('settings:backup:previewCounts', {
+                {t('settings:backup:summaryWithItems', {
                   invoices: preview.invoices.total,
-                  contacts: preview.contacts.total,
-                  added: preview.invoices.added + preview.contacts.added,
-                  existing: preview.invoices.skipped + preview.contacts.skipped,
+                  clients: preview.contacts.total,
+                  items: preview.items.total,
+                  added:
+                    preview.invoices.added +
+                    preview.contacts.added +
+                    preview.items.added,
+                  existing:
+                    preview.invoices.skipped +
+                    preview.contacts.skipped +
+                    preview.items.skipped,
                 })}
               </p>
-              {invalid.invoices || invalid.contacts ? (
+              {invalid.invoices || invalid.contacts || invalid.items ? (
                 <p>
                   {t('settings:backup:invalidCounts', {
                     invoices: invalid.invoices,
                     contacts: invalid.contacts,
+                    items: invalid.items,
                   })}
                 </p>
               ) : null}
-              {duplicates.invoices || duplicates.contacts ? (
+              {duplicates.invoices ||
+              duplicates.contacts ||
+              duplicates.items ? (
                 <p>
                   {t('settings:backup:duplicateCounts', {
                     invoices: duplicates.invoices,
                     contacts: duplicates.contacts,
+                    items: duplicates.items,
                   })}
                 </p>
               ) : null}

@@ -10,6 +10,7 @@ import { Field, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import * as ContactsActions from '../../../actions/contacts';
+import * as ItemsActions from '../../../actions/items';
 import * as InvoicesActions from '../../../actions/invoices';
 import * as SettingsActions from '../../../actions/settings';
 import { parseBackup } from '../../../helpers/backup';
@@ -199,11 +200,14 @@ export default function ExportBackup({
       );
       dispatch(ContactsActions.getAllContacts());
       dispatch(InvoicesActions.getInvoices());
+      dispatch(ItemsActions.getAllItems());
 
       const settingsFailures = result.settingsFailures ?? [];
 
       const failedCount =
-        result.failed.contacts.length + result.failed.invoices.length;
+        result.failed.contacts.length +
+        result.failed.invoices.length +
+        result.failed.items.length;
       const partial =
         Boolean(result.batchError) ||
         failedCount > 0 ||
@@ -338,6 +342,11 @@ export default function ExportBackup({
               total: importState.backup.contacts.length,
               added: importState.preview.skip.contacts.added,
               skipped: importState.preview.skip.contacts.skipped,
+            },
+            items: {
+              total: (importState.backup.items ?? []).length,
+              added: importState.preview.skip.items.added,
+              skipped: importState.preview.skip.items.skipped,
             },
           }}
           invalid={importState.invalid}

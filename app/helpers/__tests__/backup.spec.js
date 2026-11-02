@@ -170,4 +170,101 @@ describe('backup helpers', () => {
       hasDangerousKey({ profile: { fullname: { constructor: 'x' } } })
     ).toBe(true);
   });
+
+  it('accepts version 1 backups without items as empty list', () => {
+    const parsed = parseBackup(
+      JSON.stringify({
+        app: 'Manta',
+        version: 1,
+        invoices: [],
+        contacts: [],
+      })
+    );
+    expect(parsed.ok).toBe(true);
+    expect(parsed.backup.items).toEqual([]);
+  });
+
+  it('parses version 2 items and rejects invalid items shape', () => {
+    const ok = parseBackup(
+      JSON.stringify({
+        app: 'Manta',
+        version: 2,
+        invoices: [],
+        contacts: [],
+        items: [
+          {
+            _id: 'i1',
+            name: 'Design',
+            unitPrice: 1,
+            unitCode: 'C62',
+          },
+        ],
+      })
+    );
+    expect(ok.ok).toBe(true);
+    expect(ok.backup.items).toHaveLength(1);
+    expect(ok.backup.items[0]._rev).toBeUndefined();
+
+    const bad = parseBackup(
+      JSON.stringify({
+        app: 'Manta',
+        version: 2,
+        invoices: [],
+        contacts: [],
+        items: {},
+      })
+    );
+    expect(bad.ok).toBe(false);
+    expect(bad.error).toBe('invalid-format');
+  });
+
+  it('rejects newer backup versions', () => {
+    const parsed = parseBackup(
+      JSON.stringify({
+        app: 'Manta',
+        version: 3,
+        invoices: [],
+        contacts: [],
+      })
+    );
+    expect(parsed.ok).toBe(false);
+    expect(parsed.error).toBe('newer-version');
+  });
+
+  it('counts invalid and duplicate items', () => {
+    const parsed = parseBackup(
+      JSON.stringify({
+        app: 'Manta',
+        version: 2,
+        invoices: [],
+        contacts: [],
+        items: [
+          { _id: 'a', name: 'A', unitPrice: 1, _rev: '1-x' },
+          { _id: 'a', name: 'Dup', unitPrice: 2 },
+          { _id: 'b', unitPrice: 1 },
+        ],
+      })
+    );
+    expect(parsed.ok).toBe(true);
+    expect(parsed.invalid.items).toBe(1);
+    expect(parsed.duplicates.items).toBe(1);
+    expect(parsed.backup.items[0]._rev).toBeUndefined();
+  });
+
+  it('round-trips items through build and parse', () => {
+    const payload = buildBackup({
+      settings: null,
+      invoices: [],
+      contacts: [],
+      items: [{ _id: 'i1', name: 'Svc', unitPrice: 10, unitCode: 'HUR' }],
+    });
+    const parsed = parseBackup(JSON.stringify(payload));
+    expect(parsed.ok).toBe(true);
+    expect(parsed.backup.items[0]).toMatchObject({
+      _id: 'i1',
+      name: 'Svc',
+      unitPrice: 10,
+      unitCode: 'HUR',
+    });
+  });
 });

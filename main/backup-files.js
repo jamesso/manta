@@ -31,6 +31,9 @@ function serializeBackup(payload, appVersion, date) {
   if (!Array.isArray(payload.invoices) || !Array.isArray(payload.contacts)) {
     throw new Error('bad payload');
   }
+  if (!Array.isArray(payload.items)) {
+    throw new Error('bad payload');
+  }
   return JSON.stringify(
     {
       app: 'Manta',
@@ -40,6 +43,7 @@ function serializeBackup(payload, appVersion, date) {
       settings: payload.settings,
       invoices: payload.invoices,
       contacts: payload.contacts,
+      items: payload.items,
     },
     null,
     2

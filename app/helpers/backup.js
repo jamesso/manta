@@ -1,7 +1,7 @@
 import { getSettingsErrors, getRawNumberingErrors } from './settings';
 
 export const BACKUP_APP = 'Manta';
-export const BACKUP_VERSION = 1;
+export const BACKUP_VERSION = 2;
 
 const DANGEROUS_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
 
@@ -54,7 +54,7 @@ export function sanitizeDoc(doc) {
   return next;
 }
 
-export function buildBackup({ settings, invoices, contacts }) {
+export function buildBackup({ settings, invoices, contacts, items = [] }) {
   if (hasDangerousKey(settings)) {
     throw Object.assign(new Error('unsupported-data'), {
       code: 'unsupported-data',
@@ -66,6 +66,7 @@ export function buildBackup({ settings, invoices, contacts }) {
     settings,
     invoices: invoices.map(sanitizeDoc),
     contacts: contacts.map(sanitizeDoc),
+    items: items.map(sanitizeDoc),
   };
 }
 
@@ -91,6 +92,15 @@ function validateContact(doc) {
     isPlainObject(doc) &&
     validDocId(doc._id) &&
     typeof doc.fullname === 'string'
+  );
+}
+
+function validateItem(doc) {
+  return (
+    isPlainObject(doc) &&
+    validDocId(doc._id) &&
+    typeof doc.name === 'string' &&
+    doc.name.length > 0
   );
 }
 
@@ -159,6 +169,14 @@ export function parseBackup(text) {
   if (!Array.isArray(parsed.invoices) || !Array.isArray(parsed.contacts)) {
     return { ok: false, error: 'invalid-format' };
   }
+  let itemsList = [];
+  if (parsed.items === undefined) {
+    itemsList = [];
+  } else if (!Array.isArray(parsed.items)) {
+    return { ok: false, error: 'invalid-format' };
+  } else {
+    itemsList = parsed.items;
+  }
   let settings = parsed.settings;
   if (settings != null) {
     if (!isPlainObject(settings)) {
@@ -175,6 +193,10 @@ export function parseBackup(text) {
   if (contactsResult.error) {
     return { ok: false, error: contactsResult.error };
   }
+  const itemsResult = parseDocList(itemsList, validateItem);
+  if (itemsResult.error) {
+    return { ok: false, error: itemsResult.error };
+  }
   return {
     ok: true,
     backup: {
@@ -183,14 +205,17 @@ export function parseBackup(text) {
       settings,
       invoices: invoicesResult.valid,
       contacts: contactsResult.valid,
+      items: itemsResult.valid,
     },
     invalid: {
       invoices: invoicesResult.invalid,
       contacts: contactsResult.invalid,
+      items: itemsResult.invalid,
     },
     duplicates: {
       invoices: invoicesResult.duplicates,
       contacts: contactsResult.duplicates,
+      items: itemsResult.duplicates,
     },
   };
 }

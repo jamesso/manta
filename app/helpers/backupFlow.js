@@ -12,6 +12,7 @@ export async function collectBackup(settingsStore = window.manta.settings) {
     },
     invoices: await getAllDocs('invoices'),
     contacts: await getAllDocs('contacts'),
+    items: await getAllDocs('items'),
   });
 }
 
@@ -51,8 +52,10 @@ function countSucceeded(succeeded, beforeIds) {
 export async function previewImport(backup) {
   const contacts = await getAllDocs('contacts');
   const invoices = await getAllDocs('invoices');
+  const items = await getAllDocs('items');
   const skipContacts = planMerge(backup.contacts, contacts, 'skip').counts;
   const skipInvoices = planMerge(backup.invoices, invoices, 'skip').counts;
+  const skipItems = planMerge(backup.items ?? [], items, 'skip').counts;
   const overwriteContacts = planMerge(
     backup.contacts,
     contacts,
@@ -63,14 +66,21 @@ export async function previewImport(backup) {
     invoices,
     'overwrite'
   ).counts;
+  const overwriteItems = planMerge(
+    backup.items ?? [],
+    items,
+    'overwrite'
+  ).counts;
   return {
     skip: {
       contacts: skipContacts,
       invoices: skipInvoices,
+      items: skipItems,
     },
     overwrite: {
       contacts: overwriteContacts,
       invoices: overwriteInvoices,
+      items: overwriteItems,
     },
   };
 }
@@ -93,18 +103,21 @@ export async function runImport(
     const snapshotWarning = snapshot.snapshotWarning ?? null;
 
     const counts = { added: 0, overwritten: 0, skipped: 0 };
-    const failed = { contacts: [], invoices: [] };
+    const failed = { contacts: [], invoices: [], items: [] };
     let batchError = null;
     let settingsResult = null;
     let settingsFailures = [];
     let contacts = [];
     let invoices = [];
+    let items = [];
 
     try {
       const existingContacts = await getAllDocs('contacts');
       const existingInvoices = await getAllDocs('invoices');
+      const existingItems = await getAllDocs('items');
       const contactPlan = planMerge(backup.contacts, existingContacts, mode);
       const invoicePlan = planMerge(backup.invoices, existingInvoices, mode);
+      const itemPlan = planMerge(backup.items ?? [], existingItems, mode);
 
       if (contactPlan.toWrite.length) {
         try {
@@ -146,6 +159,24 @@ export async function runImport(
         counts.skipped += invoicePlan.counts.skipped;
       }
 
+      if (!batchError && itemPlan.toWrite.length) {
+        try {
+          const itemBatch = await bulkSaveDocs('items', itemPlan.toWrite);
+          failed.items = itemBatch.failed;
+          const tallies = countSucceeded(
+            itemBatch.succeeded,
+            existingItems.map(doc => doc._id)
+          );
+          counts.added += tallies.added;
+          counts.overwritten += tallies.overwritten;
+        } catch (err) {
+          batchError = { batch: 'items', message: err.message };
+        }
+      }
+      if (!batchError) {
+        counts.skipped += itemPlan.counts.skipped;
+      }
+
       if (includeSettings && backup.settings) {
         settingsResult = mergeImportedSettings(
           {
@@ -162,6 +193,7 @@ export async function runImport(
     } finally {
       contacts = await getAllDocs('contacts');
       invoices = await getAllDocs('invoices');
+      items = await getAllDocs('items');
     }
 
     return {
@@ -172,6 +204,7 @@ export async function runImport(
       batchError,
       contacts,
       invoices,
+      items,
       settings: settingsResult?.settings,
       settingsFailures,
       skippedSections: settingsResult?.skippedSections ?? [],

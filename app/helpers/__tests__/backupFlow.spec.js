@@ -2,9 +2,11 @@ import { runImport } from '../backupFlow';
 import { withImportWriteLock } from '../importWriteLock';
 
 vi.mock('../pouchDB', () => ({
-  getAllDocs: vi.fn(async db =>
-    db === 'contacts' ? [{ _id: 'c1' }] : [{ _id: 'i1' }]
-  ),
+  getAllDocs: vi.fn(async db => {
+    if (db === 'contacts') return [{ _id: 'c1' }];
+    if (db === 'items') return [{ _id: 'it1' }];
+    return [{ _id: 'i1' }];
+  }),
   bulkSaveDocs: vi.fn(),
 }));
 
@@ -27,6 +29,35 @@ describe('backupFlow', () => {
       )
     ).rejects.toThrow('disk full');
     expect(bulkSaveDocs).not.toHaveBeenCalled();
+  });
+
+  it('writes new items in skip mode after contacts and invoices', async () => {
+    const { bulkSaveDocs, getAllDocs } = await import('../pouchDB');
+    bulkSaveDocs.mockResolvedValue({
+      succeeded: ['it2'],
+      failed: [],
+      allDocs: [{ _id: 'it1' }, { _id: 'it2' }],
+    });
+    const ipc = {
+      invoke: vi.fn(async channel => {
+        if (channel === 'backup-snapshot') {
+          return { filePath: '/tmp/safety.json' };
+        }
+      }),
+    };
+    await runImport(
+      {
+        contacts: [],
+        invoices: [],
+        items: [{ _id: 'it2', name: 'New', unitPrice: 1, unitCode: 'C62' }],
+      },
+      { mode: 'skip', includeSettings: false },
+      { ipc }
+    );
+    expect(bulkSaveDocs).toHaveBeenCalledWith('items', [
+      expect.objectContaining({ _id: 'it2' }),
+    ]);
+    expect(getAllDocs).toHaveBeenCalledWith('items');
   });
 
   it('returns partial results when a later batch throws', async () => {
