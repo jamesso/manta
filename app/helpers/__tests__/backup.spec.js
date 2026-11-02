@@ -134,6 +134,37 @@ describe('backup helpers', () => {
     );
   });
 
+  it('rejects explicit null nested invoice fields on import', () => {
+    const current = {
+      profile: { fullname: 'Me' },
+      invoice: baseInvoiceSettings,
+      general: { language: 'en', theme: 'system', sound: 'default' },
+    };
+    for (const field of ['tax', 'currency', 'required_fields', 'numbering']) {
+      const { settings, skippedSections } = mergeImportedSettings(current, {
+        invoice: { [field]: null },
+      });
+      expect(skippedSections).toContain('invoice');
+      expect(settings.invoice[field]).toEqual(current.invoice[field]);
+    }
+  });
+
+  it('rejects contacts with null attachments key', () => {
+    const parsed = parseBackup(
+      JSON.stringify({
+        app: 'Manta',
+        version: 1,
+        invoices: [],
+        contacts: [{ _id: 'a', fullname: 'A', _attachments: null }],
+      })
+    );
+    expect(parsed.ok).toBe(false);
+    expect(parsed.error).toBe('unsupported-data');
+    expect(() =>
+      sanitizeDoc({ _id: 'a', fullname: 'A', _attachments: null })
+    ).toThrow(/unsupported-data/);
+  });
+
   it('detects nested dangerous settings keys', () => {
     expect(
       hasDangerousKey({ profile: { fullname: { constructor: 'x' } } })

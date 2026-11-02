@@ -37,6 +37,7 @@ export default function ExportBackup({
   general,
   onSaveInvoice,
   onSaveGeneral,
+  saveMessage,
 }) {
   const { t } = useTranslation();
   const dispatch = useDispatch();
@@ -143,34 +144,41 @@ export default function ExportBackup({
     }
     setImporting(true);
     try {
-      const result = await runImport(importState.backup, {
-        mode,
-        includeSettings,
-      });
+      const result = await runImport(
+        importState.backup,
+        {
+          mode,
+          includeSettings,
+        },
+        {
+          applySettings: async mergedSettings => {
+            const failures = [];
+            for (const section of ['profile', 'invoice', 'general']) {
+              if (mergedSettings[section]) {
+                const applyResult = await dispatch(
+                  SettingsActions.updateSettings(
+                    section,
+                    mergedSettings[section],
+                    true
+                  )
+                );
+                if (applyResult?.ok === false) {
+                  failures.push({
+                    section,
+                    message: applyResult.message,
+                    errors: applyResult.errors,
+                  });
+                }
+              }
+            }
+            return failures;
+          },
+        }
+      );
       dispatch(ContactsActions.getAllContacts());
       dispatch(InvoicesActions.getInvoices());
 
-      const settingsFailures = [];
-      if (result.settings) {
-        for (const section of ['profile', 'invoice', 'general']) {
-          if (result.settings[section]) {
-            const applyResult = await dispatch(
-              SettingsActions.updateSettings(
-                section,
-                result.settings[section],
-                true
-              )
-            );
-            if (applyResult?.ok === false) {
-              settingsFailures.push({
-                section,
-                message: applyResult.message,
-                errors: applyResult.errors,
-              });
-            }
-          }
-        }
-      }
+      const settingsFailures = result.settingsFailures ?? [];
 
       const failedCount =
         result.failed.contacts.length + result.failed.invoices.length;
@@ -238,6 +246,11 @@ export default function ExportBackup({
         <p className="text-sm text-muted-foreground">
           {t('settings:sections:export:description')}
         </p>
+        {saveMessage ? (
+          <p className="mt-2 text-sm text-destructive" role="alert">
+            {saveMessage}
+          </p>
+        ) : null}
       </div>
       <Field>
         <FieldLabel>{t('settings:fields:pdfExportDir')}</FieldLabel>

@@ -40,7 +40,11 @@ function isPlainObject(value) {
 
 export function getRawNumberingErrors(numbering) {
   const errors = {};
+  if (numbering === undefined) {
+    return errors;
+  }
   if (numbering == null) {
+    errors.numbering = 'settings:errors:numberingNext';
     return errors;
   }
   if (!isPlainObject(numbering)) {
@@ -117,9 +121,9 @@ export function getSettingsErrors(section, data) {
     errors.template = 'settings:errors:templateInvalid';
   }
   const currency = data.currency;
-  if (currency != null) {
-    if (!isPlainObject(currency)) {
-      errors['currency'] = 'settings:errors:invoiceInvalid';
+  if ('currency' in data) {
+    if (currency == null || !isPlainObject(currency)) {
+      errors.currency = 'settings:errors:invoiceInvalid';
     } else {
       if (currency.code != null && typeof currency.code !== 'string') {
         errors['currency.code'] = 'settings:errors:invoiceInvalid';
@@ -143,8 +147,8 @@ export function getSettingsErrors(section, data) {
     }
   }
   const tax = data.tax;
-  if (tax != null) {
-    if (!isPlainObject(tax)) {
+  if ('tax' in data) {
+    if (tax == null || !isPlainObject(tax)) {
       errors.tax = 'settings:errors:invoiceInvalid';
     } else {
       if (tax.tin != null && typeof tax.tin !== 'string') {
@@ -166,8 +170,8 @@ export function getSettingsErrors(section, data) {
     }
   }
   const required = data.required_fields;
-  if (required != null) {
-    if (!isPlainObject(required)) {
+  if ('required_fields' in data) {
+    if (required == null || !isPlainObject(required)) {
       errors.required_fields = 'settings:errors:invoiceInvalid';
     } else {
       for (const key of REQUIRED_FIELD_KEYS) {

@@ -17,6 +17,7 @@ import {
 import {
   isImportWriteLocked,
   importWriteLockReason,
+  trackImportWriteStart,
 } from '../helpers/importWriteLock';
 import { mergeNumbering, normalizeNumbering } from '../helpers/numbering';
 import { toast } from '@/components/ui/toast';
@@ -55,19 +56,27 @@ const SettingsMW =
         }
         let nextData = data;
         if (setting === 'invoice' && !imported) {
-          const rawNumberingErrors = getRawNumberingErrors(data.numbering);
-          if (
-            data.numbering != null &&
-            Object.keys(rawNumberingErrors).length
-          ) {
-            return { ok: false, errors: rawNumberingErrors };
+          if ('numbering' in data) {
+            const rawNumberingErrors = getRawNumberingErrors(data.numbering);
+            if (Object.keys(rawNumberingErrors).length) {
+              return { ok: false, errors: rawNumberingErrors };
+            }
           }
+          const storedNumbering = normalizeNumbering(
+            appConfig.get('invoice.numbering')
+          );
+          const savedNumbering =
+            getState().settings?.saved?.invoice?.numbering ?? {};
+          const incomingNumbering =
+            'numbering' in data && data.numbering != null
+              ? data.numbering
+              : storedNumbering;
           nextData = {
             ...data,
             numbering: mergeNumbering(
-              normalizeNumbering(appConfig.get('invoice.numbering')),
-              getState().settings?.saved?.invoice?.numbering ?? {},
-              data.numbering ?? {}
+              storedNumbering,
+              savedNumbering,
+              incomingNumbering
             ),
           };
         }
@@ -76,10 +85,19 @@ const SettingsMW =
           return { ok: false, errors };
         }
         const previous = appConfig.get(setting);
+        const endWrite = imported ? null : trackImportWriteStart();
+        if (!imported && !endWrite) {
+          return {
+            ok: false,
+            message: i18n.t(importWriteLockReason()),
+          };
+        }
         try {
           appConfig.set(setting, nextData);
         } catch (error) {
           return { ok: false, message: error.message };
+        } finally {
+          endWrite?.();
         }
         if (setting === 'profile' && !isEqual(previous, nextData)) {
           ipc.send('change-preview-window-profile', nextData);

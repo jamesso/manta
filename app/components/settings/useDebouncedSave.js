@@ -39,22 +39,23 @@ export function useDebouncedSave(value, save, delay = 500) {
 
   const runFlush = useCallback(async () => {
     if (!dirtyRef.current) {
-      return;
+      return { ok: true };
     }
     const paths = collectLeafPaths(baselineRef.current, draftRef.current);
     if (!paths.length) {
       dirtyRef.current = false;
-      return;
+      return { ok: true };
     }
     const next = mergePaths(storedRef.current, draftRef.current, paths);
     const result = await saveRef.current(next);
     if (result?.ok === false) {
-      return;
+      return result;
     }
     baselineRef.current = cloneDeep(next);
     draftRef.current = cloneDeep(next);
     setDraftState(cloneDeep(next));
     dirtyRef.current = false;
+    return { ok: true };
   }, []);
 
   const debouncedRef = useRef(null);
@@ -87,7 +88,7 @@ export function useDebouncedSave(value, save, delay = 500) {
 
   const flush = useCallback(async () => {
     debouncedRef.current.flush();
-    await runFlush();
+    return runFlush();
   }, [runFlush]);
 
   const onBlur = useCallback(() => {

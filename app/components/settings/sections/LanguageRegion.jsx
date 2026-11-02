@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { useTranslation } from 'react-i18next';
 
-import { Field, FieldLabel } from '@/components/ui/field';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import {
   Select,
   SelectContent,
@@ -32,6 +32,8 @@ export default function LanguageRegion({
   invoice,
   onSaveGeneral,
   onSaveInvoice,
+  errors,
+  saveMessage,
 }) {
   const { t } = useTranslation();
 
@@ -44,6 +46,11 @@ export default function LanguageRegion({
         <p className="text-sm text-muted-foreground">
           {t('settings:sections:language:description')}
         </p>
+        {saveMessage ? (
+          <p className="mt-2 text-sm text-destructive" role="alert">
+            {saveMessage}
+          </p>
+        ) : null}
       </div>
       <Field>
         <FieldLabel>{t('settings:fields:language:name')}</FieldLabel>

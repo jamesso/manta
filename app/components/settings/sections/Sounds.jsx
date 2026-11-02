@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 
-export default function Sounds({ value, onSave }) {
+export default function Sounds({ value, onSave, saveMessage }) {
   const { t } = useTranslation();
 
   return (
@@ -22,6 +22,11 @@ export default function Sounds({ value, onSave }) {
         <p className="text-sm text-muted-foreground">
           {t('settings:sections:sounds:description')}
         </p>
+        {saveMessage ? (
+          <p className="mt-2 text-sm text-destructive" role="alert">
+            {saveMessage}
+          </p>
+        ) : null}
       </div>
       <Field>
         <FieldLabel>{t('settings:fields:sound')}</FieldLabel>

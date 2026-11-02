@@ -136,8 +136,7 @@ describe('Form middleware', () => {
     };
     let integrated;
     const dispatch = action =>
-      action.type === TYPES.INVOICE_SAVE ||
-      action.type === TYPES.CONTACT_SAVE
+      action.type === TYPES.INVOICE_SAVE || action.type === TYPES.CONTACT_SAVE
         ? Promise.resolve(true)
         : integrated(action);
     integrated = FormMW({ dispatch, getState: () => ({ form }) })(chain);
@@ -157,8 +156,7 @@ describe('Form middleware', () => {
     };
     let integrated;
     const dispatch = action =>
-      action.type === TYPES.INVOICE_SAVE ||
-      action.type === TYPES.CONTACT_SAVE
+      action.type === TYPES.INVOICE_SAVE || action.type === TYPES.CONTACT_SAVE
         ? Promise.resolve(true)
         : integrated(action);
     integrated = FormMW({ dispatch, getState: () => ({ form }) })(chain);
@@ -212,7 +210,9 @@ describe('Form middleware', () => {
     };
     integrated = FormMW({ dispatch, getState: () => ({ form }) })(chain);
     const pending = integrated(Actions.saveFormData('draft'));
-    integrated(Actions.updateFieldData('note', { content: 'typed during save' }));
+    integrated(
+      Actions.updateFieldData('note', { content: 'typed during save' })
+    );
     resolve(true);
     await pending;
     await integrated(Actions.saveFormData('draft'));
@@ -249,7 +249,9 @@ describe('Form middleware', () => {
     };
     integrated = FormMW({ dispatch, getState: () => ({ form }) })(chain);
     const pending = integrated(Actions.saveFormData('draft'));
-    integrated(Actions.updateFieldData('note', { content: 'typed during save' }));
+    integrated(
+      Actions.updateFieldData('note', { content: 'typed during save' })
+    );
     resolve(true);
     await pending;
     await integrated(Actions.saveFormData('draft'));
@@ -261,14 +263,15 @@ describe('Form middleware', () => {
     form.savedSettings = { currency, tax: {}, required_fields: {} };
     const inv = [];
     const updates = [];
-    saveDoc.mockImplementation((_db, doc) =>
-      new Promise(resolve => {
-        resolveSave = () => {
-          inv.length = 0;
-          inv.push({ ...doc, _rev: '1-db' });
-          resolve(inv);
-        };
-      })
+    saveDoc.mockImplementation(
+      (_db, doc) =>
+        new Promise(resolve => {
+          resolveSave = () => {
+            inv.length = 0;
+            inv.push({ ...doc, _rev: '1-db' });
+            resolve(inv);
+          };
+        })
     );
     updateDoc.mockImplementation(async (_db, doc) => {
       updates.push(doc);
@@ -284,8 +287,12 @@ describe('Form middleware', () => {
     };
     let formMw;
     const dispatch = action =>
-      action.type === TYPES.CONTACT_SAVE ? Promise.resolve(true) : formMw(action);
-    const invoiceMw = InvoicesMW({ dispatch, getState: () => ({ form }) })(chain);
+      action.type === TYPES.CONTACT_SAVE
+        ? Promise.resolve(true)
+        : formMw(action);
+    const invoiceMw = InvoicesMW({ dispatch, getState: () => ({ form }) })(
+      chain
+    );
     formMw = FormMW({ dispatch, getState: () => ({ form }) })(invoiceMw);
     const pending = dispatch(Actions.saveFormData('draft'));
     dispatch(Actions.updateFieldData('note', { content: 'new work' }));
@@ -311,7 +318,9 @@ describe('Form middleware', () => {
       }
       return formMw(action);
     };
-    const invoiceMw = InvoicesMW({ dispatch, getState: () => ({ form }) })(chain);
+    const invoiceMw = InvoicesMW({ dispatch, getState: () => ({ form }) })(
+      chain
+    );
     formMw = FormMW({ dispatch, getState: () => ({ form }) })(invoiceMw);
     return {
       dispatch,
@@ -431,9 +440,31 @@ describe('Form middleware', () => {
     expect(updates).toHaveLength(1);
     expect(updates[0]._id).toBe('old-invoice');
     expect(creates).toHaveLength(1);
-    expect(creates[0].rows.some(r => r.description === 'Changed duplicate row')).toBe(
-      true
-    );
+    expect(
+      creates[0].rows.some(r => r.description === 'Changed duplicate row')
+    ).toBe(true);
     expect(updates[0].rows[0].description).toBe('Work');
+  });
+
+  it('blocks SAVED_FORM_SETTING_UPDATE while import lock is held', async () => {
+    const { withImportWriteLock } =
+      await import('../../helpers/importWriteLock');
+    await withImportWriteLock(async () => {
+      await middleware({
+        type: ACTION_TYPES.SAVED_FORM_SETTING_UPDATE,
+        payload: {
+          setting: 'tax',
+          data: { amount: 99, method: 'default', tin: '' },
+        },
+      });
+    });
+    expect(window.manta.settings.set).not.toHaveBeenCalled();
+    expect(
+      dispatch.mock.calls.some(
+        ([action]) =>
+          action.type === ACTION_TYPES.UI_NOTIFICATION_NEW &&
+          action.payload?.type === 'success'
+      )
+    ).toBe(false);
   });
 });

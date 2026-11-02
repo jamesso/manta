@@ -73,6 +73,19 @@ describe('Settings Middleware', () => {
     expect(window.manta.settings.set).not.toHaveBeenCalled();
   });
 
+  it('rejects null numbering without resetting stored counter', async () => {
+    const result = await middleware(
+      Actions.updateSettings('invoice', {
+        ...invoiceBase,
+        numbering: null,
+      })
+    );
+    expect(result.ok).toBe(false);
+    expect(result.errors.numbering).toBeDefined();
+    expect(window.manta.settings.set).not.toHaveBeenCalled();
+    expect(next).not.toHaveBeenCalled();
+  });
+
   it('persists imported invoice numbering without mergeNumbering rewind', async () => {
     const imported = {
       ...invoiceBase,

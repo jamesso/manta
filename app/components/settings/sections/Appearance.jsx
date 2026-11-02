@@ -4,7 +4,7 @@ import { Monitor, Moon, Sun } from 'lucide-react';
 import { Field, FieldLabel } from '@/components/ui/field';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
-export default function Appearance({ value, onSave }) {
+export default function Appearance({ value, onSave, saveMessage }) {
   const { t } = useTranslation();
   const theme = value?.theme || 'system';
 
@@ -17,6 +17,11 @@ export default function Appearance({ value, onSave }) {
         <p className="text-sm text-muted-foreground">
           {t('settings:sections:appearance:description')}
         </p>
+        {saveMessage ? (
+          <p className="mt-2 text-sm text-destructive" role="alert">
+            {saveMessage}
+          </p>
+        ) : null}
       </div>
       <Field>
         <FieldLabel>{t('settings:fields:theme:name')}</FieldLabel>

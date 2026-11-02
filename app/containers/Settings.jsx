@@ -20,16 +20,27 @@ export default function Settings() {
   const [section, setSection] = useState('profile');
   const [errors, setErrors] = useState({});
   const [saveMessage, setSaveMessage] = useState('');
-  const flushRef = useRef(async () => {});
+  const flushRef = useRef(async () => ({ ok: true }));
 
   const registerFlush = useCallback(flush => {
     flushRef.current = flush;
   }, []);
 
-  const changeSection = useCallback(async id => {
-    await flushRef.current?.();
-    setSection(id);
-  }, []);
+  const changeSection = useCallback(
+    async id => {
+      if (id === section) {
+        return;
+      }
+      const result = await flushRef.current?.();
+      if (result?.ok === false) {
+        return;
+      }
+      setErrors({});
+      setSaveMessage('');
+      setSection(id);
+    },
+    [section]
+  );
 
   const saveSection = useCallback(
     async (key, data) => {
@@ -82,6 +93,7 @@ export default function Settings() {
       <Appearance
         value={general}
         onSave={data => saveSection('general', data)}
+        saveMessage={saveMessage}
       />
     );
   } else if (section === 'language') {
@@ -91,6 +103,8 @@ export default function Settings() {
         invoice={invoice}
         onSaveGeneral={data => saveSection('general', data)}
         onSaveInvoice={data => saveSection('invoice', data)}
+        errors={errors}
+        saveMessage={saveMessage}
       />
     );
   } else if (section === 'export') {
@@ -100,13 +114,18 @@ export default function Settings() {
         general={general}
         onSaveInvoice={data => saveSection('invoice', data)}
         onSaveGeneral={data => saveSection('general', data)}
+        saveMessage={saveMessage}
       />
     );
   } else if (section === 'updates') {
     content = <Updates />;
   } else if (section === 'sounds') {
     content = (
-      <Sounds value={general} onSave={data => saveSection('general', data)} />
+      <Sounds
+        value={general}
+        onSave={data => saveSection('general', data)}
+        saveMessage={saveMessage}
+      />
     );
   }
 

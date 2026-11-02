@@ -28,12 +28,7 @@ export function hasDangerousKey(value, seen = new WeakSet()) {
 }
 
 function docHasAttachments(doc) {
-  return (
-    doc != null &&
-    typeof doc === 'object' &&
-    '_attachments' in doc &&
-    doc._attachments != null
-  );
+  return doc != null && typeof doc === 'object' && '_attachments' in doc;
 }
 
 export function sanitizeDoc(doc) {

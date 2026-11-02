@@ -78,7 +78,11 @@ export async function previewImport(backup) {
 export async function runImport(
   backup,
   { mode, includeSettings },
-  { ipc = window.manta.ipc, settingsStore = window.manta.settings } = {}
+  {
+    ipc = window.manta.ipc,
+    settingsStore = window.manta.settings,
+    applySettings,
+  } = {}
 ) {
   return withImportWriteLock(async () => {
     const snapshot = await ipc.invoke(
@@ -92,6 +96,7 @@ export async function runImport(
     const failed = { contacts: [], invoices: [] };
     let batchError = null;
     let settingsResult = null;
+    let settingsFailures = [];
     let contacts = [];
     let invoices = [];
 
@@ -150,6 +155,9 @@ export async function runImport(
           },
           backup.settings
         );
+        if (applySettings && settingsResult?.settings) {
+          settingsFailures = await applySettings(settingsResult.settings);
+        }
       }
     } finally {
       contacts = await getAllDocs('contacts');
@@ -165,6 +173,7 @@ export async function runImport(
       contacts,
       invoices,
       settings: settingsResult?.settings,
+      settingsFailures,
       skippedSections: settingsResult?.skippedSections ?? [],
     };
   });

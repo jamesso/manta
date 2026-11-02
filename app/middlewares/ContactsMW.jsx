@@ -17,6 +17,7 @@ import { toast } from '@/components/ui/toast';
 import {
   isImportWriteLocked,
   importWriteLockReason,
+  trackImportWriteStart,
 } from '../helpers/importWriteLock';
 
 function warnImportBlocked(dispatch) {
@@ -31,6 +32,15 @@ function warnImportBlocked(dispatch) {
     },
   });
   return true;
+}
+
+function protectWrite(dispatch) {
+  const endWrite = trackImportWriteStart();
+  if (endWrite) {
+    return endWrite;
+  }
+  warnImportBlocked(dispatch);
+  return null;
 }
 
 const ContactsMW =
@@ -59,7 +69,8 @@ const ContactsMW =
       }
 
       case ACTION_TYPES.CONTACT_SAVE: {
-        if (warnImportBlocked(dispatch)) {
+        const endWrite = protectWrite(dispatch);
+        if (!endWrite) {
           return false;
         }
         return saveDoc('contacts', action.payload)
@@ -86,11 +97,13 @@ const ContactsMW =
               },
             });
             return false;
-          });
+          })
+          .finally(endWrite);
       }
 
       case ACTION_TYPES.CONTACT_UPDATE: {
-        if (warnImportBlocked(dispatch)) {
+        const endWrite = protectWrite(dispatch);
+        if (!endWrite) {
           return false;
         }
         return updateDoc('contacts', action.payload)
@@ -117,11 +130,13 @@ const ContactsMW =
               },
             });
             return false;
-          });
+          })
+          .finally(endWrite);
       }
 
       case ACTION_TYPES.CONTACT_DELETE: {
-        if (warnImportBlocked(dispatch)) {
+        const endWrite = protectWrite(dispatch);
+        if (!endWrite) {
           return undefined;
         }
         const ids = [...new Set([].concat(action.payload))];
@@ -166,11 +181,13 @@ const ContactsMW =
                 message: err.message,
               },
             });
-          });
+          })
+          .finally(endWrite);
       }
 
       case ACTION_TYPES.CONTACT_RESTORE: {
-        if (warnImportBlocked(dispatch)) {
+        const endWrite = protectWrite(dispatch);
+        if (!endWrite) {
           return undefined;
         }
         return restoreDocs('contacts', action.payload)
@@ -199,7 +216,8 @@ const ContactsMW =
                 message: err.message,
               },
             });
-          });
+          })
+          .finally(endWrite);
       }
 
       default: {

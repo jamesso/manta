@@ -79,6 +79,8 @@ describe('getSettingsErrors', () => {
         'numbering.next'
       ]
     ).toBeDefined();
+    expect(getRawNumberingErrors(null).numbering).toBeDefined();
+    expect(getRawNumberingErrors(undefined)).toEqual({});
     expect(
       getSettingsErrors('invoice', {
         ...baseInvoice,

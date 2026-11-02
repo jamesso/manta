@@ -28,6 +28,7 @@ import { toast } from '@/components/ui/toast';
 import {
   isImportWriteLocked,
   importWriteLockReason,
+  trackImportWriteStart,
 } from '../helpers/importWriteLock';
 
 function warnImportBlocked(dispatch) {
@@ -42,6 +43,15 @@ function warnImportBlocked(dispatch) {
     },
   });
   return true;
+}
+
+function protectWrite(dispatch) {
+  const endWrite = trackImportWriteStart();
+  if (endWrite) {
+    return endWrite;
+  }
+  warnImportBlocked(dispatch);
+  return null;
 }
 
 function persistedInvoice(docs, payload) {
@@ -136,7 +146,8 @@ const InvoicesMW =
       }
 
       case ACTION_TYPES.INVOICE_SAVE: {
-        if (warnImportBlocked(dispatch)) {
+        const endWrite = protectWrite(dispatch);
+        if (!endWrite) {
           return false;
         }
         return saveDoc('invoices', action.payload)
@@ -174,7 +185,8 @@ const InvoicesMW =
               },
             });
             return false;
-          });
+          })
+          .finally(endWrite);
       }
 
       case ACTION_TYPES.INVOICE_EDIT: {
@@ -201,7 +213,8 @@ const InvoicesMW =
       }
 
       case ACTION_TYPES.INVOICE_DELETE: {
-        if (warnImportBlocked(dispatch)) {
+        const endWrite = protectWrite(dispatch);
+        if (!endWrite) {
           return undefined;
         }
         const ids = [...new Set([].concat(action.payload))];
@@ -253,11 +266,13 @@ const InvoicesMW =
                 message: err.message,
               },
             });
-          });
+          })
+          .finally(endWrite);
       }
 
       case ACTION_TYPES.INVOICE_RESTORE: {
-        if (warnImportBlocked(dispatch)) {
+        const endWrite = protectWrite(dispatch);
+        if (!endWrite) {
           return undefined;
         }
         return restoreDocs('invoices', action.payload)
@@ -286,7 +301,8 @@ const InvoicesMW =
                 message: err.message,
               },
             });
-          });
+          })
+          .finally(endWrite);
       }
 
       case ACTION_TYPES.INVOICE_DUPLICATE: {
@@ -347,7 +363,8 @@ const InvoicesMW =
       }
 
       case ACTION_TYPES.INVOICE_UPDATE: {
-        if (warnImportBlocked(dispatch)) {
+        const endWrite = protectWrite(dispatch);
+        if (!endWrite) {
           return false;
         }
         return updateDoc('invoices', action.payload)
@@ -374,11 +391,13 @@ const InvoicesMW =
               },
             });
             return false;
-          });
+          })
+          .finally(endWrite);
       }
 
       case ACTION_TYPES.INVOICE_CONFIGS_SAVE: {
-        if (warnImportBlocked(dispatch)) {
+        const endWrite = protectWrite(dispatch);
+        if (!endWrite) {
           return undefined;
         }
         const { invoiceID, configs } = action.payload;
@@ -397,11 +416,13 @@ const InvoicesMW =
                 message: err.message,
               },
             });
-          });
+          })
+          .finally(endWrite);
       }
 
       case ACTION_TYPES.INVOICE_SET_STATUS: {
-        if (warnImportBlocked(dispatch)) {
+        const endWrite = protectWrite(dispatch);
+        if (!endWrite) {
           return undefined;
         }
         const { invoiceID, status } = action.payload;
@@ -413,6 +434,7 @@ const InvoicesMW =
               message: `Unknown invoice status: ${status}`,
             },
           });
+          endWrite();
           return Promise.resolve();
         }
         const ids = [...new Set([].concat(invoiceID))];
@@ -432,7 +454,8 @@ const InvoicesMW =
                   message: err.message,
                 },
               });
-            });
+            })
+            .finally(endWrite);
         }
         return Promise.all(ids.map(id => getSingleDoc('invoices', id)))
           .then(docs =>
@@ -480,7 +503,8 @@ const InvoicesMW =
                 },
               });
             });
-          });
+          })
+          .finally(endWrite);
       }
 
       default: {

@@ -89,4 +89,37 @@ describe('importWriteLock', () => {
     });
     expect(isImportWriteLocked()).toBe(false);
   });
+
+  it('keeps the lock until applySettings finishes', async () => {
+    const { bulkSaveDocs, getAllDocs } = await import('../pouchDB');
+    bulkSaveDocs.mockResolvedValue({ succeeded: [], failed: [], allDocs: [] });
+    const { isImportWriteLocked } = await import('../importWriteLock');
+    let lockedDuringApply = false;
+    const ipc = {
+      invoke: vi.fn(async channel => {
+        if (channel === 'backup-snapshot') {
+          return { filePath: '/tmp/safety.json' };
+        }
+      }),
+    };
+    await runImport(
+      {
+        contacts: [],
+        invoices: [],
+        settings: {
+          general: { language: 'en', theme: 'system', sound: 'default' },
+        },
+      },
+      { mode: 'skip', includeSettings: true },
+      {
+        ipc,
+        applySettings: async () => {
+          lockedDuringApply = isImportWriteLocked();
+          return [];
+        },
+      }
+    );
+    expect(lockedDuringApply).toBe(true);
+    expect(isImportWriteLocked()).toBe(false);
+  });
 });
