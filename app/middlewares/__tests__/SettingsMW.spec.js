@@ -129,7 +129,11 @@ describe('Settings Middleware', () => {
     const result = await middleware(
       Actions.updateSettings('invoice', imported, true)
     );
-    expect(result).toEqual({ ok: true });
+    expect(result).toMatchObject({ ok: true });
+    expect(result.data).toEqual({
+      ...imported,
+      taxRatesRevision: 0,
+    });
     expect(window.manta.settings.set).toHaveBeenCalledWith('invoice', {
       ...imported,
       taxRatesRevision: 0,
@@ -203,8 +207,8 @@ describe('Settings Middleware', () => {
         taxRatesRevision: 0,
       })
     );
-    expect(result).toEqual({ ok: true });
-    expect(stored.taxRates[0].rate).toBe(19);
+    expect(result).toMatchObject({ ok: true });
+    expect(result.data.taxRates[0].rate).toBe(19);
     expect(stored.taxRatesRevision).toBe(1);
 
     result = await middleware(
@@ -214,8 +218,8 @@ describe('Settings Middleware', () => {
         taxRatesRevision: 1,
       })
     );
-    expect(result).toEqual({ ok: true });
-    expect(stored.taxRates[0].rate).toBe(7);
+    expect(result).toMatchObject({ ok: true });
+    expect(result.data.taxRates[0].rate).toBe(7);
     expect(stored.taxRatesRevision).toBe(2);
 
     result = await middleware(
@@ -233,8 +237,8 @@ describe('Settings Middleware', () => {
     result = await middleware(
       Actions.updateSettings('invoice', { template: 'business' })
     );
-    expect(result).toEqual({ ok: true });
-    expect(stored.template).toBe('business');
+    expect(result).toMatchObject({ ok: true });
+    expect(result.data.template).toBe('business');
     expect(stored.taxRates[0].rate).toBe(7);
     expect(stored.taxRatesRevision).toBe(2);
   });

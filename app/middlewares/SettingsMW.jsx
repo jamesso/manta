@@ -163,7 +163,7 @@ const SettingsMW =
           id: 'settings-saved',
           title: i18n.t('messages:settings:saved'),
         });
-        return { ok: true };
+        return { ok: true, data: nextData };
       }
 
       default: {
