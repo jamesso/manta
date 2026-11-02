@@ -1,6 +1,7 @@
 // Libraries
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { X } from 'lucide-react';
 
 // Helpers
 import { processImg } from '../../../../helpers/image';
@@ -10,72 +11,6 @@ const ipc = window.manta.ipc;
 
 // Component
 import TargetBox from './TargetBox';
-
-// Styles
-import styled from 'styled-components';
-import { X } from 'lucide-react';
-
-const LogoContainer = styled.div`
-  position: relative;
-  height: 200px;
-  width: 200px;
-  padding: 20px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
-const LogoDisplayzone = styled.div`
-  max-width: 160px;
-  max-height: 160px;
-  display: flex;
-  img {
-    max-width: 180px;
-    width: 100%;
-    height: auto;
-  }
-`;
-
-const RemoveLogoBtn = styled.a`
-  position: absolute;
-  top: -15px;
-  right: -15px;
-  font-size: 32px;
-  color: red;
-  line-height: 32px;
-  i {
-    color: #ec476e;
-  }
-  &:hover {
-    cursor: pointer;
-  }
-`;
-
-const LogoDropzone = styled.div`
-  display: flex;
-  height: 100%;
-  width: 100%;
-  flex-direction: column;
-`;
-
-const SelectLogoBtn = styled.a`
-  position: absolute;
-  bottom: 20px;
-  width: 80%;
-  background: #469fe5;
-  border-radius: 4px;
-  padding: 4px 8px;
-  text-align: center;
-  color: white !important;
-  text-transform: uppercase;
-  font-size: 12px;
-  letter-spacing: 1px;
-  &:hover {
-    cursor: pointer;
-  }
-`;
 
 class Logo extends Component {
   constructor(props) {
@@ -119,23 +54,39 @@ class Logo extends Component {
 
   render() {
     return (
-      <LogoContainer>
+      <div className="relative flex size-[200px] items-center justify-center rounded border border-black/10 p-5">
         {this.props.logo ? (
-          <LogoDisplayzone>
-            <img src={this.props.logo} alt="Logo" />
-            <RemoveLogoBtn onClick={this.removeLogo} aria-label="Remove logo">
-              <X aria-hidden="true" />
-            </RemoveLogoBtn>
-          </LogoDisplayzone>
+          <div className="flex max-h-40 max-w-40">
+            <img
+              src={this.props.logo}
+              alt="Logo"
+              className="h-auto w-full max-w-[180px]"
+            />
+          </div>
         ) : (
-          <LogoDropzone>
+          <div className="flex h-full w-full flex-col">
             <TargetBox onDrop={this.handleFileDrop} />
-            <SelectLogoBtn onClick={this.selectLogo}>
-              Or Select Photo
-            </SelectLogoBtn>
-          </LogoDropzone>
+          </div>
         )}
-      </LogoContainer>
+        {this.props.logo ? (
+          <button
+            type="button"
+            onClick={this.removeLogo}
+            aria-label="Remove logo"
+            className="absolute -top-4 -end-4 cursor-pointer text-[#ec476e]"
+          >
+            <X aria-hidden="true" className="size-8" />
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={this.selectLogo}
+            className="absolute bottom-5 w-4/5 cursor-pointer rounded bg-[#469fe5] px-2 py-1 text-center text-xs tracking-wide text-white uppercase"
+          >
+            Or Select Photo
+          </button>
+        )}
+      </div>
     );
   }
 }
