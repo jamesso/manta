@@ -5,7 +5,8 @@
     "btns": {
       "clear": "Clear",
       "update": "Update",
-      "saveAndPreview": "Save & Preview"
+      "saveAndPreview": "Save & Preview",
+      "saveDraft": "Save draft"
     }
   },
   "settings": {
@@ -18,12 +19,26 @@
       "description": "Description",
       "price": "Price",
       "quantity": "Quantity",
-      "add": "Add a New Item"
+      "add": "Add a New Item",
+      "amount": "Amount",
+      "reorder": "Reorder item {{number}}",
+      "remove": "Remove item {{number}}",
+      "descriptionRow": "Description for item {{number}}",
+      "priceRow": "Price for item {{number}}",
+      "quantityRow": "Quantity for item {{number}}"
     },
     "recipient": {
       "name": "Recipient",
       "select": "Select",
-      "add": "Create New"
+      "add": "Create New",
+      "fullname": "Full name",
+      "company": "Company",
+      "email": "Email",
+      "phone": "Phone",
+      "addNew": "Add new client",
+      "chooseExisting": "Choose existing client",
+      "search": "Search clients",
+      "noMatch": "No matching clients"
     },
     "discount": {
       "name": "Discount",
@@ -55,7 +70,10 @@
           "label": "Net 90",
           "description": "Payment 90 days after invoice date"
         }
-      }
+      },
+      "modeDate": "Date",
+      "modeTerms": "Payment terms",
+      "computed": "Due {{date}}"
     },
     "tax": {
       "name": "Tax",
@@ -64,6 +82,48 @@
       "reverse": "Reverse Charge"
     },
     "note": "Note",
-    "currency": "Currency"
+    "currency": "Currency",
+    "issuedAt": "Issue date",
+    "clearDate": "Clear date",
+    "invoiceNumber": {
+      "label": "Invoice number",
+      "hint": "Next number from Settings"
+    }
+  },
+  "cards": {
+    "client": "Client",
+    "details": "Details",
+    "items": "Line items",
+    "adjustments": "Adjustments",
+    "notes": "Notes"
+  },
+  "customize": {
+    "name": "Customize fields",
+    "saveAsDefault": "Save as default"
+  },
+  "preview": {
+    "toggle": "Preview",
+    "error": "Preview could not be rendered.",
+    "overflow": "Long invoices may be clipped in the live preview. Use Save & Preview for the full page."
+  },
+  "totals": {
+    "subtotal": "Subtotal",
+    "discount": "Discount",
+    "tax": "Tax",
+    "total": "Total"
+  },
+  "errors": {
+    "summary": "Please correct the highlighted fields.",
+    "noItems": "Add at least one item.",
+    "draftEmpty": "Add a client or item before saving a draft.",
+    "recipientRequired": "Choose a client.",
+    "partialContactSave": "Invoice saved, but the contact could not be saved."
+  },
+  "numbering": {
+    "title": "Invoice numbering",
+    "prefix": "Prefix",
+    "next": "Next number",
+    "padding": "Digits",
+    "sample": "Example: {{number}}"
   }
 }

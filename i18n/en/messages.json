@@ -4,7 +4,8 @@
   "invoice": {
     "saved": "Invoice saved successfully",
     "updated": "Invoice updated successfully",
-    "deleted": "Invoice deleted successfully"
+    "deleted": "Invoice deleted successfully",
+    "draftSaved": "Draft saved"
   },
   "contact": {
     "saved": "Contact saved successfully",
