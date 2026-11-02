@@ -34,7 +34,10 @@ import {
   validateCreditTotal,
 } from '../helpers/creditNotes';
 import { settleCreditedInvoiceInDb } from '../helpers/creditNoteSettlement';
-import { reconcilePaymentStatus } from '../helpers/payments';
+import {
+  getPaymentEditErrors,
+  reconcilePaymentStatus,
+} from '../helpers/payments';
 import {
   addPaymentToDoc,
   removePaymentFromDoc,
@@ -713,7 +716,23 @@ const InvoicesMW =
             }
             return runInvoiceMutationQueued(existing._id, async () => {
               const allDocs = await getAllDocs('invoices');
+              const current =
+                allDocs.find(d => d._id === existing._id) ?? existing;
               const linked = linkedCreditNotes(allDocs, existing._id);
+              const paymentErrors = getPaymentEditErrors(
+                action.payload,
+                current,
+                linked
+              );
+              if (paymentErrors.length) {
+                for (const err of paymentErrors) {
+                  toast.add({
+                    title: i18n.t(err.key, err.values),
+                    type: 'warning',
+                  });
+                }
+                return false;
+              }
               const merged = reconcilePaymentStatus(
                 action.payload,
                 Date.now(),

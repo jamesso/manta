@@ -1316,6 +1316,42 @@ describe('Invoices Middleware', () => {
       expect(noteB.status).toBe('draft');
     });
 
+    it('INVOICE_UPDATE rejects a total below credits issued while the edit was in flight', async () => {
+      const invoice = {
+        _id: 'inv-src',
+        _rev: '1-a',
+        docType: 'invoice',
+        status: 'pending',
+        grandTotal: 100,
+        currency,
+        rows: [{ id: 'r', price: 100, quantity: 1, subtotal: 100 }],
+      };
+      const issued = {
+        _id: 'cn-1',
+        _rev: '2-b',
+        docType: 'creditNote',
+        status: 'issued',
+        creditedInvoiceId: 'inv-src',
+        grandTotal: 60,
+        currency,
+      };
+      getAllDocs.mockResolvedValue([invoice, issued]);
+      getSingleDoc.mockImplementation((_db, id) => {
+        if (id === 'inv-src') return Promise.resolve({ ...invoice });
+        return Promise.reject(new Error('missing'));
+      });
+      updateDoc.mockClear();
+      await middleware(
+        Actions.updateInvoice({
+          ...invoice,
+          grandTotal: 50,
+          rows: [{ id: 'r', price: 50, quantity: 1, subtotal: 50 }],
+        })
+      );
+      expect(updateDoc).not.toHaveBeenCalled();
+      expect(toast.add).toHaveBeenCalled();
+    });
+
     it('CREDIT_NOTE_ISSUE refreshes store when invoice sync fails after note write', async () => {
       const invoice = {
         _id: 'inv-src',

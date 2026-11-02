@@ -624,7 +624,8 @@ describe('Form middleware', () => {
       required_fields: {},
     };
 
-    const { dispatch } = stackWithForm(form);
+    const stack = stackWithForm(form);
+    const { dispatch } = stack;
 
     getAllDocs.mockImplementation(() =>
       Promise.resolve([{ ...inv }, { ...note }])
@@ -648,13 +649,20 @@ describe('Form middleware', () => {
 
     await dispatch(Actions.saveFormData('final'));
     expect(note.status).toBe('issued');
-    expect(updateDoc.mock.calls.every(c => c[1]._id === 'cn-1')).toBe(true);
+    expect(updateDoc.mock.calls.filter(c => c[1]?._id === 'cn-1')).toHaveLength(
+      1
+    );
     expect(saveDoc).not.toHaveBeenCalled();
     expect(settleAttempts).toBe(1);
+    expect(stack.form.settings.editMode.active).toBe(true);
+    expect(stack.form.settings.editMode.data._id).toBe('cn-1');
 
-    await dispatch(InvoiceActions.syncCreditedInvoice('inv-src'));
+    await dispatch(Actions.saveFormData('final'));
     expect(settleAttempts).toBe(2);
     expect(saveDoc).not.toHaveBeenCalled();
+    expect(updateDoc.mock.calls.filter(c => c[1]?._id === 'cn-1')).toHaveLength(
+      1
+    );
   });
 
   it('blocks SAVED_FORM_SETTING_UPDATE while import lock is held', async () => {

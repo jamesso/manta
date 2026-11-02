@@ -178,6 +178,27 @@ async function handleSave({ dispatch, getState }, mode) {
             if (editMode.active) {
               const saved = salesDocs.find(d => d._id === editMode.data?._id);
               if (saved && getStoredStatus(saved) !== 'draft') {
+                if (getStoredStatus(saved) === 'issued') {
+                  try {
+                    const fresh = await settleCreditedInvoiceInDb(
+                      saved.creditedInvoiceId
+                    );
+                    dispatch({
+                      type: ACTION_TYPES.INVOICE_UPDATE,
+                      payload: fresh,
+                    });
+                    const persisted =
+                      fresh.find(d => d._id === saved._id) ?? saved;
+                    return { ok: true, persisted, payload: saved };
+                  } catch {
+                    return {
+                      ok: 'partial',
+                      persisted: saved,
+                      payload: saved,
+                      syncFailed: true,
+                    };
+                  }
+                }
                 return { ok: false, code: 'issuedCreditNote' };
               }
             }
@@ -440,6 +461,14 @@ async function handleSave({ dispatch, getState }, mode) {
         !creditSyncFailed
       ) {
         ipc.send('preview-invoice', savedBase);
+      }
+
+      if (creditSyncFailed && savedBase) {
+        dispatch({
+          type: ACTION_TYPES.FORM_ATTACH_SAVED_INVOICE,
+          payload: savedBase,
+        });
+        return;
       }
 
       const afterSave = getState().form;
