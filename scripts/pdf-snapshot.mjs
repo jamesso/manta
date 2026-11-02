@@ -102,6 +102,36 @@ for (const template of ['minimal', 'business']) {
   };
   CASES[`${template}-ur-PK`] = { template, language: 'ur-PK' };
   CASES[`${template}-zh-CN`] = { template, language: 'zh-CN' };
+  CASES[`${template}-partial`] = {
+    template,
+    invoice: {
+      payments: [
+        {
+          id: 'p1',
+          date: Date.UTC(2026, 0, 20),
+          amount: 1500,
+          method: 'bank',
+          note: '',
+        },
+      ],
+    },
+  };
+  CASES[`${template}-paid-full`] = {
+    template,
+    invoice: {
+      status: 'paid',
+      paidAt: Date.UTC(2026, 0, 25),
+      payments: [
+        {
+          id: 'p2',
+          date: Date.UTC(2026, 0, 25),
+          amount: 3937.04,
+          method: 'bank',
+          note: '',
+        },
+      ],
+    },
+  };
 }
 
 const PROPS = [
@@ -346,10 +376,12 @@ async function main() {
         nativeTheme.themeSource = t;
       }, theme);
       for (const [name, cfg] of Object.entries(CASES)) {
+        const { invoice: extra = {}, ...rest } = cfg;
         const invoice = {
           ...BASE,
+          ...extra,
           _id: `pdf-${name}-${theme}`,
-          configs: { ...DEF, ...cfg },
+          configs: { ...DEF, ...rest },
         };
         await app.evaluate(({ BrowserWindow }, inv) => {
           BrowserWindow.getAllWindows()

@@ -3,7 +3,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { padStart } from 'lodash';
 import { formatNumber } from '../../../../helpers/formatNumber';
-import { getInvoiceValue } from '../../../../app/helpers/invoice';
+import {
+  getInvoiceValue,
+  getPayments,
+  getAmountPaid,
+  getBalanceDue,
+} from '../../../../app/helpers/invoice';
 import currencies from '../../../../libs/currencies.json';
 
 // Styles
@@ -92,6 +97,10 @@ const Discount = styled.tr`
 const Total = styled.tr`
   color: #6bbb69;
 `;
+const AmountPaid = styled.tr``;
+const BalanceDue = styled.tr`
+  font-weight: 700;
+`;
 
 function setAlignItems(configs) {
   let pos;
@@ -123,6 +132,14 @@ function Main({ invoice, configs, t }) {
   const currencyBefore = placement === 'before';
   // Set Currency Sign
   const currency = configs.useSymbol ? currencies[code].symbol : code;
+  const hasPayments = getPayments(invoice).length > 0;
+  const moneyCell = value => (
+    <>
+      {currencyBefore ? currency : null}{' '}
+      {formatNumber(value, fraction, separator)}{' '}
+      {currencyBefore ? null : currency}
+    </>
+  );
   // Render Items
   const itemComponents = invoice.rows.map((row, index) => (
     <Item key={index}>
@@ -212,6 +229,22 @@ function Main({ invoice, configs, t }) {
             {currencyBefore ? null : currency}
           </td>
         </Total>
+        {hasPayments ? (
+          <>
+            <AmountPaid>
+              <td>
+                {t('preview:common:amountPaid', { lng: currentLanguage })}
+              </td>
+              <td>{moneyCell(getAmountPaid(invoice))}</td>
+            </AmountPaid>
+            <BalanceDue>
+              <td>
+                {t('preview:common:balanceDue', { lng: currentLanguage })}
+              </td>
+              <td>{moneyCell(getBalanceDue(invoice))}</td>
+            </BalanceDue>
+          </>
+        ) : null}
       </InvoiceSummary>
     </Table>
   );

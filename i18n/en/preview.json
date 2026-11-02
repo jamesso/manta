@@ -38,6 +38,8 @@
     "price": "Price",
     "qty": "Quantity",
     "subtotal": "Subtotal",
-    "total": "Total"
+    "total": "Total",
+    "amountPaid": "Amount paid",
+    "balanceDue": "Balance due"
   }
 }

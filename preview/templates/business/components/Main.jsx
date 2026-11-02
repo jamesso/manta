@@ -3,7 +3,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { padStart } from 'lodash';
 import { formatNumber } from '../../../../helpers/formatNumber';
-import { getInvoiceValue } from '../../../../app/helpers/invoice';
+import {
+  getInvoiceValue,
+  getPayments,
+  getAmountPaid,
+  getBalanceDue,
+} from '../../../../app/helpers/invoice';
 import currencies from '../../../../libs/currencies.json';
 
 // Styles
@@ -92,6 +97,10 @@ const InvoiceTax = styled.tr`
   }
 `;
 
+const BalanceDueRow = styled.tr`
+  font-weight: 700;
+`;
+
 function setAlignItems(configs) {
   let pos;
   switch (configs.alignItems) {
@@ -122,6 +131,14 @@ function Main({ invoice, configs, t }) {
   const currencyBefore = placement === 'before';
   // Set Currency Sign
   const currency = configs.useSymbol ? currencies[code].symbol : code;
+  const hasPayments = getPayments(invoice).length > 0;
+  const moneyCell = value => (
+    <>
+      {currencyBefore ? currency : null}{' '}
+      {formatNumber(value, fraction, separator)}{' '}
+      {currencyBefore ? null : currency}
+    </>
+  );
   // Render Items
   const itemComponents = invoice.rows.map((row, index) => (
     <tr key={index}>
@@ -237,6 +254,24 @@ function Main({ invoice, configs, t }) {
               {currencyBefore ? null : currency}
             </td>
           </InvoiceTotal>
+          {hasPayments ? (
+            <>
+              <tr>
+                <td colSpan="2" />
+                <td className="label" colSpan="2">
+                  {t('preview:common:amountPaid', { lng: language })}
+                </td>
+                <td>{moneyCell(getAmountPaid(invoice))}</td>
+              </tr>
+              <BalanceDueRow>
+                <td colSpan="2" />
+                <td className="label" colSpan="2">
+                  {t('preview:common:balanceDue', { lng: language })}
+                </td>
+                <td>{moneyCell(getBalanceDue(invoice))}</td>
+              </BalanceDueRow>
+            </>
+          ) : null}
         </tfoot>
       </Table>
     </InvoiceContent>
