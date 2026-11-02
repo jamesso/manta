@@ -25,6 +25,8 @@ export const FORM_ATTACH_SAVED_INVOICE = 'FORM_ATTACH_SAVED_INVOICE';
 export const FORM_CLEAR_RECONCILED_NUMBERING =
   'FORM_CLEAR_RECONCILED_NUMBERING';
 
+export const FORM_TAX_MODE_SET = 'FORM_TAX_MODE_SET';
+
 // INVOICE
 // ===========================================================
 export const INVOICE_EDIT = 'INVOICE_EDIT';

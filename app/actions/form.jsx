@@ -69,3 +69,8 @@ export const toggleField = createAction(
   ACTION_TYPES.FORM_FIELD_TOGGLE,
   field => field
 );
+
+export const setTaxMode = createAction(
+  ACTION_TYPES.FORM_TAX_MODE_SET,
+  mode => mode
+);

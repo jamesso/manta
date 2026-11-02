@@ -32,6 +32,8 @@
     "unitPrice": "Unit price",
     "priceHint": "Uses the currency of the invoice.",
     "unit": "Unit",
+    "taxRate": "Tax rate",
+    "defaultTaxRate": "Default rate",
     "save": "Save",
     "cancel": "Cancel"
   },

@@ -15,7 +15,12 @@ import LineItemRow from './LineItemRow';
 export default function LineItems() {
   const dispatch = useDispatch();
   const { t } = useTranslation();
-  const { rows, errors } = useSelector(state => state.form);
+  const { rows, errors, taxMode, settings } = useSelector(state => state.form);
+  const showTaxColumn =
+    taxMode === 'line' && settings.required_fields.tax;
+  const headerGrid = showTaxColumn
+    ? 'grid grid-cols-[1.5rem_minmax(8rem,1fr)_7rem_6rem_6rem_8rem_7rem_4.5rem] gap-2 text-xs text-muted-foreground'
+    : 'grid grid-cols-[1.5rem_minmax(8rem,1fr)_7rem_6rem_6rem_7rem_4.5rem] gap-2 text-xs text-muted-foreground';
   const catalogItems = useSelector(getActiveItems);
   const inputs = useRef({});
   const previousCount = useRef(rows.length);
@@ -38,13 +43,20 @@ export default function LineItems() {
       </CardHeader>
       <CardContent className="space-y-3 overflow-x-auto">
         <div className="min-w-[42rem] space-y-2">
-          <div className="grid grid-cols-[1.5rem_minmax(8rem,1fr)_7rem_6rem_6rem_7rem_4.5rem] gap-2 text-xs text-muted-foreground">
+          <div className={headerGrid}>
             <span />
-            {['description', 'price', 'quantity', 'unit', 'amount'].map(
-              name => (
-                <span key={name}>{t(`form:fields:items:${name}`)}</span>
-              )
-            )}
+            {['description', 'price', 'quantity', 'unit']
+              .concat(showTaxColumn ? ['rate'] : [])
+              .concat(['amount'])
+              .map(name => (
+                <span key={name}>
+                  {t(
+                    name === 'rate'
+                      ? 'form:fields:tax:rate'
+                      : `form:fields:items:${name}`
+                  )}
+                </span>
+              ))}
             <span />
           </div>
           <DragDropContext

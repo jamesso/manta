@@ -18,6 +18,8 @@ import {
   normalizeNumbering,
 } from '../../../helpers/numbering';
 import { useDebouncedSave } from '../useDebouncedSave';
+import TaxRates from './TaxRates';
+import { getTaxRates } from '../../../helpers/tax';
 
 const REQUIRED_KEYS = [
   'invoiceID',
@@ -251,52 +253,10 @@ export default function InvoiceDefaults({
         </div>
       </div>
 
-      <div className="space-y-3">
-        <h3 className="font-medium">{t('settings:fields:taxSettings')}</h3>
-        <div className="grid gap-4 md:grid-cols-2">
-          <Field>
-            <FieldLabel>{t('form:fields:tax:id')}</FieldLabel>
-            <Input
-              value={draft.tax?.tin ?? ''}
-              onBlur={onBlur}
-              onChange={e => patchTax('tin', e.target.value)}
-            />
-          </Field>
-          <Field>
-            <FieldLabel>{t('common:amount')}</FieldLabel>
-            <Input
-              type="number"
-              step="0.01"
-              value={draft.tax?.amount ?? ''}
-              aria-invalid={Boolean(errors?.['tax.amount'])}
-              onBlur={onBlur}
-              onChange={e => patchTax('amount', e.target.value)}
-            />
-            {errors?.['tax.amount'] ? (
-              <FieldError>{t(errors['tax.amount'])}</FieldError>
-            ) : null}
-          </Field>
-          <Field>
-            <FieldLabel>{t('form:fields:tax:method')}</FieldLabel>
-            <Select
-              value={draft.tax?.method}
-              onValueChange={method =>
-                saveNow({ ...draft, tax: { ...draft.tax, method } })
-              }
-            >
-              <SelectTrigger className="bg-background text-foreground">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="default">{t('common:default')}</SelectItem>
-                <SelectItem value="reverse">
-                  {t('form:fields:tax:reverse')}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </Field>
-        </div>
-      </div>
+      <TaxRates
+        value={getTaxRates(draft)}
+        onChange={list => saveNow({ ...draft, taxRates: list })}
+      />
 
       <div className="space-y-3">
         <h3 className="font-medium">{t('settings:fields:requiredFields')}</h3>

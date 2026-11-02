@@ -1,3 +1,5 @@
+import { getTaxRatesErrors } from './tax';
+
 export const SETTINGS_SECTIONS = ['profile', 'invoice', 'general'];
 
 const THEMES = new Set(['system', 'light', 'dark']);
@@ -24,6 +26,8 @@ const PROFILE_STRING_FIELDS = [
   'email',
   'phone',
   'website',
+  'taxId',
+  'vatId',
 ];
 const REQUIRED_FIELD_KEYS = [
   'invoiceID',
@@ -188,6 +192,9 @@ export function getSettingsErrors(section, data) {
     errors.numbering = 'settings:errors:numberingNext';
   } else if (data.numbering != null) {
     validateNumbering(data.numbering, errors);
+  }
+  if (Array.isArray(data.taxRates)) {
+    Object.assign(errors, getTaxRatesErrors(data.taxRates));
   }
   return errors;
 }

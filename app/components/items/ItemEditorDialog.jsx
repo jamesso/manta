@@ -33,6 +33,7 @@ import {
   isKnownUnit,
 } from '../../helpers/items';
 import { getItems } from '../../reducers/ItemsReducer';
+import { getActiveTaxRates, getTaxRates } from '../../helpers/tax';
 import * as ItemsActions from '../../actions/items';
 
 const emptyValues = {
@@ -40,6 +41,7 @@ const emptyValues = {
   description: '',
   unitPrice: '',
   unitCode: 'C62',
+  taxRateId: null,
 };
 
 export default function ItemEditorDialog({
@@ -52,6 +54,11 @@ export default function ItemEditorDialog({
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const items = useSelector(getItems);
+  const invoiceSettings = useSelector(
+    state => state.settings.saved?.invoice ?? {}
+  );
+  const taxRates = getTaxRates(invoiceSettings);
+  const activeRates = getActiveTaxRates(taxRates);
   const formId = useId();
   const nameRef = useRef(null);
   const [values, setValues] = useState(emptyValues);
@@ -70,6 +77,7 @@ export default function ItemEditorDialog({
         description: item.description ?? '',
         unitPrice: String(item.unitPrice ?? ''),
         unitCode: getUnitCode(item.unitCode),
+        taxRateId: item.taxRateId ?? null,
       });
     } else {
       setValues(initialValues ?? emptyValues);
@@ -189,6 +197,44 @@ export default function ItemEditorDialog({
             {errors.unitCode ? (
               <FieldError>{t(errors.unitCode)}</FieldError>
             ) : null}
+          </Field>
+          <Field>
+            <FieldLabel htmlFor={`${formId}-taxRate`}>
+              {t('items:dialog:taxRate')}
+            </FieldLabel>
+            <Select
+              value={values.taxRateId ?? 'default'}
+              onValueChange={v =>
+                setField('taxRateId', v === 'default' ? null : v)
+              }
+            >
+              <SelectTrigger
+                id={`${formId}-taxRate`}
+                className="w-full bg-background text-foreground"
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-popover text-popover-foreground">
+                <SelectItem value="default">
+                  {t('items:dialog:defaultTaxRate')}
+                </SelectItem>
+                {[...activeRates]
+                  .concat(
+                    item?.taxRateId &&
+                      !activeRates.some(r => r.id === item.taxRateId)
+                      ? taxRates.filter(r => r.id === item.taxRateId)
+                      : []
+                  )
+                  .map(rate => (
+                    <SelectItem key={rate.id} value={rate.id}>
+                      {rate.name}
+                      {rate.active === false
+                        ? ` (${t('settings:taxRates:inactive')})`
+                        : ''}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
           </Field>
           <DialogFooter className="gap-2 sm:gap-0">
             <Button

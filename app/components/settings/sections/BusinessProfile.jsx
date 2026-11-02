@@ -5,6 +5,7 @@ import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import Logo from '../_partials/profile/Logo';
 import { useDebouncedSave } from '../useDebouncedSave';
+import { getSellerTaxIds } from '../../../helpers/tax';
 
 const TEXT_FIELDS = [
   'fullname',
@@ -17,14 +18,20 @@ const TEXT_FIELDS = [
 
 export default function BusinessProfile({
   value,
+  invoiceSettings,
   onSave,
   errors,
   saveMessage,
   registerFlush,
 }) {
   const { t } = useTranslation();
+  const mergedValue = {
+    ...value,
+    taxId: value?.taxId ?? getSellerTaxIds(value, invoiceSettings).taxId,
+    vatId: value?.vatId ?? getSellerTaxIds(value, invoiceSettings).vatId,
+  };
   const { draft, setDraft, onBlur, flush, saveNow } = useDebouncedSave(
-    value,
+    mergedValue,
     onSave
   );
 
@@ -76,6 +83,30 @@ export default function BusinessProfile({
             {errors?.[name] ? <FieldError>{t(errors[name])}</FieldError> : null}
           </Field>
         ))}
+        <Field>
+          <FieldLabel htmlFor="profile-taxId">
+            {t('settings:fields:taxId')}
+          </FieldLabel>
+          <Input
+            id="profile-taxId"
+            value={draft.taxId ?? ''}
+            autoComplete="off"
+            onBlur={onBlur}
+            onChange={e => setField('taxId', e.target.value)}
+          />
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="profile-vatId">
+            {t('settings:fields:vatId')}
+          </FieldLabel>
+          <Input
+            id="profile-vatId"
+            value={draft.vatId ?? ''}
+            autoComplete="off"
+            onBlur={onBlur}
+            onChange={e => setField('vatId', e.target.value)}
+          />
+        </Field>
       </div>
     </div>
   );

@@ -20,6 +20,12 @@ import {
   getRecipientErrors,
   hasUnsavedFormChanges,
 } from '../helpers/form';
+import {
+  applyTaxRate,
+  getDefaultTaxRate,
+  getTaxRates,
+  matchLegacyTaxRate,
+} from '../helpers/tax';
 import { getPaymentEditErrors } from '../helpers/payments';
 import { formatNumber } from '../../helpers/formatNumber';
 import { toast } from '@/components/ui/toast';
@@ -39,6 +45,41 @@ function suggestedInvoiceNumberForForm(form) {
     form.reconciledNumbering,
     appConfig.get('invoice.numbering')
   );
+}
+
+function syncLineTaxRows(dispatch, getState, { overwriteAll = false } = {}) {
+  const form = getState().form;
+  if (form.taxMode !== 'line' || !form.settings.required_fields.tax) {
+    return;
+  }
+  const rates = getTaxRates(appConfig.get('invoice'));
+  const defaultRate = getDefaultTaxRate(rates);
+  if (!defaultRate) {
+    return;
+  }
+  const legacyRate = overwriteAll
+    ? matchLegacyTaxRate(form.tax, rates)
+    : null;
+  for (const row of form.rows) {
+    if (overwriteAll) {
+      dispatch(
+        FormActions.updateItem(applyTaxRate(row, legacyRate ?? defaultRate))
+      );
+      continue;
+    }
+    if (row.taxRateId == null || row.taxRateId === '') {
+      dispatch(FormActions.updateItem(applyTaxRate(row, defaultRate)));
+    }
+  }
+}
+
+function invoiceDataOptions(mode) {
+  return {
+    mode,
+    defaultCurrency: appConfig.get('invoice.currency'),
+    profile: appConfig.get('profile') ?? {},
+    invoiceSettings: appConfig.get('invoice') ?? {},
+  };
 }
 
 let saveInFlight = null;
@@ -79,17 +120,14 @@ async function handleSave({ dispatch, getState }, mode) {
         return;
       }
 
-      const defaultCurrency = appConfig.get('invoice.currency');
-      const data = getInvoiceData(formSnapshot, {
-        mode,
-        defaultCurrency,
-      });
+      const data = getInvoiceData(formSnapshot, invoiceDataOptions(mode));
       const { editMode } = formSnapshot.settings;
       if (editMode.active) {
         const paymentErrors = getPaymentEditErrors(data, editMode.data);
         if (paymentErrors.length) {
           for (const err of paymentErrors) {
-            const currency = data.currency ?? defaultCurrency;
+            const currency =
+              data.currency ?? appConfig.get('invoice.currency');
             const values = err.values
               ? {
                   ...err.values,
@@ -220,7 +258,7 @@ async function handleSave({ dispatch, getState }, mode) {
               editMode: { active: true, data: savedBase },
             },
           },
-          { mode, defaultCurrency }
+          { mode, ...invoiceDataOptions(mode) }
         );
         dispatch({
           type: ACTION_TYPES.FORM_ATTACH_SAVED_INVOICE,
@@ -245,7 +283,7 @@ async function handleSave({ dispatch, getState }, mode) {
                 editMode: { active: true, data: persisted },
               },
             },
-            { mode, defaultCurrency }
+            { mode, ...invoiceDataOptions(mode) }
           ),
         });
       }
@@ -301,11 +339,31 @@ const FormMW =
       }
 
       case ACTION_TYPES.FORM_ITEM_ADD: {
-        return next(
+        const result = next(
           Object.assign({}, action, {
             payload: { id: crypto.randomUUID() },
           })
         );
+        syncLineTaxRows(dispatch, getState);
+        return result;
+      }
+
+      case ACTION_TYPES.FORM_TAX_MODE_SET: {
+        const result = next(action);
+        if (action.payload === 'line') {
+          syncLineTaxRows(dispatch, getState, { overwriteAll: true });
+        }
+        refreshErrorsIfNeeded({ dispatch, getState }, action);
+        return result;
+      }
+
+      case ACTION_TYPES.FORM_FIELD_TOGGLE: {
+        const result = next(action);
+        if (action.payload === 'tax') {
+          syncLineTaxRows(dispatch, getState);
+        }
+        refreshErrorsIfNeeded({ dispatch, getState }, action);
+        return result;
       }
 
       case ACTION_TYPES.FORM_CLEAR: {
@@ -318,6 +376,7 @@ const FormMW =
             suggestedInvoiceNumberForForm(getState().form)
           )
         );
+        syncLineTaxRows(dispatch, getState);
         break;
       }
 

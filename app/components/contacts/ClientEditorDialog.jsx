@@ -16,7 +16,13 @@ import { Input } from '@/components/ui/input';
 import { buildContact, getContactErrors } from '../../helpers/clients';
 import * as ContactsActions from '../../actions/contacts';
 
-const emptyValues = { fullname: '', company: '', email: '', phone: '' };
+const emptyValues = {
+  fullname: '',
+  company: '',
+  email: '',
+  phone: '',
+  taxId: '',
+};
 
 export default function ClientEditorDialog({ open, onOpenChange, contact }) {
   const { t } = useTranslation();
@@ -39,6 +45,7 @@ export default function ClientEditorDialog({ open, onOpenChange, contact }) {
         company: contact.company ?? '',
         email: contact.email ?? '',
         phone: contact.phone ?? '',
+        taxId: contact.taxId ?? '',
       });
     } else {
       setValues(emptyValues);
@@ -110,6 +117,18 @@ export default function ClientEditorDialog({ open, onOpenChange, contact }) {
               autoComplete="off"
               value={values.company}
               onChange={e => setField('company', e.target.value)}
+            />
+          </Field>
+          <Field>
+            <FieldLabel htmlFor={`${formId}-taxId`}>
+              {t('contacts:fields:taxId')}
+            </FieldLabel>
+            <Input
+              id={`${formId}-taxId`}
+              autoComplete="off"
+              maxLength={40}
+              value={values.taxId}
+              onChange={e => setField('taxId', e.target.value)}
             />
           </Field>
           <Field>

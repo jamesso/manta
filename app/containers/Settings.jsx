@@ -83,6 +83,7 @@ export default function Settings() {
     content = (
       <BusinessProfile
         value={profile}
+        invoiceSettings={invoice}
         onSave={data => saveSection('profile', data)}
         errors={errors}
         saveMessage={saveMessage}

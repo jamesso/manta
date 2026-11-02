@@ -32,7 +32,7 @@ export default function ClientField() {
         {contacts.length === 0 || recipient.newRecipient ? (
           <>
             <div className="grid gap-3 sm:grid-cols-2">
-              {['fullname', 'company', 'email', 'phone'].map(name => (
+              {['fullname', 'company', 'taxId', 'email', 'phone'].map(name => (
                 <Field key={name}>
                   <FieldLabel htmlFor={`client-${name}`}>
                     {t(`form:fields:recipient:${name}`)}
@@ -40,6 +40,8 @@ export default function ClientField() {
                   </FieldLabel>
                   <Input
                     id={`client-${name}`}
+                    autoComplete="off"
+                    maxLength={name === 'taxId' ? 40 : undefined}
                     value={recipient.new[name] ?? ''}
                     aria-invalid={Boolean(errors[`recipient.${name}`])}
                     onChange={e =>

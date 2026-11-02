@@ -68,6 +68,9 @@ export default function ClientDetailSheet({
           {contact.company ? (
             <SheetDescription>{contact.company}</SheetDescription>
           ) : null}
+          {contact.taxId ? (
+            <SheetDescription>{contact.taxId}</SheetDescription>
+          ) : null}
         </SheetHeader>
         <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-4 pb-4 text-sm">
           <div>

@@ -9,7 +9,13 @@ import {
   getUnitCode,
   isKnownUnit,
 } from '../../../helpers/items';
+import {
+  applyTaxRate,
+  getTaxRates,
+  resolveRowTaxRate,
+} from '../../../helpers/tax';
 import { updateRowField } from '../../../helpers/form';
+import TaxRateSelect from './TaxRateSelect';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FieldError } from '@/components/ui/field';
@@ -39,13 +45,18 @@ export default function LineItemRow({
 }) {
   const dispatch = useDispatch();
   const { t } = useTranslation();
-  const { errors, currency, settings } = useSelector(state => state.form);
-  const savedCurrency = useSelector(
-    state => state.settings.saved?.invoice?.currency
+  const { errors, currency, settings, taxMode } = useSelector(state => state.form);
+  const invoiceSettings = useSelector(
+    state => state.settings.saved?.invoice ?? state.form.savedSettings
   );
   const displayCurrency = settings.required_fields.currency
     ? currency
-    : savedCurrency;
+    : invoiceSettings?.currency;
+  const showTaxColumn =
+    taxMode === 'line' && settings.required_fields.tax;
+  const gridClass = showTaxColumn
+    ? 'grid grid-cols-[1.5rem_minmax(8rem,1fr)_7rem_6rem_6rem_8rem_7rem_4.5rem] items-start gap-2'
+    : 'grid grid-cols-[1.5rem_minmax(8rem,1fr)_7rem_6rem_6rem_7rem_4.5rem] items-start gap-2';
 
   const unitCode = getUnitCode(item.unitCode);
   const unitOptions = [...UNIT_CODES];
@@ -61,7 +72,7 @@ export default function LineItemRow({
         <div
           ref={provided.innerRef}
           {...provided.draggableProps}
-          className="grid grid-cols-[1.5rem_minmax(8rem,1fr)_7rem_6rem_6rem_7rem_4.5rem] items-start gap-2"
+          className={gridClass}
         >
           {count > 1 ? (
             <button
@@ -84,9 +95,17 @@ export default function LineItemRow({
               onTextChange={text =>
                 dispatch(updateItem(updateRowField(item, 'description', text)))
               }
-              onPick={picked =>
-                dispatch(updateItem(applyItemToRow(item, picked)))
-              }
+              onPick={picked => {
+                const rates = getTaxRates(invoiceSettings);
+                let next = applyItemToRow(item, picked);
+                if (taxMode === 'line' && settings.required_fields.tax) {
+                  next = applyTaxRate(
+                    next,
+                    resolveRowTaxRate(picked.taxRateId, rates)
+                  );
+                }
+                dispatch(updateItem(next));
+              }}
               onEnterWithoutPick={() => dispatch(addItem())}
               inputProps={{
                 ref: node => registerInput(item.id, node),
@@ -155,6 +174,16 @@ export default function LineItemRow({
               </SelectContent>
             </Select>
           </div>
+          {showTaxColumn ? (
+            <div>
+              <TaxRateSelect row={item} index={index} />
+              {errors[`rows.${item.id}.taxRate`] && (
+                <FieldError>
+                  {t(errors[`rows.${item.id}.taxRate`])}
+                </FieldError>
+              )}
+            </div>
+          ) : null}
           <div className="pt-2 text-end tabular-nums">
             {item.subtotal === '' || item.subtotal == null
               ? '—'

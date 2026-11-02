@@ -10,7 +10,7 @@ const invoiceSettings =
     ? rawInvoiceSettings
     : { currency: {}, tax: {}, required_fields: {}, numbering: {} };
 // Helper
-import { setEditRecipient } from '../helpers/form';
+import { setEditRecipient, editorTaxModeFromDoc } from '../helpers/form';
 import { getIssuedAt } from '../helpers/invoice';
 import {
   formatInvoiceNumber,
@@ -68,6 +68,7 @@ const initialState = {
     currency: invoiceSettings.currency,
     required_fields: invoiceSettings.required_fields,
   },
+  taxMode: 'line',
 };
 
 function populateFromDuplicate(state, payload) {
@@ -112,6 +113,7 @@ function populateFromDuplicate(state, payload) {
       },
       required_fields,
     }),
+    taxMode: editorTaxModeFromDoc({ tax, rows }),
   });
 }
 
@@ -158,6 +160,7 @@ function populateFromInvoice(state, payload) {
         note: note !== undefined,
       }),
     }),
+    taxMode: editorTaxModeFromDoc(payload),
   });
 }
 
@@ -330,6 +333,13 @@ const FormReducer = handleActions(
       });
     },
 
+    [ACTION_TYPES.FORM_TAX_MODE_SET]: (state, action) =>
+      withRevision(
+        Object.assign({}, state, {
+          taxMode: action.payload,
+        })
+      ),
+
     [ACTION_TYPES.FORM_CLEAR]: state =>
       Object.assign({}, initialState, {
         currency: state.savedSettings.currency,
@@ -337,6 +347,7 @@ const FormReducer = handleActions(
         invoiceID: invoiceNumberForState(state),
         reconciledNumbering: state.reconciledNumbering,
         formGeneration: (state.formGeneration || 0) + 1,
+        taxMode: 'line',
         settings: Object.assign({}, state.settings, {
           open: false,
           editMode: {

@@ -5,6 +5,7 @@ import { isEqual } from 'lodash';
 import {
   updateFieldData,
   updateSavedFormSettings,
+  setTaxMode,
 } from '../../../actions/form';
 import { parseNumberInput } from '../../../helpers/form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,7 +24,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 export default function AdjustmentsCard() {
   const dispatch = useDispatch();
   const { t } = useTranslation();
-  const { discount, tax, settings, savedSettings, errors } = useSelector(
+  const { discount, tax, settings, savedSettings, errors, taxMode } = useSelector(
     state => state.form
   );
   const update = (field, value) => dispatch(updateFieldData(field, value));
@@ -66,7 +67,7 @@ export default function AdjustmentsCard() {
             {errors.discount && <FieldError>{t(errors.discount)}</FieldError>}
           </Field>
         )}
-        {settings.required_fields.tax && (
+        {settings.required_fields.tax && taxMode === 'invoice' && (
           <div className="space-y-3">
             <Field>
               <FieldLabel htmlFor="tax-id">
@@ -125,6 +126,20 @@ export default function AdjustmentsCard() {
             )}
           </div>
         )}
+        {settings.required_fields.tax && taxMode === 'invoice' ? (
+          <div className="space-y-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => dispatch(setTaxMode('line'))}
+            >
+              {t('form:fields:tax:switchToLine')}
+            </Button>
+            <p className="text-sm text-muted-foreground">
+              {t('form:fields:tax:switchHint')}
+            </p>
+          </div>
+        ) : null}
       </CardContent>
     </Card>
   );

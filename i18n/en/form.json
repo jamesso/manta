@@ -41,7 +41,8 @@
       "addNew": "Add new client",
       "chooseExisting": "Choose existing client",
       "search": "Search clients",
-      "noMatch": "No matching clients"
+      "noMatch": "No matching clients",
+      "taxId": "Tax / VAT ID"
     },
     "discount": {
       "name": "Discount",
@@ -82,7 +83,13 @@
       "name": "Tax",
       "id": "Tax ID",
       "method": "Method",
-      "reverse": "Reverse Charge"
+      "reverse": "Reverse Charge",
+      "rate": "Tax",
+      "rateRow": "Tax rate for item {{number}}",
+      "perLine": "Tax per line",
+      "switchToLine": "Switch to tax per line",
+      "switchHint": "Totals are recalculated with your tax rates.",
+      "on": "on {{amount}}"
     },
     "note": "Note",
     "currency": "Currency",
@@ -125,7 +132,11 @@
     "partialContactSave": "Invoice saved, but the contact could not be saved.",
     "partialNumberingSave": "Invoice saved, but the next invoice number could not be saved.",
     "totalBelowPaid": "The new total ({{total}}) is less than the amount already paid ({{paid}}). Remove a payment first.",
-    "currencyLocked": "This invoice has payments. You cannot change its currency."
+    "currencyLocked": "This invoice has payments. You cannot change its currency.",
+    "taxRateRequired": "Choose a tax rate for this line.",
+    "discountTooLarge": "Discount is too large for this invoice.",
+    "exemptionReasonRequired": "Enter an exemption reason.",
+    "conflictingExemptionReasons": "Tax lines in the same group need the same exemption reason."
   },
   "numbering": {
     "title": "Invoice numbering",

@@ -101,6 +101,8 @@
       "hint": "Accepts PNG, JPG & SVG (Recommended)"
     },
     "taxSettings": "Tax Settings",
+    "taxId": "Tax ID",
+    "vatId": "VAT ID",
     "template": "Template",
     "dateFormat": "Date Format",
     "pdfExportDir": "PDF Export Directory",
@@ -158,5 +160,42 @@
       "zh-TW": "Chinese (Traditional)"
     },
     "other": "Other"
+  },
+  "taxRates": {
+    "title": "Tax rates",
+    "add": "Add tax rate",
+    "edit": "Edit tax rate",
+    "default": "Default",
+    "inactive": "Inactive",
+    "setDefault": "Set as default",
+    "markInactive": "Mark inactive",
+    "reactivate": "Reactivate",
+    "delete": "Delete",
+    "usedBy": "Used by {{count}} items. Mark it inactive instead?",
+    "hintSnapshot": "Changes apply to new lines. Saved invoices keep their rates.",
+    "hintAdvisor": "Ask your tax advisor which category applies.",
+    "name": "Name",
+    "rate": "Rate %",
+    "category": "Category",
+    "reason": "Exemption reason",
+    "actionsFor": "Actions for {{name}}",
+    "categories": {
+      "S": { "label": "Standard rate", "help": "The normal VAT rate, for example 19 % or 20 %." },
+      "Z": { "label": "Zero rated", "help": "Taxable, but at 0 %." },
+      "E": { "label": "Exempt", "help": "Exempt from VAT by law. Needs a reason." },
+      "AE": { "label": "Reverse charge", "help": "The buyer pays the VAT. Needs a reason and the buyer's VAT ID." },
+      "K": { "label": "Intra-community supply", "help": "Goods to a VAT-registered buyer in another EU country. Needs a reason." },
+      "G": { "label": "Export outside the EU", "help": "No VAT is charged on the export. Needs a reason." },
+      "O": { "label": "Outside the scope of VAT", "help": "Not subject to VAT, for example you are not VAT registered. Needs a reason." }
+    },
+    "errors": {
+      "name": "Enter a name between 1 and 40 characters.",
+      "rateStandard": "Standard rates must be between 0 and 100 %.",
+      "rateZero": "This category must use 0 %.",
+      "reasonRequired": "Enter an exemption reason (200 characters or fewer).",
+      "duplicateId": "Each tax rate needs a unique id.",
+      "noDefault": "Mark exactly one active rate as default.",
+      "empty": "Add at least one tax rate."
+    }
   }
 }

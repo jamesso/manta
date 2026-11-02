@@ -23,8 +23,9 @@ export function buildContact(data, existing, now) {
   const company = String(data.company ?? '').trim();
   const email = String(data.email ?? '').trim();
   const phone = String(data.phone ?? '').trim();
+  const taxId = String(data.taxId ?? '').trim();
   if (existing) {
-    return { ...existing, fullname, company, email, phone };
+    return { ...existing, fullname, company, email, phone, taxId };
   }
   return {
     _id: crypto.randomUUID(),
@@ -33,6 +34,7 @@ export function buildContact(data, existing, now) {
     company,
     email,
     phone,
+    taxId,
   };
 }
 

@@ -48,11 +48,16 @@ export function getItemErrors(values, items, selfId, options = {}) {
 }
 
 export function buildItem(values, existing, now) {
+  const taxRateId =
+    values.taxRateId === '' || values.taxRateId == null
+      ? null
+      : values.taxRateId;
   const base = {
     name: String(values.name ?? '').trim(),
     description: String(values.description ?? '').trim(),
     unitPrice: Number(values.unitPrice),
     unitCode: getUnitCode(values.unitCode),
+    taxRateId,
   };
   if (existing) {
     return { ...existing, ...base };

@@ -3,7 +3,13 @@ import { isEmpty, pick, includes } from 'lodash';
 import moment from 'moment';
 
 import i18n from '../../i18n/i18n';
-import { getInvoiceValue, getIssuedAt } from './invoice';
+import { getCurrencyFraction, getInvoiceTotals, getIssuedAt, isLineTaxInvoice } from './invoice';
+import { roundMoney } from './money';
+import {
+  clearRowTax,
+  getSellerTaxIds,
+  getTaxRateErrors,
+} from './tax';
 import { reconcilePaymentStatus } from './payments';
 
 const EMAIL_RE =
@@ -282,10 +288,110 @@ function stripUndefined(obj) {
   );
 }
 
+function amountRepresentableAtFraction(amount, fraction) {
+  if (!Number.isFinite(amount)) {
+    return false;
+  }
+  return roundMoney(amount, fraction) === amount;
+}
+
+function editorTaxModeFromDoc(doc) {
+  if (isLineTaxInvoice(doc)) {
+    return 'line';
+  }
+  if (doc?.tax !== undefined) {
+    return 'invoice';
+  }
+  return 'line';
+}
+
+function resolveSellerForSave(form, profile, invoiceSettings) {
+  const ids = getSellerTaxIds(profile, invoiceSettings);
+  const { editMode } = form.settings;
+  if (!editMode.active) {
+    return ids;
+  }
+  if (editMode.data?.status === 'draft') {
+    return ids;
+  }
+  if (isLineTaxInvoice(editMode.data) && !editMode.data.seller) {
+    return ids;
+  }
+  if (editMode.data?.seller) {
+    return editMode.data.seller;
+  }
+  return null;
+}
+
+function getLineTaxFormErrors(form, mode) {
+  if (mode === 'draft' || form.taxMode !== 'line') {
+    return {};
+  }
+  if (!form.settings.required_fields.tax) {
+    return {};
+  }
+  const errors = {};
+  const currency = getEffectiveCurrency(form);
+  const f = getCurrencyFraction({ currency });
+  const previewDoc = {
+    ...pickInvoiceFields(form, currency),
+    taxMode: 'line',
+    taxCalc: 1,
+  };
+  const totals = getInvoiceTotals(previewDoc);
+  for (const row of form.rows) {
+    if (isBlankRow(row)) {
+      continue;
+    }
+    if (!Number.isFinite(Number(row.taxRate))) {
+      errors[`rows.${row.id}.taxRate`] = 'form:errors:taxRateRequired';
+    }
+    const pseudo = {
+      name: 'row',
+      category: row.taxCategory ?? 'S',
+      rate: Number(row.taxRate),
+      exemptionReason: row.taxExemptionReason ?? '',
+    };
+    const rateErrs = getTaxRateErrors(pseudo);
+    if (rateErrs.rate) {
+      errors[`rows.${row.id}.taxRate`] = 'form:errors:taxRateRequired';
+    }
+    if (rateErrs.exemptionReason) {
+      errors[`rows.${row.id}.taxExemptionReason`] =
+        'form:errors:exemptionReasonRequired';
+    }
+    if (!Number.isFinite(Number(row.subtotal)) || Number(row.subtotal) < 0) {
+      errors[`rows.${row.id}.price`] = 'dialog:validation:rows:priceZero:message';
+    }
+  }
+  for (const group of totals.taxBreakdown) {
+    if (group.conflict) {
+      errors.taxGroups = 'form:errors:conflictingExemptionReasons';
+      break;
+    }
+  }
+  const discount = form.discount;
+  if (isDiscountComplete(discount)) {
+    const amount = Number(discount.amount);
+    if (amount < 0) {
+      errors.discount = 'form:errors:discountTooLarge';
+    } else if (discount.type === 'percentage') {
+      if (amount > 100) {
+        errors.discount = 'form:errors:discountTooLarge';
+      }
+    } else if (amount > totals.subtotal) {
+      errors.discount = 'form:errors:discountTooLarge';
+    } else if (!amountRepresentableAtFraction(amount, f)) {
+      errors.discount = 'form:errors:discountTooLarge';
+    }
+  }
+  return errors;
+}
+
 function getCalculatedTotalsErrors(form, defaultCurrency) {
   const currencyDefault = defaultCurrency ?? getEffectiveCurrency(form);
   const fields = pickInvoiceFields(form, currencyDefault);
-  const totals = getInvoiceValue(fields);
+  const totals = getInvoiceTotals(fields);
   if (
     !Number.isFinite(totals.subtotal) ||
     !Number.isFinite(totals.grandTotal)
@@ -350,7 +456,9 @@ export function getFormErrors(form, mode) {
     ...getDueDateErrors(required_fields.dueDate, form.dueDate, mode),
     ...getCurrencyErrors(form, mode),
     ...getDiscountErrors(required_fields.discount, form.discount, mode),
-    ...getTaxErrors(required_fields.tax, form.tax, mode),
+    ...(form.taxMode === 'line'
+      ? getLineTaxFormErrors(form, mode)
+      : getTaxErrors(required_fields.tax, form.tax, mode)),
     ...getNoteErrors(required_fields.note, form.note, mode),
     ...getIssuedAtErrors(form),
     ...getCalculatedTotalsErrors(form),
@@ -368,16 +476,40 @@ export function pickInvoiceFields(form, defaultCurrency) {
     tax,
     note,
     settings,
+    taxMode,
   } = form;
   const { required_fields } = settings;
-  const invoiceData = {
-    rows: rows
-      .filter(row => !isBlankRow(row))
-      .map(row => ({
-        ...row,
-        subtotal: Number(row.subtotal) || 0,
-      })),
+  const lineMode = taxMode === 'line';
+  const mapRow = row => {
+    let next = {
+      ...row,
+      subtotal: Number(row.subtotal) || 0,
+    };
+    if (lineMode) {
+      if (required_fields.tax) {
+        next = {
+          ...next,
+          taxRateId: row.taxRateId,
+          taxRate: row.taxRate,
+          taxCategory: row.taxCategory,
+          taxExemptionReason: row.taxExemptionReason,
+        };
+      } else {
+        next = clearRowTax(next);
+      }
+    } else {
+      next = clearRowTax(next);
+    }
+    return next;
   };
+  const invoiceData = {
+    rows: rows.filter(row => !isBlankRow(row)).map(mapRow),
+  };
+
+  if (lineMode) {
+    invoiceData.taxMode = 'line';
+    invoiceData.taxCalc = 1;
+  }
 
   if (recipient.newRecipient) {
     invoiceData.recipient = { ...recipient.new };
@@ -399,7 +531,7 @@ export function pickInvoiceFields(form, defaultCurrency) {
   if (required_fields.discount && isDiscountComplete(discount)) {
     invoiceData.discount = discount;
   }
-  if (required_fields.tax && isTaxComplete(tax)) {
+  if (!lineMode && required_fields.tax && isTaxComplete(tax)) {
     invoiceData.tax = tax;
   }
   if (required_fields.note) {
@@ -423,11 +555,21 @@ export function resolveSaveStatus(mode, editData) {
 
 export function getInvoiceData(
   formData,
-  { mode = 'final', defaultCurrency, now = Date.now() } = {}
+  {
+    mode = 'final',
+    defaultCurrency,
+    now = Date.now(),
+    profile = {},
+    invoiceSettings = {},
+  } = {}
 ) {
   const { settings } = formData;
   const { editMode } = settings;
   const fields = pickInvoiceFields(formData, defaultCurrency);
+  const seller = resolveSellerForSave(formData, profile, invoiceSettings);
+  if (seller) {
+    fields.seller = seller;
+  }
   if (formData.recipient.newRecipient) {
     const savedRecipient =
       editMode.active && editMode.data?.recipient
@@ -449,8 +591,8 @@ export function getInvoiceData(
       status: resolveSaveStatus(mode, editMode.data),
       paidAt: editMode.data.paidAt,
       payments: editMode.data.payments,
-      subtotal: getInvoiceValue(fields).subtotal,
-      grandTotal: getInvoiceValue(fields).grandTotal,
+      subtotal: getInvoiceTotals(fields).subtotal,
+      grandTotal: getInvoiceTotals(fields).grandTotal,
     });
     if (!settings.required_fields.dueDate) delete base.dueDate;
     if (!('discount' in fields)) delete base.discount;
@@ -464,8 +606,8 @@ export function getInvoiceData(
     created_at: now,
     issuedAt,
     status: resolveSaveStatus(mode, null),
-    subtotal: getInvoiceValue(fields).subtotal,
-    grandTotal: getInvoiceValue(fields).grandTotal,
+    subtotal: getInvoiceTotals(fields).subtotal,
+    grandTotal: getInvoiceTotals(fields).grandTotal,
   });
 }
 
@@ -529,8 +671,8 @@ function setEditRecipient(allContacts, currentContact) {
   }
   return {
     newRecipient: true,
-    new: pick(currentContact, ['fullname', 'company', 'phone', 'email']),
+    new: pick(currentContact, ['fullname', 'company', 'phone', 'email', 'taxId']),
   };
 }
 
-export { setEditRecipient };
+export { editorTaxModeFromDoc, setEditRecipient };
