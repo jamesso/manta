@@ -1,11 +1,5 @@
 import '../static/css/preview/font.css';
 import '../ui/styles/globals.css';
-import '../static/css/ionicons.min.css';
-import '../static/css/layout.css';
-import '../static/css/form.css';
-import '../static/css/contact.css';
-import '../static/css/items.css';
-import '../static/css/date-picker.css';
 
 import './renderers/startup.js';
 

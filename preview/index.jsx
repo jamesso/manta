@@ -1,5 +1,4 @@
 import '../ui/styles/globals.css';
-import '../static/css/ionicons.min.css';
 import '../static/css/preview/font.css';
 import '../static/css/preview/print.css';
 

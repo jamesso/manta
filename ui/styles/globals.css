@@ -1,17 +1,14 @@
-/* Manta global stylesheet. Imported first by app/, preview/, and modal/ index.jsx. */
+/* Manta global stylesheet. Imported first by app/ and preview/ index.jsx. */
 
-/* Layer order: later wins. Unlayered CSS (styled-components, ionicons,
-   layout/form/items/contact/date-picker/preview CSS) beats every layer. */
-@layer theme, base, legacy, paper, components, utilities;
+/* Layer order: later wins. Unlayered CSS (styled-components, preview CSS)
+   beats every layer. */
+@layer theme, base, paper, components, utilities;
 
 /* Tailwind, split so that Preflight is one line (decision in Step 12).
    Preflight stays off. */
 @import 'tailwindcss/theme.css' layer(theme);
 @import 'tailwindcss/utilities.css' layer(utilities) source(none);
 @import './paper.css' layer(paper);
-
-/* Old styles. Plan 018 removes them. Keep the legacy layer while general.css remains. */
-@import '../../static/css/general.css' layer(legacy);
 
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
@@ -203,9 +200,6 @@
     @apply bg-background text-foreground;
     margin: 0;
   }
-}
-
-@layer legacy {
   /* Old screens: no ring after a mouse click. This replaces the removed
      `*:focus { outline: none !important }` rule. Keyboard focus keeps a ring. */
   :focus:not(:focus-visible) {
@@ -215,8 +209,7 @@
 }
 
 @layer components {
-  /* Visible keyboard focus everywhere (WCAG 2.4.7).
-     This layer beats Bootstrap `.form-control:focus { outline: 0 }` in legacy. */
+  /* Visible keyboard focus everywhere (WCAG 2.4.7). */
   :focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 2px;

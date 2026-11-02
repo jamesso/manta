@@ -13,6 +13,7 @@ import TargetBox from './TargetBox';
 
 // Styles
 import styled from 'styled-components';
+import { X } from 'lucide-react';
 
 const LogoContainer = styled.div`
   position: relative;
@@ -122,8 +123,8 @@ class Logo extends Component {
         {this.props.logo ? (
           <LogoDisplayzone>
             <img src={this.props.logo} alt="Logo" />
-            <RemoveLogoBtn onClick={this.removeLogo}>
-              <i className="ion-android-cancel" />
+            <RemoveLogoBtn onClick={this.removeLogo} aria-label="Remove logo">
+              <X aria-hidden="true" />
             </RemoveLogoBtn>
           </LogoDisplayzone>
         ) : (
