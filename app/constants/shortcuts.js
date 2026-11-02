@@ -35,6 +35,11 @@ export const SHORTCUT_GROUPS = [
     group: 'app:shortcuts:groups:go',
     items: [
       {
+        label: 'app:shortcuts:items:dashboard',
+        mac: '⌘1',
+        other: 'Ctrl+1',
+      },
+      {
         label: 'app:shortcuts:items:invoices',
         mac: '⌘⇧A',
         other: 'Ctrl+Shift+A',

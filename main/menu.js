@@ -122,6 +122,13 @@ function buildMenu() {
     label: 'Go',
     submenu: [
       {
+        label: 'Dashboard',
+        accelerator: 'CmdOrCtrl+1',
+        click() {
+          mainWindow.webContents.send('menu-change-tab', 'dashboard');
+        },
+      },
+      {
         label: 'Invoices',
         accelerator: 'CmdOrCtrl+Shift+A',
         click() {

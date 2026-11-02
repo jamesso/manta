@@ -2,11 +2,12 @@ import UIReducer from '../UIReducer';
 import * as ACTION_TYPES from '../../constants/actions.jsx';
 
 const baseState = {
-  activeTab: 'form',
+  activeTab: 'dashboard',
   checkUpdatesMessage: {},
   sidebarCollapsed: false,
   commandPaletteOpen: false,
   shortcutsOpen: false,
+  pendingSettingsSection: null,
 };
 
 describe('UI Reducer', () => {
@@ -20,6 +21,11 @@ describe('UI Reducer', () => {
       payload: 'invoices',
     });
     expect(newState.activeTab).toEqual('invoices');
+    const dash = UIReducer(baseState, {
+      type: ACTION_TYPES.UI_TAB_CHANGE,
+      payload: 'dashboard',
+    });
+    expect(dash.activeTab).toEqual('dashboard');
   });
 
   it('should handle UI_SIDEBAR_COLLAPSED_SET', () => {

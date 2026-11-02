@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import {
   CircleHelp,
   FileText,
+  LayoutDashboard,
   Plus,
   Search,
   Settings,
@@ -121,6 +122,11 @@ export default function AppSidebar({ activeTab }) {
         <SidebarGroup>
           <SidebarMenu>
             {[
+              {
+                tab: 'dashboard',
+                label: t('app:nav:dashboard'),
+                icon: LayoutDashboard,
+              },
               {
                 tab: 'invoices',
                 label: t('app:nav:invoices'),

@@ -10,7 +10,9 @@ export default function TitleBar({ activeTab }) {
   );
 
   let title = t('app:titles:newInvoice');
-  if (activeTab === 'form' && editMode) {
+  if (activeTab === 'dashboard') {
+    title = t('app:titles:dashboard');
+  } else if (activeTab === 'form' && editMode) {
     title = t('app:titles:editInvoice');
   } else if (activeTab === 'invoices') {
     title = t('app:nav:invoices');

@@ -54,6 +54,11 @@ export default function CommandPalette() {
   const navCommands = useMemo(
     () => [
       {
+        id: 'nav-dashboard',
+        label: t('app:nav:dashboard'),
+        keywords: ['dashboard', 'home'],
+      },
+      {
         id: 'nav-invoices',
         label: t('app:nav:invoices'),
         keywords: ['invoices'],
@@ -137,7 +142,11 @@ export default function CommandPalette() {
                   key={cmd.id}
                   value={cmd.id}
                   onSelect={() => {
-                    if (cmd.id === 'nav-invoices')
+                    if (cmd.id === 'nav-dashboard')
+                      run(() =>
+                        dispatch(UIActions.changeActiveTab('dashboard'))
+                      );
+                    else if (cmd.id === 'nav-invoices')
                       run(() =>
                         dispatch(UIActions.changeActiveTab('invoices'))
                       );
