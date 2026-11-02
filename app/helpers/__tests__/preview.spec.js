@@ -66,4 +66,74 @@ describe('formToPreviewInvoice', () => {
     };
     expect(formToPreviewInvoice(f, context).invoice.payments).toHaveLength(1);
   });
+
+  it('does not invent seller on issued invoice-level edit without seller', () => {
+    const f = input();
+    f.settings.editMode = {
+      active: true,
+      data: {
+        status: 'pending',
+        created_at: 1000,
+        tax: { tin: 'OLD-ID', amount: 19, method: 'default' },
+      },
+    };
+    f.tax = { tin: 'OLD-ID', amount: 19, method: 'default' };
+    f.taxMode = 'invoice';
+    f.settings.required_fields.tax = true;
+    const result = formToPreviewInvoice(f, {
+      ...context,
+      profile: { taxId: 'NEW-ID', vatId: 'NEW-VAT' },
+    });
+    expect(result.invoice.seller).toBeUndefined();
+  });
+
+  it('keeps saved seller on issued edit', () => {
+    const f = input();
+    f.settings.editMode = {
+      active: true,
+      data: {
+        status: 'pending',
+        seller: { taxId: 'SAVED', vatId: 'SAVED-VAT' },
+      },
+    };
+    const result = formToPreviewInvoice(f, {
+      ...context,
+      profile: { taxId: 'NEW-ID', vatId: 'NEW-VAT' },
+    });
+    expect(result.invoice.seller).toEqual({
+      taxId: 'SAVED',
+      vatId: 'SAVED-VAT',
+    });
+  });
+
+  it('uses profile seller ids for draft edit', () => {
+    const f = input();
+    f.settings.editMode = {
+      active: true,
+      data: { status: 'draft' },
+    };
+    const result = formToPreviewInvoice(f, {
+      ...context,
+      profile: { taxId: 'DRAFT-TAX', vatId: 'DRAFT-VAT' },
+    });
+    expect(result.invoice.seller).toEqual({
+      taxId: 'DRAFT-TAX',
+      vatId: 'DRAFT-VAT',
+    });
+  });
+
+  it('uses profile seller ids for new documents', () => {
+    const result = formToPreviewInvoice(input(), {
+      ...context,
+      profile: { taxId: 'NEW-TAX', vatId: 'NEW-VAT' },
+      invoiceSettings: {
+        ...context.invoiceSettings,
+        tax: { tin: 'legacy', amount: 19, method: 'default' },
+      },
+    });
+    expect(result.invoice.seller).toEqual({
+      taxId: 'NEW-TAX',
+      vatId: 'NEW-VAT',
+    });
+  });
 });
