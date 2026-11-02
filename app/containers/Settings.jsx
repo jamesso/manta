@@ -94,6 +94,7 @@ export default function Settings() {
     content = (
       <InvoiceDefaults
         value={invoice}
+        profile={profile}
         onSave={data => saveSection('invoice', data)}
         errors={errors}
         saveMessage={saveMessage}

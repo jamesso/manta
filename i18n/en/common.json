@@ -15,5 +15,47 @@
   "noThanks": "No, thanks",
   "ok": "OK",
   "cancel": "Cancel",
-  "delete": "Delete"
+  "delete": "Delete",
+  "einvoice": {
+    "readyHint": "No profile or bank issues on the sample check.",
+    "copyClientDetails": "Copy client details",
+    "fixGroups": {
+      "profile": "Business profile",
+      "bank": "Bank account",
+      "client": "Client",
+      "invoice": "Invoice",
+      "taxRates": "Tax rates"
+    },
+    "issues": {
+      "DOC_TYPE_UNSUPPORTED": "E-invoices are not available for estimates. Fix the document type on the invoice.",
+      "NOT_FINAL": "Issue or finalize the invoice before export.",
+      "NUMBER_MISSING": "Add an invoice number on the invoice.",
+      "CURRENCY_FRACTION_UNSUPPORTED": "This currency uses more than two decimal places. Change the currency on the invoice.",
+      "TAX_PER_LINE_REQUIRED": "Switch to per-line tax and set a category on every row in Settings › Invoice defaults › Tax rates.",
+      "CATEGORY_NOT_SUPPORTED": "Remove unsupported tax categories in Settings › Invoice defaults › Tax rates.",
+      "RATE_CATEGORY_MISMATCH": "Fix tax rate and category pairs in Settings › Invoice defaults › Tax rates.",
+      "OUT_OF_SCOPE_MIXED": "Out-of-scope tax cannot be mixed with other categories.",
+      "EXEMPTION_REASON_MISSING": "Add exemption reasons in Settings › Invoice defaults › Tax rates.",
+      "SELLER_NAME_MISSING": "Add a legal or company name in Settings › Business profile.",
+      "SELLER_ADDRESS_INCOMPLETE": "Complete the structured address in Settings › Business profile › Address.",
+      "SELLER_COUNTRY_MISSING": "Add the country in Settings › Business profile › Address.",
+      "SELLER_TAX_ID_MISSING": "Add a tax ID or VAT ID in Settings › Business profile.",
+      "SELLER_VAT_ID_REQUIRED": "Add a VAT ID in Settings › Business profile.",
+      "BUYER_NAME_MISSING": "Add the client name in Clients.",
+      "BUYER_COUNTRY_MISSING": "Add the client country in Clients › Address.",
+      "BUYER_ADDRESS_INCOMPLETE": "Add the client postcode and city in Clients › Address.",
+      "BUYER_VAT_ID_REQUIRED": "Add a valid buyer VAT ID on the client.",
+      "BUYER_VAT_ID_FORMAT": "The client tax ID does not look like a VAT ID.",
+      "DUE_DATE_MISSING": "Add a due date on the invoice.",
+      "PAYMENT_ACCOUNT_MISSING": "Add a bank IBAN in Settings › Business profile › Bank account.",
+      "IBAN_INVALID": "Fix the IBAN in Settings › Business profile › Bank account.",
+      "BIC_INVALID": "Fix the BIC in Settings › Business profile › Bank account.",
+      "BUYER_REFERENCE_MISSING": "Add a buyer reference (Leitweg-ID) on the client.",
+      "LEITWEG_CHECK_DIGITS": "The Leitweg-ID check digits look wrong on the client.",
+      "SELLER_CONTACT_INCOMPLETE": "Add contact name, phone and email in Settings › Business profile.",
+      "ELECTRONIC_ADDRESS_MISSING": "Add seller and buyer email addresses.",
+      "CREDIT_NOTE_REFERENCE_MISSING": "Link the credited invoice on the credit note.",
+      "ARITHMETIC_MISMATCH": "Invoice totals do not match EN 16931 rules. Review line tax and amounts."
+    }
+  }
 }

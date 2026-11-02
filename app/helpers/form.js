@@ -9,7 +9,7 @@ import {
   getIssuedAt,
   isLineTaxInvoice,
 } from './invoice';
-import { clearRowTax, getSellerTaxIds, getTaxRateErrors } from './tax';
+import { clearRowTax, getSellerTaxIds, getTaxRateErrors, buildSellerSnapshot } from './tax';
 import { reconcilePaymentStatus } from './payments';
 import { getDocType } from './docType';
 import { getDefaultValidUntil, normalizeValidDays } from './estimate';
@@ -367,7 +367,7 @@ export function resolveSellerForSave(form, profile, invoiceSettings) {
     }
     return undefined;
   }
-  const ids = getSellerTaxIds(profile, invoiceSettings);
+  const ids = buildSellerSnapshot(profile, invoiceSettings);
   const { editMode } = form.settings;
   if (!editMode.active) {
     return ids;

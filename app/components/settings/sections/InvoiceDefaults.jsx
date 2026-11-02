@@ -22,6 +22,7 @@ import {
 } from '../../../helpers/numbering';
 import { useDebouncedSave } from '../useDebouncedSave';
 import TaxRates from './TaxRates';
+import EInvoiceSettings from './EInvoiceSettings.jsx';
 import { getTaxRates } from '../../../helpers/tax';
 
 const REQUIRED_KEYS = [
@@ -42,6 +43,7 @@ function sortCurrencyOptions() {
 
 export default function InvoiceDefaults({
   value,
+  profile,
   onSave,
   errors,
   saveMessage,
@@ -408,6 +410,13 @@ export default function InvoiceDefaults({
           ))}
         </div>
       </div>
+
+      <EInvoiceSettings
+        profile={profile}
+        value={draft}
+        saveNow={saveNow}
+        onSave={onSave}
+      />
     </div>
   );
 }

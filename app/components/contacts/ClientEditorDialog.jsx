@@ -13,7 +13,9 @@ import {
 } from '@/components/ui/dialog';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import PostalAddressFields from '../shared/PostalAddressFields.jsx';
 import { buildContact, getContactErrors } from '../../helpers/clients';
+import { leitwegCheck } from '../../../helpers/einvoice/identifiers.js';
 import * as ContactsActions from '../../actions/contacts';
 
 const emptyValues = {
@@ -22,6 +24,15 @@ const emptyValues = {
   email: '',
   phone: '',
   taxId: '',
+  buyerReference: '',
+  postalAddress: {
+    street: '',
+    additional: '',
+    postcode: '',
+    city: '',
+    region: '',
+    countryCode: '',
+  },
 };
 
 export default function ClientEditorDialog({ open, onOpenChange, contact }) {
@@ -46,6 +57,11 @@ export default function ClientEditorDialog({ open, onOpenChange, contact }) {
         email: contact.email ?? '',
         phone: contact.phone ?? '',
         taxId: contact.taxId ?? '',
+        buyerReference: contact.buyerReference ?? '',
+        postalAddress: {
+          ...emptyValues.postalAddress,
+          ...(contact.postalAddress ?? {}),
+        },
       });
     } else {
       setValues(emptyValues);
@@ -157,6 +173,35 @@ export default function ClientEditorDialog({ open, onOpenChange, contact }) {
               onChange={e => setField('phone', e.target.value)}
             />
           </Field>
+          <Field>
+            <FieldLabel htmlFor={`${formId}-buyerReference`}>
+              {t('contacts:fields:buyerReference')}
+            </FieldLabel>
+            <p className="text-sm text-muted-foreground">
+              {t('contacts:fields:buyerReferenceHint')}
+            </p>
+            <Input
+              id={`${formId}-buyerReference`}
+              value={values.buyerReference}
+              onChange={e => setField('buyerReference', e.target.value)}
+            />
+            {leitwegCheck(values.buyerReference) === 'bad-check-digits' ? (
+              <p className="text-sm text-amber-600 dark:text-amber-400" role="status">
+                {t('contacts:fields:buyerReferenceWarning')}
+              </p>
+            ) : null}
+          </Field>
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-foreground">
+              {t('contacts:fields:addressTitle')}
+            </p>
+            <PostalAddressFields
+              idPrefix={`${formId}-postal`}
+              value={values.postalAddress}
+              errors={errors}
+              onChange={postalAddress => setField('postalAddress', postalAddress)}
+            />
+          </div>
         </form>
         <DialogFooter>
           <Button type="submit" form={formId} disabled={saving}>

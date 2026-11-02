@@ -18,6 +18,7 @@ import {
   editInvoice,
   createCreditNote,
   recordFullPayment,
+  updateInvoice,
 } from '../../actions/invoices';
 import * as UIActions from '../../actions/ui';
 import { getDocType } from '../../helpers/docType';
@@ -43,6 +44,15 @@ import PaymentsList from './PaymentsList';
 import RecordPaymentDialog from './RecordPaymentDialog';
 import StatusBadge from './StatusBadge';
 import { getAllSalesDocs } from '../../reducers/InvoicesReducer';
+import { getCurrentSettings } from '../../reducers/SettingsReducer';
+import { getContacts } from '../../reducers/ContactsReducer';
+import EInvoiceChecklist from '../einvoice/EInvoiceChecklist.jsx';
+import {
+  getEInvoiceDerived,
+  mergeRecipientFromContact,
+} from '../../helpers/einvoice.js';
+import { toEn16931 } from '../../../helpers/einvoice/toEn16931.js';
+import { getEInvoiceIssues } from '../../../helpers/einvoice/getEInvoiceIssues.js';
 
 export default function InvoiceDetailSheet({
   invoice,
@@ -56,6 +66,8 @@ export default function InvoiceDetailSheet({
 }) {
   const dispatch = useDispatch();
   const allDocs = useSelector(getAllSalesDocs) || [];
+  const settings = useSelector(getCurrentSettings);
+  const contacts = useSelector(getContacts) || [];
   const ipc = window.manta.ipc;
   const [paymentOpen, setPaymentOpen] = useState(false);
 
@@ -71,6 +83,38 @@ export default function InvoiceDetailSheet({
   const stored = getStoredStatus(invoice);
   const displayStatus = getDisplayStatus(invoice, now, linkedCreditNotes);
   const fmt = invoice.configs?.dateFormat ?? dateFormat;
+  const eInvoiceEnabled = Boolean(settings?.invoice?.eInvoice?.enabled);
+  const profile = settings?.profile;
+  const invoiceSettings = settings?.invoice;
+  const derived =
+    eInvoiceEnabled && profile
+      ? getEInvoiceDerived(invoice, {
+          profile,
+          invoiceSettings,
+          lang: invoice.configs?.language ?? 'en',
+        })
+      : null;
+  const eInvoiceIssues =
+    eInvoiceEnabled && profile && derived
+      ? getEInvoiceIssues(
+          toEn16931(invoice, { profile, invoice: invoiceSettings }, derived),
+          {
+            format: invoiceSettings?.eInvoice?.format ?? 'xrechnung-ubl',
+            invoice,
+            derived,
+          }
+        )
+      : [];
+  const contact =
+    invoice.recipient?._id &&
+    contacts.find(c => c._id === invoice.recipient._id);
+  const copyClientVisible = Boolean(
+    contact &&
+      eInvoiceIssues.some(i => i.fix === 'client') &&
+      (contact.postalAddress?.street ||
+        contact.buyerReference ||
+        contact.taxId)
+  );
   const issued = getIssuedAt(invoice);
   const due = getDueDate(invoice);
   const values = getInvoiceTotals(invoice);
@@ -311,6 +355,28 @@ export default function InvoiceDetailSheet({
           <div className="mt-4 px-4 text-sm">
             <h3 className="font-medium">{t('invoices:sheet:note')}</h3>
             <p className="mt-1 text-muted-foreground">{invoice.note}</p>
+          </div>
+        ) : null}
+
+        {eInvoiceEnabled ? (
+          <div className="mt-4 px-4">
+            <h3 className="mb-2 text-sm font-medium text-foreground">
+              {t('invoices:sheet:einvoiceTitle')}
+            </h3>
+            <EInvoiceChecklist
+              issues={eInvoiceIssues}
+              copyClientVisible={copyClientVisible}
+              onCopyClient={() => {
+                if (!contact) {
+                  return;
+                }
+                const recipient = mergeRecipientFromContact(
+                  invoice.recipient,
+                  contact
+                );
+                dispatch(updateInvoice({ ...invoice, recipient }));
+              }}
+            />
           </div>
         ) : null}
 

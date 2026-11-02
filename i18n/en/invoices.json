@@ -86,7 +86,8 @@
     "credited": "Credited",
     "balanceDue": "Balance due",
     "refundDue": "Refund due",
-    "creditNotes": "Credit notes"
+    "creditNotes": "Credit notes",
+    "einvoiceTitle": "E-invoice"
   },
   "toast": {
     "deleted_one": "Invoice deleted",

@@ -1,3 +1,4 @@
+import { COUNTRY_CODES } from '../../helpers/einvoice/codes.js';
 import { getBalanceDue, getDisplayStatus, onlyInvoices } from './invoice';
 import { groupCreditNotesByInvoice } from './creditNotes';
 
@@ -16,7 +17,23 @@ export function getContactErrors(data) {
   } else if (!EMAIL_REGEX.test(String(email).trim())) {
     errors.email = 'contacts:errors:emailInvalid';
   }
+  const countryCode = String(data?.postalAddress?.countryCode ?? '').trim();
+  if (countryCode && !COUNTRY_CODES.includes(countryCode)) {
+    errors['postalAddress.countryCode'] = 'contacts:errors:countryInvalid';
+  }
   return errors;
+}
+
+function normalizePostalAddress(value) {
+  const src = value && typeof value === 'object' ? value : {};
+  return {
+    street: String(src.street ?? '').trim(),
+    additional: String(src.additional ?? '').trim(),
+    postcode: String(src.postcode ?? '').trim(),
+    city: String(src.city ?? '').trim(),
+    region: String(src.region ?? '').trim(),
+    countryCode: String(src.countryCode ?? '').trim(),
+  };
 }
 
 export function buildContact(data, existing, now) {
@@ -25,8 +42,19 @@ export function buildContact(data, existing, now) {
   const email = String(data.email ?? '').trim();
   const phone = String(data.phone ?? '').trim();
   const taxId = String(data.taxId ?? '').trim();
+  const buyerReference = String(data.buyerReference ?? '').trim();
+  const postalAddress = normalizePostalAddress(data.postalAddress);
   if (existing) {
-    return { ...existing, fullname, company, email, phone, taxId };
+    return {
+      ...existing,
+      fullname,
+      company,
+      email,
+      phone,
+      taxId,
+      buyerReference,
+      postalAddress,
+    };
   }
   return {
     _id: crypto.randomUUID(),
@@ -36,6 +64,8 @@ export function buildContact(data, existing, now) {
     email,
     phone,
     taxId,
+    buyerReference,
+    postalAddress,
   };
 }
 

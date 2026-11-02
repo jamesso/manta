@@ -1,3 +1,4 @@
+import { COUNTRY_CODES } from '../../helpers/einvoice/codes.js';
 import { getTaxRatesErrors } from './tax';
 
 export const SETTINGS_SECTIONS = ['profile', 'invoice', 'general'];
@@ -28,7 +29,9 @@ const PROFILE_STRING_FIELDS = [
   'website',
   'taxId',
   'vatId',
+  'legalName',
 ];
+const EINVOICE_FORMATS = new Set(['facturx-en16931', 'xrechnung-ubl']);
 const REQUIRED_FIELD_KEYS = [
   'invoiceID',
   'dueDate',
@@ -96,6 +99,41 @@ export function getSettingsErrors(section, data) {
     }
     if (data.logo != null && typeof data.logo !== 'string') {
       errors.logo = 'settings:errors:profileInvalid';
+    }
+    const postal = data.postalAddress;
+    if (postal != null) {
+      if (!isPlainObject(postal)) {
+        errors.postalAddress = 'settings:errors:profileInvalid';
+      } else {
+        for (const key of [
+          'street',
+          'additional',
+          'postcode',
+          'city',
+          'region',
+          'countryCode',
+        ]) {
+          if (postal[key] != null && typeof postal[key] !== 'string') {
+            errors[`postalAddress.${key}`] = 'settings:errors:profileInvalid';
+          }
+        }
+        const cc = String(postal.countryCode ?? '').trim();
+        if (cc && !COUNTRY_CODES.includes(cc)) {
+          errors['postalAddress.countryCode'] = 'settings:errors:countryInvalid';
+        }
+      }
+    }
+    const bank = data.bank;
+    if (bank != null) {
+      if (!isPlainObject(bank)) {
+        errors.bank = 'settings:errors:profileInvalid';
+      } else {
+        for (const key of ['accountName', 'iban', 'bic']) {
+          if (bank[key] != null && typeof bank[key] !== 'string') {
+            errors[`bank.${key}`] = 'settings:errors:profileInvalid';
+          }
+        }
+      }
     }
     return errors;
   }
@@ -225,6 +263,22 @@ export function getSettingsErrors(section, data) {
   }
   if (Array.isArray(data.taxRates)) {
     Object.assign(errors, getTaxRatesErrors(data.taxRates));
+  }
+  const eInvoice = data.eInvoice;
+  if (eInvoice != null) {
+    if (!isPlainObject(eInvoice)) {
+      errors.eInvoice = 'settings:errors:invoiceInvalid';
+    } else {
+      if (eInvoice.enabled != null && typeof eInvoice.enabled !== 'boolean') {
+        errors['eInvoice.enabled'] = 'settings:errors:invoiceInvalid';
+      }
+      if (
+        eInvoice.format != null &&
+        !EINVOICE_FORMATS.has(String(eInvoice.format))
+      ) {
+        errors['eInvoice.format'] = 'settings:errors:invoiceInvalid';
+      }
+    }
   }
   return errors;
 }

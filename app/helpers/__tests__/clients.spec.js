@@ -185,6 +185,38 @@ describe('matchesClientQuery', () => {
   });
 });
 
+describe('buildContact extended fields', () => {
+  it('keeps postal address and buyer reference', () => {
+    const built = buildContact(
+      {
+        fullname: 'A',
+        email: 'a@b.co',
+        buyerReference: '04011000-1234512345-06',
+        postalAddress: {
+          street: 'St',
+          city: 'Berlin',
+          postcode: '10115',
+          countryCode: 'DE',
+        },
+      },
+      null,
+      1
+    );
+    expect(built.buyerReference).toBe('04011000-1234512345-06');
+    expect(built.postalAddress.city).toBe('Berlin');
+  });
+
+  it('preserves legacy contacts without new fields', () => {
+    const built = buildContact(
+      { fullname: 'Legacy', email: 'l@b.co' },
+      { _id: 'x', created_at: 1, phone: '1' },
+      2
+    );
+    expect(built.buyerReference).toBe('');
+    expect(built.postalAddress.countryCode).toBe('');
+  });
+});
+
 describe('summarizeClients estimate filter', () => {
   it('ignores estimates for counts and outstanding', () => {
     const now = Date.parse('2026-06-01');

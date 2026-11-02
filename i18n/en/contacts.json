@@ -8,7 +8,11 @@
     "nameCompany": "Name / Company",
     "invoices": "Invoices",
     "outstanding": "Outstanding",
-    "taxId": "Tax / VAT ID"
+    "taxId": "Tax / VAT ID",
+    "buyerReference": "Buyer reference (Leitweg-ID)",
+    "buyerReferenceHint": "Required by German public-sector buyers.",
+    "buyerReferenceWarning": "Check digits on this Leitweg-ID look wrong.",
+    "addressTitle": "Address"
   },
   "searchPlaceholder": "Search clients…",
   "newClient": "New client",
@@ -51,6 +55,7 @@
   "errors": {
     "fullnameRequired": "Enter a full name",
     "emailRequired": "Enter an email address",
-    "emailInvalid": "Enter a valid email address"
+    "emailInvalid": "Enter a valid email address",
+    "countryInvalid": "Choose a valid country code"
   }
 }

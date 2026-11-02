@@ -24,6 +24,19 @@
     "creditNotes": {
       "title": "Credit notes"
     },
+    "eInvoice": {
+      "title": "E-invoice",
+      "description": "Export XRechnung XML and Factur-X PDF from the preview.",
+      "disclaimer": "Manta creates e-invoices to the best of its ability but does not guarantee legal compliance. Validate the files and check them with your tax advisor before you send them.",
+      "enable": "Enable e-invoice export",
+      "defaultFormat": "Default format",
+      "confirmTitle": "Enable e-invoice export",
+      "confirmAccept": "I understand",
+      "formats": {
+        "xrechnung": "XRechnung XML (UBL)",
+        "facturx": "Factur-X (PDF)"
+      }
+    },
     "appearance": {
       "title": "Appearance",
       "description": "Choose light, dark, or match the system."
@@ -61,7 +74,10 @@
     "languageInvalid": "Choose a supported language",
     "soundInvalid": "Choose a supported sound",
     "templateInvalid": "Choose a supported invoice template",
-    "validDays": "Enter a whole number from 1 to 365"
+    "validDays": "Enter a whole number from 1 to 365",
+    "countryInvalid": "Choose a valid country code",
+    "ibanInvalid": "Enter a valid IBAN",
+    "bicInvalid": "Enter a valid BIC"
   },
   "backup": {
     "export": "Export backup…",
@@ -111,6 +127,24 @@
     "taxSettings": "Tax Settings",
     "taxId": "Tax ID",
     "vatId": "VAT ID",
+    "legalName": "Legal name",
+    "legalNameHint": "Registered name; leave empty to use the company name.",
+    "printedAddress": "Printed address (used when the structured address is empty)",
+    "postalAddress": {
+      "title": "Address",
+      "street": "Street",
+      "additional": "Additional line",
+      "postcode": "Postcode",
+      "city": "City",
+      "region": "Region",
+      "country": "Country"
+    },
+    "bank": {
+      "title": "Bank account",
+      "accountName": "Account holder",
+      "iban": "IBAN",
+      "bic": "BIC"
+    },
     "template": "Template",
     "estimateValidDays": "Valid for (days)",
     "dateFormat": "Date Format",
