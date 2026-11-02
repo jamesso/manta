@@ -5,6 +5,7 @@ import Form from '../../containers/Form';
 import Dashboard from '../../containers/Dashboard';
 import Invoices from '../../containers/Invoices';
 import Contacts from '../../containers/Contacts';
+import Items from '../../containers/Items';
 import Settings from '../../containers/Settings';
 
 class AppMain extends Component {
@@ -20,6 +21,7 @@ class AppMain extends Component {
         {activeTab === 'form' && <Form />}
         {activeTab === 'invoices' && <Invoices />}
         {activeTab === 'contacts' && <Contacts />}
+        {activeTab === 'items' && <Items />}
         {activeTab === 'settings' && <Settings />}
       </div>
     );

@@ -69,6 +69,11 @@ export default function CommandPalette() {
         keywords: ['contacts', 'customers', 'clients'],
       },
       {
+        id: 'nav-items',
+        label: t('app:nav:items'),
+        keywords: ['products', 'services', 'catalog', 'items'],
+      },
+      {
         id: 'nav-settings',
         label: t('app:nav:settings'),
         keywords: ['settings', 'preferences'],
@@ -154,6 +159,8 @@ export default function CommandPalette() {
                       run(() =>
                         dispatch(UIActions.changeActiveTab('contacts'))
                       );
+                    else if (cmd.id === 'nav-items')
+                      run(() => dispatch(UIActions.changeActiveTab('items')));
                     else if (cmd.id === 'nav-settings')
                       run(() =>
                         dispatch(UIActions.changeActiveTab('settings'))

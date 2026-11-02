@@ -5,6 +5,7 @@ import * as FormActions from './actions/form';
 import * as SettingsActions from './actions/settings';
 import * as InvoicesActions from './actions/invoices';
 import * as ContactsActions from './actions/contacts';
+import * as ItemsActions from './actions/items';
 import AppMain from './components/layout/AppMain';
 import AppSidebar from './components/layout/AppSidebar';
 import TitleBar from './components/layout/TitleBar';
@@ -53,6 +54,7 @@ function App() {
 
   useEffect(() => {
     dispatch(ContactsActions.getAllContacts());
+    dispatch(ItemsActions.getAllItems());
     dispatch(InvoicesActions.getInvoices());
     dispatch(SettingsActions.getInitalSettings());
 

@@ -18,6 +18,8 @@ export default function TitleBar({ activeTab }) {
     title = t('app:nav:invoices');
   } else if (activeTab === 'contacts') {
     title = t('app:nav:clients');
+  } else if (activeTab === 'items') {
+    title = t('app:nav:items');
   } else if (activeTab === 'settings') {
     title = t('app:nav:settings');
   }

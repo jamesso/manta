@@ -143,6 +143,12 @@ function buildMenu() {
         },
       },
       {
+        label: 'Items',
+        click() {
+          mainWindow.webContents.send('menu-change-tab', 'items');
+        },
+      },
+      {
         label: 'Settings',
         accelerator: 'CmdOrCtrl+,',
         click() {

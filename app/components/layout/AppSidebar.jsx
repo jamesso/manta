@@ -5,6 +5,7 @@ import {
   CircleHelp,
   FileText,
   LayoutDashboard,
+  Package,
   Plus,
   Search,
   Settings,
@@ -138,6 +139,7 @@ export default function AppSidebar({ activeTab }) {
                     : '',
               },
               { tab: 'contacts', label: t('app:nav:clients'), icon: Users },
+              { tab: 'items', label: t('app:nav:items'), icon: Package },
               { tab: 'settings', label: t('app:nav:settings'), icon: Settings },
             ].map(({ tab, label, icon: Icon, badge, tooltipExtra }) => (
               <SidebarMenuItem key={tab}>
