@@ -58,6 +58,7 @@ The issue tracker, discussions and wiki of the original project do not apply to 
 - 🎨 Custom designed, highly customizable templates.
 - 🏷 Invoice statuses: Draft, Pending, Overdue (automatic), Paid, Refunded and Cancelled.
 - 📊 Export to PDF to print or email.
+- 📄 Export XRechnung (UBL) XML and Factur-X EN 16931 hybrid PDFs fully offline.
 - 🔒 Complete privacy. Your financial data stays on your computer.
 - 🌗 Light and dark mode (follows the system or your choice).
 - 💯 Free and open source (GPL-3.0).
