@@ -1,166 +1,116 @@
-// Libs
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { isEqual } from 'lodash';
-import { withTranslation } from 'react-i18next';
+import { useCallback, useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
-// Selectors
-import {
-  getCurrentSettings,
-  getSavedSettings,
-} from '../reducers/SettingsReducer';
-
-// Actions
 import * as Actions from '../actions/settings';
-import { bindActionCreators, compose } from 'redux';
+import SettingsNav from '../components/settings/SettingsNav';
+import Appearance from '../components/settings/sections/Appearance';
+import BusinessProfile from '../components/settings/sections/BusinessProfile';
+import ExportBackup from '../components/settings/sections/ExportBackup';
+import InvoiceDefaults from '../components/settings/sections/InvoiceDefaults';
+import LanguageRegion from '../components/settings/sections/LanguageRegion';
+import Sounds from '../components/settings/sections/Sounds';
+import Updates from '../components/settings/sections/Updates';
+import { getCurrentSettings } from '../reducers/SettingsReducer';
 
-// Components
-import Profile from '../components/settings/Profile';
-import General from '../components/settings/General';
-import Invoice from '../components/settings/Invoice';
-import Button from '../components/shared/Button';
-import { Tab, Tabs, TabContent } from '../components/shared/Tabs';
-import {
-  PageWrapper,
-  PageHeader,
-  PageHeaderTitle,
-  PageHeaderActions,
-  PageContent,
-} from '../components/shared/Layout';
-import _withFadeInAnimation from '../components/shared/hoc/_withFadeInAnimation';
+export default function Settings() {
+  const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const currentSettings = useSelector(getCurrentSettings);
+  const [section, setSection] = useState('profile');
+  const [errors, setErrors] = useState({});
+  const flushRef = useRef(async () => {});
 
-// Component
-class Settings extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { visibleTab: 1, canSave: true };
-    this.saveSettingsState = this.saveSettingsState.bind(this);
-    this.setSavable = this.setSavable.bind(this);
+  const registerFlush = useCallback(flush => {
+    flushRef.current = flush;
+  }, []);
+
+  const changeSection = useCallback(async id => {
+    await flushRef.current?.();
+    setSection(id);
+    setErrors({});
+  }, []);
+
+  const saveSection = useCallback(
+    async (key, data) => {
+      const result = await dispatch(Actions.updateSettings(key, data));
+      if (result?.ok === false) {
+        if (result.errors) {
+          setErrors(result.errors);
+        }
+        return result;
+      }
+      setErrors({});
+      return result;
+    },
+    [dispatch]
+  );
+
+  if (!currentSettings) {
+    return null;
   }
 
-  // Check if settings have been saved
-  settingsSaved() {
-    const { currentSettings, savedSettings } = this.props;
-    return isEqual(currentSettings, savedSettings);
-  }
+  const { profile, invoice, general } = currentSettings;
 
-  // Save Settings to App Config
-  saveSettingsState() {
-    const { currentSettings, boundActionCreators } = this.props;
-    boundActionCreators.saveSettings(currentSettings);
-  }
-
-  // Switch Tab
-  changeTab(tabNum) {
-    this.setState({ visibleTab: tabNum });
-  }
-
-  // controls if save button appears
-  setSavable(settingsValid) {
-    this.setState({ canSave: settingsValid });
-  }
-
-  // Render Main Content
-  renderSettingsContent() {
-    const { t } = this.props;
-    const { updateSettings } = this.props.boundActionCreators;
-    const { profile, general, invoice } = this.props.currentSettings;
-    return (
-      <PageWrapper>
-        <PageHeader>
-          <PageHeaderTitle>{t('settings:header')}</PageHeaderTitle>
-          {!this.settingsSaved() && this.state.canSave && (
-            <PageHeaderActions>
-              <Button primary onClick={this.saveSettingsState}>
-                {t('common:save')}
-              </Button>
-            </PageHeaderActions>
-          )}
-        </PageHeader>
-        <PageContent>
-          <Tabs>
-            <Tab
-              href="#"
-              className={this.state.visibleTab === 1 ? 'active' : ''}
-              onClick={() => this.changeTab(1)}
-            >
-              {t('settings:tabs:profile')}
-            </Tab>
-            <Tab
-              href="#"
-              className={this.state.visibleTab === 2 ? 'active' : ''}
-              onClick={() => this.changeTab(2)}
-            >
-              {t('settings:tabs:invoice')}
-            </Tab>
-            <Tab
-              href="#"
-              className={this.state.visibleTab === 3 ? 'active' : ''}
-              onClick={() => this.changeTab(3)}
-            >
-              {t('settings:tabs:general')}
-            </Tab>
-          </Tabs>
-          <TabContent>
-            {this.state.visibleTab === 1 && (
-              <Profile
-                t={t}
-                profile={profile}
-                updateSettings={updateSettings}
-                setSavable={this.setSavable}
-              />
-            )}
-            {this.state.visibleTab === 2 && (
-              <Invoice
-                t={t}
-                invoice={invoice}
-                updateSettings={updateSettings}
-                setSavable={this.setSavable}
-              />
-            )}
-            {this.state.visibleTab === 3 && (
-              <General
-                t={t}
-                general={general}
-                updateSettings={updateSettings}
-                setSavable={this.setSavable}
-              />
-            )}
-          </TabContent>
-        </PageContent>
-      </PageWrapper>
+  let content = null;
+  if (section === 'profile') {
+    content = (
+      <BusinessProfile
+        value={profile}
+        onSave={data => saveSection('profile', data)}
+        errors={errors}
+        registerFlush={registerFlush}
+      />
+    );
+  } else if (section === 'invoice') {
+    content = (
+      <InvoiceDefaults
+        value={invoice}
+        onSave={data => saveSection('invoice', data)}
+        errors={errors}
+        registerFlush={registerFlush}
+      />
+    );
+  } else if (section === 'appearance') {
+    content = (
+      <Appearance
+        value={general}
+        onSave={data => saveSection('general', data)}
+      />
+    );
+  } else if (section === 'language') {
+    content = (
+      <LanguageRegion
+        general={general}
+        invoice={invoice}
+        onSaveGeneral={data => saveSection('general', data)}
+        onSaveInvoice={data => saveSection('invoice', data)}
+      />
+    );
+  } else if (section === 'export') {
+    content = (
+      <ExportBackup
+        invoice={invoice}
+        general={general}
+        onSaveInvoice={data => saveSection('invoice', data)}
+        onSaveGeneral={data => saveSection('general', data)}
+      />
+    );
+  } else if (section === 'updates') {
+    content = <Updates />;
+  } else if (section === 'sounds') {
+    content = (
+      <Sounds value={general} onSave={data => saveSection('general', data)} />
     );
   }
 
-  render() {
-    return this.props.currentSettings ? this.renderSettingsContent() : null;
-  }
+  return (
+    <div className="flex h-full flex-col gap-4 p-4 text-foreground">
+      <h1 className="text-2xl font-semibold">{t('settings:header')}</h1>
+      <div className="grid flex-1 gap-6 md:grid-cols-[14rem_1fr]">
+        <SettingsNav active={section} onChange={changeSection} />
+        <div className="min-w-0">{content}</div>
+      </div>
+    </div>
+  );
 }
-
-// PropTypes Validation
-Settings.propTypes = {
-  boundActionCreators: PropTypes.shape({
-    getInitalSettings: PropTypes.func.isRequired,
-    updateSettings: PropTypes.func.isRequired,
-    saveSettings: PropTypes.func.isRequired,
-  }).isRequired,
-  currentSettings: PropTypes.object.isRequired,
-  savedSettings: PropTypes.object.isRequired,
-};
-
-// Map State & Dispatch to Props & Export
-const mapDispatchToProps = dispatch => ({
-  boundActionCreators: bindActionCreators(Actions, dispatch),
-});
-
-const mapStateToProps = state => ({
-  currentSettings: getCurrentSettings(state),
-  savedSettings: getSavedSettings(state),
-});
-
-export default compose(
-  connect(mapStateToProps, mapDispatchToProps),
-  withTranslation(),
-  _withFadeInAnimation
-)(Settings);

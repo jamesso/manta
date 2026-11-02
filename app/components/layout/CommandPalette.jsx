@@ -17,6 +17,7 @@ import { filterCommands, searchRecords } from '../../helpers/commandSearch';
 import { nextTheme } from '../../helpers/theme';
 import { getInvoices } from '../../reducers/InvoicesReducer';
 import { getContacts } from '../../reducers/ContactsReducer';
+import { getCurrentSettings } from '../../reducers/SettingsReducer';
 
 const ipc = window.manta.ipc;
 const modKey = window.manta.platform === 'darwin' ? '⌘' : 'Ctrl+';
@@ -29,6 +30,7 @@ export default function CommandPalette() {
   const contacts = useSelector(getContacts) || [];
   const currentTheme =
     useSelector(s => s.settings.saved?.general?.theme) ?? 'system';
+  const currentSettings = useSelector(getCurrentSettings);
   const [query, setQuery] = useState('');
 
   useEffect(() => {
@@ -166,7 +168,13 @@ export default function CommandPalette() {
                     } else if (cmd.id === 'action-theme') {
                       run(() => {
                         const next = nextTheme(currentTheme);
-                        dispatch(SettingsActions.setTheme(next));
+                        const general = currentSettings?.general ?? {};
+                        dispatch(
+                          SettingsActions.updateSettings('general', {
+                            ...general,
+                            theme: next,
+                          })
+                        );
                         toast.add({
                           title: t('app:palette:themeChanged', {
                             theme: t(`app:theme:${next}`),

@@ -3,13 +3,15 @@ const ipc = window.manta.ipc;
 const appConfig = window.manta.settings;
 import sounds from '../../libs/sounds';
 import i18n from '../../i18n/i18n';
+import { isEqual } from 'lodash';
 
 // Actions Verbs
 import * as ACTION_TYPES from '../constants/actions.jsx';
 
 // Helper
-import { validateTax, validateCurrency } from '../helpers/form';
+import { getSettingsErrors, SETTINGS_SECTIONS } from '../helpers/settings';
 import { mergeNumbering, normalizeNumbering } from '../helpers/numbering';
+import { toast } from '@/components/ui/toast';
 
 const SettingsMW =
   ({ dispatch, getState }) =>
@@ -32,60 +34,57 @@ const SettingsMW =
         );
       }
 
-      case ACTION_TYPES.SETTINGS_THEME_SET: {
-        ipc.send('set-theme', action.payload);
-        return next(action);
-      }
-
-      case ACTION_TYPES.SETTINGS_SAVE: {
-        // Validation
-        if (!validateTax(true, action.payload.invoice.tax)) break;
-        if (!validateCurrency(true, action.payload.invoice.currency)) break;
-        // Change Preview Profile
-        const profile = appConfig.get('profile');
-        const newProfile = action.payload.profile;
-        if (profile !== newProfile) {
-          ipc.send('change-preview-window-profile', newProfile);
+      case ACTION_TYPES.SETTINGS_UPDATE: {
+        const { setting, data } = action.payload;
+        if (!SETTINGS_SECTIONS.includes(setting)) {
+          return next(action);
         }
-        // Change UI language
-        const { language } = appConfig.get('general');
-        const newLang = action.payload.general.language;
-        if (language !== newLang) {
-          // Change the language
-          i18n.changeLanguage(newLang);
-          // Notify previewWindow to update
-          ipc.send('change-preview-window-language', newLang);
+        let nextData = data;
+        if (setting === 'invoice') {
+          nextData = {
+            ...data,
+            numbering: mergeNumbering(
+              normalizeNumbering(appConfig.get('invoice.numbering')),
+              getState().settings?.saved?.invoice?.numbering ?? {},
+              data.numbering ?? {}
+            ),
+          };
         }
-        // Read the saved theme before the write. A rejected save must not
-        // change general.theme or themeSource.
-        const { theme } = appConfig.get('general') || {};
-        const newTheme = action.payload.general.theme;
-        action.payload.invoice.numbering = mergeNumbering(
-          normalizeNumbering(appConfig.get('invoice.numbering')),
-          getState().settings?.saved?.invoice?.numbering ?? {},
-          action.payload.invoice.numbering ?? {}
-        );
-        // Save Settings
-        appConfig.set('profile', action.payload.profile);
-        appConfig.set('invoice', action.payload.invoice);
-        appConfig.set('general', action.payload.general);
-        // Change theme (main process sets nativeTheme for all windows)
-        if (newTheme && theme !== newTheme) {
-          ipc.send('set-theme', newTheme);
+        const errors = getSettingsErrors(setting, nextData);
+        if (Object.keys(errors).length) {
+          return { ok: false, errors };
         }
-        // Reload Sounds Cache
-        sounds.preload();
-        // Continue
-        next(action);
-        // Create Notification
-        dispatch({
-          type: ACTION_TYPES.UI_NOTIFICATION_NEW,
-          payload: {
-            type: 'success',
-            message: i18n.t('messages:settings:saved'),
-          },
+        const previous = appConfig.get(setting);
+        try {
+          appConfig.set(setting, nextData);
+        } catch (error) {
+          return { ok: false, message: error.message };
+        }
+        if (setting === 'profile' && !isEqual(previous, nextData)) {
+          ipc.send('change-preview-window-profile', nextData);
+        }
+        if (setting === 'general') {
+          const prevGeneral = previous || {};
+          if (prevGeneral.language !== nextData.language) {
+            i18n.changeLanguage(nextData.language);
+            ipc.send('change-preview-window-language', nextData.language);
+          }
+          if (prevGeneral.sound !== nextData.sound) {
+            sounds.preload();
+          }
+          if (prevGeneral.theme !== nextData.theme) {
+            ipc.send('set-theme', nextData.theme);
+          }
+        }
+        next({
+          ...action,
+          payload: { setting, data: nextData },
         });
-        break;
+        toast.add({
+          id: 'settings-saved',
+          title: i18n.t('messages:settings:saved'),
+        });
+        return { ok: true };
       }
 
       default: {

@@ -48,7 +48,6 @@ export const CONTACT_RESTORE = 'CONTACT_RESTORE';
 
 // SETTINGS
 // ===========================================================
-export const SETTINGS_SAVE = 'SETTINGS_SAVE';
 export const SETTINGS_UPDATE = 'SETTINGS_UPDATE';
 export const SETTINGS_GET_INITIAL = 'SETTINGS_GET_INITIAL';
 

@@ -66,27 +66,18 @@ describe('Settings Reducer', () => {
     expect(newState.saved).toEqual(sampleSettings);
   });
 
-  it('update saved settings', () => {
-    const data = sampleSettings;
-    const newState = SettingsReducer(initialState, {
-      type: ACTION_TYPES.SETTINGS_SAVE,
-      payload: data,
-    });
-    expect(newState.saved).toEqual(data);
-  });
-
-  it('SETTINGS_THEME_SET updates current and saved theme', () => {
+  it('should handle SETTINGS_UPDATE for current and saved', () => {
     const currentState = {
-      current: { ...sampleSettings, general: { ...sampleSettings.general, theme: 'system' } },
-      saved: { ...sampleSettings, general: { ...sampleSettings.general, theme: 'system' } },
+      current: sampleSettings,
+      saved: sampleSettings,
     };
+    const data = { ...sampleSettings.general, sound: 'cs' };
     const newState = SettingsReducer(currentState, {
-      type: ACTION_TYPES.SETTINGS_THEME_SET,
-      payload: 'dark',
+      type: ACTION_TYPES.SETTINGS_UPDATE,
+      payload: { setting: 'general', data },
     });
-    expect(newState.current.general.theme).toBe('dark');
-    expect(newState.saved.general.theme).toBe('dark');
-    expect(newState.current.general.language).toBe('en');
+    expect(newState.current.general.sound).toEqual('cs');
+    expect(newState.saved.general.sound).toEqual('cs');
   });
 });
 
