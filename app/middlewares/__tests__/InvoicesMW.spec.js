@@ -26,9 +26,10 @@ import {
   mockData,
   resetMockPouchData,
 } from '../../helpers/pouchDB';
-import { getAmountPaid } from '../../helpers/invoice';
+import { getAmountPaid, getStoredStatus } from '../../helpers/invoice';
 import { toast } from '@/components/ui/toast';
 import * as dialog from '@/lib/dialog';
+import * as UIActions from '../../actions/ui';
 const fixedNow = Date.UTC(2026, 0, 15, 12);
 Date.now = vi.fn(() => fixedNow);
 
@@ -390,6 +391,9 @@ describe('Invoices Middleware', () => {
     let currentInvoice;
     beforeEach(() => {
       currentInvoice = {
+        _id: 'update-test-id',
+        docType: 'invoice',
+        status: 'pending',
         recipient: {
           fullname: faker.person.fullName(),
           email: faker.internet.email(),
@@ -407,6 +411,12 @@ describe('Invoices Middleware', () => {
           },
         ],
       };
+      getSingleDoc.mockImplementation((_db, id) => {
+        if (_db === 'invoices' && id === currentInvoice._id) {
+          return Promise.resolve({ ...currentInvoice, _rev: '1-u' });
+        }
+        return Promise.reject(new Error('No docID found!'));
+      });
     });
 
     it('should update the invoice', () => {
@@ -1133,6 +1143,170 @@ describe('Invoices Middleware', () => {
           }),
         })
       );
+    });
+  });
+
+  describe('credit notes', () => {
+    const currency = { code: 'USD', fraction: 2 };
+
+    it('CREDIT_NOTE_NEW_FROM_INVOICE loads the editor without saving', async () => {
+      const invoice = {
+        _id: 'inv-src',
+        docType: 'invoice',
+        status: 'pending',
+        grandTotal: 1000,
+        currency,
+        invoiceID: 'INV-1',
+        recipient: { fullname: 'A' },
+        rows: [{ id: 'r', subtotal: 1000, price: 100, quantity: 10 }],
+      };
+      getAllDocs.mockImplementation(db => {
+        if (db === 'invoices') return Promise.resolve([invoice]);
+        if (db === 'contacts') return Promise.resolve([]);
+        return Promise.reject(new Error('bad db'));
+      });
+      await middleware(Actions.createCreditNote(invoice));
+      expect(saveDoc).not.toHaveBeenCalled();
+      expect(dispatch).toHaveBeenCalledWith(
+        expect.objectContaining({ type: ACTION_TYPES.FORM_LOAD_DUPLICATE })
+      );
+      expect(dispatch).toHaveBeenCalledWith(UIActions.changeActiveTab('form'));
+    });
+
+    it('CREDIT_NOTE_ISSUE rejects when total exceeds creditable amount', async () => {
+      const invoice = {
+        _id: 'inv-src',
+        docType: 'invoice',
+        status: 'pending',
+        grandTotal: 100,
+        currency,
+      };
+      const cn = {
+        _id: 'cn-1',
+        docType: 'creditNote',
+        status: 'draft',
+        creditedInvoiceId: 'inv-src',
+        grandTotal: 200,
+        currency,
+      };
+      getAllDocs.mockResolvedValue([invoice, cn]);
+      updateDocs.mockClear();
+      await middleware(Actions.issueCreditNote('cn-1'));
+      expect(updateDocs).not.toHaveBeenCalled();
+      expect(toast.add).toHaveBeenCalled();
+    });
+
+    it('CREDIT_NOTE_ISSUE writes issued then syncs invoice to cancelled', async () => {
+      const invoice = {
+        _id: 'inv-src',
+        _rev: '1-a',
+        docType: 'invoice',
+        status: 'pending',
+        grandTotal: 100,
+        currency,
+      };
+      const cn = {
+        _id: 'cn-1',
+        _rev: '1-b',
+        docType: 'creditNote',
+        status: 'draft',
+        creditedInvoiceId: 'inv-src',
+        grandTotal: 100,
+        currency,
+      };
+      let inv = { ...invoice };
+      let note = { ...cn };
+      getAllDocs.mockImplementation(() =>
+        Promise.resolve([{ ...inv }, { ...note }])
+      );
+      updateDocs.mockImplementation((_db, docs) => {
+        for (const d of docs) {
+          if (d._id === 'cn-1') note = { ...d, _rev: '2-b' };
+          if (d._id === 'inv-src') inv = { ...d, _rev: '2-a' };
+        }
+        return Promise.resolve([{ ...inv }, { ...note }]);
+      });
+      await middleware(Actions.issueCreditNote('cn-1'));
+      expect(updateDocs).toHaveBeenCalled();
+      const cancelled = inv.status === 'cancelled' && inv.cancelledByCredit;
+      const issued = note.status === 'issued';
+      expect(cancelled || issued).toBe(true);
+    });
+
+    it('CREDIT_NOTE_VOID rejects draft credit notes', async () => {
+      getAllDocs.mockResolvedValue([
+        {
+          _id: 'cn-d',
+          docType: 'creditNote',
+          status: 'draft',
+          creditedInvoiceId: 'inv-src',
+          grandTotal: 10,
+          currency,
+        },
+      ]);
+      updateDocs.mockClear();
+      await middleware(Actions.voidCreditNote('cn-d'));
+      expect(updateDocs).not.toHaveBeenCalled();
+    });
+
+    it('CREDIT_NOTE_SYNC_INVOICE skips write when status unchanged', async () => {
+      const invoice = {
+        _id: 'inv-src',
+        docType: 'invoice',
+        status: 'pending',
+        grandTotal: 100,
+        currency,
+      };
+      getAllDocs.mockResolvedValue([invoice]);
+      updateDocs.mockClear();
+      await middleware(Actions.syncCreditedInvoice('inv-src'));
+      expect(updateDocs).not.toHaveBeenCalled();
+      expect(next).toHaveBeenCalledWith(
+        expect.objectContaining({ type: ACTION_TYPES.INVOICE_UPDATE })
+      );
+    });
+
+    it('INVOICE_DELETE removes only deletable ids when credits block others', async () => {
+      const invoice = {
+        _id: 'inv-blocked',
+        docType: 'invoice',
+        status: 'pending',
+      };
+      const cn = {
+        _id: 'cn-1',
+        docType: 'creditNote',
+        status: 'issued',
+        creditedInvoiceId: 'inv-blocked',
+      };
+      const free = { _id: 'free-id', docType: 'invoice', status: 'draft' };
+      getAllDocs.mockResolvedValue([invoice, cn, free]);
+      removeDocs.mockResolvedValueOnce({
+        removed: [free],
+        failed: [],
+        docs: [invoice, cn],
+      });
+      await middleware(Actions.deleteInvoice(['inv-blocked', 'free-id']));
+      expect(removeDocs).toHaveBeenCalledWith('invoices', ['free-id']);
+    });
+
+    it('INVOICE_UPDATE rejects issued credit notes', async () => {
+      getSingleDoc.mockResolvedValueOnce({
+        _id: 'cn-1',
+        docType: 'creditNote',
+        status: 'issued',
+        grandTotal: 10,
+        currency,
+      });
+      const ok = await middleware(
+        Actions.updateInvoice({
+          _id: 'cn-1',
+          docType: 'creditNote',
+          status: 'issued',
+          grandTotal: 10,
+        })
+      );
+      expect(ok).toBe(false);
+      expect(updateDoc).not.toHaveBeenCalled();
     });
   });
 

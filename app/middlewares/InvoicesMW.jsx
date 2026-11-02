@@ -23,7 +23,7 @@ import {
   clearInvoiceDeletedForUndo,
 } from '../helpers/estimate';
 import { isEstimate, isInvoice, isCreditNote } from '../helpers/docType';
-import { getInvoiceNumber } from '../helpers/invoice';
+import { getInvoiceNumber, getStoredStatus } from '../helpers/invoice';
 import { runInvoiceMutationQueued } from '../helpers/invoiceMutations';
 import {
   buildCreditNoteDraft,
@@ -124,7 +124,10 @@ function repairInvoicesWithCredits(allDocs, now) {
   return updates;
 }
 
-async function handleSyncCreditedInvoice(invoiceId, { next, dispatch, getState }) {
+async function handleSyncCreditedInvoice(
+  invoiceId,
+  { next, dispatch, getState }
+) {
   const allDocs = await getAllDocs('invoices');
   const invoice = allDocs.find(d => d._id === invoiceId);
   if (!invoice) {
@@ -214,10 +217,7 @@ function finalizeQueuedWrites({ results, next, dispatch, getState }) {
 
 function queuedInvoiceWrite(invoiceId, mutate) {
   return runPaymentQueued(invoiceId, () =>
-    Promise.all([
-      getSingleDoc('invoices', invoiceId),
-      getAllDocs('invoices'),
-    ])
+    Promise.all([getSingleDoc('invoices', invoiceId), getAllDocs('invoices')])
       .then(([doc, allDocs]) => {
         if (!doc) {
           return {
@@ -338,7 +338,8 @@ const InvoicesMW =
               } catch {
                 toast.add({
                   title: i18n.t('invoices:creditNotes:errors:syncFailed', {
-                    defaultValue: 'Could not repair invoice status after credits.',
+                    defaultValue:
+                      'Could not repair invoice status after credits.',
                   }),
                   type: 'warning',
                 });
@@ -635,20 +636,34 @@ const InvoicesMW =
         if (!endWrite) {
           return false;
         }
-        return updateDoc('invoices', action.payload)
-          .then(docs => {
-            next({
-              type: ACTION_TYPES.INVOICE_UPDATE,
-              payload: docs,
+        return getSingleDoc('invoices', action.payload._id)
+          .then(existing => {
+            if (
+              isCreditNote(existing) &&
+              getStoredStatus(existing) !== 'draft'
+            ) {
+              toast.add({
+                title: i18n.t('invoices:creditNotes:toast:issuedCreditNote', {
+                  count: 1,
+                }),
+                type: 'warning',
+              });
+              return false;
+            }
+            return updateDoc('invoices', action.payload).then(docs => {
+              next({
+                type: ACTION_TYPES.INVOICE_UPDATE,
+                payload: docs,
+              });
+              dispatch({
+                type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+                payload: {
+                  type: 'success',
+                  message: i18n.t('messages:invoice:updated'),
+                },
+              });
+              return persistedInvoice(docs, action.payload);
             });
-            dispatch({
-              type: ACTION_TYPES.UI_NOTIFICATION_NEW,
-              payload: {
-                type: 'success',
-                message: i18n.t('messages:invoice:updated'),
-              },
-            });
-            return persistedInvoice(docs, action.payload);
           })
           .catch(err => {
             next({
@@ -671,6 +686,15 @@ const InvoicesMW =
         const { invoiceID, configs } = action.payload;
         return getSingleDoc('invoices', invoiceID)
           .then(doc => {
+            if (isCreditNote(doc) && getStoredStatus(doc) !== 'draft') {
+              toast.add({
+                title: i18n.t('invoices:creditNotes:toast:issuedCreditNote', {
+                  count: 1,
+                }),
+                type: 'warning',
+              });
+              return;
+            }
             dispatch({
               type: ACTION_TYPES.INVOICE_UPDATE,
               payload: Object.assign({}, doc, { configs }),
@@ -996,9 +1020,7 @@ const InvoicesMW =
         }
         const loadCreditForm = () =>
           getAllDocs('invoices').then(docs => {
-            const invoice = docs.find(
-              d => d._id === action.payload._id
-            );
+            const invoice = docs.find(d => d._id === action.payload._id);
             if (!invoice) {
               toast.add({
                 title: i18n.t('invoices:toast:notFound', {
@@ -1101,13 +1123,12 @@ const InvoicesMW =
               return;
             }
             return runInvoiceMutationQueued(cn.creditedInvoiceId, () =>
-              updateDocs('invoices', [{ ...cn, status: 'issued' }]).then(
-                () =>
-                  handleSyncCreditedInvoice(cn.creditedInvoiceId, {
-                    next,
-                    dispatch,
-                    getState,
-                  })
+              updateDocs('invoices', [{ ...cn, status: 'issued' }]).then(() =>
+                handleSyncCreditedInvoice(cn.creditedInvoiceId, {
+                  next,
+                  dispatch,
+                  getState,
+                })
               )
             );
           })
