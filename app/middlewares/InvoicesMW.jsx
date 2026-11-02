@@ -672,6 +672,11 @@ const InvoicesMW =
       }
 
       case ACTION_TYPES.INVOICE_UPDATE: {
+        // List refreshes use the same action type as a single-document save.
+        // A list must reach the reducer and must not be written again.
+        if (Array.isArray(action.payload)) {
+          return next(action);
+        }
         const endWrite = protectWrite(dispatch);
         if (!endWrite) {
           return false;

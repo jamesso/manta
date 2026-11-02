@@ -166,7 +166,7 @@ function populateFromInvoice(state, payload) {
     note,
     contacts,
   } = payload;
-  return Object.assign({}, state, {
+  let next = Object.assign({}, state, {
     recipient: Object.assign(
       {},
       state.recipient,
@@ -205,6 +205,16 @@ function populateFromInvoice(state, payload) {
     creditedInvoice: payload.creditedInvoice ?? null,
     seller: payload.seller ?? null,
   });
+  if (getDocType(payload) === 'creditNote' && payload.recipient) {
+    next = Object.assign({}, next, {
+      recipient: {
+        newRecipient: false,
+        select: payload.recipient,
+        new: {},
+      },
+    });
+  }
+  return next;
 }
 
 function withRevision(state) {

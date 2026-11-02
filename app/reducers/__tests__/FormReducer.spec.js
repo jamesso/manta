@@ -770,6 +770,29 @@ describe('plan 015 form reducer behavior', () => {
     expect(next.rows[0].taxRate).toBe(19);
   });
 
+  it('INVOICE_EDIT of a credit note keeps the copied recipient', () => {
+    const recipient = {
+      _id: 'gone',
+      fullname: 'Credit Client',
+      email: 'credit@example.com',
+    };
+    const next = FormReducer(baseState, {
+      type: ACTION_TYPES.INVOICE_EDIT,
+      payload: {
+        _id: 'cn-1',
+        docType: 'creditNote',
+        status: 'draft',
+        recipient,
+        seller: { taxId: 'OLD' },
+        rows: [{ id: 'r1', description: 'Work', price: 10, quantity: 1 }],
+        contacts: [],
+      },
+    });
+    expect(next.recipient.newRecipient).toBe(false);
+    expect(next.recipient.select).toEqual(recipient);
+    expect(next.seller).toEqual({ taxId: 'OLD' });
+  });
+
   it('INVOICE_EDIT of empty line-mode doc turns tax field off', () => {
     const next = FormReducer(baseState, {
       type: ACTION_TYPES.INVOICE_EDIT,
