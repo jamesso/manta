@@ -9,12 +9,23 @@ class ErrorBoundary extends Component {
     this.state = { hasError: false, error: null, info: null };
   }
 
+  componentDidUpdate(previousProps) {
+    if (
+      this.state.hasError &&
+      this.props.resetKey !== undefined &&
+      previousProps.resetKey !== this.props.resetKey
+    ) {
+      this.setState({ hasError: false, error: null, info: null });
+    }
+  }
+
   componentDidCatch(error, info) {
     this.setState({ hasError: true, error, info });
   }
 
   render() {
     if (this.state.hasError) {
+      if (this.props.fallback) return this.props.fallback;
       return (
         <div className="flex h-svh flex-col items-center justify-center gap-4 bg-background p-8 text-center">
           <Bug className="size-12 text-destructive" aria-hidden />

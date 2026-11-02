@@ -11,6 +11,7 @@ import Currency from './_partials/invoice/Currency';
 import Fields from './_partials/invoice/Fields';
 import Other from './_partials/invoice/Other';
 import Tax from './_partials/invoice/Tax';
+import Numbering from './_partials/invoice/Numbering';
 
 // Component
 class Invoice extends Component {
@@ -112,6 +113,16 @@ class Invoice extends Component {
     const { exportDir, template, currency, tax, required_fields, dateFormat } =
       this.state;
     return [
+      <Numbering
+        key="numbering"
+        numbering={this.state.numbering}
+        t={t}
+        onChange={numbering =>
+          this.setState({ numbering }, () =>
+            this.props.updateSettings('invoice', this.state)
+          )
+        }
+      />,
       <Fields
         key="required_fields_settings"
         required_fields={required_fields}
