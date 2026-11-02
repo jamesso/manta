@@ -6,6 +6,7 @@ import { omit } from 'lodash';
 // The newer 'indexeddb' adapter cannot read these databases.
 const contactsDB = new PouchDB('contacts', { adapter: 'idb' });
 const invoicesDB = new PouchDB('invoices', { adapter: 'idb' });
+const itemsDB = new PouchDB('items', { adapter: 'idb' });
 
 // Handle Data Migration
 async function runMigration(db, version, migrations, done) {
@@ -123,6 +124,11 @@ const setDB = dbName =>
   new Promise((resolve, reject) => {
     if (dbName === 'contacts') {
       resolve(contactsDB);
+      return;
+    }
+    if (dbName === 'items') {
+      resolve(itemsDB);
+      return;
     }
     if (dbName === 'invoices') {
       if (alreadyRunInvoiceMigration) {
@@ -133,7 +139,9 @@ const setDB = dbName =>
         if (err) return reject(err);
         resolve(invoicesDB);
       });
+      return;
     }
+    reject(new Error(`Unknown database: ${dbName}`));
   });
 
 // Get All Document

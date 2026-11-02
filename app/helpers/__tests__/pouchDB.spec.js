@@ -52,6 +52,23 @@ describe('pouchDB helpers', () => {
     await expect(getSingleDoc('contacts', 'missing')).rejects.toBeDefined();
   });
 
+  it('saveDoc stores items in the items database only', async () => {
+    await saveDoc('items', {
+      _id: 'it1',
+      name: 'Item',
+      unitPrice: 1,
+      unitCode: 'C62',
+    });
+    const items = await getAllDocs('items');
+    expect(items.some(d => d._id === 'it1')).toBe(true);
+    const contacts = await getAllDocs('contacts');
+    expect(contacts.some(d => d._id === 'it1')).toBe(false);
+  });
+
+  it('getAllDocs rejects unknown database names', async () => {
+    await expect(getAllDocs('nope')).rejects.toThrow('Unknown database: nope');
+  });
+
   describe('bulk invoice helpers', () => {
     let removeDocs;
     let restoreDocs;

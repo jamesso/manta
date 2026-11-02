@@ -46,6 +46,14 @@ export const CONTACT_SAVE = 'CONTACT_SAVE';
 export const CONTACT_UPDATE = 'CONTACT_UPDATE';
 export const CONTACT_RESTORE = 'CONTACT_RESTORE';
 
+// ITEMS
+// ===========================================================
+export const ITEM_GET_ALL = 'ITEM_GET_ALL';
+export const ITEM_SAVE = 'ITEM_SAVE';
+export const ITEM_UPDATE = 'ITEM_UPDATE';
+export const ITEM_DELETE = 'ITEM_DELETE';
+export const ITEM_RESTORE = 'ITEM_RESTORE';
+
 // SETTINGS
 // ===========================================================
 export const SETTINGS_UPDATE = 'SETTINGS_UPDATE';

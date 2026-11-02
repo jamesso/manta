@@ -8,12 +8,20 @@ import rootReducer from '../reducers';
 import MeasureMW from '../middlewares/MeasureMW';
 import FormMW from '../middlewares/FormMW';
 import ContactsMW from '../middlewares/ContactsMW';
+import ItemsMW from '../middlewares/ItemsMW';
 import InvoicesMW from '../middlewares/InvoicesMW';
 import SettingsMW from '../middlewares/SettingsMW';
 import UIMiddleware from '../middlewares/UIMiddleware';
 
 // Default Middlewares
-const middlewares = [FormMW, ContactsMW, InvoicesMW, SettingsMW, UIMiddleware];
+const middlewares = [
+  FormMW,
+  ContactsMW,
+  ItemsMW,
+  InvoicesMW,
+  SettingsMW,
+  UIMiddleware,
+];
 
 // Dev Mode Middlewares
 const isDev = import.meta.env.DEV;

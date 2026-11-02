@@ -22,9 +22,21 @@ const invoiceDoc = {
   ],
 };
 
+const itemDoc = {
+  _id: 'item-1',
+  name: 'Design',
+  description: '',
+  unitPrice: 80,
+  unitCode: 'HUR',
+  taxRateId: null,
+  archived: false,
+  created_at: 1,
+};
+
 const mockData = {
   contactsRecords: [contactDoc],
   invoicesRecords: [invoiceDoc],
+  itemsRecords: [itemDoc],
 };
 
 const getAllDocs = vi.fn(
@@ -33,8 +45,13 @@ const getAllDocs = vi.fn(
       switch (dbName) {
         case 'contacts':
           resolve(mockData.contactsRecords);
+          break;
         case 'invoices':
           resolve(mockData.invoicesRecords);
+          break;
+        case 'items':
+          resolve(mockData.itemsRecords);
+          break;
         default:
           reject(new Error('Incorrect database!'));
       }
@@ -48,6 +65,7 @@ const saveDoc = vi.fn(
       !doc && reject(new Error('No doc found!'));
       dbName === 'contacts' && resolve([...mockData.contactsRecords, doc]);
       dbName === 'invoices' && resolve([...mockData.invoicesRecords, doc]);
+      dbName === 'items' && resolve([...mockData.itemsRecords, doc]);
     })
 );
 
@@ -58,6 +76,7 @@ const updateDoc = vi.fn(
       !doc && reject(new Error('No doc found!'));
       dbName === 'contacts' && resolve([...mockData.contactsRecords]);
       dbName === 'invoices' && resolve([...mockData.invoicesRecords]);
+      dbName === 'items' && resolve([...mockData.itemsRecords]);
     })
 );
 
@@ -93,11 +112,13 @@ const removeDocs = vi.fn((dbName, ids) =>
   Promise.resolve({
     removed: ids.map(id => ({ _id: id })),
     failed: [],
-    docs: [],
+    docs: mockData[`${dbName}Records`] ?? [],
   })
 );
 
-const restoreDocs = vi.fn(() => Promise.resolve(mockData.invoicesRecords));
+const restoreDocs = vi.fn(dbName =>
+  Promise.resolve(mockData[`${dbName}Records`] ?? [])
+);
 
 const updateDocs = vi.fn(() => Promise.resolve(mockData.invoicesRecords));
 
