@@ -4,9 +4,11 @@ import {
   addLocalDays,
   formatMoney,
   getDashboardStats,
+  getDashboardCurrencyDisplay,
   getMonthlyPaid,
   getNeedsAttention,
   getRecentInvoices,
+  pruneUserCurrencyPick,
   resolveDashboardCurrencySelection,
   startOfLocalDay,
   startOfLocalMonth,
@@ -232,6 +234,61 @@ describe('resolveDashboardCurrencySelection', () => {
     expect(resolveDashboardCurrencySelection('USD', ['EUR'], 'EUR')).toBe(
       'EUR'
     );
+  });
+});
+
+describe('getDashboardCurrencyDisplay loading sequence', () => {
+  it('selects configured EUR after load without persisting loading fallback as user choice', () => {
+    const userPicked = null;
+    getDashboardCurrencyDisplay({
+      dataReady: false,
+      userPickedCode: userPicked,
+      availableCodes: [],
+      configuredCode: 'USD',
+    });
+    expect(userPicked).toBe(null);
+    expect(
+      getDashboardCurrencyDisplay({
+        dataReady: true,
+        userPickedCode: userPicked,
+        availableCodes: ['USD', 'EUR'],
+        configuredCode: 'EUR',
+      })
+    ).toBe('EUR');
+  });
+
+  it('documents that storing USD before ready would incorrectly stick on EUR settings', () => {
+    expect(
+      resolveDashboardCurrencySelection('USD', ['USD', 'EUR'], 'EUR')
+    ).toBe('USD');
+    expect(
+      getDashboardCurrencyDisplay({
+        dataReady: true,
+        userPickedCode: null,
+        availableCodes: ['USD', 'EUR'],
+        configuredCode: 'EUR',
+      })
+    ).toBe('EUR');
+  });
+
+  it('keeps a real user pick across reloads of available codes', () => {
+    expect(
+      getDashboardCurrencyDisplay({
+        dataReady: true,
+        userPickedCode: 'USD',
+        availableCodes: ['USD', 'EUR'],
+        configuredCode: 'EUR',
+      })
+    ).toBe('USD');
+    expect(pruneUserCurrencyPick('USD', ['EUR'], true)).toBe(null);
+    expect(
+      getDashboardCurrencyDisplay({
+        dataReady: true,
+        userPickedCode: null,
+        availableCodes: ['EUR'],
+        configuredCode: 'EUR',
+      })
+    ).toBe('EUR');
   });
 });
 

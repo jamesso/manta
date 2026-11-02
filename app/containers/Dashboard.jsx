@@ -22,6 +22,8 @@ import {
   getMonthlyPaid,
   getNeedsAttention,
   getRecentInvoices,
+  getDashboardCurrencyDisplay,
+  pruneUserCurrencyPick,
   resolveDashboardCurrencySelection,
 } from '../helpers/dashboard';
 import { getChecklistState } from '../helpers/onboarding';
@@ -42,7 +44,7 @@ export default function Dashboard() {
   const settings = useSelector(getCurrentSettings);
   const dateFormat = useSelector(getDateFormat);
   const [openId, setOpenId] = useState(null);
-  const [currencyCode, setCurrencyCode] = useState(null);
+  const [userPickedCode, setUserPickedCode] = useState(null);
 
   const fallbackCurrency = useMemo(
     () =>
@@ -88,20 +90,20 @@ export default function Dashboard() {
   }, [ready, settings, invoices, contacts]);
 
   useEffect(() => {
-    setCurrencyCode(prev =>
-      resolveDashboardCurrencySelection(
-        prev,
-        stats.currencies,
-        fallbackCurrency.code
-      )
+    if (!ready) {
+      return;
+    }
+    setUserPickedCode(prev =>
+      pruneUserCurrencyPick(prev, stats.currencies, true)
     );
-  }, [stats.currencies, fallbackCurrency.code]);
+  }, [ready, stats.currencies]);
 
-  const activeCurrencyCode = resolveDashboardCurrencySelection(
-    currencyCode,
-    stats.currencies,
-    fallbackCurrency.code
-  );
+  const activeCurrencyCode = getDashboardCurrencyDisplay({
+    dataReady: ready,
+    userPickedCode,
+    availableCodes: stats.currencies,
+    configuredCode: fallbackCurrency.code,
+  });
 
   const openInvoice = openId
     ? invoices.find(inv => inv._id === openId) || null
@@ -143,7 +145,7 @@ export default function Dashboard() {
           >
             {t('dashboard:currency:label')}
           </label>
-          <Select value={activeCurrencyCode} onValueChange={setCurrencyCode}>
+          <Select value={activeCurrencyCode} onValueChange={setUserPickedCode}>
             <SelectTrigger id="dash-currency" className="w-full">
               <SelectValue />
             </SelectTrigger>

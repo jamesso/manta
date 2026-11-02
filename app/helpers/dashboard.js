@@ -279,13 +279,43 @@ function resolveDashboardCurrencySelection(
   return availableCodes[0];
 }
 
+/** Drop a user pick that no longer exists in loaded invoice currencies. */
+function pruneUserCurrencyPick(userPickedCode, availableCodes, dataReady) {
+  if (!dataReady || userPickedCode == null) {
+    return userPickedCode;
+  }
+  return availableCodes.includes(userPickedCode) ? userPickedCode : null;
+}
+
+/**
+ * Display currency for the dashboard. Before initial data is ready, returns a
+ * fallback for skeleton math only — do not store that value as a user pick.
+ */
+function getDashboardCurrencyDisplay({
+  dataReady,
+  userPickedCode,
+  availableCodes,
+  configuredCode,
+}) {
+  if (!dataReady) {
+    return configuredCode ?? 'USD';
+  }
+  return resolveDashboardCurrencySelection(
+    userPickedCode,
+    availableCodes,
+    configuredCode
+  );
+}
+
 export {
   addLocalDays,
   formatMoney,
   getDashboardStats,
+  getDashboardCurrencyDisplay,
   getMonthlyPaid,
   getNeedsAttention,
   getRecentInvoices,
+  pruneUserCurrencyPick,
   resolveDashboardCurrencySelection,
   startOfLocalDay,
   startOfLocalMonth,
