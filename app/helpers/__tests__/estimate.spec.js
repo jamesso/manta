@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   buildLinkIndex,
   canConvert,
+  clearInvoiceDeletedForUndo,
   estimateToInvoiceDraft,
   findConvertedInvoice,
   getDefaultValidUntil,
@@ -142,6 +143,18 @@ describe('estimate helpers', () => {
     markInvoiceDeletedForUndo('i1');
     expect(isInvoiceDeleteUndoable('i1')).toBe(true);
     expect(canConvert(est, buildLinkIndex([est]))).toBe(false);
+  });
+
+  it('blocks convert when deleted invoice linked source is undoable', () => {
+    markInvoiceDeletedForUndo({ _id: 'i1', sourceEstimateId: 'e1' });
+    const est = {
+      _id: 'e1',
+      docType: 'estimate',
+      status: 'accepted',
+    };
+    expect(canConvert(est, buildLinkIndex([]))).toBe(false);
+    clearInvoiceDeletedForUndo('i1');
+    expect(canConvert(est, buildLinkIndex([]))).toBe(true);
   });
 
   it('withConversion and isSettableStatus', () => {

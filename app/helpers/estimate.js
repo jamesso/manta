@@ -11,26 +11,71 @@ import { UNDO_TIMEOUT_MS } from '../constants/invoices';
 import { getDocType, isEstimate, isInvoice } from './docType';
 
 const undoDeletedInvoiceIds = new Map();
+const undoInvoiceMeta = new Map();
+const undoSourceEstimateRefCount = new Map();
 
-export function markInvoiceDeletedForUndo(invoiceId) {
+function decrementSourceUndo(estimateId) {
+  if (typeof estimateId !== 'string' || estimateId === '') {
+    return;
+  }
+  const next = (undoSourceEstimateRefCount.get(estimateId) || 0) - 1;
+  if (next <= 0) {
+    undoSourceEstimateRefCount.delete(estimateId);
+  } else {
+    undoSourceEstimateRefCount.set(estimateId, next);
+  }
+}
+
+function incrementSourceUndo(estimateId) {
+  undoSourceEstimateRefCount.set(
+    estimateId,
+    (undoSourceEstimateRefCount.get(estimateId) || 0) + 1
+  );
+}
+
+export function isSourceEstimateDeleteUndoable(estimateId) {
+  return (undoSourceEstimateRefCount.get(estimateId) || 0) > 0;
+}
+
+export function markInvoiceDeletedForUndo(invoiceOrId) {
+  const doc =
+    invoiceOrId != null && typeof invoiceOrId === 'object' ? invoiceOrId : null;
+  const invoiceId = doc ? doc._id : invoiceOrId;
   if (typeof invoiceId !== 'string' || invoiceId === '') {
     return;
   }
-  const existing = undoDeletedInvoiceIds.get(invoiceId);
-  if (existing) {
-    clearTimeout(existing);
+  clearInvoiceDeletedForUndo(invoiceId);
+  const sourceEstimateId =
+    doc && typeof doc.sourceEstimateId === 'string'
+      ? doc.sourceEstimateId
+      : null;
+  if (sourceEstimateId) {
+    incrementSourceUndo(sourceEstimateId);
   }
   const timer = setTimeout(() => {
-    undoDeletedInvoiceIds.delete(invoiceId);
+    clearInvoiceDeletedForUndo(invoiceId);
   }, UNDO_TIMEOUT_MS);
   undoDeletedInvoiceIds.set(invoiceId, timer);
+  undoInvoiceMeta.set(invoiceId, { timer, sourceEstimateId });
 }
 
-export function clearInvoiceDeletedForUndo(invoiceId) {
-  const existing = undoDeletedInvoiceIds.get(invoiceId);
-  if (existing) {
-    clearTimeout(existing);
-    undoDeletedInvoiceIds.delete(invoiceId);
+export function clearInvoiceDeletedForUndo(invoiceOrId) {
+  const invoiceId =
+    invoiceOrId != null && typeof invoiceOrId === 'object'
+      ? invoiceOrId._id
+      : invoiceOrId;
+  if (typeof invoiceId !== 'string' || invoiceId === '') {
+    return;
+  }
+  const meta = undoInvoiceMeta.get(invoiceId);
+  if (!meta) {
+    return;
+  }
+  clearTimeout(meta.timer);
+  undoInvoiceMeta.delete(invoiceId);
+  undoDeletedInvoiceIds.delete(invoiceId);
+  if (meta.sourceEstimateId) {
+    decrementSourceUndo(meta.sourceEstimateId);
   }
 }
 
@@ -132,6 +177,9 @@ export function canConvert(e, index) {
     e.convertedInvoiceId &&
     isInvoiceDeleteUndoable(e.convertedInvoiceId)
   ) {
+    return false;
+  }
+  if (isSourceEstimateDeleteUndoable(e._id)) {
     return false;
   }
   if (index.bySource.has(e._id) && isInvoice(index.bySource.get(e._id))) {

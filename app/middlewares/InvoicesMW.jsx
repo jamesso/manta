@@ -391,7 +391,7 @@ const InvoicesMW =
             if (removed.length) {
               for (const doc of removed) {
                 if (isInvoice(doc)) {
-                  markInvoiceDeletedForUndo(doc._id);
+                  markInvoiceDeletedForUndo(doc);
                 }
               }
               const allEstimates = removed.every(isEstimate);
@@ -436,7 +436,7 @@ const InvoicesMW =
           .then(docs => {
             for (const doc of action.payload) {
               if (isInvoice(doc)) {
-                clearInvoiceDeletedForUndo(doc._id);
+                clearInvoiceDeletedForUndo(doc);
               }
             }
             next({
@@ -734,6 +734,9 @@ const InvoicesMW =
             queuedInvoiceWrite(id, doc => {
               if (!isSettableStatus(doc, status)) {
                 return { ok: false, error: 'invalidStatus' };
+              }
+              if (isEstimate(doc)) {
+                return { ok: true, doc: { ...doc, status } };
               }
               return setDocStatus(doc, status, now);
             })
