@@ -40,21 +40,18 @@ const Page = styled.div`
 `;
 
 // Components
-import { getTemplate } from '../templates';
+import { InvoiceTemplate } from '../templates';
 
 class MainContent extends Component {
-  renderTemplate() {
-    const Template = getTemplate(this.props.configs.template);
-    return <Template {...this.props} />;
-  }
-
   render() {
     const { t, invoice } = this.props;
     return (
       <Wrapper>
         {invoice._id ? (
           <div className="print-area" data-invoice-id={invoice._id}>
-            <Page>{this.renderTemplate()}</Page>
+            <Page>
+              <InvoiceTemplate {...this.props} />
+            </Page>
           </div>
         ) : (
           <Message>{t('preview:common:chooseInvoiceToPreview')}</Message>

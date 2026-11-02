@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import i18n from '../../../../i18n/i18n';
 import { getSavedSettings } from '../../../reducers/SettingsReducer';
 import { formToPreviewInvoice } from '../../../helpers/preview';
-import { getTemplate } from '../../../../preview/templates';
+import { InvoiceTemplate } from '../../../../preview/templates';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { safeCurrencyFraction } from './formatAmount';
@@ -70,7 +70,6 @@ export default function LivePreview() {
       fraction: safeCurrencyFraction(invoice.currency?.fraction),
     },
   };
-  const Template = getTemplate(configs.template);
   const UILang = saved.general?.language ?? 'en';
 
   return (
@@ -91,7 +90,7 @@ export default function LivePreview() {
             resetKey={debouncedForm}
             fallback={<p className="p-4 text-sm">{t('form:preview:error')}</p>}
           >
-            <Template
+            <InvoiceTemplate
               invoice={displayInvoice}
               profile={profile}
               configs={configs}

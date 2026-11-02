@@ -7,7 +7,7 @@ import '../libs/dragNdrop.js';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import Dialog from './Dialog';
-import StyledRoot from '../app/components/shared/StyledRoot';
+import StyledRoot from '../preview/templates/StyledRoot.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StyledRoot>
