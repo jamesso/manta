@@ -1,7 +1,8 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { saveFormData } from '../../../actions/form';
+import { saveFormData, clearForm } from '../../../actions/form';
+import * as UIActions from '../../../actions/ui';
 import { formToPreviewInvoice } from '../../../helpers/preview';
 import { getCreditableAmount } from '../../../helpers/creditNotes';
 import { getAllSalesDocs } from '../../../reducers/InvoicesReducer';
@@ -41,8 +42,9 @@ export default function TotalsFooter() {
         ])
       : [];
   const draftAvailable =
-    !form.settings.editMode.active ||
-    form.settings.editMode.data?.status === 'draft';
+    !form.templateTarget &&
+    (!form.settings.editMode.active ||
+      form.settings.editMode.data?.status === 'draft');
   const lines = [
     ['subtotal', totals.subtotal],
     ...(fields.discount ? [['discount', totals.discount]] : []),
@@ -125,27 +127,50 @@ export default function TotalsFooter() {
             <FieldError>{t(form.errors.creditTotal)}</FieldError>
           ) : null}
           <div className="flex gap-2">
-            {draftAvailable && (
-              <Button
-                variant="outline"
-                disabled={form.savePending}
-                onClick={() => dispatch(saveFormData('draft'))}
-              >
-                {t('form:header:btns:saveDraft')}
-              </Button>
+            {form.templateTarget != null ? (
+              <>
+                <Button
+                  variant="ghost"
+                  disabled={form.savePending}
+                  onClick={() => {
+                    dispatch(clearForm(null, true));
+                    dispatch(UIActions.changeActiveTab('recurring'));
+                  }}
+                >
+                  {t('form:header:btns:clear')}
+                </Button>
+                <Button
+                  disabled={form.savePending}
+                  onClick={() => dispatch(saveFormData('template'))}
+                >
+                  {t('form:footer:saveTemplate')}
+                </Button>
+              </>
+            ) : (
+              <>
+                {draftAvailable && (
+                  <Button
+                    variant="outline"
+                    disabled={form.savePending}
+                    onClick={() => dispatch(saveFormData('draft'))}
+                  >
+                    {t('form:header:btns:saveDraft')}
+                  </Button>
+                )}
+                <Button
+                  disabled={form.savePending}
+                  onClick={() => dispatch(saveFormData('final'))}
+                >
+                  {t(
+                    isCreditNote
+                      ? 'form:header:btns:issueCreditNote'
+                      : draftAvailable
+                        ? 'form:header:btns:saveAndPreview'
+                        : 'form:header:btns:update'
+                  )}
+                </Button>
+              </>
             )}
-            <Button
-              disabled={form.savePending}
-              onClick={() => dispatch(saveFormData('final'))}
-            >
-              {t(
-                isCreditNote
-                  ? 'form:header:btns:issueCreditNote'
-                  : draftAvailable
-                    ? 'form:header:btns:saveAndPreview'
-                    : 'form:header:btns:update'
-              )}
-            </Button>
           </div>
         </div>
       </div>

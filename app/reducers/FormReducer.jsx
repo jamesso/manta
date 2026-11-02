@@ -173,7 +173,7 @@ function populateFromInvoice(state, payload) {
       state.recipient,
       setEditRecipient(contacts, recipient)
     ),
-    rows: rows.map(row => ({ ...row })),
+    rows: (rows ?? []).map(row => ({ ...row })),
     invoiceID: invoiceID !== undefined ? invoiceID : state.invoiceID,
     issuedAt: getIssuedAt(payload) ?? null,
     currency: currency !== undefined ? currency : state.currency,
@@ -337,13 +337,27 @@ const FormReducer = handleActions(
         ...template,
         contacts,
       });
+      const dueDate = template.dueDate ?? {
+        useCustom: false,
+        paymentTerm: 'net30',
+        selectedDate: null,
+      };
       return Object.assign({}, populated, {
         invoiceID: '',
         issuedAt: null,
+        dueDate,
         templateTarget: { profileId },
         formGeneration: (state.formGeneration || 0) + 1,
         settings: Object.assign({}, populated.settings, {
           editMode: { active: false },
+          required_fields: Object.assign(
+            {},
+            populated.settings.required_fields,
+            {
+              invoiceID: false,
+              dueDate: template.dueDate != null,
+            }
+          ),
         }),
       });
     },

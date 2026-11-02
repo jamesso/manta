@@ -285,16 +285,37 @@ export function getNoteErrors(isRequired, note, mode) {
 }
 
 export function getInvoiceIDErrors(form, mode) {
-  if (mode === 'draft') {
+  if (mode === 'draft' || mode === 'template') {
     return {};
   }
   const { invoiceID, settings } = form;
   const { editMode } = settings;
+  if (
+    editMode.active &&
+    editMode.data.status === 'draft' &&
+    !editMode.data.invoiceID
+  ) {
+    if (!invoiceID || invoiceID === '') {
+      return { invoiceID: 'dialog:validation:invoiceID:message' };
+    }
+    return {};
+  }
   if (editMode.active && editMode.data.invoiceID === undefined) {
     return {};
   }
   if (!invoiceID || invoiceID === '') {
     return { invoiceID: 'dialog:validation:invoiceID:message' };
+  }
+  return {};
+}
+
+function getTemplateDueDateErrors(dueDate) {
+  if (!dueDate?.useCustom) {
+    return {};
+  }
+  const n = dueDate.offsetDays;
+  if (!Number.isInteger(n) || n < 0 || n > 365) {
+    return { offsetDays: 'form:errors:offsetDays' };
   }
   return {};
 }
@@ -521,6 +542,27 @@ export function getFormErrors(form, mode) {
       ...getIssuedAtErrors(form),
       ...getDraftNumericErrors(form),
       ...getRowErrors(form.rows, mode),
+      ...getCalculatedTotalsErrors(form),
+    });
+  }
+  if (mode === 'template') {
+    const dueErrors =
+      required_fields.dueDate && form.dueDate?.useCustom
+        ? Number.isFinite(form.dueDate.offsetDays)
+          ? getTemplateDueDateErrors(form.dueDate)
+          : getDueDateErrors(required_fields.dueDate, form.dueDate, 'final')
+        : required_fields.dueDate
+          ? getDueDateErrors(required_fields.dueDate, form.dueDate, 'final')
+          : {};
+    return stripUndefined({
+      ...getRecipientErrors(form.recipient, 'final'),
+      ...getRowErrors(form.rows, 'final'),
+      ...dueErrors,
+      ...getCurrencyErrors(form, 'final'),
+      ...(form.taxMode === 'line'
+        ? getLineTaxFormErrors(form, 'final')
+        : getTaxErrors(required_fields.tax, form.tax, 'final')),
+      ...getNoteErrors(required_fields.note, form.note, 'final'),
       ...getCalculatedTotalsErrors(form),
     });
   }

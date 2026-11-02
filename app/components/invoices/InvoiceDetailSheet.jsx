@@ -19,6 +19,10 @@ import {
   createCreditNote,
   recordFullPayment,
 } from '../../actions/invoices';
+import * as UIActions from '../../actions/ui';
+import { getDocType } from '../../helpers/docType';
+import { buildProfileFromInvoice } from '../../helpers/recurring';
+import { FileMinus, Repeat } from 'lucide-react';
 import {
   getAmountPaid,
   getBalanceDue,
@@ -34,7 +38,6 @@ import {
 } from '../../helpers/invoice';
 import { canCreateCreditNote } from '../../helpers/creditNotes';
 import { canRecordPayment } from '../../helpers/payments';
-import { FileMinus } from 'lucide-react';
 import DueCell from './DueCell';
 import PaymentsList from './PaymentsList';
 import RecordPaymentDialog from './RecordPaymentDialog';
@@ -332,6 +335,24 @@ export default function InvoiceDetailSheet({
           >
             {t('invoices:actions:duplicate')}
           </Button>
+          {getDocType(invoice) === 'invoice' ? (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                dispatch(
+                  UIActions.setRecurringSheet({
+                    mode: 'new',
+                    profile: buildProfileFromInvoice(invoice, Date.now()),
+                  })
+                );
+                dispatch(UIActions.changeActiveTab('recurring'));
+              }}
+            >
+              <Repeat />
+              {t('invoices:actions:makeRecurring')}
+            </Button>
+          ) : null}
           {showCreateCredit ? (
             <Button
               type="button"

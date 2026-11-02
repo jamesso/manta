@@ -64,4 +64,27 @@ describe('UI Reducer', () => {
     const { default: reducer } = await import('../UIReducer.jsx');
     expect(reducer(undefined, {})).toMatchObject({ sidebarCollapsed: true });
   });
+
+  it('UI_INVOICES_TAB_REQUEST sets active tab and request payload', () => {
+    const newState = UIReducer(baseState, {
+      type: ACTION_TYPES.UI_INVOICES_TAB_REQUEST,
+      payload: 'draft',
+    });
+    expect(newState.activeTab).toBe('invoices');
+    expect(newState.invoicesTabRequest).toBe('draft');
+  });
+
+  it('UI_INVOICES_TAB_REQUEST with null clears request only', () => {
+    const withRequest = {
+      ...baseState,
+      activeTab: 'invoices',
+      invoicesTabRequest: 'draft',
+    };
+    const newState = UIReducer(withRequest, {
+      type: ACTION_TYPES.UI_INVOICES_TAB_REQUEST,
+      payload: null,
+    });
+    expect(newState.activeTab).toBe('invoices');
+    expect(newState.invoicesTabRequest).toBeNull();
+  });
 });

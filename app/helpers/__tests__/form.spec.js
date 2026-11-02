@@ -77,6 +77,20 @@ describe('form helpers', () => {
     f.settings.editMode = { active: true, data: {} };
     expect(getFormErrors(f, 'final')).not.toHaveProperty('invoiceID');
   });
+  it('template mode ignores invoiceID and validates offsetDays', () => {
+    const f = form();
+    f.templateTarget = { profileId: 'prof' };
+    f.invoiceID = '';
+    f.settings.required_fields = {
+      ...f.settings.required_fields,
+      dueDate: true,
+    };
+    expect(getFormErrors(f, 'template')).not.toHaveProperty('invoiceID');
+    f.dueDate = { useCustom: true, selectedDate: null, offsetDays: 400 };
+    expect(getFormErrors(f, 'template')).toMatchObject({
+      offsetDays: expect.any(String),
+    });
+  });
   it('allows drafts with recipient or item but rejects empty drafts', () => {
     const f = form();
     f.rows = [];

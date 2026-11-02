@@ -4,6 +4,7 @@ import {
   formatInvoiceNumber,
   advanceNumbering,
   mergeNumbering,
+  assignNumberIfMissing,
 } from '../numbering';
 
 describe('normalizeNumbering', () => {
@@ -12,23 +13,29 @@ describe('normalizeNumbering', () => {
   });
 
   it('fixes bad next', () => {
-    expect(normalizeNumbering({ next: 0, padding: 4, prefix: 'X-' }).next).toBe(1);
+    expect(normalizeNumbering({ next: 0, padding: 4, prefix: 'X-' }).next).toBe(
+      1
+    );
   });
 });
 
 describe('formatInvoiceNumber', () => {
   it('pads next', () => {
-    expect(formatInvoiceNumber({ prefix: 'INV-', next: 7, padding: 4 })).toBe('INV-0007');
-  });
-
-  it('allows next longer than padding', () => {
-    expect(formatInvoiceNumber({ prefix: 'INV-', next: 12345, padding: 4 })).toBe(
-      'INV-12345'
+    expect(formatInvoiceNumber({ prefix: 'INV-', next: 7, padding: 4 })).toBe(
+      'INV-0007'
     );
   });
 
+  it('allows next longer than padding', () => {
+    expect(
+      formatInvoiceNumber({ prefix: 'INV-', next: 12345, padding: 4 })
+    ).toBe('INV-12345');
+  });
+
   it('allows empty prefix', () => {
-    expect(formatInvoiceNumber({ prefix: '', next: 1, padding: 3 })).toBe('001');
+    expect(formatInvoiceNumber({ prefix: '', next: 1, padding: 3 })).toBe(
+      '001'
+    );
   });
 });
 
@@ -81,5 +88,55 @@ describe('mergeNumbering', () => {
     expect(
       mergeNumbering(stored, saved, { prefix: '2026-', next: 1, padding: 4 })
     ).toEqual({ prefix: '2026-', next: 5, padding: 4 });
+  });
+});
+
+describe('assignNumberIfMissing', () => {
+  const base = { prefix: 'INV-', next: 1, padding: 4 };
+
+  it('assigns number when leaving draft', () => {
+    const doc = { status: 'draft', _id: 'a' };
+    const { doc: next, numbering } = assignNumberIfMissing(
+      doc,
+      'pending',
+      base
+    );
+    expect(next.invoiceID).toBe('INV-0001');
+    expect(numbering.next).toBe(2);
+  });
+
+  it('threads consecutive numbers in bulk order', () => {
+    let numbering = base;
+    const first = assignNumberIfMissing(
+      { status: 'draft', _id: '1' },
+      'pending',
+      numbering
+    );
+    numbering = first.numbering;
+    const second = assignNumberIfMissing(
+      { status: 'draft', _id: '2' },
+      'pending',
+      numbering
+    );
+    expect(first.doc.invoiceID).toBe('INV-0001');
+    expect(second.doc.invoiceID).toBe('INV-0002');
+  });
+
+  it('leaves numbered doc unchanged', () => {
+    const doc = { status: 'draft', invoiceID: 'INV-0099' };
+    const { doc: next, numbering } = assignNumberIfMissing(
+      doc,
+      'pending',
+      base
+    );
+    expect(next.invoiceID).toBe('INV-0099');
+    expect(numbering.next).toBe(1);
+  });
+
+  it('does not assign for draft to draft', () => {
+    const doc = { status: 'draft', _id: 'a' };
+    const { doc: next, numbering } = assignNumberIfMissing(doc, 'draft', base);
+    expect(next.invoiceID).toBeUndefined();
+    expect(numbering.next).toBe(1);
   });
 });

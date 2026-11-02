@@ -503,7 +503,7 @@ function getInvoiceNumber(invoice) {
 }
 
 function formatInvoiceAmount(invoice) {
-  const { grandTotal } = invoice;
+  const grandTotal = invoice.grandTotal ?? 0;
   const currency = invoice.currency;
   if (!currency) {
     return formatNumber(grandTotal, 2);

@@ -686,4 +686,35 @@ describe('Form middleware', () => {
       )
     ).toBe(false);
   });
+
+  it('pre-fills invoice number when editing an unnumbered draft', () => {
+    form.settings.editMode = {
+      active: true,
+      data: { _id: 'd1', status: 'draft' },
+    };
+    form.invoiceID = '';
+    middleware({
+      type: ACTION_TYPES.INVOICE_EDIT,
+      payload: form.settings.editMode.data,
+    });
+    expect(dispatch).toHaveBeenCalledWith(
+      Actions.updateFieldData('invoiceID', expect.stringMatching(/^INV-/))
+    );
+  });
+
+  it('template save updates recurring template without invoice save or numbering', async () => {
+    form.templateTarget = { profileId: 'prof-1' };
+    form.dueDate = { useCustom: true, offsetDays: 7, selectedDate: null };
+    dispatch.mockImplementation(action => {
+      if (action.type === ACTION_TYPES.RECURRING_TEMPLATE_UPDATE) {
+        return Promise.resolve(true);
+      }
+      return Promise.resolve(true);
+    });
+    await middleware(Actions.saveFormData('template'));
+    const types = dispatch.mock.calls.map(([a]) => a.type);
+    expect(types).toContain(ACTION_TYPES.RECURRING_TEMPLATE_UPDATE);
+    expect(types).not.toContain(TYPES.INVOICE_SAVE);
+    expect(window.manta.settings.set).not.toHaveBeenCalled();
+  });
 });

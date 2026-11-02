@@ -12,6 +12,7 @@ import { Switch } from '@/components/ui/switch';
 import * as ContactsActions from '../../../actions/contacts';
 import * as ItemsActions from '../../../actions/items';
 import * as InvoicesActions from '../../../actions/invoices';
+import * as RecurringActions from '../../../actions/recurring';
 import * as SettingsActions from '../../../actions/settings';
 import { parseBackup } from '../../../helpers/backup';
 import {
@@ -202,13 +203,15 @@ export default function ExportBackup({
       dispatch(ContactsActions.getAllContacts());
       dispatch(InvoicesActions.getInvoices());
       dispatch(ItemsActions.getAllItems());
+      dispatch(RecurringActions.getRecurring());
 
       const settingsFailures = result.settingsFailures ?? [];
 
       const failedCount =
         result.failed.contacts.length +
         result.failed.invoices.length +
-        result.failed.items.length;
+        result.failed.items.length +
+        (result.failed.recurring?.length ?? 0);
       const partial =
         Boolean(result.batchError) ||
         failedCount > 0 ||

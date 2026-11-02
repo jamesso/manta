@@ -36,14 +36,14 @@ function omitKeys(obj, keys) {
   return next;
 }
 
-export function buildTemplateFromInvoice(invoice) {
+export function buildTemplateFromInvoice(invoice, now) {
   const template = omitKeys(invoice, TEMPLATE_OMIT);
   template.docType = 'invoice';
   template.rows = (template.rows ?? []).map(row => ({ ...row }));
 
   const dueDate = template.dueDate;
   if (dueDate?.useCustom && dueDate.selectedDate) {
-    const issueMs = getIssuedAt(invoice) ?? Date.now();
+    const issueMs = getIssuedAt(invoice) ?? now;
     const issueDay = moment(issueMs).startOf('day');
     const dueDay = moment(dueDate.selectedDate).startOf('day');
     const offsetDays = Math.max(0, dueDay.diff(issueDay, 'days'));
@@ -77,7 +77,7 @@ export function buildProfileFromInvoice(invoice, now) {
     endDate: null,
     active: true,
     lastRunAt: null,
-    template: buildTemplateFromInvoice(invoice),
+    template: buildTemplateFromInvoice(invoice, now),
     sourceInvoiceId: invoice._id,
   };
 }

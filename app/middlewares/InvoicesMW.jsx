@@ -23,7 +23,22 @@ import {
   clearInvoiceDeletedForUndo,
 } from '../helpers/estimate';
 import { isEstimate, isInvoice, isCreditNote } from '../helpers/docType';
-import { getInvoiceNumber, getStoredStatus } from '../helpers/invoice';
+import {
+  getInvoiceNumber,
+  getStoredStatus,
+  withStatus,
+} from '../helpers/invoice';
+import {
+  assignNumberIfMissing,
+  normalizeNumbering,
+} from '../helpers/numbering';
+import {
+  numberingCountersEqual,
+  persistInvoiceNumberingCounter,
+  readInvoiceNumberingCounter,
+  runInvoiceNumberingWrite,
+} from '../helpers/invoiceNumberingWrites';
+import { buildRecurringTombstone } from '../helpers/recurring';
 import { runInvoiceMutationQueued } from '../helpers/invoiceMutations';
 import {
   buildCreditNoteDraft,
@@ -40,6 +55,7 @@ import {
 } from '../helpers/payments';
 import {
   addPaymentToDoc,
+  markDocPaidInFull,
   removePaymentFromDoc,
   setDocStatus,
   startOfDay,
@@ -54,6 +70,7 @@ import {
   removeDocs,
   restoreDocs,
   updateDocs,
+  deleteDoc,
 } from '../helpers/pouchDB';
 import { toast } from '@/components/ui/toast';
 import {
@@ -165,6 +182,23 @@ async function handleSyncCreditedInvoice(
 
 async function mutateCreditNoteOnInvoice(creditedInvoiceId, fn) {
   return runInvoiceMutationQueued(creditedInvoiceId, fn);
+}
+
+const appConfig = window.manta.settings;
+
+function applySettableInvoiceStatus(doc, status, now, creditNotes, numbering) {
+  const { doc: numbered, numbering: nextNumbering } = assignNumberIfMissing(
+    doc,
+    status,
+    numbering
+  );
+  if (getStoredStatus(numbered) === 'draft' && status === 'paid') {
+    const pending = withStatus(numbered, 'pending', now);
+    const paid = markDocPaidInFull(pending, now, creditNotes);
+    return { ...paid, numbering: nextNumbering };
+  }
+  const result = setDocStatus(numbered, status, now, creditNotes);
+  return { ...result, numbering: nextNumbering };
 }
 
 function paymentErrorMessage(errorKey) {
@@ -491,7 +525,18 @@ const InvoicesMW =
             if (!deletable.length) {
               return null;
             }
-            return removeDocs('invoices', deletable);
+            return removeDocs('invoices', deletable).then(async result => {
+              for (const doc of result.removed) {
+                if (doc.recurringId && doc.periodKey) {
+                  await saveDoc(
+                    'invoices',
+                    buildRecurringTombstone(doc.recurringId, doc.periodKey)
+                  );
+                }
+              }
+              const docs = await getAllDocs('invoices');
+              return { ...result, docs };
+            });
           })
         )
           .then(result => {
@@ -565,7 +610,21 @@ const InvoicesMW =
         if (!endWrite) {
           return undefined;
         }
-        return restoreDocs('invoices', action.payload)
+        return runInvoiceNumberingWrite(async () => {
+          for (const doc of action.payload) {
+            if (doc.recurringId && doc.periodKey) {
+              try {
+                await deleteDoc(
+                  'invoices',
+                  `rec-${doc.recurringId}-${doc.periodKey}`
+                );
+              } catch {
+                /* tombstone may be absent */
+              }
+            }
+          }
+          return restoreDocs('invoices', action.payload);
+        })
           .then(docs => {
             for (const doc of action.payload) {
               if (isInvoice(doc)) {
@@ -944,27 +1003,66 @@ const InvoicesMW =
         }
         const ids = [...new Set([].concat(invoiceID))];
         const now = Date.now();
+        const initialNumbering = readInvoiceNumberingCounter(
+          appConfig,
+          getState().form.reconciledNumbering
+        );
+        let numbering = initialNumbering;
 
-        return Promise.all(
-          ids.map(id =>
-            queuedInvoiceWrite(id, (doc, creditNotes) => {
+        return runInvoiceNumberingWrite(async () => {
+          const results = [];
+          for (const id of ids) {
+            let numberingAfterAssign = numbering;
+            const result = await queuedInvoiceWrite(id, (doc, creditNotes) => {
               if (!isSettableStatus(doc, status)) {
                 return { ok: false, error: 'invalidStatus' };
               }
               if (isEstimate(doc)) {
                 return { ok: true, doc: { ...doc, status } };
               }
-              return setDocStatus(doc, status, now, creditNotes);
-            })
-          )
-        )
+              const statusResult = applySettableInvoiceStatus(
+                doc,
+                status,
+                now,
+                creditNotes,
+                numberingAfterAssign
+              );
+              numberingAfterAssign =
+                statusResult.numbering ?? numberingAfterAssign;
+              if (!statusResult.ok) {
+                return statusResult;
+              }
+              return {
+                ok: true,
+                doc: statusResult.doc,
+                stillPaid: statusResult.stillPaid,
+                numbering: numberingAfterAssign,
+              };
+            });
+            if (result.ok && result.committed) {
+              numbering = numberingAfterAssign;
+            }
+            results.push(result);
+          }
+          return results;
+        })
           .then(results =>
             finalizeQueuedWrites({
               results,
               next,
               dispatch,
               getState,
-            }).then(({ committed }) => {
+            }).then(async ({ committed }) => {
+              if (
+                committed.length &&
+                !numberingCountersEqual(numbering, initialNumbering)
+              ) {
+                await persistInvoiceNumberingCounter(appConfig, numbering, {
+                  dispatch,
+                  actionTypes: ACTION_TYPES,
+                  i18n,
+                });
+              }
               const okResults = results.filter(r => r.ok);
               const failed = results.filter(r => !r.ok);
               if (!committed.length) {

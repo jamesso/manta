@@ -42,6 +42,7 @@ export default function Invoices() {
   const creditNotes = useSelector(getCreditNotes);
   const allSalesDocs = useSelector(getAllSalesDocs);
   const dateFormat = useSelector(getDateFormat);
+  const tabRequest = useSelector(s => s.ui.invoicesTabRequest);
   const now = useNow();
 
   const [tab, setTab] = useState('all');
@@ -120,6 +121,16 @@ export default function Invoices() {
   useEffect(() => {
     setRowSelection({});
   }, [tab, query]);
+
+  useEffect(() => {
+    if (tabRequest && INVOICE_TABS.includes(tabRequest)) {
+      setTab(tabRequest);
+      setQuery('');
+    }
+    if (tabRequest != null) {
+      dispatch(UIActions.openInvoicesTab(null));
+    }
+  }, [tabRequest, dispatch]);
 
   useEffect(() => {
     setRowSelection(prev => {

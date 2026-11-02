@@ -52,6 +52,25 @@ describe('backup-files', () => {
     expect(parsed.items).toHaveLength(1);
   });
 
+  it('serializeBackup writes recurring array', () => {
+    const text = serializeBackup(
+      {
+        app: 'Manta',
+        version: 6,
+        settings: null,
+        invoices: [],
+        contacts: [],
+        items: [],
+        recurring: [{ _id: 'rp1', name: 'Plan' }],
+      },
+      '1.1.4',
+      new Date('2026-01-01T00:00:00.000Z')
+    );
+    const parsed = JSON.parse(text);
+    expect(parsed.recurring).toHaveLength(1);
+    expect(parsed.recurring[0]._id).toBe('rp1');
+  });
+
   it('autoBackupFileName sorts in time order', () => {
     const a = autoBackupFileName(new Date('2026-01-01T10:00:00.000Z'));
     const b = autoBackupFileName(new Date('2026-01-01T11:00:00.000Z'));

@@ -60,6 +60,7 @@ export default function DetailsCard() {
   } = form;
   const isEstimate = docType === 'estimate';
   const isCreditNote = docType === 'creditNote';
+  const isTemplateMode = form.templateTarget != null;
   const estimateValidDays =
     window.manta.settings.get('invoice.estimateValidDays') ?? 30;
   const defaultValidUntil = getDefaultValidUntil(
@@ -74,36 +75,40 @@ export default function DetailsCard() {
         <CardTitle>{t('form:cards:details')}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <Field>
-          <FieldLabel htmlFor="invoice-number">
-            {t(
-              isEstimate
-                ? 'form:fields:estimateNumber:label'
-                : 'form:fields:invoiceNumber:label'
-            )}
-          </FieldLabel>
-          <Input
-            id="invoice-number"
-            value={invoiceID ?? ''}
-            aria-invalid={Boolean(errors.invoiceID)}
-            onChange={e => update('invoiceID', e.target.value)}
+        {!isTemplateMode ? (
+          <Field>
+            <FieldLabel htmlFor="invoice-number">
+              {t(
+                isEstimate
+                  ? 'form:fields:estimateNumber:label'
+                  : 'form:fields:invoiceNumber:label'
+              )}
+            </FieldLabel>
+            <Input
+              id="invoice-number"
+              value={invoiceID ?? ''}
+              aria-invalid={Boolean(errors.invoiceID)}
+              onChange={e => update('invoiceID', e.target.value)}
+            />
+            <FieldDescription>
+              {t(
+                isEstimate
+                  ? 'form:fields:estimateNumber:hint'
+                  : 'form:fields:invoiceNumber:hint'
+              )}
+            </FieldDescription>
+            {errors.invoiceID && <FieldError>{t(errors.invoiceID)}</FieldError>}
+          </Field>
+        ) : null}
+        {!isTemplateMode ? (
+          <DatePickerField
+            id="issued-at"
+            label={t('form:fields:issuedAt')}
+            value={new Date(issuedAt ?? Date.now())}
+            onChange={date => date && update('issuedAt', date.getTime())}
+            error={errors.issuedAt}
           />
-          <FieldDescription>
-            {t(
-              isEstimate
-                ? 'form:fields:estimateNumber:hint'
-                : 'form:fields:invoiceNumber:hint'
-            )}
-          </FieldDescription>
-          {errors.invoiceID && <FieldError>{t(errors.invoiceID)}</FieldError>}
-        </Field>
-        <DatePickerField
-          id="issued-at"
-          label={t('form:fields:issuedAt')}
-          value={new Date(issuedAt ?? Date.now())}
-          onChange={date => date && update('issuedAt', date.getTime())}
-          error={errors.issuedAt}
-        />
+        ) : null}
         {isCreditNote && creditedInvoice?.invoiceID ? (
           <p className="text-sm text-muted-foreground">
             {t('form:creditNote:credits', {
@@ -132,73 +137,163 @@ export default function DetailsCard() {
         {!isEstimate && !isCreditNote && settings.required_fields.dueDate && (
           <div className="space-y-2">
             <FieldLabel>{t('form:fields:dueDate:name')}</FieldLabel>
-            <ToggleGroup
-              variant="outline"
-              value={[dueDate.useCustom ? 'date' : 'terms']}
-              onValueChange={values => {
-                if (values.length)
-                  update('dueDate', {
-                    useCustom: values[0] === 'date',
-                    paymentTerm: dueDate.paymentTerm || paymentTerms[0],
-                  });
-              }}
-            >
-              <ToggleGroupItem value="date">
-                {t('form:fields:dueDate:modeDate')}
-              </ToggleGroupItem>
-              <ToggleGroupItem value="terms">
-                {t('form:fields:dueDate:modeTerms')}
-              </ToggleGroupItem>
-            </ToggleGroup>
-            {dueDate.useCustom ? (
-              <DatePickerField
-                id="due-date"
-                label={t('form:fields:dueDate:name')}
-                value={
-                  dueDate.selectedDate
-                    ? moment(dueDate.selectedDate).toDate()
-                    : null
-                }
-                onChange={date =>
-                  update('dueDate', {
-                    selectedDate: date ? moment(date).toObject() : null,
-                  })
-                }
-                placeholder={t('form:fields:dueDate:placeHolder')}
-                error={errors.dueDate}
-                clearable
-              />
+            {isTemplateMode ? (
+              <>
+                <ToggleGroup
+                  variant="outline"
+                  value={[
+                    dueDate.useCustom && dueDate.offsetDays != null
+                      ? 'offset'
+                      : 'terms',
+                  ]}
+                  onValueChange={values => {
+                    if (!values.length) {
+                      return;
+                    }
+                    if (values[0] === 'offset') {
+                      update('dueDate', {
+                        useCustom: true,
+                        offsetDays: dueDate.offsetDays ?? 0,
+                        paymentTerm: null,
+                        selectedDate: null,
+                      });
+                    } else {
+                      update('dueDate', {
+                        useCustom: false,
+                        paymentTerm: dueDate.paymentTerm || paymentTerms[0],
+                        selectedDate: null,
+                        offsetDays: undefined,
+                      });
+                    }
+                  }}
+                >
+                  <ToggleGroupItem value="offset">
+                    {t('form:fields:dueDate:modeOffset')}
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="terms">
+                    {t('form:fields:dueDate:modeTerms')}
+                  </ToggleGroupItem>
+                </ToggleGroup>
+                {dueDate.useCustom ? (
+                  <Field>
+                    <FieldLabel htmlFor="due-offset-days">
+                      {t('form:fields:dueDate:offsetDays')}
+                    </FieldLabel>
+                    <Input
+                      id="due-offset-days"
+                      type="number"
+                      min={0}
+                      max={365}
+                      value={dueDate.offsetDays ?? 0}
+                      aria-invalid={Boolean(errors.offsetDays)}
+                      onChange={e =>
+                        update('dueDate', {
+                          useCustom: true,
+                          offsetDays: Number(e.target.value),
+                          paymentTerm: null,
+                          selectedDate: null,
+                        })
+                      }
+                    />
+                    {errors.offsetDays ? (
+                      <FieldError>{t(errors.offsetDays)}</FieldError>
+                    ) : null}
+                  </Field>
+                ) : (
+                  <Select
+                    value={dueDate.paymentTerm || paymentTerms[0]}
+                    onValueChange={value =>
+                      value && update('dueDate', { paymentTerm: value })
+                    }
+                  >
+                    <SelectTrigger
+                      aria-label={t('form:fields:dueDate:paymentTerms:name')}
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {paymentTerms.map(term => (
+                        <SelectItem key={term} value={term}>
+                          {t(`form:fields:dueDate:paymentTerms:${term}:label`)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </>
             ) : (
               <>
-                <Select
-                  value={dueDate.paymentTerm || paymentTerms[0]}
-                  onValueChange={value =>
-                    value && update('dueDate', { paymentTerm: value })
-                  }
+                <ToggleGroup
+                  variant="outline"
+                  value={[dueDate.useCustom ? 'date' : 'terms']}
+                  onValueChange={values => {
+                    if (values.length)
+                      update('dueDate', {
+                        useCustom: values[0] === 'date',
+                        paymentTerm: dueDate.paymentTerm || paymentTerms[0],
+                      });
+                  }}
                 >
-                  <SelectTrigger
-                    aria-label={t('form:fields:dueDate:paymentTerms:name')}
-                  >
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {paymentTerms.map(term => (
-                      <SelectItem key={term} value={term}>
-                        {t(`form:fields:dueDate:paymentTerms:${term}:label`)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-sm text-muted-foreground">
-                  {t('form:fields:dueDate:computed', {
-                    date: moment(
-                      calTermDate(
-                        issuedAt ?? Date.now(),
-                        dueDate.paymentTerm || paymentTerms[0]
-                      )
-                    ).format('LL'),
-                  })}
-                </p>
+                  <ToggleGroupItem value="date">
+                    {t('form:fields:dueDate:modeDate')}
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="terms">
+                    {t('form:fields:dueDate:modeTerms')}
+                  </ToggleGroupItem>
+                </ToggleGroup>
+                {dueDate.useCustom ? (
+                  <DatePickerField
+                    id="due-date"
+                    label={t('form:fields:dueDate:name')}
+                    value={
+                      dueDate.selectedDate
+                        ? moment(dueDate.selectedDate).toDate()
+                        : null
+                    }
+                    onChange={date =>
+                      update('dueDate', {
+                        selectedDate: date ? moment(date).toObject() : null,
+                      })
+                    }
+                    placeholder={t('form:fields:dueDate:placeHolder')}
+                    error={errors.dueDate}
+                    clearable
+                  />
+                ) : (
+                  <>
+                    <Select
+                      value={dueDate.paymentTerm || paymentTerms[0]}
+                      onValueChange={value =>
+                        value && update('dueDate', { paymentTerm: value })
+                      }
+                    >
+                      <SelectTrigger
+                        aria-label={t('form:fields:dueDate:paymentTerms:name')}
+                      >
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {paymentTerms.map(term => (
+                          <SelectItem key={term} value={term}>
+                            {t(
+                              `form:fields:dueDate:paymentTerms:${term}:label`
+                            )}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-sm text-muted-foreground">
+                      {t('form:fields:dueDate:computed', {
+                        date: moment(
+                          calTermDate(
+                            issuedAt ?? Date.now(),
+                            dueDate.paymentTerm || paymentTerms[0]
+                          )
+                        ).format('LL'),
+                      })}
+                    </p>
+                  </>
+                )}
               </>
             )}
           </div>

@@ -69,6 +69,14 @@ describe('pouchDB helpers', () => {
     await expect(getAllDocs('nope')).rejects.toThrow('Unknown database: nope');
   });
 
+  it('saveDoc stores recurring profiles in the recurring database only', async () => {
+    await saveDoc('recurring', { _id: 'r1', name: 'A', active: true });
+    const recurring = await getAllDocs('recurring');
+    expect(recurring.some(d => d._id === 'r1')).toBe(true);
+    const invoices = await getAllDocs('invoices');
+    expect(invoices.some(d => d._id === 'r1')).toBe(false);
+  });
+
   describe('bulk invoice helpers', () => {
     let removeDocs;
     let restoreDocs;

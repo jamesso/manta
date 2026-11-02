@@ -2,17 +2,24 @@ import { getDefaultPreviewConfigs } from '../../preview/constants/defaultConfigs
 import { getInvoiceTotals, getIssuedAt } from './invoice';
 import { pickInvoiceFields, resolveSellerForSave } from './form';
 import { getDefaultValidUntil, normalizeValidDays } from './estimate';
+import { materializeDueDate } from './recurring';
 
 export function formToPreviewInvoice(
   form,
   { invoiceSettings, generalSettings, profile, now }
 ) {
+  const isTemplate = form.templateTarget != null;
+  const previewIssued = isTemplate ? now : undefined;
   const { settings } = form;
   const { editMode } = settings;
   const docType = form.docType || 'invoice';
   const editIssued = editMode.active ? getIssuedAt(editMode.data) : null;
-  const issuedAt = form.issuedAt ?? editIssued ?? now;
+  const issuedAt = previewIssued ?? form.issuedAt ?? editIssued ?? now;
   const fields = pickInvoiceFields(form, invoiceSettings.currency);
+  if (isTemplate && fields.dueDate) {
+    fields.dueDate =
+      materializeDueDate(fields.dueDate, issuedAt) ?? fields.dueDate;
+  }
   const invoice = {
     ...fields,
     docType,

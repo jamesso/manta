@@ -1528,6 +1528,61 @@ describe('Invoices Middleware', () => {
     });
   });
 
+  it('assigns consecutive numbers when bulk marking recurring drafts paid', async () => {
+    const draftBase = {
+      status: 'draft',
+      grandTotal: 10,
+      currency: { fraction: 2, code: 'USD' },
+      rows: [{ subtotal: 10 }],
+      recipient: { fullname: 'A', email: 'a@b.c' },
+      recurringId: 'prof',
+    };
+    mockData.invoicesRecords = [
+      { _id: 'r1', ...draftBase, periodKey: '2026-01-01' },
+      { _id: 'r2', ...draftBase, periodKey: '2026-02-01' },
+    ];
+    getAllDocs.mockResolvedValue([...mockData.invoicesRecords]);
+    getSingleDoc.mockImplementation((_db, id) => {
+      const doc = mockData.invoicesRecords.find(d => d._id === id);
+      return doc
+        ? Promise.resolve({ ...doc, _rev: '1-x' })
+        : Promise.reject(new Error('missing'));
+    });
+    getState.mockReturnValueOnce({
+      form: {
+        settings: { editMode: { active: false } },
+        reconciledNumbering: null,
+      },
+    });
+    window.manta.settings.get.mockImplementation(key => {
+      if (key === 'invoice' || key === 'invoice.numbering') {
+        return {
+          numbering: { prefix: 'INV-', next: 1, padding: 4 },
+          currency: { fraction: 2 },
+        };
+      }
+      return undefined;
+    });
+    const written = [];
+    updateDocs.mockImplementation((_db, docs) => {
+      written.push(...docs);
+      for (const doc of docs) {
+        const idx = mockData.invoicesRecords.findIndex(d => d._id === doc._id);
+        if (idx >= 0) {
+          mockData.invoicesRecords[idx] = { ...doc, _rev: '2-x' };
+        }
+      }
+      return Promise.resolve([...mockData.invoicesRecords]);
+    });
+    await middleware(Actions.setInvoiceStatus(['r1', 'r2'], 'paid'));
+    const numbers = written.map(d => d.invoiceID).sort();
+    expect(numbers).toEqual(['INV-0001', 'INV-0002']);
+    expect(window.manta.settings.set).toHaveBeenCalledWith(
+      'invoice.numbering',
+      expect.objectContaining({ next: 3 })
+    );
+  });
+
   it('let other actions pass through', () => {
     const action = { type: 'TEST' };
     middleware(action);

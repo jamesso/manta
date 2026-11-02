@@ -1,4 +1,4 @@
-import { MoreHorizontal, HandCoins, FileMinus } from 'lucide-react';
+import { MoreHorizontal, HandCoins, FileMinus, Repeat } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -23,6 +23,9 @@ import {
   setInvoiceStatus,
 } from '../../actions/invoices';
 import { getStoredStatus } from '../../helpers/invoice';
+import { getDocType } from '../../helpers/docType';
+import { buildProfileFromInvoice } from '../../helpers/recurring';
+import * as UIActions from '../../actions/ui';
 import { canCreateCreditNote } from '../../helpers/creditNotes';
 import { canRecordPayment } from '../../helpers/payments';
 import { getAllSalesDocs } from '../../reducers/InvoicesReducer';
@@ -68,6 +71,22 @@ export default function InvoiceRowActions({
         <DropdownMenuItem onClick={() => dispatch(duplicateInvoice(invoice))}>
           {t('invoices:actions:duplicate')}
         </DropdownMenuItem>
+        {getDocType(invoice) === 'invoice' ? (
+          <DropdownMenuItem
+            onClick={() => {
+              dispatch(
+                UIActions.setRecurringSheet({
+                  mode: 'new',
+                  profile: buildProfileFromInvoice(invoice, Date.now()),
+                })
+              );
+              dispatch(UIActions.changeActiveTab('recurring'));
+            }}
+          >
+            <Repeat />
+            {t('invoices:actions:makeRecurring')}
+          </DropdownMenuItem>
+        ) : null}
         {showCredit ? (
           <DropdownMenuItem onClick={() => dispatch(createCreditNote(invoice))}>
             <FileMinus />

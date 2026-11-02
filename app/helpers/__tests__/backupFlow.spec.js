@@ -109,6 +109,79 @@ describe('backupFlow', () => {
     });
     expect(result.contacts.some(doc => doc._id === 'c2')).toBe(true);
   });
+
+  it('fast-forwards imported recurring nextDate and includes recurring in snapshot', async () => {
+    const { bulkSaveDocs, getAllDocs } = await import('../pouchDB');
+    let snapshotPayload;
+    bulkSaveDocs.mockImplementation(async (db, docs) => {
+      if (db === 'recurring') {
+        return {
+          succeeded: docs.map(d => d._id),
+          failed: [],
+          allDocs: docs,
+        };
+      }
+      return { succeeded: [], failed: [], allDocs: [] };
+    });
+    getAllDocs.mockImplementation(async db => {
+      if (db === 'recurring') return [];
+      if (db === 'contacts') return [];
+      if (db === 'items') return [];
+      return [];
+    });
+    const ipc = {
+      invoke: vi.fn(async (channel, payload) => {
+        if (channel === 'backup-snapshot') {
+          snapshotPayload = payload;
+          return { filePath: '/tmp/safety.json' };
+        }
+      }),
+    };
+    const incoming = {
+      _id: 'rp-old',
+      name: 'Old',
+      active: true,
+      interval: 'monthly',
+      every: 1,
+      anchorDay: 1,
+      startDate: '2020-01-01',
+      nextDate: '2020-02-01',
+      endDate: null,
+      template: {
+        docType: 'invoice',
+        recipient: { fullname: 'C', email: 'c@x.com' },
+        rows: [
+          {
+            id: 'r1',
+            description: 'Work',
+            quantity: '1',
+            price: '1',
+            subtotal: 1,
+          },
+        ],
+        currency: {
+          code: 'USD',
+          fraction: 2,
+          separator: 'commaDot',
+          placement: 'before',
+        },
+      },
+    };
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-03-15T12:00:00'));
+    await runImport(
+      { contacts: [], invoices: [], recurring: [incoming] },
+      { mode: 'skip', includeSettings: false },
+      { ipc }
+    );
+    vi.useRealTimers();
+    expect(snapshotPayload.recurring).toEqual([]);
+    const recurringWrite = bulkSaveDocs.mock.calls.find(
+      c => c[0] === 'recurring'
+    );
+    expect(recurringWrite).toBeDefined();
+    expect(recurringWrite[1][0].nextDate >= '2026-03-01').toBe(true);
+  });
 });
 
 describe('importWriteLock', () => {

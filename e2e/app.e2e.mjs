@@ -270,6 +270,114 @@ async function reactInput(locator, value) {
   }, value);
 }
 
+test('recurring profile starting today creates one draft and resume does not duplicate', async () => {
+  const page = await pageByTitle(MAIN_TITLE);
+  await showMain(page);
+  await app.evaluate(({ BrowserWindow }) => {
+    const w = BrowserWindow.getAllWindows().find(x => x.getTitle() === 'Manta');
+    if (w) {
+      w.setBounds({ x: 50, y: 50, width: 1280, height: 800 });
+      w.show();
+      w.focus();
+    }
+  });
+
+  const sidebar = page.locator('[data-slot="sidebar"]');
+  await sidebar.getByRole('button', { name: 'Recurring', exact: true }).click();
+  await expect(
+    page.locator('h1.text-2xl', { hasText: 'Recurring' })
+  ).toBeVisible({ timeout: 15_000 });
+  await page.screenshot({
+    path: '/tmp/manta-024-screens/recurring-empty-light.png',
+    fullPage: true,
+  });
+  await page.evaluate(() => window.manta.ipc.send('set-theme', 'dark'));
+  await expect
+    .poll(() =>
+      page.evaluate(() => matchMedia('(prefers-color-scheme: dark)').matches)
+    )
+    .toBe(true);
+  await page.screenshot({
+    path: '/tmp/manta-024-screens/recurring-empty-dark.png',
+    fullPage: true,
+  });
+  await page.evaluate(() => window.manta.ipc.send('set-theme', 'light'));
+  await page
+    .getByRole('button', { name: 'New recurring invoice', exact: true })
+    .click();
+  await expect(
+    page.getByRole('button', { name: 'Save template', exact: true })
+  ).toBeVisible({ timeout: 30_000 });
+
+  const addNewClient = page.getByRole('button', {
+    name: 'Add new client',
+    exact: true,
+  });
+  const clientSearch = page.getByRole('combobox', {
+    name: 'Search clients',
+    exact: true,
+  });
+  if (await clientSearch.isVisible()) {
+    await clientSearch.click();
+    await page.getByRole('option').first().click();
+  } else if (await addNewClient.isVisible()) {
+    await addNewClient.click();
+    await expect(page.locator('#client-fullname')).toBeVisible({
+      timeout: 15_000,
+    });
+    await reactInput(page.locator('#client-fullname'), 'Recurring Client');
+    await reactInput(page.locator('#client-email'), 'recurring@example.com');
+  } else {
+    await reactInput(page.locator('#client-fullname'), 'Recurring Client');
+    await reactInput(page.locator('#client-email'), 'recurring@example.com');
+  }
+  await reactInput(page.getByLabel('Description for item 1'), 'Retainer');
+  await reactInput(page.getByLabel('Price for item 1'), '100');
+  await reactInput(page.getByLabel('Quantity for item 1'), '1');
+  await page
+    .getByRole('button', { name: 'Save template', exact: true })
+    .click();
+  await expect(
+    page.locator('h1.text-2xl', { hasText: 'Recurring' })
+  ).toBeVisible({ timeout: 15_000 });
+
+  const sheet = page.locator('[data-slot="sheet-content"]');
+  await expect(sheet).toBeVisible({ timeout: 15_000 });
+  await reactInput(
+    sheet.locator('input:not([type="number"])').first(),
+    'E2E Monthly'
+  );
+  await sheet.getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(page.getByText('Recurring invoice saved')).toBeVisible({
+    timeout: 15_000,
+  });
+  await expect(
+    page.getByRole('button', { name: 'View drafts', exact: true })
+  ).toBeVisible({ timeout: 20_000 });
+
+  await page.getByRole('button', { name: 'View drafts', exact: true }).click();
+  await expect(
+    page.locator('h1.text-2xl', { hasText: 'Invoices' })
+  ).toBeVisible();
+  await expect(page.getByText('No number yet')).toBeVisible({
+    timeout: 20_000,
+  });
+
+  const countDraftRows = () =>
+    page.locator('table tbody tr').filter({ hasText: /./ }).count();
+
+  await app.evaluate(({ BrowserWindow, powerMonitor }) => {
+    powerMonitor.emit('resume');
+    const win = BrowserWindow.getAllWindows().find(
+      w => w.getTitle() === 'Manta'
+    );
+    if (win && !win.isDestroyed()) {
+      win.webContents.send('system-resumed');
+    }
+  });
+  await expect.poll(async () => countDraftRows(), { timeout: 20_000 }).toBe(1);
+});
+
 test('draft save advances invoice numbering on cleared form', async () => {
   const page = await pageByTitle(MAIN_TITLE);
   await showMain(page);

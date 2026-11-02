@@ -17,7 +17,21 @@ export default function Recurring() {
   const openNewTemplate = () => {
     dispatch({
       type: ACTION_TYPES.FORM_LOAD_TEMPLATE,
-      payload: { template: {}, profileId: null, contacts },
+      payload: {
+        template: {
+          rows: [
+            {
+              id: crypto.randomUUID(),
+              description: '',
+              price: '',
+              quantity: '',
+            },
+          ],
+          recipient: { fullname: '', email: '' },
+        },
+        profileId: null,
+        contacts,
+      },
     });
     dispatch(UIActions.changeActiveTab('form'));
   };

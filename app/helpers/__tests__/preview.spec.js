@@ -44,6 +44,21 @@ describe('formToPreviewInvoice', () => {
       recipient: { fullname: 'Jane' },
     });
   });
+  it('materializes offset due date in template mode', () => {
+    const f = input();
+    f.templateTarget = { profileId: 'prof' };
+    f.settings.required_fields.dueDate = true;
+    f.dueDate = {
+      useCustom: true,
+      selectedDate: null,
+      offsetDays: 14,
+      paymentTerm: null,
+    };
+    const { invoice } = formToPreviewInvoice(f, { ...context, now: 1_000_000 });
+    expect(invoice.dueDate.useCustom).toBe(true);
+    expect(invoice.dueDate.selectedDate).toBeDefined();
+    expect(invoice.dueDate.paymentTerm).toBeNull();
+  });
   it('uses selected recipient and edited configs', () => {
     const f = input();
     f.recipient.newRecipient = false;

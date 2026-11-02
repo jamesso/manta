@@ -23,7 +23,10 @@ import { Field, FieldLabel, FieldError } from '@/components/ui/field';
 import DatePickerField from '../form/editor/DatePickerField';
 import * as UIActions from '../../actions/ui';
 import * as Actions from '../../actions/recurring';
-import { getRecurringErrors } from '../../helpers/recurring';
+import {
+  applyScheduleOnSave,
+  getRecurringErrors,
+} from '../../helpers/recurring';
 import {
   DATE_KEY,
   firstPeriodOnOrAfter,
@@ -54,7 +57,14 @@ export default function RecurringSheet() {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const sheet = useSelector(s => s.ui.recurringSheet);
-  const profiles = useSelector(s => s.recurring) || [];
+  const recurringList = useSelector(s => s.recurring);
+  const existingProfile = useMemo(() => {
+    if (sheet?.mode !== 'edit' || !sheet.id) {
+      return null;
+    }
+    const profiles = recurringList ?? [];
+    return profiles.find(p => p._id === sheet.id) ?? null;
+  }, [recurringList, sheet?.id, sheet?.mode]);
   const [draft, setDraft] = useState(null);
 
   useEffect(() => {
@@ -70,28 +80,29 @@ export default function RecurringSheet() {
       });
       return;
     }
-    const existing = profiles.find(p => p._id === sheet.id);
-    setDraft(existing ? { ...existing } : null);
-  }, [sheet, profiles.length, sheet?.id, sheet?.mode]);
+    setDraft(existingProfile ? { ...existingProfile } : null);
+  }, [sheet, existingProfile]);
 
   const errors = draft ? getRecurringErrors(draft) : {};
   const today = toDateKey(Date.now());
 
-  const nextPreview = useMemo(() => {
+  const { nextPreview, scheduledNextDate } = useMemo(() => {
     if (!draft?.startDate) {
-      return [];
+      return { nextPreview: [], scheduledNextDate: draft?.nextDate ?? null };
     }
+    const schedule = applyScheduleOnSave(existingProfile, draft, Date.now());
+    const profileForSeries = { ...draft, ...schedule };
     const keys = [];
-    let d = firstPeriodOnOrAfter(draft, draft.nextDate || draft.startDate);
+    let d = firstPeriodOnOrAfter(profileForSeries, schedule.nextDate);
     for (let i = 0; i < 3; i += 1) {
       if (draft.endDate && d > draft.endDate) {
         break;
       }
       keys.push(d);
-      d = nextDateAfter(d, draft.interval, draft.every, draft.anchorDay);
+      d = nextDateAfter(d, draft.interval, draft.every, schedule.anchorDay);
     }
-    return keys;
-  }, [draft]);
+    return { nextPreview: keys, scheduledNextDate: schedule.nextDate };
+  }, [draft, existingProfile]);
 
   if (!sheet || !draft) {
     return null;
@@ -223,7 +234,7 @@ export default function RecurringSheet() {
               ))}
             </ul>
           </div>
-          {draft.startDate <= today && draft.nextDate === today ? (
+          {scheduledNextDate === today ? (
             <p className="text-sm text-muted-foreground">
               {t('recurring:sheet:createsToday')}
             </p>

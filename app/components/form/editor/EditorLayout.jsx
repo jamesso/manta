@@ -29,8 +29,11 @@ export default function EditorLayout() {
   const isEstimate = docType === 'estimate';
   const isCreditNote = docType === 'creditNote';
   const editActive = settings.editMode.active;
+  const isTemplateMode = form.templateTarget != null;
   let heading = t(isEstimate ? 'form:header:newEstimate' : 'form:header:new');
-  if (isCreditNote) {
+  if (isTemplateMode) {
+    heading = t('form:header:template');
+  } else if (isCreditNote) {
     heading = t(
       editActive ? 'form:header:editCreditNote' : 'form:header:newCreditNote'
     );

@@ -348,4 +348,90 @@ describe('backup helpers', () => {
       unitCode: 'HUR',
     });
   });
+
+  const validRecurring = {
+    _id: 'rp1',
+    name: 'Plan',
+    active: true,
+    interval: 'monthly',
+    every: 1,
+    anchorDay: 15,
+    startDate: '2026-01-15',
+    nextDate: '2026-01-15',
+    endDate: null,
+    template: {
+      docType: 'invoice',
+      recipient: { fullname: 'C', email: 'c@x.com' },
+      rows: [
+        {
+          id: 'r1',
+          description: 'Work',
+          quantity: '1',
+          price: '10',
+          subtotal: 10,
+        },
+      ],
+      currency: {
+        code: 'USD',
+        fraction: 2,
+        separator: 'commaDot',
+        placement: 'before',
+      },
+    },
+  };
+
+  it('version 5 backup without recurring parses recurring as []', () => {
+    const parsed = parseBackup(
+      JSON.stringify({
+        app: 'Manta',
+        version: 5,
+        invoices: [],
+        contacts: [],
+      })
+    );
+    expect(parsed.ok).toBe(true);
+    expect(parsed.backup.recurring).toEqual([]);
+  });
+
+  it('rejects recurring when it is not an array', () => {
+    const parsed = parseBackup(
+      JSON.stringify({
+        app: 'Manta',
+        version: 6,
+        invoices: [],
+        contacts: [],
+        recurring: {},
+      })
+    );
+    expect(parsed.ok).toBe(false);
+    expect(parsed.error).toBe('invalid-format');
+  });
+
+  it('drops invalid recurring profiles and counts them', () => {
+    const parsed = parseBackup(
+      JSON.stringify({
+        app: 'Manta',
+        version: 6,
+        invoices: [],
+        contacts: [],
+        recurring: [validRecurring, { _id: 'bad', every: 0 }],
+      })
+    );
+    expect(parsed.ok).toBe(true);
+    expect(parsed.backup.recurring).toHaveLength(1);
+    expect(parsed.invalid.recurring).toBe(1);
+  });
+
+  it('round-trips recurring without _rev', () => {
+    const payload = buildBackup({
+      settings: null,
+      invoices: [],
+      contacts: [],
+      recurring: [{ ...validRecurring, _rev: '1-x' }],
+    });
+    const parsed = parseBackup(JSON.stringify(payload));
+    expect(parsed.ok).toBe(true);
+    expect(parsed.backup.recurring[0]._rev).toBeUndefined();
+    expect(parsed.backup.recurring[0].name).toBe('Plan');
+  });
 });

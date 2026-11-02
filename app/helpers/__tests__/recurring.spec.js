@@ -47,7 +47,7 @@ const sampleInvoice = {
 
 describe('buildTemplateFromInvoice', () => {
   it('drops omit keys and clones rows', () => {
-    const t = buildTemplateFromInvoice(sampleInvoice);
+    const t = buildTemplateFromInvoice(sampleInvoice, 0);
     for (const key of TEMPLATE_OMIT) {
       expect(t).not.toHaveProperty(key);
     }
@@ -65,13 +65,13 @@ describe('buildTemplateFromInvoice', () => {
         paymentTerm: null,
       },
     };
-    const t = buildTemplateFromInvoice(inv);
+    const t = buildTemplateFromInvoice(inv, dateKeyToMs('2026-01-01'));
     expect(t.dueDate.offsetDays).toBe(14);
     expect(t.dueDate.paymentTerm).toBeNull();
   });
 
   it('keeps payment term', () => {
-    const t = buildTemplateFromInvoice(sampleInvoice);
+    const t = buildTemplateFromInvoice(sampleInvoice, 0);
     expect(t.dueDate.paymentTerm).toBe('NET_30');
   });
 });
@@ -82,7 +82,7 @@ describe('buildInvoiceFromProfile', () => {
     interval: 'monthly',
     every: 1,
     anchorDay: 1,
-    template: buildTemplateFromInvoice(sampleInvoice),
+    template: buildTemplateFromInvoice(sampleInvoice, 0),
   };
 
   it('builds deterministic draft', () => {
@@ -193,7 +193,7 @@ describe('getRecurringErrors', () => {
     interval: 'monthly',
     startDate: '2026-01-01',
     endDate: null,
-    template: buildTemplateFromInvoice(sampleInvoice),
+    template: buildTemplateFromInvoice(sampleInvoice, 0),
   };
 
   it('flags missing name', () => {

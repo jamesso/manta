@@ -267,7 +267,13 @@ const RecurringMW =
           .catch(err => {
             toast.add({ title: err.message, type: 'warning' });
           })
-          .finally(endWrite);
+          .finally(() => {
+            endWrite();
+            if (typeof window !== 'undefined') {
+              window.__mantaRecurringRunDone =
+                (window.__mantaRecurringRunDone ?? 0) + 1;
+            }
+          });
       }
 
       default:

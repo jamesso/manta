@@ -13,6 +13,7 @@ import * as ContactsActions from '../actions/contacts';
 import * as SettingsActions from '../actions/settings';
 import * as UIActions from '../actions/ui';
 import * as EstimateActions from '../actions/estimates';
+import * as RecurringActions from '../actions/recurring';
 
 // Helper
 import {
@@ -20,7 +21,10 @@ import {
   getFormErrors,
   getRecipientErrors,
   hasUnsavedFormChanges,
+  pickInvoiceFields,
 } from '../helpers/form';
+import { buildTemplateFromInvoice } from '../helpers/recurring';
+import { toDateKey } from '../helpers/recurringSchedule';
 import {
   applyTaxRate,
   getDefaultTaxRate,
@@ -161,6 +165,81 @@ async function handleSave({ dispatch, getState }, mode) {
           },
         });
         return;
+      }
+
+      if (mode === 'template') {
+        const profileId = formSnapshot.templateTarget?.profileId ?? null;
+        const defaultCurrency = appConfig.get('invoice.currency');
+        const template = buildTemplateFromInvoice(
+          {
+            ...pickInvoiceFields(formSnapshot, defaultCurrency),
+            dueDate: formSnapshot.dueDate,
+          },
+          Date.now()
+        );
+        if (formSnapshot.recipient.newRecipient) {
+          const contactErrors = getRecipientErrors(
+            formSnapshot.recipient,
+            'final'
+          );
+          if (Object.keys(contactErrors).length === 0) {
+            const recipient =
+              template.recipient ??
+              pickInvoiceFields(formSnapshot, defaultCurrency).recipient;
+            const contactOk = await dispatch(
+              ContactsActions.saveContact({
+                ...recipient,
+                _id: crypto.randomUUID(),
+                created_at: Date.now(),
+              })
+            );
+            if (contactOk === false) {
+              dispatch({
+                type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+                payload: {
+                  type: 'warning',
+                  message: i18n.t('form:errors:partialContactSave'),
+                },
+              });
+            }
+          }
+        }
+        if (profileId) {
+          try {
+            const ok = await dispatch(
+              RecurringActions.updateRecurringTemplate({
+                id: profileId,
+                template,
+              })
+            );
+            if (ok === false) {
+              return false;
+            }
+          } catch {
+            return false;
+          }
+        } else {
+          const today = toDateKey(Date.now());
+          dispatch(
+            UIActions.setRecurringSheet({
+              mode: 'new',
+              profile: {
+                name: '',
+                interval: 'monthly',
+                every: 1,
+                startDate: today,
+                anchorDay: new Date().getDate(),
+                nextDate: today,
+                endDate: null,
+                active: true,
+                template,
+              },
+            })
+          );
+        }
+        dispatch(FormActions.clearForm(null, true));
+        dispatch(UIActions.changeActiveTab('recurring'));
+        return true;
       }
 
       const { editMode } = formSnapshot.settings;
@@ -387,6 +466,37 @@ async function handleSave({ dispatch, getState }, mode) {
             numberingBase,
             defaultNumberingFor(docTypeForNumbering)
           ),
+          data.invoiceID
+        );
+        try {
+          appConfig.set(`invoice.${key}`, advancedNumbering);
+          dispatch({ type: ACTION_TYPES.FORM_CLEAR_RECONCILED_NUMBERING });
+        } catch (err) {
+          dispatch({
+            type: ACTION_TYPES.FORM_RECONCILE_NUMBERING,
+            payload: advancedNumbering,
+          });
+          dispatch({
+            type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+            payload: {
+              type: 'warning',
+              message: i18n.t('form:errors:partialNumberingSave'),
+            },
+          });
+        }
+      } else if (
+        docType === 'invoice' &&
+        editMode.data?.status === 'draft' &&
+        !editMode.data?.invoiceID &&
+        data.invoiceID
+      ) {
+        const key = numberingKeyFor('invoice');
+        const numberingBase = resolveStoredNumbering(
+          getState().form.reconciledNumbering,
+          appConfig.get(`invoice.${key}`)
+        );
+        const advancedNumbering = advanceNumbering(
+          normalizeNumbering(numberingBase, defaultNumberingFor('invoice')),
           data.invoiceID
         );
         try {
@@ -635,6 +745,26 @@ const FormMW =
             FormActions.updateFieldData(
               'invoiceID',
               suggestedInvoiceNumberForForm(getState().form)
+            )
+          );
+        }
+        return result;
+      }
+
+      case ACTION_TYPES.INVOICE_EDIT: {
+        const result = next(action);
+        const form = getState().form;
+        const { editMode } = form.settings;
+        if (
+          editMode.active &&
+          editMode.data?.status === 'draft' &&
+          !editMode.data?.invoiceID &&
+          !form.invoiceID
+        ) {
+          dispatch(
+            FormActions.updateFieldData(
+              'invoiceID',
+              suggestedInvoiceNumberForForm(form)
             )
           );
         }

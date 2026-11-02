@@ -850,6 +850,75 @@ const state = {
   },
 };
 
+describe('FORM_LOAD_TEMPLATE', () => {
+  const base = {
+    rows: [],
+    dueDate: {
+      selectedDate: null,
+      paymentTerm: null,
+      useCustom: true,
+      offsetDays: 21,
+    },
+    note: {},
+    currency: {
+      code: 'USD',
+      fraction: 2,
+      placement: 'before',
+      separator: 'commaDot',
+    },
+    discount: {},
+    tax: {},
+    settings: { open: true, required_fields: {}, editMode: { active: false } },
+    savedSettings: {
+      tax: {},
+      currency: {
+        code: 'USD',
+        fraction: 2,
+        placement: 'before',
+        separator: 'commaDot',
+      },
+      required_fields: {},
+    },
+  };
+
+  it('sets templateTarget, clears invoiceID and keeps offsetDays', () => {
+    const next = FormReducer(base, {
+      type: ACTION_TYPES.FORM_LOAD_TEMPLATE,
+      payload: {
+        profileId: 'pid-1',
+        contacts: [],
+        template: {
+          recipient: { fullname: 'A', email: 'a@b.c' },
+          rows: [{ id: '1', description: 'Line', quantity: '1', price: '1' }],
+          dueDate: { useCustom: true, offsetDays: 21 },
+        },
+      },
+    });
+    expect(next.templateTarget).toEqual({ profileId: 'pid-1' });
+    expect(next.invoiceID).toBe('');
+    expect(next.dueDate.offsetDays).toBe(21);
+  });
+
+  it('FORM_CLEAR resets templateTarget', () => {
+    const withTemplate = FormReducer(base, {
+      type: ACTION_TYPES.FORM_LOAD_TEMPLATE,
+      payload: {
+        profileId: 'pid-1',
+        contacts: [],
+        template: {
+          recipient: { fullname: 'A', email: 'a@b.c' },
+          rows: [{ id: '1', description: 'Line', quantity: '1', price: '1' }],
+        },
+      },
+    });
+    const cleared = FormReducer(withTemplate, {
+      type: ACTION_TYPES.FORM_CLEAR,
+      payload: null,
+    });
+    expect(cleared.templateTarget).toBeNull();
+  });
+});
+
 describe('Form Selectors', () => {
   it('getRows should return form rows', () => {
     expect(getRows(state)).toEqual(state.form.rows);
