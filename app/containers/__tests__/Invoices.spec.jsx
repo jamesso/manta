@@ -1,12 +1,11 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
 
-// Component
 import { Invoices } from '../Invoices';
+import * as Actions from '../../actions/invoices';
 
-// Mocks
 const dispatch = vi.fn();
-const t = vi.fn();
+const t = vi.fn(k => k);
 const invoices = [
   {
     _id: 'first-invoice',
@@ -32,6 +31,11 @@ vi.mock('../../components/invoices/Invoice', () => ({
 vi.mock('../../components/shared/Message', () => ({
   default: () => <div className="message" />,
 }));
+
+vi.mock('@/lib/dialog', () => ({
+  confirm: vi.fn(() => Promise.resolve(false)),
+}));
+import * as dialog from '@/lib/dialog';
 
 function renderInvoices(list = invoices) {
   return render(<Invoices t={t} invoices={list} dispatch={dispatch} />);
@@ -87,6 +91,34 @@ describe('handle actions correcrtly', () => {
     );
     expect(container.querySelectorAll('.invoice')).toHaveLength(
       filteredInvoices.length
+    );
+  });
+});
+
+describe('deleteInvoice', () => {
+  beforeEach(() => {
+    dialog.confirm.mockClear();
+    dispatch.mockClear();
+  });
+
+  it('delete waits for confirmation and skips dispatch when cancelled', async () => {
+    dialog.confirm.mockResolvedValueOnce(false);
+    await Invoices.prototype.deleteInvoice.call(
+      { props: { t, dispatch } },
+      'first-invoice'
+    );
+    expect(dialog.confirm).toHaveBeenCalled();
+    expect(dispatch).not.toHaveBeenCalled();
+  });
+
+  it('dispatches delete when confirmed', async () => {
+    dialog.confirm.mockResolvedValueOnce(true);
+    await Invoices.prototype.deleteInvoice.call(
+      { props: { t, dispatch } },
+      'first-invoice'
+    );
+    expect(dispatch).toHaveBeenCalledWith(
+      Actions.deleteInvoice('first-invoice')
     );
   });
 });

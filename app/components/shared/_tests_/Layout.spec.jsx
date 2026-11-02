@@ -1,11 +1,7 @@
-// Libs
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 
-// Component
 import {
-  AppWrapper,
-  AppMainContent,
   PageWrapper,
   PageHeader,
   PageHeaderTitle,
@@ -15,24 +11,6 @@ import {
 } from '../Layout';
 
 describe('Renders its children element', () => {
-  it('AppWrapper renders its children', () => {
-    render(
-      <AppWrapper>
-        <div>Hello, World</div>
-      </AppWrapper>
-    );
-    expect(screen.getByText('Hello, World')).toBeInTheDocument();
-  });
-
-  it('AppMainContent renders its children', () => {
-    render(
-      <AppMainContent>
-        <div>Hello, World</div>
-      </AppMainContent>
-    );
-    expect(screen.getByText('Hello, World')).toBeInTheDocument();
-  });
-
   it('PageWrapper renders its children', () => {
     render(
       <PageWrapper>

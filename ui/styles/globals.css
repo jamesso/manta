@@ -213,4 +213,23 @@
     outline: 2px solid var(--ring);
     outline-offset: 2px;
   }
+
+  .drag-region {
+    -webkit-app-region: drag;
+    app-region: drag;
+  }
+  .drag-region :is(button, a, input, select, textarea, [role='button']) {
+    -webkit-app-region: no-drag;
+    app-region: no-drag;
+  }
+  .titlebar-inset {
+    padding-right: calc(
+      100vw - env(titlebar-area-x, 0px) - env(titlebar-area-width, 100vw) + 0.5rem
+    );
+  }
+  html[data-platform='darwin']
+    [data-slot='sidebar-wrapper']:has([data-state='collapsed'])
+    .titlebar-inset {
+    padding-left: 2.5rem;
+  }
 }

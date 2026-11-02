@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 const ipc = window.manta.ipc;
 
 // Custom Libs
-import openDialog from '../../renderers/dialog.js';
+import * as dialog from '@/lib/dialog';
 import _withFadeInAnimation from '../shared/hoc/_withFadeInAnimation';
 
 import Currency from './_partials/invoice/Currency';
@@ -26,7 +26,7 @@ class Invoice extends Component {
   componentDidMount() {
     const { t } = this.props;
     ipc.on('no-access-directory', (event, message) => {
-      openDialog({
+      dialog.alert({
         type: 'warning',
         title: t('dialog:noAccess:title'),
         message: `${message}. ${t('dialog:noAccess:message')}`,

@@ -3,8 +3,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
-import openDialog from '../renderers/dialog.js';
-const ipc = window.manta.ipc;
+import * as dialog from '@/lib/dialog';
 import { withTranslation } from 'react-i18next';
 
 // Actions
@@ -38,40 +37,16 @@ export class Invoices extends PureComponent {
     this.setFilter = this.setFilter.bind(this);
   }
 
-  // Load Invoices & add event listeners
-  componentDidMount() {
-    // Add Event Listener
-    ipc.on('confirmed-delete-invoice', (event, index, invoiceId) => {
-      if (index === 0) {
-        this.confirmedDeleteInvoice(invoiceId);
-      }
+  async deleteInvoice(invoiceId) {
+    const { t, dispatch } = this.props;
+    const ok = await dialog.confirm({
+      title: t('dialog:deleteInvoice:title'),
+      message: t('dialog:deleteInvoice:message'),
+      confirmLabel: t('common:delete'),
+      cancelLabel: t('common:cancel'),
+      destructive: true,
     });
-  }
-
-  // Remove all IPC listeners when unmounted
-  componentWillUnmount() {
-    ipc.removeAllListeners('confirmed-delete-invoice');
-  }
-
-  // Open Confirm Dialog
-  deleteInvoice(invoiceId) {
-    const { t } = this.props;
-    openDialog(
-      {
-        type: 'warning',
-        title: t('dialog:deleteInvoice:title'),
-        message: t('dialog:deleteInvoice:message'),
-        buttons: [t('common:yes'), t('common:noThanks')],
-      },
-      'confirmed-delete-invoice',
-      invoiceId
-    );
-  }
-
-  // Confirm Delete an invoice
-  confirmedDeleteInvoice(invoiceId) {
-    const { dispatch } = this.props;
-    dispatch(Actions.deleteInvoice(invoiceId));
+    if (ok) dispatch(Actions.deleteInvoice(invoiceId));
   }
 
   // set the invoice status

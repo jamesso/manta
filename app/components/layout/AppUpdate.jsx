@@ -1,35 +1,12 @@
-// Libraries
 import React, { PureComponent } from 'react';
-import openDialog from '../../renderers/dialog';
 import i18n from '../../../i18n/i18n';
+import * as dialog from '@/lib/dialog';
+import { toast } from '@/components/ui/toast';
 import { Notify } from '../../../helpers/notify';
+import { SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
+import { Download, RefreshCw } from 'lucide-react';
+
 const ipc = window.manta.ipc;
-
-// Styled Components
-import styled, { keyframes } from 'styled-components';
-
-const breathing = keyframes`
-  0% { opacity: 0.5; }
-  100% { opacity: 1; }
-`;
-
-const Indicator = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 60px;
-  width: 100%;
-  color: #f2f3f4;
-  i {
-    font-size: 24px;
-    animation: ${breathing} 1s infinite alternate;
-  }
-  progress {
-    width: 36px;
-    height: 6px;
-    accent-color: #469fe5;
-  }
-`;
 
 class AppUpdate extends PureComponent {
   constructor(props) {
@@ -40,94 +17,23 @@ class AppUpdate extends PureComponent {
       progress: null,
     };
     this.hideIndicator = this.hideIndicator.bind(this);
+    this.onUpdateAvailable = this.onUpdateAvailable.bind(this);
+    this.onUpdateDownloaded = this.onUpdateDownloaded.bind(this);
+    this.onUpdateNotAvailable = this.onUpdateNotAvailable.bind(this);
+    this.onUpdateError = this.onUpdateError.bind(this);
   }
 
   componentDidMount() {
     ipc.on('update-checking', () => {
       this.setState({ checking: true });
     });
-
-    ipc.on('update-available', () => {
-      this.hideIndicator();
-      openDialog(
-        {
-          type: 'info',
-          title: i18n.t('dialog:appUpdate:available:title'),
-          message: i18n.t('dialog:appUpdate:available:message'),
-          buttons: [i18n.t('common:yes'), i18n.t('common:noThanks')],
-        },
-        'update-download-confirmed'
-      );
+    ipc.on('update-available', this.onUpdateAvailable);
+    ipc.on('update-not-available', this.onUpdateNotAvailable);
+    ipc.on('update-error', this.onUpdateError);
+    ipc.on('update-download-progress', (_e, percentage) => {
+      this.setState({ progress: percentage });
     });
-
-    ipc.on('update-not-available', () => {
-      openDialog({
-        type: 'info',
-        title: i18n.t('dialog:appUpdate:noUpdate:title'),
-        message: i18n.t('dialog:appUpdate:noUpdate:message'),
-      });
-      this.hideIndicator();
-    });
-
-    ipc.on('update-error', (event, error) => {
-      openDialog({
-        type: 'warning',
-        title: i18n.t('dialog:appUpdate:error:title'),
-        message: error,
-      });
-      this.hideIndicator();
-    });
-
-    ipc.on('update-download-confirmed', (event, index) => {
-      // Cancel the download
-      if (index === 1) {
-        this.hideIndicator();
-        return;
-      }
-      // Start the download
-      if (index === 0) {
-        this.setState(
-          {
-            downloading: true,
-          },
-          ipc.send('update-download-started')
-        );
-      }
-    });
-
-    ipc.on('update-download-progress', (event, percentage) => {
-      this.setState({
-        progress: percentage,
-      });
-    });
-
-    ipc.on('update-downloaded', () => {
-      // Send notification
-      Notify({
-        title: i18n.t('dialog:appUpdate:downloaded:title'),
-        body: i18n.t('dialog:appUpdate:downloaded:message'),
-      });
-      // Open Dialog
-      openDialog(
-        {
-          type: 'info',
-          title: i18n.t('dialog:appUpdate:downloaded:title'),
-          message: i18n.t('dialog:appUpdate:downloaded:message'),
-          buttons: [
-            i18n.t('dialog:appUpdate:downloaded:quitNow'),
-            i18n.t('dialog:appUpdate:downloaded:later'),
-          ],
-        },
-        'upgrade-confirmed'
-      );
-      this.hideIndicator();
-    });
-
-    ipc.on('upgrade-confirmed', (event, index) => {
-      if (index === 0) {
-        ipc.send('quit-and-install');
-      }
-    });
+    ipc.on('update-downloaded', this.onUpdateDownloaded);
   }
 
   componentWillUnmount() {
@@ -136,11 +42,56 @@ class AppUpdate extends PureComponent {
       'update-available',
       'update-not-available',
       'update-error',
-      'update-download-confirmed',
       'update-download-progress',
       'update-downloaded',
-      'upgade-confirmed',
     ]);
+  }
+
+  async onUpdateAvailable() {
+    this.hideIndicator();
+    const ok = await dialog.confirm({
+      title: i18n.t('dialog:appUpdate:available:title'),
+      message: i18n.t('dialog:appUpdate:available:message'),
+      confirmLabel: i18n.t('common:yes'),
+      cancelLabel: i18n.t('common:noThanks'),
+    });
+    if (ok) {
+      this.setState({ downloading: true });
+      ipc.send('update-download-started');
+    }
+  }
+
+  onUpdateNotAvailable() {
+    toast.add({
+      type: 'info',
+      title: i18n.t('dialog:appUpdate:noUpdate:title'),
+      description: i18n.t('dialog:appUpdate:noUpdate:message'),
+    });
+    this.hideIndicator();
+  }
+
+  onUpdateError(_e, error) {
+    dialog.alert({
+      type: 'warning',
+      title: i18n.t('dialog:appUpdate:error:title'),
+      message: error,
+    });
+    this.hideIndicator();
+  }
+
+  async onUpdateDownloaded() {
+    Notify({
+      title: i18n.t('dialog:appUpdate:downloaded:title'),
+      body: i18n.t('dialog:appUpdate:downloaded:message'),
+    });
+    this.hideIndicator();
+    const ok = await dialog.confirm({
+      title: i18n.t('dialog:appUpdate:downloaded:title'),
+      message: i18n.t('dialog:appUpdate:downloaded:message'),
+      confirmLabel: i18n.t('dialog:appUpdate:downloaded:quitNow'),
+      cancelLabel: i18n.t('dialog:appUpdate:downloaded:later'),
+    });
+    if (ok) ipc.send('quit-and-install');
   }
 
   hideIndicator() {
@@ -152,13 +103,40 @@ class AppUpdate extends PureComponent {
   }
 
   render() {
+    const { checking, downloading, progress } = this.state;
+    const label = checking
+      ? i18n.t('app:update:checking')
+      : downloading
+        ? i18n.t('app:update:downloading', {
+            percent: Math.round(progress || 0),
+          })
+        : i18n.t('app:update:check');
+
     return (
-      <Indicator>
-        {this.state.checking && <i className="ion-cloud" />}
-        {this.state.downloading && (
-          <progress max="100" value={this.state.progress || 0} />
-        )}
-      </Indicator>
+      <SidebarMenuItem>
+        <SidebarMenuButton
+          tooltip={label}
+          disabled={checking || downloading}
+          onClick={() => ipc.send('check-for-updates')}
+        >
+          {downloading ? (
+            <Download />
+          ) : (
+            <RefreshCw className={checking ? 'animate-spin' : undefined} />
+          )}
+          <span className="flex min-w-0 flex-1 flex-col gap-1">
+            <span className="truncate">{label}</span>
+            {downloading && (
+              <div className="group-data-[collapsible=icon]:hidden h-1 rounded bg-sidebar-accent">
+                <div
+                  className="h-1 rounded bg-primary"
+                  style={{ width: `${progress || 0}%` }}
+                />
+              </div>
+            )}
+          </span>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
     );
   }
 }

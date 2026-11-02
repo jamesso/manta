@@ -4,12 +4,13 @@ const CHANNELS = new Set([
   'change-preview-window-language',
   'change-preview-window-profile',
   'check-for-updates',
-  'confirmed-delete-contact',
-  'confirmed-delete-invoice',
   'confirmed-export-directory',
   'end-tour',
   'file-selected',
   'menu-change-tab',
+  'menu-new-invoice',
+  'menu-open-command-palette',
+  'menu-show-shortcuts',
   'menu-form-add-item',
   'menu-form-clear',
   'menu-form-save',
@@ -35,7 +36,6 @@ const CHANNELS = new Set([
   'start-tour',
   'update-available',
   'update-checking',
-  'update-download-confirmed',
   'update-download-progress',
   'update-download-started',
   'update-downloaded',
@@ -44,8 +44,6 @@ const CHANNELS = new Set([
   'update-not-available',
   'update-preview',
   'update-preview-window',
-  'upgade-confirmed',
-  'upgrade-confirmed',
 ]);
 
 const check = channel => {

@@ -1,15 +1,10 @@
-// Libraries
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-// Custom Components
 import Form from '../../containers/Form';
 import Invoices from '../../containers/Invoices';
 import Contacts from '../../containers/Contacts';
 import Settings from '../../containers/Settings';
-
-// Layout
-import { AppMainContent } from '../shared/Layout';
 
 class AppMain extends Component {
   shouldComponentUpdate(nextProps) {
@@ -19,12 +14,12 @@ class AppMain extends Component {
   render() {
     const { activeTab } = this.props;
     return (
-      <AppMainContent>
+      <div className="h-full overflow-auto bg-background">
         {activeTab === 'form' && <Form />}
         {activeTab === 'invoices' && <Invoices />}
         {activeTab === 'contacts' && <Contacts />}
         {activeTab === 'settings' && <Settings />}
-      </AppMainContent>
+      </div>
     );
   }
 }

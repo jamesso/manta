@@ -4,19 +4,6 @@ import React from 'react';
 // Styles
 import styled from 'styled-components';
 
-const AppWrapperStyle = styled.div`
-  display: flex;
-  flex-direction: row;
-  height: 100%;
-`;
-
-const AppMainContentStyle = styled.div`
-  overflow: auto;
-  width: 100%;
-  height: 100%;
-  background: #f9fafa;
-`;
-
 const PageWrapperStyle = styled.div`
   overflow: auto;
   display: flex;
@@ -25,13 +12,13 @@ const PageWrapperStyle = styled.div`
 `;
 
 const PageHeaderStyle = styled.div`
-  position: fixed;
-  width: 100%;
+  position: sticky;
+  top: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
   height: 50px;
-  padding: 10px 120px 10px 40px;
+  padding: 10px 40px;
   background: #fff;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   z-index: 1;
@@ -58,9 +45,7 @@ const PageHeaderActionsStyle = styled.div`
 `;
 
 const PageContentStyle = styled.div`
-  /* flex: 1; */
-  /* overflow: hidden; */
-  margin: 90px 40px 40px 40px;
+  margin: 40px;
   ${props =>
     !props.bare &&
     `
@@ -77,13 +62,6 @@ const PageFooterStyle = styled.div`
   background: #f9fafa;
   border-top: 1px solid rgba(0, 0, 0, 0.1);
 `;
-
-// Components
-const AppWrapper = props => <AppWrapperStyle>{props.children}</AppWrapperStyle>;
-
-const AppMainContent = props => (
-  <AppMainContentStyle>{props.children}</AppMainContentStyle>
-);
 
 const PageWrapper = props => (
   <PageWrapperStyle>{props.children}</PageWrapperStyle>
@@ -106,8 +84,6 @@ const PageContent = props => (
 const PageFooter = props => <PageFooterStyle>{props.children}</PageFooterStyle>;
 
 export {
-  AppWrapper,
-  AppMainContent,
   PageWrapper,
   PageHeader,
   PageHeaderTitle,

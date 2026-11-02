@@ -3,8 +3,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
-import openDialog from '../renderers/dialog.js';
-const ipc = window.manta.ipc;
+import * as dialog from '@/lib/dialog';
 import { withTranslation } from 'react-i18next';
 
 // Actions
@@ -27,23 +26,11 @@ import {
 import { getContacts } from '../reducers/ContactsReducer';
 
 // Component
-class Contacts extends PureComponent {
+export class Contacts extends PureComponent {
   constructor(props) {
     super(props);
     this.newInvoice = this.newInvoice.bind(this);
     this.deleteContact = this.deleteContact.bind(this);
-  }
-
-  componentDidMount() {
-    ipc.on('confirmed-delete-contact', (event, index, contactId) => {
-      if (index === 0) {
-        this.confirmedDeleteContact(contactId);
-      }
-    });
-  }
-
-  componentWillUnmount() {
-    ipc.removeAllListeners('confirmed-delete-contact');
   }
 
   newInvoice(contact) {
@@ -51,23 +38,16 @@ class Contacts extends PureComponent {
     dispatch(InvoicesActions.newInvoiceFromContact(contact));
   }
 
-  deleteContact(contactId) {
-    const { t } = this.props;
-    openDialog(
-      {
-        type: 'warning',
-        title: t('dialog:deleteContact:title'),
-        message: t('dialog:deleteContact:message'),
-        buttons: [t('common:yes'), t('common:noThanks')],
-      },
-      'confirmed-delete-contact',
-      contactId
-    );
-  }
-
-  confirmedDeleteContact(contactId) {
-    const { dispatch } = this.props;
-    dispatch(ContactsActions.deleteContact(contactId));
+  async deleteContact(contactId) {
+    const { t, dispatch } = this.props;
+    const ok = await dialog.confirm({
+      title: t('dialog:deleteContact:title'),
+      message: t('dialog:deleteContact:message'),
+      confirmLabel: t('common:delete'),
+      cancelLabel: t('common:cancel'),
+      destructive: true,
+    });
+    if (ok) dispatch(ContactsActions.deleteContact(contactId));
   }
 
   render() {

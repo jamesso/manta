@@ -18,8 +18,8 @@ import {
 } from '../form';
 
 // Mocks
-vi.mock('../../renderers/dialog');
-import openDialog from '../../renderers/dialog';
+vi.mock('@/lib/dialog');
+import * as dialog from '@/lib/dialog';
 
 describe('getInvoiceData', () => {
   let formData;
@@ -449,7 +449,7 @@ describe('validateRecipient', () => {
     };
     const validation = validateRecipient(recipient);
     expect(validation).toEqual(false);
-    expect(openDialog).toBeCalledWith({
+    expect(dialog.alert).toBeCalledWith({
       type: 'warning',
       title: i18n.t('dialog:validation:recipient:empty:title'),
       message: i18n.t('dialog:validation:recipient:empty:message'),
@@ -466,7 +466,7 @@ describe('validateRecipient', () => {
     };
     const validation = validateRecipient(recipient);
     expect(validation).toEqual(false);
-    expect(openDialog).toBeCalledWith({
+    expect(dialog.alert).toBeCalledWith({
       type: 'warning',
       title: i18n.t('dialog:validation:recipient:requiredFields:title'),
       message: i18n.t('dialog:validation:recipient:requiredFields:message'),
@@ -483,7 +483,7 @@ describe('validateRecipient', () => {
     };
     const validation = validateRecipient(recipient);
     expect(validation).toEqual(false);
-    expect(openDialog).toBeCalledWith({
+    expect(dialog.alert).toBeCalledWith({
       type: 'warning',
       title: i18n.t('dialog:validation:recipient:email:title'),
       message: i18n.t('dialog:validation:recipient:email:message'),
@@ -518,7 +518,7 @@ describe('validateRows', () => {
     const rows = [{ description: '' }];
     const validation = validateRows(rows);
     expect(validation).toEqual(false);
-    expect(openDialog).toBeCalledWith({
+    expect(dialog.alert).toBeCalledWith({
       type: 'warning',
       title: i18n.t('dialog:validation:rows:emptyDescription:title'),
       message: i18n.t('dialog:validation:rows:emptyDescription:message'),
@@ -534,7 +534,7 @@ describe('validateRows', () => {
     ];
     const validation = validateRows(rows);
     expect(validation).toEqual(false);
-    expect(openDialog).toBeCalledWith({
+    expect(dialog.alert).toBeCalledWith({
       type: 'warning',
       title: i18n.t('dialog:validation:rows:priceZero:title'),
       message: i18n.t('dialog:validation:rows:priceZero:message'),
@@ -551,7 +551,7 @@ describe('validateRows', () => {
     ];
     const validation = validateRows(rows);
     expect(validation).toEqual(false);
-    expect(openDialog).toBeCalledWith({
+    expect(dialog.alert).toBeCalledWith({
       type: 'warning',
       title: i18n.t('dialog:validation:rows:qtyZero:title'),
       message: i18n.t('dialog:validation:rows:qtyZero:message'),
@@ -566,7 +566,7 @@ describe('validateRows', () => {
     ];
     const validation2 = validateRows(rows2);
     expect(validation2).toEqual(false);
-    expect(openDialog).toBeCalledWith({
+    expect(dialog.alert).toBeCalledWith({
       type: 'warning',
       title: i18n.t('dialog:validation:rows:qtyZero:title'),
       message: i18n.t('dialog:validation:rows:qtyZero:message'),
@@ -595,7 +595,7 @@ describe('validateDueDate', () => {
     };
     const validation = validateDueDate(true, dueDate);
     expect(validation).toEqual(false);
-    expect(openDialog).toBeCalledWith({
+    expect(dialog.alert).toBeCalledWith({
       type: 'warning',
       title: i18n.t('dialog:validation:dueDate:title'),
       message: i18n.t('dialog:validation:dueDate:message'),
@@ -629,7 +629,7 @@ describe('validateCurrency', () => {
     };
     const validation = validateCurrency(true, currency);
     expect(validation).toEqual(false);
-    expect(openDialog).toBeCalledWith({
+    expect(dialog.alert).toBeCalledWith({
       type: 'warning',
       title: i18n.t('dialog:validation:currency:fraction:title'),
       message: i18n.t('dialog:validation:currency:fraction:message'),
@@ -662,7 +662,7 @@ describe('validateDiscount', () => {
     };
     const validation = validateDiscount(true, discount);
     expect(validation).toEqual(false);
-    expect(openDialog).toBeCalledWith({
+    expect(dialog.alert).toBeCalledWith({
       type: 'warning',
       title: i18n.t('dialog:validation:discount:title'),
       message: i18n.t('dialog:validation:discount:message'),
@@ -692,7 +692,7 @@ describe('validateTax', () => {
     const tax3 = { amount: -1 };
     const validation1 = validateTax(true, tax1);
     expect(validation1).toEqual(false);
-    expect(openDialog).toBeCalledWith({
+    expect(dialog.alert).toBeCalledWith({
       type: 'warning',
       title: i18n.t('dialog:validation:tax:title'),
       message: i18n.t('dialog:validation:tax:message'),
@@ -700,7 +700,7 @@ describe('validateTax', () => {
 
     const validation2 = validateTax(true, tax2);
     expect(validation2).toEqual(false);
-    expect(openDialog).toBeCalledWith({
+    expect(dialog.alert).toBeCalledWith({
       type: 'warning',
       title: i18n.t('dialog:validation:tax:title'),
       message: i18n.t('dialog:validation:tax:message'),
@@ -708,7 +708,7 @@ describe('validateTax', () => {
 
     const validation3 = validateTax(true, tax3);
     expect(validation3).toEqual(false);
-    expect(openDialog).toBeCalledWith({
+    expect(dialog.alert).toBeCalledWith({
       type: 'warning',
       title: i18n.t('dialog:validation:tax:title'),
       message: i18n.t('dialog:validation:tax:message'),
@@ -737,7 +737,7 @@ describe('validateNote', () => {
     };
     const validation = validateNote(true, note);
     expect(validation).toEqual(false);
-    expect(openDialog).toBeCalledWith({
+    expect(dialog.alert).toBeCalledWith({
       type: 'warning',
       title: i18n.t('dialog:validation:note:title'),
       message: i18n.t('dialog:validation:note:message'),

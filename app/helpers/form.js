@@ -1,4 +1,4 @@
-import openDialog from '../renderers/dialog';
+import * as dialog from '@/lib/dialog';
 const appConfig = window.manta.settings;
 import { getInvoiceValue } from './invoice';
 import { isEmpty, pick, includes } from 'lodash';
@@ -91,7 +91,7 @@ function validateRecipient(recipient) {
   if (recipient.newRecipient === true) {
     // Is Recipient Form Data Empty?
     if (isEmpty(recipient.new)) {
-      openDialog({
+      dialog.alert({
         type: 'warning',
         title: i18n.t('dialog:validation:recipient:empty:title'),
         message: i18n.t('dialog:validation:recipient:empty:message'),
@@ -105,7 +105,7 @@ function validateRecipient(recipient) {
       recipient.new.email === undefined ||
       recipient.new.email === ''
     ) {
-      openDialog({
+      dialog.alert({
         type: 'warning',
         title: i18n.t('dialog:validation:recipient:requiredFields:title'),
         message: i18n.t('dialog:validation:recipient:requiredFields:message'),
@@ -116,7 +116,7 @@ function validateRecipient(recipient) {
     const regex =
       /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
     if (!regex.test(recipient.new.email)) {
-      openDialog({
+      dialog.alert({
         type: 'warning',
         title: i18n.t('dialog:validation:recipient:email:title'),
         message: i18n.t('dialog:validation:recipient:email:message'),
@@ -134,7 +134,7 @@ function validateRows(rows) {
     const row = rows[i];
     // Does it contain description?
     if (!row.description) {
-      openDialog({
+      dialog.alert({
         type: 'warning',
         title: i18n.t('dialog:validation:rows:emptyDescription:title'),
         message: i18n.t('dialog:validation:rows:emptyDescription:message'),
@@ -144,7 +144,7 @@ function validateRows(rows) {
     }
     // Is the price presented and greater than 0?
     if (!row.price || row.price <= 0) {
-      openDialog({
+      dialog.alert({
         type: 'warning',
         title: i18n.t('dialog:validation:rows:priceZero:title'),
         message: i18n.t('dialog:validation:rows:priceZero:message'),
@@ -154,7 +154,7 @@ function validateRows(rows) {
     }
     // Is the quantity presented and greater than 0?
     if (!row.quantity || row.quantity <= 0) {
-      openDialog({
+      dialog.alert({
         type: 'warning',
         title: i18n.t('dialog:validation:rows:qtyZero:title'),
         message: i18n.t('dialog:validation:rows:qtyZero:message'),
@@ -172,7 +172,7 @@ function validateDueDate(isRequired, dueDate) {
     // If use customDate
     if (useCustom) {
       if (!selectedDate || selectedDate === null) {
-        openDialog({
+        dialog.alert({
           type: 'warning',
           title: i18n.t('dialog:validation:dueDate:title'),
           message: i18n.t('dialog:validation:dueDate:message'),
@@ -189,7 +189,7 @@ function validateDueDate(isRequired, dueDate) {
 function validateCurrency(isRequired, currency) {
   if (isRequired) {
     if (currency.fraction < 0) {
-      openDialog({
+      dialog.alert({
         type: 'warning',
         title: i18n.t('dialog:validation:currency:fraction:title'),
         message: i18n.t('dialog:validation:currency:fraction:message'),
@@ -205,7 +205,7 @@ function validateDiscount(isRequired, discount) {
   const { amount } = discount;
   if (isRequired) {
     if (!amount || amount === '' || amount === 0) {
-      openDialog({
+      dialog.alert({
         type: 'warning',
         title: i18n.t('dialog:validation:discount:title'),
         message: i18n.t('dialog:validation:discount:message'),
@@ -221,7 +221,7 @@ function validateTax(isRequired, tax) {
   const { amount } = tax;
   if (isRequired) {
     if (!amount || amount === '' || amount <= 0) {
-      openDialog({
+      dialog.alert({
         type: 'warning',
         title: i18n.t('dialog:validation:tax:title'),
         message: i18n.t('dialog:validation:tax:message'),
@@ -237,7 +237,7 @@ function validateNote(isRequired, note) {
   const { content } = note;
   if (isRequired) {
     if (!content || content === '') {
-      openDialog({
+      dialog.alert({
         type: 'warning',
         title: i18n.t('dialog:validation:note:title'),
         message: i18n.t('dialog:validation:note:message'),
@@ -252,7 +252,7 @@ function validateNote(isRequired, note) {
 function validateInvoiceID(isRequired, invoiceID) {
   if (isRequired) {
     if (!invoiceID || invoiceID === '') {
-      openDialog({
+      dialog.alert({
         type: 'warning',
         title: i18n.t('dialog:validation:invoiceID:title'),
         message: i18n.t('dialog:validation:invoiceID:message'),

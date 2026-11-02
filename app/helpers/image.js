@@ -1,4 +1,4 @@
-import openDialog from '../renderers/dialog';
+import * as dialog from '@/lib/dialog';
 import i18n from '../../i18n/i18n';
 
 function processImg(filePath, callback) {
@@ -17,7 +17,7 @@ function processImg(filePath, callback) {
 }
 
 function handleError(err) {
-  openDialog({
+  dialog.alert({
     type: 'warning',
     title: i18n.t('dialog:fileTypeErr:title'),
     message: err.message,
