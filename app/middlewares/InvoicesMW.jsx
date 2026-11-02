@@ -32,15 +32,42 @@ const InvoicesMW =
   action => {
     switch (action.type) {
       case ACTION_TYPES.INVOICE_NEW_FROM_CONTACT: {
-        next(UIActions.changeActiveTab('form'));
-        dispatch(
-          FormActions.updateRecipient({
-            new: {},
-            select: action.payload,
-            newRecipient: false,
+        const apply = () => {
+          next(UIActions.changeActiveTab('form'));
+          dispatch(
+            FormActions.updateRecipient({
+              new: {},
+              select: action.payload,
+              newRecipient: false,
+            })
+          );
+        };
+
+        if (!hasUnsavedFormChanges(getState().form)) {
+          apply();
+          break;
+        }
+
+        return dialog
+          .confirm({
+            title: i18n.t('app:newInvoice:confirmTitle'),
+            message: i18n.t('app:newInvoice:confirmMessage'),
+            confirmLabel: i18n.t('app:newInvoice:confirm'),
+            cancelLabel: i18n.t('app:newInvoice:cancel'),
           })
-        );
-        break;
+          .then(ok => {
+            if (!ok) return;
+            apply();
+          })
+          .catch(err => {
+            next({
+              type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+              payload: {
+                type: 'warning',
+                message: err.message,
+              },
+            });
+          });
       }
 
       case ACTION_TYPES.INVOICE_GET_ALL: {

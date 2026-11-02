@@ -97,6 +97,38 @@ describe('form helpers', () => {
     expect(validateTax(false, {})).toBe(true);
     expect(validateCurrency(true, currency)).toBe(true);
     expect(validateCurrency(true, { fraction: -1 })).toBe(false);
+    expect(validateCurrency(true, { fraction: 101 })).toBe(false);
+  });
+  it('draft omits incomplete discount and keeps totals finite', () => {
+    const f = form();
+    f.settings.required_fields.discount = true;
+    expect(getFormErrors(f, 'draft')).toEqual({});
+    expect(
+      Number.isFinite(
+        getInvoiceData(f, { mode: 'draft', defaultCurrency: currency })
+          .grandTotal
+      )
+    ).toBe(true);
+  });
+  it('draft rejects invalid currency fraction and issue date', () => {
+    const f = form();
+    f.settings.required_fields.currency = true;
+    f.currency = { ...currency, fraction: 101 };
+    expect(getFormErrors(f, 'draft')).toHaveProperty('currency.fraction');
+    f.currency = currency;
+    f.issuedAt = Infinity;
+    expect(getFormErrors(f, 'draft')).toHaveProperty('issuedAt');
+  });
+  it('final rejects row multiplication overflow', () => {
+    const f = form();
+    f.rows = [
+      updateRowField(
+        { id: '1', description: 'Work', quantity: 2 },
+        'price',
+        '1e308'
+      ),
+    ];
+    expect(Object.keys(getFormErrors(f, 'final')).length).toBeGreaterThan(0);
   });
   it.each([
     [

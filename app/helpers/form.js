@@ -40,9 +40,57 @@ export function updateRowField(row, name, raw) {
   if (price === '' || quantity === '') {
     next.subtotal = '';
   } else {
-    next.subtotal = price * quantity;
+    const product = price * quantity;
+    next.subtotal = Number.isFinite(product) ? product : Infinity;
   }
   return next;
+}
+
+function isDiscountComplete(discount) {
+  if (!discount || typeof discount !== 'object') {
+    return false;
+  }
+  const { amount } = discount;
+  return (
+    amount !== '' &&
+    amount != null &&
+    amount !== 0 &&
+    Number.isFinite(Number(amount))
+  );
+}
+
+function isTaxComplete(tax) {
+  if (!tax || typeof tax !== 'object') {
+    return false;
+  }
+  const { amount } = tax;
+  return (
+    amount !== '' &&
+    amount != null &&
+    Number(amount) > 0 &&
+    Number.isFinite(Number(amount))
+  );
+}
+
+function getEffectiveCurrency(form) {
+  const appConfig = window.manta.settings;
+  const { required_fields } = form.settings;
+  if (required_fields.currency) {
+    return form.currency;
+  }
+  return (
+    form.savedSettings?.currency ??
+    form.currency ??
+    appConfig.get('invoice.currency')
+  );
+}
+
+function isValidCurrencyFraction(fraction) {
+  if (fraction === undefined || fraction === '') {
+    return true;
+  }
+  const n = Number(fraction);
+  return Number.isInteger(n) && n >= 0 && n <= 20;
 }
 
 function recipientHasDraftIdentity(recipient) {
@@ -96,10 +144,23 @@ export function getRecipientErrors(recipient, mode) {
 }
 
 export function getRowErrors(rows, mode) {
-  if (mode === 'draft') {
-    return {};
-  }
   const errors = {};
+  for (const row of rows) {
+    if (isBlankRow(row)) continue;
+    if (
+      row.price !== '' &&
+      row.price != null &&
+      row.quantity !== '' &&
+      row.quantity != null &&
+      !Number.isFinite(Number(row.subtotal))
+    ) {
+      errors[`rows.${row.id}.price`] =
+        'dialog:validation:rows:priceZero:message';
+    }
+  }
+  if (mode === 'draft') {
+    return errors;
+  }
   const nonBlank = rows.filter(row => !isBlankRow(row));
   if (nonBlank.length === 0) {
     return { rows: 'form:errors:noItems' };
@@ -121,10 +182,7 @@ export function getRowErrors(rows, mode) {
   return errors;
 }
 
-export function getIssuedAtErrors(form, mode) {
-  if (mode === 'draft') {
-    return {};
-  }
+export function getIssuedAtErrors(form) {
   const { issuedAt } = form;
   if (issuedAt == null) {
     return {};
@@ -152,19 +210,18 @@ export function getDueDateErrors(isRequired, dueDate, mode) {
   return {};
 }
 
-export function getCurrencyErrors(isRequired, currency, mode) {
+export function getCurrencyErrors(form, mode) {
   const errors = {};
+  const currency = getEffectiveCurrency(form);
   const fraction = currency?.fraction;
-  if (fraction !== undefined && fraction !== '') {
-    if (!Number.isFinite(Number(fraction)) || Number(fraction) < 0) {
-      errors['currency.fraction'] =
-        'dialog:validation:currency:fraction:message';
-    }
+  if (!isValidCurrencyFraction(fraction)) {
+    errors['currency.fraction'] = 'dialog:validation:currency:fraction:message';
   }
   if (mode === 'draft') {
     return errors;
   }
-  if (isRequired && fraction < 0) {
+  const { required_fields } = form.settings;
+  if (required_fields.currency && fraction < 0) {
     errors['currency.fraction'] = 'dialog:validation:currency:fraction:message';
   }
   return errors;
@@ -224,6 +281,22 @@ function stripUndefined(obj) {
   );
 }
 
+function getCalculatedTotalsErrors(form, defaultCurrency) {
+  const appConfig = window.manta.settings;
+  const currencyDefault =
+    defaultCurrency ?? appConfig.get('invoice.currency');
+  const fields = pickInvoiceFields(form, currencyDefault);
+  const totals = getInvoiceValue(fields);
+  if (
+    !Number.isFinite(totals.subtotal) ||
+    !Number.isFinite(totals.grandTotal)
+  ) {
+    return { rows: 'dialog:validation:rows:priceZero:message' };
+  }
+  return {};
+}
+
+
 function getDraftNumericErrors(form) {
   const errors = {};
   for (const row of form.rows) {
@@ -244,14 +317,16 @@ function getDraftNumericErrors(form) {
       errors[`rows.${row.id}.quantity`] =
         'dialog:validation:rows:qtyZero:message';
     }
-  }
-  const fraction = form.currency?.fraction;
-  if (
-    fraction !== undefined &&
-    fraction !== '' &&
-    (!Number.isFinite(Number(fraction)) || Number(fraction) < 0)
-  ) {
-    errors['currency.fraction'] = 'dialog:validation:currency:fraction:message';
+    if (
+      row.price !== '' &&
+      row.price != null &&
+      row.quantity !== '' &&
+      row.quantity != null &&
+      !Number.isFinite(Number(row.subtotal))
+    ) {
+      errors[`rows.${row.id}.price`] =
+        'dialog:validation:rows:priceZero:message';
+    }
   }
   return errors;
 }
@@ -263,9 +338,11 @@ export function getFormErrors(form, mode) {
       return { draftEmpty: 'form:errors:draftEmpty' };
     }
     return stripUndefined({
-      ...getCurrencyErrors(required_fields.currency, form.currency, mode),
-      ...getIssuedAtErrors(form, mode),
+      ...getCurrencyErrors(form, mode),
+      ...getIssuedAtErrors(form),
       ...getDraftNumericErrors(form),
+      ...getRowErrors(form.rows, mode),
+      ...getCalculatedTotalsErrors(form),
     });
   }
   return stripUndefined({
@@ -273,11 +350,12 @@ export function getFormErrors(form, mode) {
     ...getRecipientErrors(form.recipient, mode),
     ...getRowErrors(form.rows, mode),
     ...getDueDateErrors(required_fields.dueDate, form.dueDate, mode),
-    ...getCurrencyErrors(required_fields.currency, form.currency, mode),
+    ...getCurrencyErrors(form, mode),
     ...getDiscountErrors(required_fields.discount, form.discount, mode),
     ...getTaxErrors(required_fields.tax, form.tax, mode),
     ...getNoteErrors(required_fields.note, form.note, mode),
-    ...getIssuedAtErrors(form, mode),
+    ...getIssuedAtErrors(form),
+    ...getCalculatedTotalsErrors(form),
   });
 }
 
@@ -320,10 +398,10 @@ export function pickInvoiceFields(form, defaultCurrency) {
   } else {
     invoiceData.currency = defaultCurrency;
   }
-  if (required_fields.discount) {
+  if (required_fields.discount && isDiscountComplete(discount)) {
     invoiceData.discount = discount;
   }
-  if (required_fields.tax) {
+  if (required_fields.tax && isTaxComplete(tax)) {
     invoiceData.tax = tax;
   }
   if (required_fields.note) {
@@ -402,7 +480,10 @@ export function validateTax(isRequired, tax) {
 }
 
 export function validateCurrency(isRequired, currency) {
-  const errors = getCurrencyErrors(isRequired, currency, 'final');
+  const errors = getCurrencyErrors(
+    { settings: { required_fields: { currency: isRequired } }, currency, savedSettings: { currency } },
+    'final'
+  );
   const key = errors['currency.fraction'];
   if (key) {
     dialog.alert({

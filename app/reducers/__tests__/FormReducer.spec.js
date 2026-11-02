@@ -642,6 +642,37 @@ describe('plan 015 form reducer behavior', () => {
     expect(next.invoiceID).not.toBe('OLD-1');
   });
 
+  it('FORM_LOAD_DUPLICATE keeps optional fields when defaults hide them', () => {
+    const currency = { code: 'USD', fraction: 2 };
+    const withHidden = Object.assign({}, baseState, {
+      savedSettings: Object.assign({}, baseState.savedSettings, {
+        required_fields: {},
+      }),
+    });
+    const next = FormReducer(withHidden, {
+      type: ACTION_TYPES.FORM_LOAD_DUPLICATE,
+      payload: {
+        recipient: { fullname: 'A', email: 'a@b.com', _id: 'c1' },
+        rows: [{ id: '1', description: 'Work', price: 10, quantity: 1, subtotal: 10 }],
+        contacts: [],
+        currency,
+        discount: { type: 'flat', amount: 5 },
+        tax: { method: 'default', amount: 10 },
+        note: 'Keep me',
+        dueDate: { useCustom: false, paymentTerm: 'net30' },
+      },
+    });
+    expect(next.settings.required_fields).toMatchObject({
+      discount: true,
+      tax: true,
+      note: true,
+      dueDate: true,
+      currency: true,
+    });
+    expect(next.discount).toEqual({ type: 'flat', amount: 5 });
+    expect(next.note).toEqual({ content: 'Keep me' });
+  });
+
   it('FORM_SET_ERRORS and FORM_CLEAR reset errors', () => {
     const withErrors = FormReducer(baseState, {
       type: ACTION_TYPES.FORM_SET_ERRORS,

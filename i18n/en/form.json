@@ -117,7 +117,8 @@
     "noItems": "Add at least one item.",
     "draftEmpty": "Add a client or item before saving a draft.",
     "recipientRequired": "Choose a client.",
-    "partialContactSave": "Invoice saved, but the contact could not be saved."
+    "partialContactSave": "Invoice saved, but the contact could not be saved.",
+    "partialNumberingSave": "Invoice saved, but the next invoice number could not be saved."
   },
   "numbering": {
     "title": "Invoice numbering",

@@ -68,20 +68,22 @@ async function handleSave({ dispatch, getState }, mode) {
     }
 
     if (!editMode.active) {
+      const advancedNumbering = advanceNumbering(
+        normalizeNumbering(appConfig.get('invoice.numbering')),
+        data.invoiceID
+      );
       try {
-        appConfig.set(
-          'invoice.numbering',
-          advanceNumbering(
-            normalizeNumbering(appConfig.get('invoice.numbering')),
-            data.invoiceID
-          )
-        );
+        appConfig.set('invoice.numbering', advancedNumbering);
       } catch (err) {
+        dispatch({
+          type: ACTION_TYPES.FORM_RECONCILE_NUMBERING,
+          payload: advancedNumbering,
+        });
         dispatch({
           type: ACTION_TYPES.UI_NOTIFICATION_NEW,
           payload: {
             type: 'warning',
-            message: err.message,
+            message: i18n.t('form:errors:partialNumberingSave'),
           },
         });
       }
@@ -117,7 +119,26 @@ async function handleSave({ dispatch, getState }, mode) {
       dispatch(UIActions.changeActiveTab('invoices'));
     }
 
-    if (getState().form.formRevision === startRevision) {
+    const afterSave = getState().form;
+    if (afterSave.formRevision !== startRevision) {
+      const merged = getInvoiceData(
+        {
+          ...afterSave,
+          settings: {
+            ...afterSave.settings,
+            editMode: { active: true, data },
+          },
+        },
+        { mode, defaultCurrency }
+      );
+      dispatch({
+        type: ACTION_TYPES.FORM_ATTACH_SAVED_INVOICE,
+        payload: merged,
+      });
+      return;
+    }
+
+    if (afterSave.formRevision === startRevision) {
       dispatch(FormActions.clearForm(null, true));
     }
     } catch (err) {
@@ -168,16 +189,21 @@ const FormMW =
 
       case ACTION_TYPES.FORM_CLEAR: {
         dispatch(FormActions.closeFormSettings());
+        const reconciled = getState().form.reconciledNumbering;
         next(action);
         dispatch(FormActions.addItem());
+        const numbering = reconciled
+          ? normalizeNumbering(reconciled)
+          : normalizeNumbering(appConfig.get('invoice.numbering'));
         dispatch(
           FormActions.updateFieldData(
             'invoiceID',
-            formatInvoiceNumber(
-              normalizeNumbering(appConfig.get('invoice.numbering'))
-            )
+            formatInvoiceNumber(numbering)
           )
         );
+        if (reconciled) {
+          dispatch({ type: ACTION_TYPES.FORM_CLEAR_RECONCILED_NUMBERING });
+        }
         break;
       }
 

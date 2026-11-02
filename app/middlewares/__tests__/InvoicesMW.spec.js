@@ -6,6 +6,10 @@ import i18n from '../../../i18n/i18n';
 
 // Mock Functions
 vi.mock('../../helpers/pouchDB');
+vi.mock('@/lib/dialog', () => ({
+  confirm: vi.fn(() => Promise.resolve(true)),
+  alert: vi.fn(),
+}));
 vi.mock('@/components/ui/toast', () => ({
   toast: { add: vi.fn(() => 't1'), close: vi.fn() },
 }));
@@ -20,6 +24,7 @@ import {
   mockData,
 } from '../../helpers/pouchDB';
 import { toast } from '@/components/ui/toast';
+import * as dialog from '@/lib/dialog';
 Date.now = vi.fn(() => 'now');
 
 describe('Invoices Middleware', () => {
@@ -664,6 +669,35 @@ describe('Invoices Middleware', () => {
         newRecipient: false,
       },
     });
+  });
+
+  it('INVOICE_NEW_FROM_CONTACT asks before replacing unsaved work', async () => {
+    const original = {
+      newRecipient: true,
+      new: { fullname: 'Jane', email: 'jane@example.com' },
+      select: {},
+    };
+    getState.mockReturnValue({
+      form: {
+        settings: { editMode: { active: false } },
+        recipient: original,
+        rows: [
+          {
+            id: '1',
+            description: 'Work',
+            price: 10,
+            quantity: 1,
+            subtotal: 10,
+          },
+        ],
+        issuedAt: null,
+      },
+    });
+    dialog.confirm.mockResolvedValueOnce(false);
+    await middleware(
+      Actions.newInvoiceFromContact({ _id: 'other', fullname: 'Other' })
+    );
+    expect(dispatch).not.toHaveBeenCalled();
   });
 
   it('let other actions pass through', () => {

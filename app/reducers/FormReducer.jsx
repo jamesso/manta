@@ -41,6 +41,7 @@ const initialState = {
   errorMode: null,
   savePending: false,
   formRevision: 0,
+  reconciledNumbering: null,
   // Set default values for currency and tax
   currency: invoiceSettings.currency,
   tax: invoiceSettings.tax,
@@ -59,6 +60,51 @@ const initialState = {
     required_fields: invoiceSettings.required_fields,
   },
 };
+
+function populateFromDuplicate(state, payload) {
+  const {
+    invoiceID,
+    recipient,
+    rows,
+    currency,
+    tax,
+    dueDate,
+    discount,
+    note,
+    contacts,
+  } = payload;
+  const required_fields = {
+    invoiceID: invoiceID !== undefined,
+    currency: currency !== undefined,
+    tax: tax !== undefined,
+    dueDate: dueDate !== undefined,
+    discount: discount !== undefined,
+    note: note !== undefined,
+  };
+  return Object.assign({}, state, {
+    recipient: Object.assign(
+      {},
+      state.recipient,
+      setEditRecipient(contacts, recipient)
+    ),
+    rows: rows.map(row => ({ ...row })),
+    invoiceID: suggestedInvoiceNumber(),
+    issuedAt: null,
+    currency: currency !== undefined ? currency : state.savedSettings.currency,
+    discount: discount !== undefined ? discount : {},
+    tax: tax !== undefined ? tax : state.savedSettings.tax,
+    dueDate: dueDate !== undefined ? dueDate : initialState.dueDate,
+    note: note !== undefined ? { content: note } : { content: '' },
+    errors: {},
+    errorMode: null,
+    settings: Object.assign({}, state.settings, {
+      editMode: {
+        active: false,
+      },
+      required_fields,
+    }),
+  });
+}
 
 function populateFromInvoice(state, payload) {
   const {
@@ -214,14 +260,25 @@ const FormReducer = handleActions(
     },
 
     [ACTION_TYPES.FORM_LOAD_DUPLICATE]: (state, action) =>
-      Object.assign({}, populateFromInvoice(state, action.payload), {
-        invoiceID: suggestedInvoiceNumber(),
-        issuedAt: null,
+      populateFromDuplicate(state, action.payload),
+
+    [ACTION_TYPES.FORM_RECONCILE_NUMBERING]: (state, action) =>
+      Object.assign({}, state, {
+        reconciledNumbering: action.payload,
+      }),
+
+    [ACTION_TYPES.FORM_CLEAR_RECONCILED_NUMBERING]: state =>
+      Object.assign({}, state, {
+        reconciledNumbering: null,
+      }),
+
+    [ACTION_TYPES.FORM_ATTACH_SAVED_INVOICE]: (state, action) =>
+      Object.assign({}, state, {
         settings: Object.assign({}, state.settings, {
           editMode: {
-            active: false,
+            active: true,
+            data: action.payload,
           },
-          required_fields: state.savedSettings.required_fields,
         }),
       }),
 

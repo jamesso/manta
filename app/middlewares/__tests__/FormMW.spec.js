@@ -1,6 +1,7 @@
 import * as Actions from '../../actions/form';
 import * as TYPES from '../../constants/actions';
 import FormMW from '../FormMW';
+import FormReducer from '../../reducers/FormReducer';
 const currency = { code: 'USD', fraction: 2 };
 const makeForm = () => ({
   invoiceID: 'INV-0001',
@@ -111,5 +112,59 @@ describe('Form middleware', () => {
     expect(dispatch).toHaveBeenCalledWith(
       Actions.updateFieldData('invoiceID', 'INV-0001')
     );
+  });
+  it('uses reconciled numbering when persist fails after save', async () => {
+    window.manta.settings.set.mockImplementation(() => {
+      throw new Error('disk full');
+    });
+    let form = makeForm();
+    form.savedSettings = { currency, tax: {}, required_fields: {} };
+    const chain = action => {
+      form = FormReducer(form, action);
+      return action;
+    };
+    let integrated;
+    const dispatch = action =>
+      action.type === TYPES.INVOICE_SAVE ||
+      action.type === TYPES.CONTACT_SAVE
+        ? Promise.resolve(true)
+        : integrated(action);
+    integrated = FormMW({ dispatch, getState: () => ({ form }) })(chain);
+    await integrated(Actions.saveFormData('draft'));
+    expect(form.invoiceID).not.toBe('INV-0001');
+    window.manta.settings.set.mockReset();
+  });
+  it('attaches saved draft when edits land during save', async () => {
+    let resolve;
+    let form = makeForm();
+    form.savedSettings = { currency, tax: {}, required_fields: {} };
+    const saves = [];
+    const chain = action => {
+      form = FormReducer(form, action);
+      return action;
+    };
+    let integrated;
+    const dispatch = action => {
+      if (action.type === TYPES.INVOICE_SAVE) {
+        saves.push(action.payload);
+        return new Promise(r => {
+          resolve = r;
+        });
+      }
+      if (action.type === TYPES.INVOICE_UPDATE) {
+        return Promise.resolve(true);
+      }
+      if (action.type === TYPES.CONTACT_SAVE) {
+        return Promise.resolve(true);
+      }
+      return integrated(action);
+    };
+    integrated = FormMW({ dispatch, getState: () => ({ form }) })(chain);
+    const pending = integrated(Actions.saveFormData('draft'));
+    integrated(Actions.updateFieldData('note', { content: 'typed during save' }));
+    resolve(true);
+    await pending;
+    await integrated(Actions.saveFormData('draft'));
+    expect(saves).toHaveLength(1);
   });
 });
