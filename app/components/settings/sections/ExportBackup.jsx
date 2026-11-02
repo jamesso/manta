@@ -79,7 +79,7 @@ export default function ExportBackup({
       });
     };
     const onConfirmed = (_event, path) => {
-      saveInvoiceNow({ ...invoiceDraft, exportDir: path });
+      saveInvoiceNow(current => ({ ...current, exportDir: path }));
     };
     ipc.on('no-access-directory', onNoAccess);
     ipc.on('confirmed-export-directory', onConfirmed);
@@ -303,7 +303,7 @@ export default function ExportBackup({
           id="preview-pdf"
           checked={Boolean(generalDraft.previewPDF)}
           onCheckedChange={previewPDF =>
-            saveGeneralNow({ ...generalDraft, previewPDF })
+            saveGeneralNow(current => ({ ...current, previewPDF }))
           }
         />
       </Field>

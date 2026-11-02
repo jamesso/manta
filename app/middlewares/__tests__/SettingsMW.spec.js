@@ -130,7 +130,10 @@ describe('Settings Middleware', () => {
       Actions.updateSettings('invoice', imported, true)
     );
     expect(result).toEqual({ ok: true });
-    expect(window.manta.settings.set).toHaveBeenCalledWith('invoice', imported);
+    expect(window.manta.settings.set).toHaveBeenCalledWith('invoice', {
+      ...imported,
+      taxRatesRevision: 0,
+    });
   });
 
   it('returns write errors without calling next', async () => {
@@ -161,5 +164,78 @@ describe('Settings Middleware', () => {
       })
     );
     expect(sounds.preload).toHaveBeenCalled();
+  });
+
+  it('bumps taxRatesRevision and rejects stale taxRates overwrites', async () => {
+    const rateA = [
+      {
+        id: 'standard',
+        name: 'Standard',
+        rate: 19,
+        category: 'S',
+        isDefault: true,
+        active: true,
+        exemptionReason: '',
+      },
+    ];
+    const rateB = [{ ...rateA[0], rate: 7 }];
+    let stored = { ...invoiceBase, taxRatesRevision: 0 };
+
+    window.manta.settings.get.mockImplementation(key => {
+      if (key === 'invoice' || key === 'invoice.numbering') {
+        return key === 'invoice.numbering' ? stored.numbering : stored;
+      }
+      if (key === 'general') {
+        return { language: 'en', theme: 'system', sound: 'default' };
+      }
+      return 'someSettings';
+    });
+    window.manta.settings.set.mockImplementation((key, value) => {
+      if (key === 'invoice') {
+        stored = value;
+      }
+    });
+
+    let result = await middleware(
+      Actions.updateSettings('invoice', {
+        ...invoiceBase,
+        taxRates: rateA,
+        taxRatesRevision: 0,
+      })
+    );
+    expect(result).toEqual({ ok: true });
+    expect(stored.taxRates[0].rate).toBe(19);
+    expect(stored.taxRatesRevision).toBe(1);
+
+    result = await middleware(
+      Actions.updateSettings('invoice', {
+        ...stored,
+        taxRates: rateB,
+        taxRatesRevision: 1,
+      })
+    );
+    expect(result).toEqual({ ok: true });
+    expect(stored.taxRates[0].rate).toBe(7);
+    expect(stored.taxRatesRevision).toBe(2);
+
+    result = await middleware(
+      Actions.updateSettings('invoice', {
+        ...invoiceBase,
+        taxRates: rateA,
+        taxRatesRevision: 0,
+        template: 'business',
+      })
+    );
+    expect(result).toEqual({ ok: false, conflict: 'taxRates' });
+    expect(stored.taxRates[0].rate).toBe(7);
+    expect(stored.template).toBe('minimal');
+
+    result = await middleware(
+      Actions.updateSettings('invoice', { template: 'business' })
+    );
+    expect(result).toEqual({ ok: true });
+    expect(stored.template).toBe('business');
+    expect(stored.taxRates[0].rate).toBe(7);
+    expect(stored.taxRatesRevision).toBe(2);
   });
 });

@@ -79,7 +79,7 @@ export default function LanguageRegion({
         <Select
           value={generalDraft.language}
           onValueChange={language =>
-            saveGeneralNow({ ...generalDraft, language })
+            saveGeneralNow(current => ({ ...current, language }))
           }
         >
           <SelectTrigger className="bg-background text-foreground">
@@ -99,7 +99,7 @@ export default function LanguageRegion({
         <Select
           value={invoiceDraft.dateFormat}
           onValueChange={dateFormat =>
-            saveInvoiceNow({ ...invoiceDraft, dateFormat })
+            saveInvoiceNow(current => ({ ...current, dateFormat }))
           }
         >
           <SelectTrigger className="bg-background text-foreground">

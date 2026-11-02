@@ -39,7 +39,7 @@ export default function Sounds({ value, onSave, saveMessage, registerFlush }) {
         <FieldLabel>{t('settings:fields:sound')}</FieldLabel>
         <Select
           value={draft.sound}
-          onValueChange={sound => saveNow({ ...draft, sound })}
+          onValueChange={sound => saveNow(current => ({ ...current, sound }))}
         >
           <SelectTrigger className="bg-background text-foreground">
             <SelectValue />
@@ -57,7 +57,7 @@ export default function Sounds({ value, onSave, saveMessage, registerFlush }) {
         <Switch
           id="settings-muted"
           checked={Boolean(draft.muted)}
-          onCheckedChange={muted => saveNow({ ...draft, muted })}
+          onCheckedChange={muted => saveNow(current => ({ ...current, muted }))}
         />
       </Field>
     </div>

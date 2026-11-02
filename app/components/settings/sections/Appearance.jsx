@@ -42,7 +42,7 @@ export default function Appearance({
           value={theme}
           onValueChange={next => {
             if (next) {
-              saveNow({ ...draft, theme: next });
+              saveNow(current => ({ ...current, theme: next }));
             }
           }}
         >

@@ -90,14 +90,14 @@ export default function InvoiceDefaults({
     } else {
       next[name] = raw.trim() === '' ? '' : Number(raw);
     }
-    saveNow({ ...draft, numbering: next });
+    saveNow(current => ({ ...current, numbering: next }));
   };
 
   const toggleRequired = (name, checked) => {
-    saveNow({
-      ...draft,
-      required_fields: { ...draft.required_fields, [name]: checked },
-    });
+    saveNow(current => ({
+      ...current,
+      required_fields: { ...current.required_fields, [name]: checked },
+    }));
   };
 
   return (
@@ -148,7 +148,9 @@ export default function InvoiceDefaults({
         <FieldLabel>{t('settings:fields:template')}</FieldLabel>
         <Select
           value={draft.template}
-          onValueChange={template => saveNow({ ...draft, template })}
+          onValueChange={template =>
+            saveNow(current => ({ ...current, template }))
+          }
         >
           <SelectTrigger className="bg-background text-foreground">
             <SelectValue />
@@ -168,10 +170,10 @@ export default function InvoiceDefaults({
             <Select
               value={draft.currency?.code}
               onValueChange={code =>
-                saveNow({
-                  ...draft,
-                  currency: { ...draft.currency, code },
-                })
+                saveNow(current => ({
+                  ...current,
+                  currency: { ...current.currency, code },
+                }))
               }
             >
               <SelectTrigger className="bg-background text-foreground">
@@ -191,10 +193,10 @@ export default function InvoiceDefaults({
             <Select
               value={draft.currency?.separator}
               onValueChange={separator =>
-                saveNow({
-                  ...draft,
-                  currency: { ...draft.currency, separator },
-                })
+                saveNow(current => ({
+                  ...current,
+                  currency: { ...current.currency, separator },
+                }))
               }
             >
               <SelectTrigger className="bg-background text-foreground">
@@ -218,10 +220,10 @@ export default function InvoiceDefaults({
             <Select
               value={draft.currency?.placement}
               onValueChange={placement =>
-                saveNow({
-                  ...draft,
-                  currency: { ...draft.currency, placement },
-                })
+                saveNow(current => ({
+                  ...current,
+                  currency: { ...current.currency, placement },
+                }))
               }
             >
               <SelectTrigger className="bg-background text-foreground">
@@ -255,7 +257,7 @@ export default function InvoiceDefaults({
 
       <TaxRates
         value={getTaxRates(draft)}
-        onChange={list => saveNow({ ...draft, taxRates: list })}
+        onChange={list => saveNow(current => ({ ...current, taxRates: list }))}
       />
 
       <div className="space-y-3">

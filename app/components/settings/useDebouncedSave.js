@@ -84,9 +84,13 @@ export function useDebouncedSave(value, save, delay = 500) {
   }, []);
 
   const saveNow = useCallback(
-    async nextDraft => {
+    async updater => {
       debouncedRef.current.cancel();
       dirtyRef.current = true;
+      const nextDraft =
+        typeof updater === 'function'
+          ? updater(cloneDeep(draftRef.current))
+          : updater;
       draftRef.current = cloneDeep(nextDraft);
       setDraftState(cloneDeep(nextDraft));
       await runFlush();

@@ -74,9 +74,8 @@ const SettingsMW =
               return { ok: false, errors: rawNumberingErrors };
             }
           }
-          const storedNumbering = normalizeNumbering(
-            appConfig.get('invoice.numbering')
-          );
+          const storedInvoice = appConfig.get('invoice') ?? {};
+          const storedNumbering = normalizeNumbering(storedInvoice.numbering);
           const savedNumbering =
             getState().settings?.saved?.invoice?.numbering ?? {};
           const incomingNumbering =
@@ -84,6 +83,7 @@ const SettingsMW =
               ? data.numbering
               : storedNumbering;
           nextData = {
+            ...storedInvoice,
             ...data,
             numbering: mergeNumbering(
               storedNumbering,
@@ -91,6 +91,34 @@ const SettingsMW =
               incomingNumbering
             ),
           };
+          const storedRates = storedInvoice.taxRates;
+          const incomingRates =
+            'taxRates' in nextData ? nextData.taxRates : undefined;
+          const storedRev = Number(storedInvoice.taxRatesRevision ?? 0);
+          if (
+            incomingRates === undefined ||
+            isEqual(incomingRates, storedRates)
+          ) {
+            nextData.taxRates = storedRates;
+            nextData.taxRatesRevision = storedRev;
+          } else if (Number(nextData.taxRatesRevision ?? 0) !== storedRev) {
+            return { ok: false, conflict: 'taxRates' };
+          } else {
+            nextData.taxRates = incomingRates;
+            nextData.taxRatesRevision = storedRev + 1;
+          }
+        } else if (setting === 'invoice' && imported) {
+          const storedInvoice = appConfig.get('invoice') ?? {};
+          const storedRev = Number(storedInvoice.taxRatesRevision ?? 0);
+          nextData = { ...data };
+          if (
+            'taxRates' in data &&
+            !isEqual(data.taxRates, storedInvoice.taxRates)
+          ) {
+            nextData.taxRatesRevision = storedRev + 1;
+          } else if (!('taxRatesRevision' in nextData)) {
+            nextData.taxRatesRevision = storedRev;
+          }
         }
         const errors = getSettingsErrors(setting, nextData);
         if (Object.keys(errors).length) {

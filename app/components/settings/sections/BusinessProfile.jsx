@@ -63,7 +63,7 @@ export default function BusinessProfile({
         </p>
         <Logo
           logo={draft.logo}
-          handleLogoChange={logo => saveNow({ ...draft, logo })}
+          handleLogoChange={logo => saveNow(current => ({ ...current, logo }))}
         />
       </Field>
       <div className="grid gap-4 md:grid-cols-2">
