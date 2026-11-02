@@ -49,6 +49,7 @@ export function exportKey(invoice, profile, previewConfigs) {
     payments: invoice.payments,
     paidAt: invoice.paidAt,
     dueDate: invoice.dueDate,
+    validUntil: invoice.validUntil ?? null,
     profile: {
       legalName: resolved.legalName,
       fullname: resolved.fullname,

@@ -59,6 +59,25 @@ describe('exportKey', () => {
     expect(a).not.toBe(b);
   });
 
+  it('changes when validUntil differs for the same id', () => {
+    const profile = { fullname: 'Co' };
+    const configs = base.configs;
+    const estimate = {
+      ...base,
+      docType: 'estimate',
+      validUntil: Date.UTC(2026, 1, 1),
+    };
+    expect(
+      exportKey(estimate, profile, configs)
+    ).not.toBe(
+      exportKey(
+        { ...estimate, validUntil: Date.UTC(2026, 2, 1) },
+        profile,
+        configs
+      )
+    );
+  });
+
   it('changes when live preview configs differ from invoice.configs', () => {
     const profile = { fullname: 'Co' };
     const invoice = {
