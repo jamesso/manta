@@ -1,11 +1,10 @@
 // Usage: node scripts/pdf-snapshot.mjs <outDir>   (run `npm run build` first)
 // Captures one PDF and one computed-style JSON per case and theme.
-// Always uses a disposable profile under /tmp. Never the real Manta profile.
+// Always launches a profile this process created under /tmp.
+// Never the real Manta profile, and never the caller's directory.
 import fs from 'node:fs';
 import path from 'node:path';
-
-const outDir = path.resolve(process.argv[2] || '/tmp/manta-pdf-snapshot');
-fs.mkdirSync(outDir, { recursive: true });
+import { pathToFileURL } from 'node:url';
 
 // Must equal getPrintOptions(undefined) in main/print-options.js.
 const PRINT = {
@@ -139,133 +138,187 @@ const PROPS = [
   'border-radius',
 ];
 
-// Reject the real profile even if a caller points SNAPSHOT_USER_DATA at it.
-function assertDisposableProfile(dir) {
-  const resolved = path.resolve(dir);
+const MANTA_PROFILE_MARK = `${path.sep}library${path.sep}application support${path.sep}manta`;
+
+function realTemporaryDirectory() {
+  return fs.realpathSync('/tmp');
+}
+
+// Resolve the real path, including symlink ancestors, before any check.
+export function assertDisposableProfile(dir) {
+  let resolved;
+  try {
+    resolved = fs.realpathSync(dir);
+  } catch {
+    throw new Error(
+      `Profile must be a disposable directory under /tmp: ${dir}`
+    );
+  }
   const lower = resolved.toLowerCase();
-  const banned = `${path.sep}library${path.sep}application support${path.sep}manta`;
-  if (lower.includes(banned)) {
+  if (lower.includes(MANTA_PROFILE_MARK)) {
     throw new Error(`Refusing Manta profile: ${resolved}`);
   }
-  const underTmp =
-    lower === '/tmp' ||
-    lower.startsWith(`/tmp${path.sep}`) ||
-    lower === '/private/tmp' ||
-    lower.startsWith(`/private/tmp${path.sep}`);
-  if (!underTmp) {
+  const realTmp = realTemporaryDirectory();
+  if (
+    resolved === realTmp ||
+    resolved === '/tmp' ||
+    resolved === '/private/tmp'
+  ) {
+    throw new Error(`Refusing temporary directory itself: ${resolved}`);
+  }
+  if (!resolved.startsWith(`${realTmp}${path.sep}`)) {
     throw new Error(
       `Profile must be a disposable directory under /tmp: ${resolved}`
     );
   }
+  if (path.dirname(resolved) !== realTmp) {
+    throw new Error(
+      `Profile must be a dedicated child of the temporary directory: ${resolved}`
+    );
+  }
+  return resolved;
 }
 
-let app;
-let userData;
-let removeProfile = false;
-
-if (process.env.SNAPSHOT_USER_DATA) {
-  userData = path.resolve(process.env.SNAPSHOT_USER_DATA);
-  assertDisposableProfile(userData);
-  fs.mkdirSync(userData, { recursive: true });
-} else {
-  userData = fs.mkdtempSync(path.join('/tmp', 'manta-pdf-'));
-  removeProfile = true;
-  assertDisposableProfile(userData);
+// Copy caller input into a new directory. Electron is only ever pointed at
+// the directory this function creates.
+export function createOwnedProfile(sourceDir) {
+  const source = sourceDir ? assertDisposableProfile(sourceDir) : null;
+  const owned = fs.mkdtempSync(
+    path.join(realTemporaryDirectory(), 'manta-pdf-')
+  );
+  if (!source) {
+    assertDisposableProfile(owned);
+    return { launchProfile: owned, callerProfile: null };
+  }
+  try {
+    fs.cpSync(source, owned, { recursive: true });
+  } catch (err) {
+    fs.rmSync(owned, { recursive: true, force: true });
+    throw err;
+  }
+  return { launchProfile: owned, callerProfile: source };
 }
 
-try {
-  // Dynamic import so a bad profile path fails before Playwright loads.
-  // Playwright's default colorScheme emulates light and hides nativeTheme.
-  // e2e/app.e2e.mjs sets colorScheme: null for the same reason.
-  const { _electron: electron } = await import('@playwright/test');
-  app = await electron.launch({
-    args: [
-      'out/main/index.js',
-      ...(process.platform === 'linux' ? ['--no-sandbox'] : []),
-    ],
-    env: {
-      ...process.env,
-      MANTA_USER_DATA: userData,
-      NODE_ENV: 'production',
-      TZ: 'UTC',
-    },
-    colorScheme: null,
-  });
+export async function closeAndRemoveOwnedProfile(app, profileDir) {
+  try {
+    if (app) await app.close();
+  } finally {
+    if (profileDir) fs.rmSync(profileDir, { recursive: true, force: true });
+  }
+}
 
-  const findPreview = async () => {
-    for (const p of app.windows()) {
-      if ((await p.title()) === 'Previewer') return p;
-    }
-    return undefined;
+function isDirectRun() {
+  if (!process.argv[1]) return false;
+  return import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href;
+}
+
+async function main() {
+  const outDir = path.resolve(process.argv[2] || '/tmp/manta-pdf-snapshot');
+  fs.mkdirSync(outDir, { recursive: true });
+
+  let app;
+  const prepared = createOwnedProfile(process.env.SNAPSHOT_USER_DATA || null);
+  const launchProfile = prepared.launchProfile;
+  const launchEnv = {
+    ...process.env,
+    MANTA_USER_DATA: launchProfile,
+    NODE_ENV: 'production',
+    TZ: 'UTC',
   };
+  delete launchEnv.SNAPSHOT_USER_DATA;
 
-  let page;
-  for (let i = 0; i < 60 && !page; i++) {
-    page = await findPreview();
-    if (!page) await new Promise(r => setTimeout(r, 500));
-  }
-  if (!page) throw new Error('Preview window not found');
-  await page.waitForLoadState('load');
+  try {
+    // Dynamic import so a bad profile path fails before Playwright loads.
+    // Playwright's default colorScheme emulates light and hides nativeTheme.
+    // e2e/app.e2e.mjs sets colorScheme: null for the same reason.
+    const { _electron: electron } = await import('@playwright/test');
+    app = await electron.launch({
+      args: [
+        'out/main/index.js',
+        ...(process.platform === 'linux' ? ['--no-sandbox'] : []),
+      ],
+      env: launchEnv,
+      colorScheme: null,
+    });
 
-  for (const theme of ['light', 'dark']) {
-    await app.evaluate(({ nativeTheme }, t) => {
-      nativeTheme.themeSource = t;
-    }, theme);
-    for (const [name, cfg] of Object.entries(CASES)) {
-      const invoice = {
-        ...BASE,
-        _id: `pdf-${name}-${theme}`,
-        configs: { ...DEF, ...cfg },
-      };
-      await app.evaluate(({ BrowserWindow }, inv) => {
-        BrowserWindow.getAllWindows()
-          .find(w => w.getTitle() === 'Previewer')
-          .webContents.send('update-preview', inv);
-      }, invoice);
-      await page.waitForFunction(
-        id => document.querySelector('.print-area')?.dataset.invoiceId === id,
-        invoice._id,
-        { timeout: 10000 }
-      );
-      await page.evaluate(async () => {
-        await document.fonts.ready;
-        await Promise.all(
-          [...document.images].map(i => i.decode().catch(() => {}))
-        );
-        // Do not wait on requestAnimationFrame in this hidden window.
-        await new Promise(r => setTimeout(r, 50));
-      });
-      await page.waitForTimeout(300);
-      const b64 = await app.evaluate(async ({ BrowserWindow }, opts) => {
-        const w = BrowserWindow.getAllWindows().find(
-          x => x.getTitle() === 'Previewer'
-        );
-        return (await w.webContents.printToPDF(opts)).toString('base64');
-      }, PRINT);
-      fs.writeFileSync(
-        path.join(outDir, `${name}-${theme}.pdf`),
-        Buffer.from(b64, 'base64')
-      );
-      const styles = await page.evaluate(props => {
-        const root = document.querySelector('.print-area');
-        return [root, ...root.querySelectorAll('*')].map(el => {
-          const cs = getComputedStyle(el);
-          return [
-            el.tagName,
-            ...props.map(p => `${p}: ${cs.getPropertyValue(p)}`),
-          ];
-        });
-      }, PROPS);
-      fs.writeFileSync(
-        path.join(outDir, `${name}-${theme}.styles.json`),
-        JSON.stringify(styles, null, 1)
-      );
+    const findPreview = async () => {
+      for (const p of app.windows()) {
+        if ((await p.title()) === 'Previewer') return p;
+      }
+      return undefined;
+    };
+
+    let page;
+    for (let i = 0; i < 60 && !page; i++) {
+      page = await findPreview();
+      if (!page) await new Promise(r => setTimeout(r, 500));
     }
+    if (!page) throw new Error('Preview window not found');
+    await page.waitForLoadState('load');
+
+    for (const theme of ['light', 'dark']) {
+      await app.evaluate(({ nativeTheme }, t) => {
+        nativeTheme.themeSource = t;
+      }, theme);
+      for (const [name, cfg] of Object.entries(CASES)) {
+        const invoice = {
+          ...BASE,
+          _id: `pdf-${name}-${theme}`,
+          configs: { ...DEF, ...cfg },
+        };
+        await app.evaluate(({ BrowserWindow }, inv) => {
+          BrowserWindow.getAllWindows()
+            .find(w => w.getTitle() === 'Previewer')
+            .webContents.send('update-preview', inv);
+        }, invoice);
+        await page.waitForFunction(
+          id => document.querySelector('.print-area')?.dataset.invoiceId === id,
+          invoice._id,
+          { timeout: 10000 }
+        );
+        await page.evaluate(async () => {
+          await document.fonts.ready;
+          await Promise.all(
+            [...document.images].map(i => i.decode().catch(() => {}))
+          );
+          // Do not wait on requestAnimationFrame in this hidden window.
+          await new Promise(r => setTimeout(r, 50));
+        });
+        await page.waitForTimeout(300);
+        const b64 = await app.evaluate(async ({ BrowserWindow }, opts) => {
+          const w = BrowserWindow.getAllWindows().find(
+            x => x.getTitle() === 'Previewer'
+          );
+          return (await w.webContents.printToPDF(opts)).toString('base64');
+        }, PRINT);
+        fs.writeFileSync(
+          path.join(outDir, `${name}-${theme}.pdf`),
+          Buffer.from(b64, 'base64')
+        );
+        const styles = await page.evaluate(props => {
+          const root = document.querySelector('.print-area');
+          return [root, ...root.querySelectorAll('*')].map(el => {
+            const cs = getComputedStyle(el);
+            return [
+              el.tagName,
+              ...props.map(p => `${p}: ${cs.getPropertyValue(p)}`),
+            ];
+          });
+        }, PROPS);
+        fs.writeFileSync(
+          path.join(outDir, `${name}-${theme}.styles.json`),
+          JSON.stringify(styles, null, 1)
+        );
+      }
+    }
+  } finally {
+    await closeAndRemoveOwnedProfile(app, launchProfile);
   }
-} finally {
-  if (app) await app.close();
-  if (removeProfile) fs.rmSync(userData, { recursive: true, force: true });
+
+  console.log(`Wrote ${Object.keys(CASES).length * 2} PDFs to ${outDir}`);
+  console.log(`Profile ${launchProfile} (removed: true)`);
 }
 
-console.log(`Wrote ${Object.keys(CASES).length * 2} PDFs to ${outDir}`);
-console.log(`Profile ${userData} (removed: ${removeProfile})`);
+if (isDirectRun()) {
+  await main();
+}
