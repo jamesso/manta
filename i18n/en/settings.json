@@ -48,6 +48,36 @@
     "numberingPadding": "Enter a whole number from 0 to 12",
     "numberingPrefix": "Use 20 characters or fewer"
   },
+  "backup": {
+    "export": "Export backup…",
+    "import": "Import backup…",
+    "exportCsv": "Export invoices as CSV…",
+    "autoHint": "Manta saves an automatic backup before every import.",
+    "exportSuccess": "Backup saved",
+    "csvSuccess": "CSV exported",
+    "showFile": "Show file",
+    "showSafety": "Show safety backup",
+    "importTitle": "Import backup",
+    "import": "Import",
+    "importing": "Importing…",
+    "includeSettings": "Also import settings",
+    "modeSkip": "Skip items that already exist",
+    "modeOverwrite": "Replace items that already exist",
+    "previewCounts": "{{invoices}} invoices and {{contacts}} clients in this file. {{added}} are new. {{existing}} already exist.",
+    "invalidCounts": "{{invoices}} invalid invoices and {{contacts}} invalid clients were skipped.",
+    "duplicateCounts": "{{invoices}} duplicate invoices and {{contacts}} duplicate clients were skipped.",
+    "importSuccess": "Imported {{added}} new and replaced {{overwritten}} items. Skipped {{skipped}}.",
+    "importFailedDocs": "{{count}} could not be written.",
+    "skippedSettings": "Settings not imported for: {{sections}}.",
+    "errors": {
+      "invalidJson": "This file is not a valid backup.",
+      "wrongApp": "This file is not a Manta backup.",
+      "newerVersion": "This backup was made by a newer version of Manta. Update Manta, then try again.",
+      "invalidFormat": "This backup file is damaged.",
+      "tooLarge": "This file is too large (more than 100 MB).",
+      "unsupportedData": "This backup contains unsupported attachment data."
+    }
+  },
   "tabs": {
     "profile": "Profile",
     "invoice": "Invoice",

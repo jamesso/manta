@@ -118,6 +118,22 @@ describe('pouchDB helpers', () => {
       }
     });
 
+    it('bulkSaveDocs adds and overwrites', async () => {
+      const mod = await import('../pouchDB.js');
+      const { bulkSaveDocs, saveDoc, getAllDocs } = mod;
+      await saveDoc('contacts', { _id: 'b1', fullname: 'A', email: 'a@b.co' });
+      const existing = (await getAllDocs('contacts')).find(d => d._id === 'b1');
+      const result = await bulkSaveDocs('contacts', [
+        { _id: 'b2', fullname: 'B', email: 'b@b.co' },
+        { ...existing, fullname: 'A2' },
+        { _id: 'b1', _rev: '0-0', fullname: 'Stale' },
+      ]);
+      expect(result.succeeded).toContain('b2');
+      expect(result.failed.length).toBeGreaterThan(0);
+      const docs = await getAllDocs('contacts');
+      expect(docs.find(d => d._id === 'b1').fullname).toBe('A2');
+    });
+
     it('updateDocs partial failure keeps successful writes in DB', async () => {
       await saveDoc('invoices', {
         _id: 'bulk-u1',

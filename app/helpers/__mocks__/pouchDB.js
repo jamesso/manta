@@ -101,6 +101,10 @@ const restoreDocs = vi.fn(() => Promise.resolve(mockData.invoicesRecords));
 
 const updateDocs = vi.fn(() => Promise.resolve(mockData.invoicesRecords));
 
+const bulkSaveDocs = vi.fn(() =>
+  Promise.resolve({ succeeded: [], failed: [], allDocs: [] })
+);
+
 export {
   getAllDocs,
   getSingleDoc,
@@ -110,5 +114,6 @@ export {
   removeDocs,
   restoreDocs,
   updateDocs,
+  bulkSaveDocs,
   mockData,
 };

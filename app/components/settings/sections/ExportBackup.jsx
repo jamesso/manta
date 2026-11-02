@@ -1,13 +1,36 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
+import { Download, Sheet, Upload } from 'lucide-react';
 
 import * as dialog from '@/lib/dialog';
+import { toast } from '@/components/ui/toast';
 import { Button } from '@/components/ui/button';
 import { Field, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
+import * as ContactsActions from '../../../actions/contacts';
+import * as InvoicesActions from '../../../actions/invoices';
+import * as SettingsActions from '../../../actions/settings';
+import { parseBackup } from '../../../helpers/backup';
+import {
+  exportBackup,
+  exportCsv,
+  previewImport,
+  runImport,
+} from '../../../helpers/backupFlow';
+import ImportDialog from './ImportDialog';
 
 const ipc = window.manta.ipc;
+
+const IMPORT_ERRORS = {
+  'invalid-json': 'settings:backup:errors:invalidJson',
+  'wrong-app': 'settings:backup:errors:wrongApp',
+  'newer-version': 'settings:backup:errors:newerVersion',
+  'invalid-format': 'settings:backup:errors:invalidFormat',
+  'too-large': 'settings:backup:errors:tooLarge',
+  'unsupported-data': 'settings:backup:errors:unsupportedData',
+};
 
 export default function ExportBackup({
   invoice,
@@ -16,6 +39,12 @@ export default function ExportBackup({
   onSaveGeneral,
 }) {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const [importOpen, setImportOpen] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [importState, setImportState] = useState(null);
+  const [mode, setMode] = useState('skip');
+  const [includeSettings, setIncludeSettings] = useState(false);
 
   useEffect(() => {
     const onNoAccess = (_event, message) => {
@@ -35,6 +64,131 @@ export default function ExportBackup({
       ipc.removeAllListeners('confirmed-export-directory');
     };
   }, [t, invoice, onSaveInvoice]);
+
+  const onExportBackup = async () => {
+    try {
+      const result = await exportBackup();
+      if (result.canceled) {
+        return;
+      }
+      toast.add({
+        title: t('settings:backup:exportSuccess'),
+        actionProps: {
+          children: t('settings:backup:showFile'),
+          onClick: () => ipc.send('reveal-file', result.filePath),
+        },
+      });
+    } catch (err) {
+      toast.add({ title: err.message, variant: 'destructive' });
+    }
+  };
+
+  const onExportCsv = async () => {
+    try {
+      const result = await exportCsv(Date.now());
+      if (result.canceled) {
+        return;
+      }
+      toast.add({
+        title: t('settings:backup:csvSuccess'),
+        actionProps: {
+          children: t('settings:backup:showFile'),
+          onClick: () => ipc.send('reveal-file', result.filePath),
+        },
+      });
+    } catch (err) {
+      toast.add({ title: err.message, variant: 'destructive' });
+    }
+  };
+
+  const onImportPick = async () => {
+    const picked = await ipc.invoke('backup-import');
+    if (picked.canceled) {
+      return;
+    }
+    if (picked.error === 'too-large') {
+      await dialog.alert({
+        title: t('settings:backup:importTitle'),
+        message: t(IMPORT_ERRORS['too-large']),
+      });
+      return;
+    }
+    const parsed = parseBackup(picked.text);
+    if (!parsed.ok) {
+      await dialog.alert({
+        title: t('settings:backup:importTitle'),
+        message: t(
+          IMPORT_ERRORS[parsed.error] || IMPORT_ERRORS['invalid-format']
+        ),
+      });
+      return;
+    }
+    const preview = await previewImport(parsed.backup);
+    setImportState({
+      fileName: picked.filePath,
+      exportedAt: parsed.backup.exportedAt,
+      backup: parsed.backup,
+      preview,
+      invalid: parsed.invalid,
+      duplicates: parsed.duplicates,
+    });
+    setMode('skip');
+    setIncludeSettings(false);
+    setImportOpen(true);
+  };
+
+  const onConfirmImport = async () => {
+    if (!importState) {
+      return;
+    }
+    setImporting(true);
+    try {
+      const result = await runImport(importState.backup, {
+        mode,
+        includeSettings,
+      });
+      dispatch(ContactsActions.getAllContacts());
+      dispatch(InvoicesActions.getInvoices());
+      if (result.settings) {
+        for (const section of ['profile', 'invoice', 'general']) {
+          if (result.settings[section]) {
+            dispatch(
+              SettingsActions.updateSettings(section, result.settings[section])
+            );
+          }
+        }
+      }
+      let message = t('settings:backup:importSuccess', {
+        added: result.counts.added,
+        overwritten: result.counts.overwritten,
+        skipped: result.counts.skipped,
+      });
+      const failedCount =
+        result.failed.contacts.length + result.failed.invoices.length;
+      if (failedCount) {
+        message += ` ${t('settings:backup:importFailedDocs', { count: failedCount })}`;
+      }
+      if (result.skippedSections.length) {
+        message += ` ${t('settings:backup:skippedSettings', {
+          sections: result.skippedSections.join(', '),
+        })}`;
+      }
+      toast.add({
+        title: message,
+        actionProps: result.snapshotPath
+          ? {
+              children: t('settings:backup:showSafety'),
+              onClick: () => ipc.send('reveal-file', result.snapshotPath),
+            }
+          : undefined,
+      });
+      setImportOpen(false);
+    } catch (err) {
+      toast.add({ title: err.message, variant: 'destructive' });
+    } finally {
+      setImporting(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -71,6 +225,54 @@ export default function ExportBackup({
           }
         />
       </Field>
+      <div className="space-y-3 border-t border-border pt-6">
+        <p className="text-sm text-muted-foreground">
+          {t('settings:backup:autoHint')}
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <Button type="button" variant="outline" onClick={onExportBackup}>
+            <Download className="size-4" />
+            {t('settings:backup:export')}
+          </Button>
+          <Button type="button" variant="outline" onClick={onImportPick}>
+            <Upload className="size-4" />
+            {t('settings:backup:import')}
+          </Button>
+          <Button type="button" variant="outline" onClick={onExportCsv}>
+            <Sheet className="size-4" />
+            {t('settings:backup:exportCsv')}
+          </Button>
+        </div>
+      </div>
+      {importState ? (
+        <ImportDialog
+          open={importOpen}
+          onOpenChange={setImportOpen}
+          fileName={importState.fileName}
+          exportedAt={importState.exportedAt}
+          preview={{
+            invoices: {
+              total: importState.backup.invoices.length,
+              added: importState.preview.skip.invoices.added,
+              skipped: importState.preview.skip.invoices.skipped,
+            },
+            contacts: {
+              total: importState.backup.contacts.length,
+              added: importState.preview.skip.contacts.added,
+              skipped: importState.preview.skip.contacts.skipped,
+            },
+          }}
+          invalid={importState.invalid}
+          duplicates={importState.duplicates}
+          hasSettings={Boolean(importState.backup.settings)}
+          mode={mode}
+          onModeChange={setMode}
+          includeSettings={includeSettings}
+          onIncludeSettingsChange={setIncludeSettings}
+          importing={importing}
+          onConfirm={onConfirmImport}
+        />
+      ) : null}
     </div>
   );
 }

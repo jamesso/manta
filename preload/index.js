@@ -1,6 +1,10 @@
 const { contextBridge, ipcRenderer, webUtils } = require('electron');
 
 const CHANNELS = new Set([
+  'backup-export',
+  'backup-import',
+  'backup-snapshot',
+  'csv-export',
   'change-preview-window-language',
   'change-preview-window-profile',
   'check-for-updates',
@@ -65,6 +69,10 @@ const ipc = {
       check(c);
       ipcRenderer.removeAllListeners(c);
     });
+  },
+  invoke: (channel, ...args) => {
+    check(channel);
+    return ipcRenderer.invoke(channel, ...args);
   },
 };
 

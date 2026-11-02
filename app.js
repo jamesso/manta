@@ -385,6 +385,7 @@ function loadMainProcessFiles() {
   require('./main/select-export-directory');
   require('./main/select-logo-file');
   require('./main/logo');
+  require('./main/backup');
   require('./main/tour');
   require('./main/updater');
 }

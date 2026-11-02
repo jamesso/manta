@@ -257,6 +257,17 @@ const updateDocs = (dbName, docs) =>
     return allDocs;
   });
 
+const bulkSaveDocs = (dbName, docs) =>
+  setDB(dbName)
+    .then(db => db.bulkDocs(docs))
+    .then(results =>
+      getAllDocs(dbName).then(allDocs => ({
+        succeeded: results.filter(r => r.ok).map(r => r.id),
+        failed: results.filter(r => r.error),
+        allDocs,
+      }))
+    );
+
 export {
   getAllDocs,
   getSingleDoc,
@@ -266,4 +277,5 @@ export {
   removeDocs,
   restoreDocs,
   updateDocs,
+  bulkSaveDocs,
 };

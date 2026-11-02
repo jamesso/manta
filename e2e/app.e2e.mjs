@@ -250,7 +250,9 @@ test('sidebar shows labels and Ctrl/Cmd+K opens the command palette', async () =
   await page.keyboard.type('clients');
   await palette.getByRole('option', { name: 'Clients' }).click();
   await expect(palette).toBeHidden();
-  await expect(page.getByText('All Contacts')).toBeVisible();
+  await expect(
+    page.locator('h1.text-2xl', { hasText: 'Clients' })
+  ).toBeVisible();
 });
 
 async function reactInput(locator, value) {
@@ -276,7 +278,9 @@ test('draft save advances invoice numbering on cleared form', async () => {
   let page;
   for (const p of app.windows()) if ((await p.title()) === MAIN_TITLE) page = p;
   await page.getByRole('button', { name: 'New invoice', exact: true }).click();
-  await expect(page.locator('#client-fullname')).toBeVisible({ timeout: 30_000 });
+  await expect(page.locator('#client-fullname')).toBeVisible({
+    timeout: 30_000,
+  });
 
   await reactInput(page.locator('#client-fullname'), 'E2E Client');
   await reactInput(page.locator('#client-email'), 'e2e@example.com');
