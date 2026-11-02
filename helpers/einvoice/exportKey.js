@@ -34,6 +34,8 @@ export function exportKey(invoice, profile, previewConfigs) {
     issuedAt: getIssuedAt(invoice),
     created_at: invoice.created_at ?? null,
     rows: invoice.rows,
+    subtotal: invoice.subtotal,
+    grandTotal: invoice.grandTotal,
     discount: invoice.discount,
     tax: invoice.tax,
     taxMode: invoice.taxMode,

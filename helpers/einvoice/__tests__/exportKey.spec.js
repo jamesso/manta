@@ -30,6 +30,19 @@ describe('exportKey', () => {
     expect(a).toMatch(/^[a-f0-9]{64}$/);
   });
 
+  it('changes when stored grandTotal differs for the same id and rows', () => {
+    const profile = { fullname: 'Co' };
+    const configs = base.configs;
+    const shared = {
+      ...base,
+      subtotal: 100,
+      rows: [{ description: 'A', quantity: 1, price: 100, subtotal: 100, taxRate: 19, taxCategory: 'S' }],
+    };
+    expect(
+      exportKey({ ...shared, grandTotal: 119 }, profile, configs)
+    ).not.toBe(exportKey({ ...shared, grandTotal: 999 }, profile, configs));
+  });
+
   it('changes when live preview configs differ from invoice.configs', () => {
     const profile = { fullname: 'Co' };
     const invoice = {

@@ -205,8 +205,10 @@ ipcMain.handle('einvoice-export', async (event, payload) => {
       return { ok: true, path: filePath, warnings };
     }
 
+    let previewFrozenByThisCall = false;
     try {
       const ready = await waitForPreviewExportReady(win);
+      previewFrozenByThisCall = true;
       if (
         ready.id !== String(invoice._id ?? '') ||
         ready.key !== expectedExportKey
@@ -243,7 +245,9 @@ ipcMain.handle('einvoice-export', async (event, payload) => {
       });
       return { ok: true, path: filePath, warnings };
     } finally {
-      await clearPreviewExportFrozen(win);
+      if (previewFrozenByThisCall) {
+        await clearPreviewExportFrozen(win);
+      }
     }
   } catch (err) {
     return { ok: false, error: err.message };
