@@ -637,24 +637,18 @@ describe('Invoices Middleware', () => {
       );
     });
 
-    it('handle error correctly', () => {
-      // Setup
+    it('handle error correctly', async () => {
       const invoiceID = 'id-string';
       const configs = { color: 'red' };
       const expectedError = new Error('No invoice found!');
-      // Execute
-      middleware(Actions.saveInvoiceConfigs(invoiceID, configs)).then(() => {
-        getSingleDoc('test', invoiceID).then(() => {
-          // Expect
-          expect(next).toHaveBeenCalled();
-          expect(next).toHaveBeenCalledWith({
-            type: ACTION_TYPES.UI_NOTIFICATION_NEW,
-            payload: {
-              type: 'warning',
-              message: expectedError.message,
-            },
-          });
-        });
+      getSingleDoc.mockRejectedValueOnce(expectedError);
+      await middleware(Actions.saveInvoiceConfigs(invoiceID, configs));
+      expect(next).toHaveBeenCalledWith({
+        type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+        payload: {
+          type: 'warning',
+          message: expectedError.message,
+        },
       });
     });
   });
