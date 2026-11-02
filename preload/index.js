@@ -15,6 +15,7 @@ const CHANNELS = new Set([
   'menu-new-invoice',
   'menu-open-command-palette',
   'menu-show-shortcuts',
+  'onboarding-updated',
   'menu-form-add-item',
   'menu-form-clear',
   'menu-form-save',

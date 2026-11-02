@@ -14,6 +14,13 @@ ipcMain.on('save-pdf', async (event, docId) => {
       getPrintOptions(appConfig.get('general.printOptions'))
     );
     await fs.promises.writeFile(pdfPath, data);
+    if (!appConfig.get('onboarding.exportedPdf')) {
+      appConfig.set('onboarding.exportedPdf', true);
+      const main = BrowserWindow.fromId(appConfig.get('mainWindowID'));
+      if (main && !main.isDestroyed()) {
+        main.webContents.send('onboarding-updated', { exportedPdf: true });
+      }
+    }
     if (appConfig.get('general.previewPDF')) {
       // Open the PDF with the default reader
       await shell.openPath(pdfPath);

@@ -31,6 +31,7 @@ const MENU_CHANNELS = [
   'menu-form-toggle-note',
   'menu-form-toggle-settings',
   'save-configs-to-invoice',
+  'onboarding-updated',
 ];
 
 function App() {
@@ -89,6 +90,9 @@ function App() {
     );
     ipc.on('save-configs-to-invoice', (_e, invoiceID, configs) => {
       dispatch(InvoicesActions.saveInvoiceConfigs(invoiceID, configs));
+    });
+    ipc.on('onboarding-updated', (_e, patch) => {
+      dispatch(SettingsActions.updateOnboarding(patch));
     });
 
     return () => {
