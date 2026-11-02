@@ -61,4 +61,30 @@ describe('csv', () => {
     const draftLine = csv.split('\r\n').find(l => l.includes(',B,'));
     expect(draftLine).toMatch(/0\.00,$/);
   });
+
+  it('excludes estimates from row count', () => {
+    const now = Date.UTC(2026, 0, 20);
+    const csv = buildInvoicesCsv(
+      [
+        {
+          _id: 'i',
+          created_at: now,
+          rows: [{ subtotal: 1 }],
+          recipient: { fullname: 'I' },
+          currency: { code: 'USD', fraction: 2 },
+        },
+        {
+          _id: 'e',
+          docType: 'estimate',
+          created_at: now,
+          rows: [{ subtotal: 2 }],
+          recipient: { fullname: 'E' },
+          currency: { code: 'USD', fraction: 2 },
+        },
+      ],
+      now
+    );
+    expect(csv.split('\r\n').filter(Boolean).length).toBe(2);
+    expect(csv).not.toContain(',E,');
+  });
 });

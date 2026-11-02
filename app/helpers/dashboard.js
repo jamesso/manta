@@ -7,6 +7,7 @@ import {
   getDueDate,
   getInvoiceTotal,
   getIssuedAt,
+  onlyInvoices,
 } from './invoice';
 
 function startOfLocalDay(ts) {
@@ -68,6 +69,7 @@ function invoiceSortTime(inv) {
 }
 
 function getDashboardStats(invoices, now, fallbackCurrency) {
+  invoices = onlyInvoices(invoices);
   const byCurrency = {};
   let draft = 0;
   let overdue = 0;
@@ -155,6 +157,7 @@ function getDashboardStats(invoices, now, fallbackCurrency) {
 }
 
 function getMonthlyPaid(invoices, now, months = 6, fallbackCurrency) {
+  invoices = onlyInvoices(invoices);
   const endMonthStart = startOfLocalMonth(now);
   const startMonthStart = new Date(
     new Date(endMonthStart).getFullYear(),
@@ -209,6 +212,7 @@ function getMonthlyPaid(invoices, now, months = 6, fallbackCurrency) {
 }
 
 function getNeedsAttention(invoices, now, days = 7) {
+  invoices = onlyInvoices(invoices);
   const startToday = startOfLocalDay(now);
   const endExclusive = addLocalDays(startToday, days + 1);
 
@@ -237,6 +241,7 @@ function getNeedsAttention(invoices, now, days = 7) {
 }
 
 function getRecentInvoices(invoices, limit = 5) {
+  invoices = onlyInvoices(invoices);
   return [...invoices]
     .sort(
       (a, b) =>

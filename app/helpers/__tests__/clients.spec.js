@@ -184,3 +184,29 @@ describe('matchesClientQuery', () => {
     expect(matchesClientQuery(contact, '5551234')).toBe(true);
   });
 });
+
+describe('summarizeClients estimate filter', () => {
+  it('ignores estimates for counts and outstanding', () => {
+    const now = Date.parse('2026-06-01');
+    const invoices = [
+      {
+        _id: '1',
+        recipient: { _id: 'a' },
+        status: 'pending',
+        currency: { code: 'USD' },
+        rows: [{ subtotal: 10 }],
+      },
+      {
+        _id: '2',
+        docType: 'estimate',
+        recipient: { _id: 'a' },
+        status: 'sent',
+        currency: { code: 'USD' },
+        rows: [{ subtotal: 99 }],
+      },
+    ];
+    const map = summarizeClients([{ _id: 'a', fullname: 'A' }], invoices, now);
+    expect(map.get('a').invoiceCount).toBe(1);
+    expect(map.get('a').outstanding).toEqual({ USD: 10 });
+  });
+});

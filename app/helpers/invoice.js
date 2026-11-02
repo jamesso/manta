@@ -3,6 +3,16 @@ import moment from 'moment';
 import { calTermDate } from '../../helpers/date';
 import { formatNumber } from '../../helpers/formatNumber';
 import { INVOICE_STATUSES } from '../constants/invoices';
+import { isEstimate } from './docType';
+import { getEstimateDisplayStatus, getEstimateStoredStatus } from './estimate';
+export {
+  DOC_TYPES,
+  getDocType,
+  isInvoice,
+  isEstimate,
+  onlyInvoices,
+  onlyEstimates,
+} from './docType';
 import { normalizeFraction, roundMoney } from './money';
 import {
   compareTaxGroups,
@@ -357,6 +367,9 @@ function getIssuedAt(invoice) {
 }
 
 function getStoredStatus(invoice) {
+  if (isEstimate(invoice)) {
+    return getEstimateStoredStatus(invoice);
+  }
   const status = invoice.status;
   if (INVOICE_STATUSES.includes(status)) {
     return status;
@@ -391,6 +404,9 @@ function getDueDate(invoice) {
 }
 
 function getDisplayStatus(invoice, now = Date.now()) {
+  if (isEstimate(invoice)) {
+    return getEstimateDisplayStatus(invoice, now);
+  }
   const s = getStoredStatus(invoice);
   if (s !== 'pending') {
     return s;

@@ -313,6 +313,26 @@ describe('getDashboardCurrencyDisplay loading sequence', () => {
   });
 });
 
+describe('estimate filter', () => {
+  const now = Date.UTC(2026, 0, 15);
+  const base = [
+    inv({ _id: 'i1', grandTotal: 50, status: 'pending' }),
+    inv({
+      _id: 'e1',
+      docType: 'estimate',
+      grandTotal: 999,
+      status: 'sent',
+    }),
+  ];
+
+  it('dashboard helpers ignore estimates', () => {
+    const without = getDashboardStats([base[0]], now, fallback);
+    const withEst = getDashboardStats(base, now, fallback);
+    expect(withEst).toEqual(without);
+    expect(getRecentInvoices(base, 5).map(i => i._id)).toEqual(['i1']);
+  });
+});
+
 describe('formatMoney', () => {
   it('formats with currency placement', () => {
     expect(formatMoney(10, fallback)).toBe('USD 10.00');

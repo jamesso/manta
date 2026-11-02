@@ -7,6 +7,7 @@ import {
   getDueDate,
   getInvoiceTotals,
   getIssuedAt,
+  onlyInvoices,
 } from './invoice';
 
 export function escapeCsvField(value, { text } = {}) {
@@ -34,6 +35,7 @@ function formatDateLocal(ms) {
 }
 
 export function buildInvoicesCsv(invoices, now) {
+  invoices = onlyInvoices(invoices);
   const sorted = [...invoices].sort((a, b) => {
     const at = getIssuedAt(a) ?? a.created_at ?? 0;
     const bt = getIssuedAt(b) ?? b.created_at ?? 0;

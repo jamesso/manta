@@ -1,4 +1,4 @@
-import { getBalanceDue, getDisplayStatus } from './invoice';
+import { getBalanceDue, getDisplayStatus, onlyInvoices } from './invoice';
 
 export const EMAIL_REGEX =
   /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
@@ -39,6 +39,7 @@ export function buildContact(data, existing, now) {
 }
 
 export function summarizeClients(contacts, invoices, now) {
+  invoices = onlyInvoices(invoices);
   const contactIds = new Set(contacts.map(c => c._id));
   const map = new Map();
   for (const contact of contacts) {

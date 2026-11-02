@@ -14,6 +14,7 @@ import {
   getInvoiceValue,
   getPaidDate,
   getPayments,
+  getStoredStatus,
   roundMoney,
   withStatus,
 } from '../invoice';
@@ -524,5 +525,27 @@ describe('getBalanceDue', () => {
       payments: [{ id: 'p', date: 1, amount: 40, method: 'cash' }],
     };
     expect(getBalanceDue(invoice)).toBe(60);
+  });
+});
+
+describe('estimate delegation', () => {
+  const now = Date.UTC(2026, 0, 15);
+
+  it('getDisplayStatus maps expired estimate, not pending', () => {
+    expect(
+      getDisplayStatus(
+        {
+          docType: 'estimate',
+          status: 'sent',
+          validUntil: Date.UTC(2026, 0, 1),
+        },
+        now
+      )
+    ).toBe('expired');
+  });
+
+  it('getStoredStatus defaults estimate to draft', () => {
+    expect(getStoredStatus({ docType: 'estimate' })).toBe('draft');
+    expect(getStoredStatus({})).toBe('pending');
   });
 });
