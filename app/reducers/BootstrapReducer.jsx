@@ -15,6 +15,12 @@ const BootstrapReducer = handleActions(
       Object.assign({}, state, { contacts: true }),
     [ACTION_TYPES.BOOTSTRAP_SETTINGS_READY]: state =>
       Object.assign({}, state, { settings: true }),
+    [ACTION_TYPES.INVOICE_GET_ALL]: state =>
+      Object.assign({}, state, { invoices: true }),
+    [ACTION_TYPES.CONTACT_GET_ALL]: state =>
+      Object.assign({}, state, { contacts: true }),
+    [ACTION_TYPES.SETTINGS_GET_INITIAL]: state =>
+      Object.assign({}, state, { settings: true }),
   },
   initialState
 );

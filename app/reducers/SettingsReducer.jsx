@@ -48,5 +48,5 @@ export const getSavedSettings = createSelector(
 
 export const getDateFormat = createSelector(
   getSettingsState,
-  settings => settings.saved.invoice.dateFormat
+  settings => settings.saved?.invoice?.dateFormat ?? 'MM/DD/YYYY'
 );

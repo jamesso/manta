@@ -106,7 +106,7 @@ test('fresh profile opens main window on Dashboard with the checklist', async ()
   }
   expect(page).toBeTruthy();
   await expect(
-    page.getByRole('heading', { level: 1, name: 'Dashboard' })
+    page.locator('h1.text-2xl', { hasText: 'Dashboard' })
   ).toBeVisible();
   await expect(
     page.getByRole('list', { name: 'Setup steps' }).getByRole('listitem')
@@ -147,8 +147,13 @@ async function pageByTitle(title) {
   await expect
     .poll(
       async () => {
-        for (const p of app.windows())
-          if ((await p.title()) === title) found = p;
+        for (const p of app.windows()) {
+          try {
+            if ((await p.title()) === title) found = p;
+          } catch {
+            // Window may have closed between list and title read.
+          }
+        }
         return Boolean(found);
       },
       { timeout: 30_000 }
@@ -221,6 +226,15 @@ test('theme setting reaches every window', async () => {
       .find(w => w.getTitle() === 'Dialog')
       ?.close()
   );
+  await app.evaluate(({ BrowserWindow }) => {
+    const main = BrowserWindow.getAllWindows().find(
+      w => w.getTitle() === 'Manta'
+    );
+    if (main) {
+      main.show();
+      main.focus();
+    }
+  });
 });
 
 test('no window reports a CSP violation', async () => {
@@ -228,17 +242,23 @@ test('no window reports a CSP violation', async () => {
 });
 
 test('sidebar shows labels and Ctrl/Cmd+K opens the command palette', async () => {
-  let page;
-  for (const p of app.windows()) if ((await p.title()) === MAIN_TITLE) page = p;
+  const page = await pageByTitle(MAIN_TITLE);
   await showMain(page);
-  for (const name of [
-    'New invoice',
-    'Dashboard',
-    'Invoices',
-    'Clients',
-    'Settings',
-  ]) {
-    await expect(page.getByRole('button', { name, exact: true })).toBeVisible();
+  await page
+    .locator('[data-slot="sidebar"]')
+    .getByRole('button', { name: 'Dashboard', exact: true })
+    .click();
+  await expect(
+    page.locator('h1.text-2xl', { hasText: 'Dashboard' })
+  ).toBeVisible();
+  const sidebarNav = page.locator('[data-slot="sidebar"]');
+  await expect(
+    sidebarNav.getByRole('button', { name: 'New invoice', exact: true })
+  ).toBeVisible();
+  for (const name of ['Dashboard', 'Invoices', 'Clients', 'Settings']) {
+    await expect(
+      sidebarNav.getByRole('button', { name, exact: true })
+    ).toBeVisible();
   }
   await page.keyboard.press('ControlOrMeta+K');
   const palette = page.getByRole('dialog');
@@ -263,6 +283,8 @@ async function reactInput(locator, value) {
 }
 
 test('draft save advances invoice numbering on cleared form', async () => {
+  const page = await pageByTitle(MAIN_TITLE);
+  await showMain(page);
   await app.evaluate(({ BrowserWindow }) => {
     const w = BrowserWindow.getAllWindows().find(x => x.getTitle() === 'Manta');
     if (w) {
@@ -271,9 +293,10 @@ test('draft save advances invoice numbering on cleared form', async () => {
       w.focus();
     }
   });
-  let page;
-  for (const p of app.windows()) if ((await p.title()) === MAIN_TITLE) page = p;
-  await page.getByRole('button', { name: 'New invoice', exact: true }).click();
+  await page
+    .locator('[data-slot="sidebar"]')
+    .getByRole('button', { name: 'New invoice', exact: true })
+    .click();
   await expect(page.locator('#client-fullname')).toBeVisible({
     timeout: 30_000,
   });
