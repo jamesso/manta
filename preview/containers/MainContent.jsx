@@ -53,7 +53,7 @@ class MainContent extends Component {
     return (
       <Wrapper>
         {invoice._id ? (
-          <div className="print-area">
+          <div className="print-area" data-invoice-id={invoice._id}>
             <Page>{this.renderTemplate()}</Page>
           </div>
         ) : (
