@@ -21,9 +21,9 @@ export default function TitleBar({ activeTab }) {
   }
 
   return (
-    <header className="titlebar titlebar-inset drag-region flex h-10 shrink-0 items-center gap-2 border-b bg-background px-2">
+    <header className="titlebar titlebar-inset drag-region flex h-10 shrink-0 items-center gap-2 border-b bg-background text-foreground">
       <SidebarTrigger />
-      <h1 className="truncate text-sm font-medium">{title}</h1>
+      <h1 className="truncate text-sm font-medium text-foreground">{title}</h1>
     </header>
   );
 }

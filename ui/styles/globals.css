@@ -223,10 +223,13 @@
     app-region: no-drag;
   }
   .titlebar-inset {
+    padding-left: 0.5rem;
     padding-right: calc(
-      100vw - env(titlebar-area-x, 0px) - env(titlebar-area-width, 100vw) + 0.5rem
+      100vw - env(titlebar-area-x, 0px) - env(titlebar-area-width, 100vw) +
+        0.5rem
     );
   }
+  /* Do not use the px-2 class here. Bootstrap defines it with !important. */
   html[data-platform='darwin']
     [data-slot='sidebar-wrapper']:has([data-state='collapsed'])
     .titlebar-inset {

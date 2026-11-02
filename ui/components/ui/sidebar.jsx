@@ -418,7 +418,10 @@ function SidebarMenu({ className, ...props }) {
     <ul
       data-slot="sidebar-menu"
       data-sidebar="menu"
-      className={cn('flex w-full min-w-0 flex-col gap-0', className)}
+      className={cn(
+        'm-0 flex w-full min-w-0 list-none flex-col gap-0 p-0',
+        className
+      )}
       {...props}
     />
   );
@@ -584,7 +587,7 @@ function SidebarMenuSub({ className, ...props }) {
       data-slot="sidebar-menu-sub"
       data-sidebar="menu-sub"
       className={cn(
-        'mx-3.5 flex min-w-0 translate-x-px rtl:-translate-x-px flex-col gap-1 border-s border-sidebar-border px-2.5 py-0.5 group-data-[collapsible=icon]:hidden',
+        'm-0 mx-3.5 flex min-w-0 translate-x-px list-none rtl:-translate-x-px flex-col gap-1 border-s border-sidebar-border p-0 px-2.5 py-0.5 group-data-[collapsible=icon]:hidden',
         className
       )}
       {...props}
