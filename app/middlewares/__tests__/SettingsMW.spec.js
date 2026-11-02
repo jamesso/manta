@@ -7,6 +7,7 @@ vi.mock('../../../libs/sounds');
 vi.mock('@/components/ui/toast', () => ({
   toast: { add: vi.fn() },
 }));
+import { toast } from '@/components/ui/toast';
 
 const invoiceBase = {
   template: 'minimal',
@@ -241,5 +242,63 @@ describe('Settings Middleware', () => {
     expect(result.data.template).toBe('business');
     expect(stored.taxRates[0].rate).toBe(7);
     expect(stored.taxRatesRevision).toBe(2);
+  });
+
+  it('rejects stale taxRates snapshot missing taxRatesRevision', async () => {
+    const rate19 = [
+      {
+        id: 'standard',
+        name: 'Standard',
+        rate: 19,
+        category: 'S',
+        isDefault: true,
+        active: true,
+        exemptionReason: '',
+      },
+    ];
+    const rate7 = [{ ...rate19[0], rate: 7 }];
+    let stored = { ...invoiceBase, taxRates: rate19 };
+    const snapshotA = { ...stored };
+
+    window.manta.settings.get.mockImplementation(key => {
+      if (key === 'invoice' || key === 'invoice.numbering') {
+        return key === 'invoice.numbering' ? stored.numbering : stored;
+      }
+      if (key === 'general') {
+        return { language: 'en', theme: 'system', sound: 'default' };
+      }
+      return 'someSettings';
+    });
+    window.manta.settings.set.mockImplementation((key, value) => {
+      if (key === 'invoice') {
+        stored = value;
+      }
+    });
+
+    let result = await middleware(
+      Actions.updateSettings('invoice', {
+        ...invoiceBase,
+        taxRates: rate7,
+        taxRatesRevision: 0,
+      })
+    );
+    expect(result).toMatchObject({ ok: true });
+    expect(stored.taxRates[0].rate).toBe(7);
+    expect(stored.taxRatesRevision).toBe(1);
+
+    const templateBefore = stored.template;
+    toast.add.mockClear();
+
+    result = await middleware(
+      Actions.updateSettings('invoice', {
+        ...snapshotA,
+        template: 'business',
+      })
+    );
+    expect(result).toEqual({ ok: false, conflict: 'taxRates' });
+    expect(stored.taxRates[0].rate).toBe(7);
+    expect(stored.taxRatesRevision).toBe(1);
+    expect(stored.template).toBe(templateBefore);
+    expect(toast.add).not.toHaveBeenCalled();
   });
 });

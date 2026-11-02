@@ -92,19 +92,15 @@ const SettingsMW =
             ),
           };
           const storedRates = storedInvoice.taxRates;
-          const incomingRates =
-            'taxRates' in nextData ? nextData.taxRates : undefined;
           const storedRev = Number(storedInvoice.taxRatesRevision ?? 0);
-          if (
-            incomingRates === undefined ||
-            isEqual(incomingRates, storedRates)
-          ) {
+          const callerRev = Number(data.taxRatesRevision ?? 0);
+          if (!('taxRates' in data) || isEqual(data.taxRates, storedRates)) {
             nextData.taxRates = storedRates;
             nextData.taxRatesRevision = storedRev;
-          } else if (Number(nextData.taxRatesRevision ?? 0) !== storedRev) {
+          } else if (callerRev !== storedRev) {
             return { ok: false, conflict: 'taxRates' };
           } else {
-            nextData.taxRates = incomingRates;
+            nextData.taxRates = data.taxRates;
             nextData.taxRatesRevision = storedRev + 1;
           }
         } else if (setting === 'invoice' && imported) {
