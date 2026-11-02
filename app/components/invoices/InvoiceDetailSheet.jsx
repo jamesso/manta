@@ -35,6 +35,7 @@ import DueCell from './DueCell';
 import PaymentsList from './PaymentsList';
 import RecordPaymentDialog from './RecordPaymentDialog';
 import StatusBadge from './StatusBadge';
+import { getAllSalesDocs } from '../../reducers/InvoicesReducer';
 
 export default function InvoiceDetailSheet({
   invoice,
@@ -45,7 +46,7 @@ export default function InvoiceDetailSheet({
   now,
 }) {
   const dispatch = useDispatch();
-  const allDocs = useSelector(state => state.invoices) || [];
+  const allDocs = useSelector(getAllSalesDocs) || [];
   const ipc = window.manta.ipc;
   const [paymentOpen, setPaymentOpen] = useState(false);
 

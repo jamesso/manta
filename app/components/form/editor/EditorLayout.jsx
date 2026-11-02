@@ -19,11 +19,12 @@ import NotesCard from './NotesCard';
 import CustomizeFieldsMenu from './CustomizeFieldsMenu';
 import TotalsFooter from './TotalsFooter';
 import LivePreview from './LivePreview';
+import { getAllSalesDocs } from '../../../reducers/InvoicesReducer';
 export default function EditorLayout() {
   const dispatch = useDispatch();
   const { t } = useTranslation();
   const form = useSelector(state => state.form);
-  const allDocs = useSelector(state => state.invoices);
+  const allDocs = useSelector(getAllSalesDocs);
   const { settings, errors, savePending, docType, sourceEstimateId } = form;
   const isEstimate = docType === 'estimate';
   const editActive = settings.editMode.active;
