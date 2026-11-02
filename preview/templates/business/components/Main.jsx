@@ -7,7 +7,7 @@ import {
   getInvoiceTotals,
   getPayments,
   getAmountPaid,
-  getBalanceDue,
+  getPdfBalanceDue,
 } from '../../../../app/helpers/invoice';
 import { isCreditNote } from '../../../../app/helpers/docType';
 import currencies from '../../../../libs/currencies.json';
@@ -339,7 +339,7 @@ function Main({ invoice, configs, t }) {
                 <td className="label" colSpan="2">
                   {t('preview:common:balanceDue', { lng: language })}
                 </td>
-                <td>{moneyCell(getBalanceDue(invoice))}</td>
+                <td>{moneyCell(getPdfBalanceDue(invoice))}</td>
               </BalanceDueRow>
             </>
           ) : null}

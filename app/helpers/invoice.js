@@ -152,6 +152,11 @@ function getBalanceDue(invoice, creditNotes = []) {
   );
 }
 
+// Printed invoices keep the cash balance. Screen callers pass credit notes.
+function getPdfBalanceDue(invoice) {
+  return getBalanceDue(invoice);
+}
+
 function getInvoiceValue(data) {
   function calSub(data) {
     return data.rows.reduce((value, row) => value + row.subtotal, 0);
@@ -515,6 +520,7 @@ export {
   formatInvoiceAmount,
   getAmountPaid,
   getBalanceDue,
+  getPdfBalanceDue,
   getCreditedTotal,
   getCurrencyFraction,
   getDisplayStatus,

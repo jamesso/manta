@@ -159,7 +159,10 @@ export default function RecordPaymentDialog({
               className="h-auto p-0"
               onClick={() =>
                 setAmountRaw(
-                  formatAmountInput(getBalanceDue(invoice), invoice.currency)
+                  formatAmountInput(
+                    getBalanceDue(invoice, creditNotes),
+                    invoice.currency
+                  )
                 )
               }
             >

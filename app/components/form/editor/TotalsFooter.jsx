@@ -82,7 +82,7 @@ export default function TotalsFooter() {
     getAmountPaid(paymentInvoice) > 0
       ? [
           ['amountPaid', getAmountPaid(paymentInvoice)],
-          ['balanceDue', getBalanceDue(paymentInvoice)],
+          ['balanceDue', getBalanceDue(paymentInvoice, allDocs)],
         ]
       : [];
   return (
