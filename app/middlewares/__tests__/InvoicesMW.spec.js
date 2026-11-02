@@ -702,6 +702,49 @@ describe('Invoices Middleware', () => {
       await middleware(Actions.setInvoiceStatus(invoiceID, status));
       expect(toast.add).toHaveBeenCalled();
     });
+
+    it('persists declined on an accepted estimate', async () => {
+      const getStored = installTrackedInvoice({
+        _id: 'est-1',
+        docType: 'estimate',
+        status: 'accepted',
+        grandTotal: 50,
+        currency: { fraction: 2 },
+      });
+      await middleware(Actions.setInvoiceStatus('est-1', 'declined'));
+      expect(getStored().status).toBe('declined');
+    });
+
+    it('rejects paid status on an estimate', async () => {
+      installTrackedInvoice({
+        _id: 'est-paid',
+        docType: 'estimate',
+        status: 'sent',
+        grandTotal: 50,
+        currency: { fraction: 2 },
+      });
+      updateDocs.mockClear();
+      await middleware(Actions.setInvoiceStatus('est-paid', 'paid'));
+      expect(updateDocs).not.toHaveBeenCalled();
+      expect(toast.add).toHaveBeenCalledWith(
+        expect.objectContaining({ type: 'warning' })
+      );
+    });
+
+    it('rejects sent status on an invoice', async () => {
+      installTrackedInvoice({
+        _id: 'inv-sent',
+        status: 'pending',
+        grandTotal: 50,
+        currency: { fraction: 2 },
+      });
+      updateDocs.mockClear();
+      await middleware(Actions.setInvoiceStatus('inv-sent', 'sent'));
+      expect(updateDocs).not.toHaveBeenCalled();
+      expect(toast.add).toHaveBeenCalledWith(
+        expect.objectContaining({ type: 'warning' })
+      );
+    });
   });
 
   it('should handle INVOICE_NEW_FROM_CONTACT action', () => {
