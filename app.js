@@ -33,7 +33,12 @@ if (process.argv.includes('--disable-hardware-acceleration')) {
 // 3rd Party Libs
 const appConfig = require('./main/settings');
 require('./main/settings-ipc');
-const { setupTheme, getBackgroundColor } = require('./main/theme');
+const {
+  setupTheme,
+  getBackgroundColor,
+  titleBarOptions,
+  titleBarOverlayFor,
+} = require('./main/theme');
 
 let tourWindow = null;
 let mainWindow = null;
@@ -85,11 +90,12 @@ function createMainWindow() {
     y: mainWindownStateKeeper.y,
     width: mainWindownStateKeeper.width,
     height: mainWindownStateKeeper.height,
-    minWidth: 600,
-    minHeight: 400,
+    minWidth: 800,
+    minHeight: 560,
     backgroundColor: getBackgroundColor(nativeTheme),
     show: false,
     title: 'Main Window',
+    ...titleBarOptions(process.platform, nativeTheme),
     webPreferences: SECURE_WEB_PREFERENCES,
   });
   // Register WindowID
@@ -98,6 +104,13 @@ function createMainWindow() {
   mainWindownStateKeeper.track(mainWindow);
   // Load Content
   loadPage(mainWindow, 'app');
+  if (process.platform !== 'darwin') {
+    nativeTheme.on('updated', () => {
+      if (!mainWindow.isDestroyed()) {
+        mainWindow.setTitleBarOverlay(titleBarOverlayFor(nativeTheme));
+      }
+    });
+  }
   // Add Event Listeners
   mainWindow.on('show', event => {
     if (isDev || forceDevtools)
@@ -171,6 +184,9 @@ function setInitialValues() {
     tour: {
       isActive: false,
       hasBeenTaken: false,
+    },
+    ui: {
+      sidebarCollapsed: false,
     },
     winsLastVisibleState: {
       isMainWinVisible: true,

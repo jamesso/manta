@@ -1,5 +1,11 @@
 import { EventEmitter } from 'node:events';
-import { normalizeTheme, setupTheme, WINDOW_BACKGROUND } from '../theme.js';
+import {
+  normalizeTheme,
+  setupTheme,
+  WINDOW_BACKGROUND,
+  titleBarOptions,
+  titleBarOverlayFor,
+} from '../theme.js';
 
 function setup(saved, { dark = false } = {}) {
   const nativeTheme = Object.assign(new EventEmitter(), {
@@ -54,5 +60,19 @@ describe('theme', () => {
     nativeTheme.shouldUseDarkColors = true;
     nativeTheme.emit('updated');
     expect(win.color).toBe(WINDOW_BACKGROUND.dark);
+  });
+
+  it('titleBarOptions on darwin uses hiddenInset without overlay', () => {
+    const opts = titleBarOptions('darwin', { shouldUseDarkColors: false });
+    expect(opts.titleBarStyle).toBe('hiddenInset');
+    expect(opts.titleBarOverlay).toBeUndefined();
+  });
+
+  it('titleBarOptions on win32 uses overlay colors', () => {
+    const dark = titleBarOptions('win32', { shouldUseDarkColors: true });
+    expect(dark.titleBarOverlay.color).toBe(WINDOW_BACKGROUND.dark);
+    expect(dark.titleBarOverlay.height).toBe(40);
+    const light = titleBarOverlayFor({ shouldUseDarkColors: false });
+    expect(light.color).toBe(WINDOW_BACKGROUND.light);
   });
 });

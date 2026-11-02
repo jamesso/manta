@@ -6,7 +6,7 @@ function buildMenu() {
   const isDev = !app.isPackaged;
 
   const aboutMenu = {
-    label: 'My App',
+    label: 'Manta',
     submenu: [
       { role: 'about' },
       { type: 'separator' },
@@ -42,7 +42,7 @@ function buildMenu() {
         label: 'New',
         accelerator: 'CmdOrCtrl+N',
         click() {
-          mainWindow.webContents.send('menu-change-tab', 'form');
+          mainWindow.webContents.send('menu-new-invoice');
         },
       },
       {
@@ -137,9 +137,17 @@ function buildMenu() {
       },
       {
         label: 'Settings',
-        accelerator: 'CmdOrCtrl+Shift+S',
+        accelerator: 'CmdOrCtrl+,',
         click() {
           mainWindow.webContents.send('menu-change-tab', 'settings');
+        },
+      },
+      { type: 'separator' },
+      {
+        label: 'Command Palette…',
+        accelerator: 'CmdOrCtrl+K',
+        click() {
+          mainWindow.webContents.send('menu-open-command-palette');
         },
       },
     ],
@@ -178,6 +186,13 @@ function buildMenu() {
   const helpMenu = {
     role: 'help',
     submenu: [
+      {
+        label: 'Keyboard Shortcuts',
+        accelerator: 'CmdOrCtrl+/',
+        click() {
+          mainWindow.webContents.send('menu-show-shortcuts');
+        },
+      },
       {
         label: 'Show Tutorial',
         accelerator: 'CmdOrCtrl+T',

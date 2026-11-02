@@ -29,3 +29,28 @@ export function setupTheme({ nativeTheme, ipcMain, BrowserWindow, store }) {
     }
   });
 }
+
+export const TITLEBAR_HEIGHT = 40;
+const TITLEBAR_SYMBOL = { light: '#0a0a0a', dark: '#fafafa' };
+
+export function titleBarOverlayFor(nativeTheme) {
+  const mode = nativeTheme.shouldUseDarkColors ? 'dark' : 'light';
+  return {
+    color: WINDOW_BACKGROUND[mode],
+    symbolColor: TITLEBAR_SYMBOL[mode],
+    height: TITLEBAR_HEIGHT,
+  };
+}
+
+export function titleBarOptions(platform, nativeTheme) {
+  if (platform === 'darwin') {
+    return {
+      titleBarStyle: 'hiddenInset',
+      trafficLightPosition: { x: 14, y: 13 },
+    };
+  }
+  return {
+    titleBarStyle: 'hidden',
+    titleBarOverlay: titleBarOverlayFor(nativeTheme),
+  };
+}
