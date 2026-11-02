@@ -73,7 +73,15 @@ const InvoicesMW =
           })
           .then(ok => {
             if (!ok) return;
-            apply();
+            dispatch(FormActions.clearForm(null, true));
+            next(UIActions.changeActiveTab('form'));
+            dispatch(
+              FormActions.updateRecipient({
+                new: {},
+                select: action.payload,
+                newRecipient: false,
+              })
+            );
           })
           .catch(err => {
             next({

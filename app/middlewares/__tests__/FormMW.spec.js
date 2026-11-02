@@ -1,10 +1,17 @@
 import * as Actions from '../../actions/form';
+import * as ACTION_TYPES from '../../constants/actions.jsx';
 import * as TYPES from '../../constants/actions';
 import FormMW from '../FormMW';
 import FormReducer from '../../reducers/FormReducer';
 import InvoicesMW from '../InvoicesMW';
 vi.mock('../../helpers/pouchDB');
-import { saveDoc, updateDoc } from '../../helpers/pouchDB';
+vi.mock('@/lib/dialog', () => ({
+  confirm: vi.fn(() => Promise.resolve(true)),
+  alert: vi.fn(),
+}));
+import { saveDoc, updateDoc, getAllDocs } from '../../helpers/pouchDB';
+import * as dialog from '@/lib/dialog';
+import * as InvoiceActions from '../../actions/invoices';
 const currency = { code: 'USD', fraction: 2 };
 const makeForm = () => ({
   invoiceID: 'INV-0001',
@@ -24,6 +31,7 @@ const makeForm = () => ({
   discount: {},
   tax: {},
   note: {},
+  savedSettings: { currency, tax: {}, required_fields: {} },
   settings: { editMode: { active: false }, required_fields: {} },
 });
 describe('Form middleware', () => {
@@ -288,5 +296,144 @@ describe('Form middleware', () => {
     expect(updates).toHaveLength(1);
     expect(updates[0]._rev).toBe('1-db');
     expect(updates[0]._id).toBe(inv[0]._id);
+  });
+
+  function stackWithForm(initialForm) {
+    let form = initialForm;
+    const chain = action => {
+      form = FormReducer(form, action);
+      return action;
+    };
+    let formMw;
+    const dispatch = action => {
+      if (action.type === TYPES.CONTACT_SAVE) {
+        return Promise.resolve(true);
+      }
+      return formMw(action);
+    };
+    const invoiceMw = InvoicesMW({ dispatch, getState: () => ({ form }) })(chain);
+    formMw = FormMW({ dispatch, getState: () => ({ form }) })(invoiceMw);
+    return {
+      dispatch,
+      get form() {
+        return form;
+      },
+    };
+  }
+
+  it('does not attach a late save after new from client replaces the form', async () => {
+    dialog.confirm.mockResolvedValue(true);
+    let finishUpdate;
+    const updates = [];
+    const creates = [];
+    updateDoc.mockImplementation((_db, doc) => {
+      updates.push({ ...doc });
+      return new Promise(resolve => {
+        finishUpdate = () => resolve([{ ...doc, _rev: '2-old' }]);
+      });
+    });
+    saveDoc.mockImplementation(async (_db, doc) => {
+      creates.push({ ...doc });
+      return [{ ...doc, _rev: '1-new' }];
+    });
+    let form = makeForm();
+    form.settings.editMode = {
+      active: true,
+      data: { _id: 'old-invoice', _rev: '1-old', status: 'draft' },
+    };
+    form.savedSettings = { currency, tax: {}, required_fields: {} };
+    const stack = stackWithForm(form);
+    const { dispatch } = stack;
+    const pending = dispatch(Actions.saveFormData('draft'));
+    await dispatch(
+      InvoiceActions.newInvoiceFromContact({
+        _id: 'client-new',
+        fullname: 'New client',
+      })
+    );
+    dispatch(
+      Actions.updateItem({
+        id: stack.form.rows[0].id,
+        description: 'Replacement work',
+        price: 5,
+        quantity: 1,
+        subtotal: 5,
+      })
+    );
+    finishUpdate();
+    await pending;
+    expect(stack.form.settings.editMode.active).toBe(false);
+    await dispatch(Actions.saveFormData('draft'));
+    expect(updates).toHaveLength(1);
+    expect(updates[0]._id).toBe('old-invoice');
+    expect(updates[0].rows[0].description).toBe('Work');
+    expect(creates).toHaveLength(1);
+    expect(creates[0]._id).not.toBe('old-invoice');
+    expect(creates[0].rows[0].description).toBe('Replacement work');
+  });
+
+  it('does not attach a late save after duplicate replaces the form', async () => {
+    dialog.confirm.mockResolvedValue(true);
+    getAllDocs.mockResolvedValue([]);
+    let finishUpdate;
+    const updates = [];
+    const creates = [];
+    updateDoc.mockImplementation((_db, doc) => {
+      updates.push({ ...doc });
+      return new Promise(resolve => {
+        finishUpdate = () => resolve([{ ...doc, _rev: '2-old' }]);
+      });
+    });
+    saveDoc.mockImplementation(async (_db, doc) => {
+      creates.push({ ...doc });
+      return [{ ...doc, _rev: '1-new' }];
+    });
+    let form = makeForm();
+    form.settings.editMode = {
+      active: true,
+      data: { _id: 'old-invoice', _rev: '1-old', status: 'draft' },
+    };
+    form.savedSettings = { currency, tax: {}, required_fields: {} };
+    const stack = stackWithForm(form);
+    const { dispatch } = stack;
+    const pending = dispatch(Actions.saveFormData('draft'));
+    await dispatch({
+      type: ACTION_TYPES.FORM_LOAD_DUPLICATE,
+      payload: {
+        recipient: { fullname: 'Copy', email: 'copy@example.com' },
+        rows: [
+          {
+            id: 'dup-row',
+            description: 'Duplicate work',
+            price: 5,
+            quantity: 1,
+            subtotal: 5,
+          },
+        ],
+        currency,
+        contacts: [],
+      },
+    });
+    expect(stack.form.settings.editMode.active).toBe(false);
+    finishUpdate();
+    await pending;
+    expect(stack.form.settings.editMode.active).toBe(false);
+    dispatch(
+      Actions.updateItem({
+        id: stack.form.rows[0].id,
+        description: 'Changed duplicate row',
+        price: 5,
+        quantity: 1,
+        subtotal: 5,
+      })
+    );
+    await dispatch(Actions.saveFormData('draft'));
+    expect(updates).toHaveLength(1);
+    expect(updates[0]._id).toBe('old-invoice');
+    expect(creates).toHaveLength(1);
+    expect(creates[0].rows.some(r => r.description === 'Changed duplicate row')).toBe(
+      true
+    );
+    expect(updates[0].rows[0].description).toBe('Work');
   });
 });

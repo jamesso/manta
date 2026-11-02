@@ -44,6 +44,7 @@ async function handleSave({ dispatch, getState }, mode) {
     try {
     const formSnapshot = getState().form;
     const startRevision = formSnapshot.formRevision;
+    const startGeneration = formSnapshot.formGeneration ?? 0;
     dispatch(FormActions.setFormSavePending(true));
     const errors = getFormErrors(formSnapshot, mode);
     if (Object.keys(errors).length) {
@@ -135,12 +136,28 @@ async function handleSave({ dispatch, getState }, mode) {
       ipc.send('preview-invoice', data);
     }
 
-    if (editMode.active) {
+    const afterSave = getState().form;
+    const sameForm = (afterSave.formGeneration ?? 0) === startGeneration;
+
+    if (editMode.active && sameForm) {
       dispatch(UIActions.changeActiveTab('invoices'));
     }
 
-    const afterSave = getState().form;
+    if (!sameForm) {
+      return;
+    }
+
+    if (
+      formSnapshot.settings.editMode.active &&
+      !afterSave.settings.editMode.active
+    ) {
+      return;
+    }
+
     if (afterSave.formRevision !== startRevision) {
+      if (formSnapshot.settings.editMode.active && !afterSave.settings.editMode.active) {
+        return;
+      }
       const merged = getInvoiceData(
         {
           ...afterSave,
@@ -160,6 +177,7 @@ async function handleSave({ dispatch, getState }, mode) {
 
     if (
       editMode.active &&
+      afterSave.settings.editMode.active &&
       persisted &&
       afterSave.formRevision === startRevision
     ) {

@@ -673,6 +673,23 @@ describe('plan 015 form reducer behavior', () => {
     expect(next.note).toEqual({ content: 'Keep me' });
   });
 
+  it('FORM_CLEAR and FORM_LOAD_DUPLICATE increment formGeneration', () => {
+    const cleared = FormReducer(
+      Object.assign({}, baseState, { formGeneration: 2 }),
+      { type: ACTION_TYPES.FORM_CLEAR }
+    );
+    expect(cleared.formGeneration).toBe(3);
+    const duplicated = FormReducer(cleared, {
+      type: ACTION_TYPES.FORM_LOAD_DUPLICATE,
+      payload: {
+        recipient: { fullname: 'A', email: 'a@b.com', _id: 'c1' },
+        rows: [],
+        contacts: [],
+      },
+    });
+    expect(duplicated.formGeneration).toBe(4);
+  });
+
   it('FORM_SET_ERRORS and FORM_CLEAR reset errors', () => {
     const withErrors = FormReducer(baseState, {
       type: ACTION_TYPES.FORM_SET_ERRORS,

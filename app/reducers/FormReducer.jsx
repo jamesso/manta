@@ -49,6 +49,7 @@ const initialState = {
   errorMode: null,
   savePending: false,
   formRevision: 0,
+  formGeneration: 0,
   reconciledNumbering: null,
   // Set default values for currency and tax
   currency: invoiceSettings.currency,
@@ -258,6 +259,7 @@ const FormReducer = handleActions(
     [ACTION_TYPES.INVOICE_EDIT]: (state, action) => {
       const populated = populateFromInvoice(state, action.payload);
       return Object.assign({}, populated, {
+        formGeneration: (state.formGeneration || 0) + 1,
         settings: Object.assign({}, populated.settings, {
           editMode: {
             active: true,
@@ -268,7 +270,9 @@ const FormReducer = handleActions(
     },
 
     [ACTION_TYPES.FORM_LOAD_DUPLICATE]: (state, action) =>
-      populateFromDuplicate(state, action.payload),
+      Object.assign({}, populateFromDuplicate(state, action.payload), {
+        formGeneration: (state.formGeneration || 0) + 1,
+      }),
 
     [ACTION_TYPES.FORM_RECONCILE_NUMBERING]: (state, action) =>
       Object.assign({}, state, {
@@ -318,6 +322,7 @@ const FormReducer = handleActions(
         tax: state.savedSettings.tax,
         invoiceID: invoiceNumberForState(state),
         reconciledNumbering: state.reconciledNumbering,
+        formGeneration: (state.formGeneration || 0) + 1,
         settings: Object.assign({}, state.settings, {
           open: false,
           editMode: {
