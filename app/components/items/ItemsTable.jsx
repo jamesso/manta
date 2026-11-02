@@ -167,7 +167,7 @@ export default function ItemsTable({
             className="cursor-pointer"
             onClick={() => onRowOpen(row.original)}
           >
-            {row.getVisibleCells().map(cell => (
+            {row.getAllCells().map(cell => (
               <TableCell key={cell.id}>
                 {typeof cell.column.columnDef.cell === 'function'
                   ? cell.column.columnDef.cell(cell.getContext())
