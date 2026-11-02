@@ -516,6 +516,31 @@ describe('Form middleware', () => {
     expect(snapshotNext).toBe(6);
   });
 
+  it('does not save when the total is below the amount already paid', async () => {
+    form.settings.editMode = {
+      active: true,
+      data: {
+        _id: 'paid-inv',
+        status: 'pending',
+        grandTotal: 100,
+        currency,
+        payments: [{ id: 'p1', date: 1, amount: 60, method: 'cash', note: '' }],
+        rows: form.rows,
+        recipient: { fullname: 'Jane', email: 'jane@example.com' },
+      },
+    };
+    form.rows = [
+      { id: '1', description: 'Work', price: 10, quantity: 4, subtotal: 40 },
+    ];
+    const result = await middleware(Actions.saveFormData());
+    expect(result).toBe(false);
+    expect(
+      dispatch.mock.calls.some(
+        ([action]) => action.type === TYPES.INVOICE_UPDATE
+      )
+    ).toBe(false);
+  });
+
   it('blocks SAVED_FORM_SETTING_UPDATE while import lock is held', async () => {
     const { withImportWriteLock } =
       await import('../../helpers/importWriteLock');

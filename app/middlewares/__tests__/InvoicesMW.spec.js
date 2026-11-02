@@ -26,16 +26,68 @@ import {
   mockData,
   resetMockPouchData,
 } from '../../helpers/pouchDB';
+import { getAmountPaid } from '../../helpers/invoice';
 import { toast } from '@/components/ui/toast';
 import * as dialog from '@/lib/dialog';
 const fixedNow = Date.UTC(2026, 0, 15, 12);
 Date.now = vi.fn(() => fixedNow);
+
+function installTrackedInvoice(doc) {
+  let stored = { ...doc, _rev: doc._rev ?? '1-x' };
+  mockData.invoicesRecords = [stored];
+
+  getSingleDoc.mockImplementation((_db, id) => {
+    if (id !== stored._id) {
+      return Promise.reject(new Error('No invoice found!'));
+    }
+    return Promise.resolve({ ...stored });
+  });
+
+  updateDocs.mockImplementation((_db, docs) => {
+    const [incoming] = docs;
+    if (!incoming || incoming._rev !== stored._rev) {
+      return Promise.reject(
+        Object.assign(new Error('partial-update'), {
+          succeeded: [],
+          failed: [{ id: stored._id, status: 409 }],
+          docs: [{ ...stored }],
+        })
+      );
+    }
+    const revNum = Number.parseInt(String(stored._rev).split('-')[0], 10);
+    stored = { ...incoming, _rev: `${revNum + 1}-x` };
+    mockData.invoicesRecords = [{ ...stored }];
+    return Promise.resolve([{ ...stored }]);
+  });
+
+  return () => stored;
+}
 
 describe('Invoices Middleware', () => {
   let next, dispatch, middleware, getState;
 
   beforeEach(() => {
     resetMockPouchData();
+    getSingleDoc.mockReset();
+    updateDocs.mockReset();
+    updateDocs.mockImplementation(() =>
+      Promise.resolve(mockData.invoicesRecords)
+    );
+    getSingleDoc.mockImplementation((dbName, docID) => {
+      if (!dbName) {
+        return Promise.reject(new Error('No database found!'));
+      }
+      if (!docID) {
+        return Promise.reject(new Error('No docID found!'));
+      }
+      if (dbName === 'invoices') {
+        return Promise.resolve({ ...mockData.invoicesRecords[0] });
+      }
+      if (dbName === 'contacts') {
+        return Promise.resolve({ ...mockData.contactsRecords[0] });
+      }
+      return Promise.reject(new Error('Incorrect database!'));
+    });
     next = vi.fn();
     dispatch = vi.fn();
     getState = vi.fn(() => ({
@@ -816,6 +868,202 @@ describe('Invoices Middleware', () => {
         type: ACTION_TYPES.FORM_EDIT_DATA_SYNC,
         payload: expect.objectContaining({ _id: 'open-id', _rev: '2' }),
       });
+    });
+
+    it('serializes overlapping payments on one invoice', async () => {
+      const getStored = installTrackedInvoice({
+        _id: 'inv-q',
+        status: 'pending',
+        grandTotal: 100,
+        currency: { fraction: 2 },
+        payments: [],
+      });
+      const payDate = Date.UTC(2026, 0, 1);
+      const [firstOk, secondOk] = await Promise.all([
+        middleware(
+          Actions.recordPayment('inv-q', {
+            id: 'pay-a',
+            amount: 60,
+            date: payDate,
+            method: 'cash',
+          })
+        ),
+        middleware(
+          Actions.recordPayment('inv-q', {
+            id: 'pay-b',
+            amount: 60,
+            date: payDate,
+            method: 'bank',
+          })
+        ),
+      ]);
+      const stored = getStored();
+      const paid = getAmountPaid(stored);
+      expect(paid).toBeLessThanOrEqual(100);
+      if (firstOk && secondOk) {
+        expect(stored.payments).toHaveLength(2);
+        expect(paid).toBe(100);
+      } else {
+        expect(firstOk || secondOk).toBe(true);
+        expect(stored.payments).toHaveLength(1);
+        expect(paid).toBe(60);
+      }
+    });
+
+    it('rejects a duplicate payment id', async () => {
+      installTrackedInvoice({
+        _id: 'inv-dup',
+        status: 'pending',
+        grandTotal: 100,
+        currency: { fraction: 2 },
+        payments: [],
+      });
+      const payment = {
+        id: 'same-id',
+        amount: 10,
+        date: Date.UTC(2026, 0, 1),
+        method: 'cash',
+      };
+      expect(await middleware(Actions.recordPayment('inv-dup', payment))).toBe(
+        true
+      );
+      expect(await middleware(Actions.recordPayment('inv-dup', payment))).toBe(
+        false
+      );
+      expect(updateDocs).toHaveBeenCalledTimes(1);
+    });
+
+    it('resolves false without writing when every invoice fails validation', async () => {
+      getSingleDoc.mockImplementation((_db, id) =>
+        Promise.resolve({
+          _id: id,
+          status: 'draft',
+          grandTotal: 50,
+          currency: { fraction: 2 },
+        })
+      );
+      const ok = await middleware(
+        Actions.recordPayment(['draft-a', 'draft-b'], {
+          id: 'p1',
+          amount: 10,
+          date: Date.UTC(2026, 0, 1),
+          method: 'cash',
+        })
+      );
+      expect(ok).toBe(false);
+      expect(updateDocs).not.toHaveBeenCalled();
+    });
+
+    it('records each full balance when bulk marking paid', async () => {
+      mockData.invoicesRecords = [
+        {
+          _id: 'a',
+          _rev: '1-x',
+          status: 'pending',
+          grandTotal: 80,
+          currency: { fraction: 2 },
+        },
+        {
+          _id: 'b',
+          _rev: '1-x',
+          status: 'pending',
+          grandTotal: 120,
+          currency: { fraction: 2 },
+        },
+        {
+          _id: 'c',
+          _rev: '1-x',
+          status: 'draft',
+          grandTotal: 40,
+          currency: { fraction: 2 },
+        },
+      ];
+      getSingleDoc.mockImplementation((_db, id) => {
+        const doc = mockData.invoicesRecords.find(d => d._id === id);
+        return doc
+          ? Promise.resolve({ ...doc })
+          : Promise.reject(new Error('missing'));
+      });
+      updateDocs.mockImplementation((_db, docs) => {
+        const [incoming] = docs;
+        const idx = mockData.invoicesRecords.findIndex(
+          d => d._id === incoming._id
+        );
+        if (idx === -1) {
+          return Promise.reject(new Error('missing'));
+        }
+        const prev = mockData.invoicesRecords[idx];
+        if (incoming._rev !== prev._rev) {
+          return Promise.reject(
+            Object.assign(new Error('partial-update'), {
+              docs: [...mockData.invoicesRecords],
+            })
+          );
+        }
+        const nextRev = `${Number.parseInt(String(prev._rev).split('-')[0], 10) + 1}-x`;
+        mockData.invoicesRecords[idx] = { ...incoming, _rev: nextRev };
+        return Promise.resolve([...mockData.invoicesRecords]);
+      });
+      await middleware(Actions.recordFullPayment(['a', 'b', 'c']));
+      const a = mockData.invoicesRecords.find(d => d._id === 'a');
+      const b = mockData.invoicesRecords.find(d => d._id === 'b');
+      expect(getAmountPaid(a)).toBe(80);
+      expect(getAmountPaid(b)).toBe(120);
+      expect(toast.add).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'warning',
+          title: i18n.t('invoices:payments:toast:skipped', {
+            count: 1,
+            reason: i18n.t('invoices:payments:errors:draft'),
+          }),
+        })
+      );
+    });
+
+    it('does not sync edit mode for a different open invoice', async () => {
+      installTrackedInvoice({
+        _id: 'inv-other',
+        status: 'pending',
+        grandTotal: 100,
+        currency: { fraction: 2 },
+      });
+      getState.mockReturnValue({
+        form: {
+          settings: {
+            editMode: {
+              active: true,
+              data: { _id: 'editor-open', _rev: '1-x' },
+            },
+          },
+        },
+      });
+      await middleware(
+        Actions.recordPayment('inv-other', {
+          id: 'p1',
+          amount: 10,
+          date: Date.UTC(2026, 0, 1),
+          method: 'cash',
+        })
+      );
+      expect(dispatch).not.toHaveBeenCalledWith(
+        expect.objectContaining({ type: ACTION_TYPES.FORM_EDIT_DATA_SYNC })
+      );
+    });
+  });
+
+  describe('INVOICE_SET_STATUS payments', () => {
+    it('marks pending invoice paid with one full payment', async () => {
+      const getStored = installTrackedInvoice({
+        _id: 'inv-paid',
+        status: 'pending',
+        grandTotal: 100,
+        currency: { fraction: 2 },
+      });
+      await middleware(Actions.setInvoiceStatus('inv-paid', 'paid'));
+      const stored = getStored();
+      expect(stored.status).toBe('paid');
+      expect(stored.payments).toHaveLength(1);
+      expect(stored.payments[0].amount).toBe(100);
     });
   });
 

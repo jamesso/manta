@@ -109,6 +109,83 @@ function syncEditMode(dispatch, getState, allDocs, ids) {
   }
 }
 
+function pickLatestAllDocs(results) {
+  for (let i = results.length - 1; i >= 0; i -= 1) {
+    if (results[i].allDocs) {
+      return results[i].allDocs;
+    }
+  }
+  return null;
+}
+
+function publishInvoiceDocs(next, allDocs) {
+  if (allDocs) {
+    next({
+      type: ACTION_TYPES.INVOICE_UPDATE,
+      payload: allDocs,
+    });
+  }
+}
+
+function finalizeQueuedWrites({ results, next, dispatch, getState }) {
+  const committed = results.filter(r => r.committed);
+  const failed = results.filter(r => !r.ok);
+  const allDocs = pickLatestAllDocs(results);
+  publishInvoiceDocs(next, allDocs);
+  if (committed.length) {
+    syncEditMode(
+      dispatch,
+      getState,
+      allDocs ?? [],
+      committed.map(r => r.id)
+    );
+  }
+  return { committed, failed, allDocs };
+}
+
+function queuedInvoiceWrite(invoiceId, mutate) {
+  return runPaymentQueued(invoiceId, () =>
+    getSingleDoc('invoices', invoiceId)
+      .then(doc => {
+        const result = mutate(doc);
+        if (!result.ok) {
+          return {
+            id: invoiceId,
+            ok: false,
+            committed: false,
+            error: result.error,
+            payment: result.payment,
+            stillPaid: result.stillPaid,
+          };
+        }
+        return updateDocs('invoices', [result.doc])
+          .then(allDocs => ({
+            id: invoiceId,
+            ok: true,
+            committed: true,
+            allDocs,
+            doc: result.doc,
+            payment: result.payment,
+            stillPaid: result.stillPaid,
+          }))
+          .catch(err => ({
+            id: invoiceId,
+            ok: false,
+            committed: false,
+            error: 'writeFailed',
+            allDocs: err.docs,
+            writeErr: err,
+          }));
+      })
+      .catch(() => ({
+        id: invoiceId,
+        ok: false,
+        committed: false,
+        error: 'notFound',
+      }))
+  );
+}
+
 const InvoicesMW =
   ({ dispatch, getState }) =>
   next =>
@@ -472,67 +549,42 @@ const InvoicesMW =
           method: payment.method ?? 'other',
         };
 
-        const processId = id =>
-          runPaymentQueued(id, () =>
-            getSingleDoc('invoices', id)
-              .then(doc => {
-                const result = addPaymentToDoc(doc, paymentInput, {
-                  fullBalance,
-                  now,
-                });
-                return { id, ...result };
-              })
-              .catch(() => ({ id, ok: false, error: 'notFound' }))
-          );
-
-        return Promise.all(ids.map(processId))
+        return Promise.all(
+          ids.map(id =>
+            queuedInvoiceWrite(id, doc =>
+              addPaymentToDoc(doc, paymentInput, { fullBalance, now })
+            )
+          )
+        )
           .then(results => {
-            const okDocs = results.filter(r => r.ok).map(r => r.doc);
-            const failed = results.filter(r => !r.ok);
-            if (!okDocs.length) {
+            const { committed, failed } = finalizeQueuedWrites({
+              results,
+              next,
+              dispatch,
+              getState,
+            });
+            if (!committed.length) {
               toast.add({
                 title: paymentErrorMessage(failed[0]?.error ?? 'notFound'),
                 type: 'warning',
               });
               return false;
             }
-            return updateDocs('invoices', okDocs)
-              .then(allDocs => {
-                next({
-                  type: ACTION_TYPES.INVOICE_UPDATE,
-                  payload: allDocs,
-                });
-                syncEditMode(dispatch, getState, allDocs, ids);
-                toast.add({
-                  title: i18n.t('invoices:payments:toast:recorded', {
-                    count: okDocs.length,
-                  }),
-                });
-                if (failed.length) {
-                  toast.add({
-                    title: i18n.t('invoices:payments:toast:skipped', {
-                      count: failed.length,
-                      reason: paymentErrorMessage(failed[0].error),
-                    }),
-                    type: 'warning',
-                  });
-                }
-                return true;
-              })
-              .catch(err => {
-                if (err.docs) {
-                  next({
-                    type: ACTION_TYPES.INVOICE_UPDATE,
-                    payload: err.docs,
-                  });
-                  syncEditMode(dispatch, getState, err.docs, ids);
-                }
-                toast.add({
-                  title: paymentErrorMessage(failed[0]?.error ?? err.message),
-                  type: 'warning',
-                });
-                return false;
+            toast.add({
+              title: i18n.t('invoices:payments:toast:recorded', {
+                count: committed.length,
+              }),
+            });
+            if (failed.length) {
+              toast.add({
+                title: i18n.t('invoices:payments:toast:skipped', {
+                  count: failed.length,
+                  reason: paymentErrorMessage(failed[0].error),
+                }),
+                type: 'warning',
               });
+            }
+            return true;
           })
           .catch(err => {
             toast.add({
@@ -551,60 +603,45 @@ const InvoicesMW =
         }
         const { invoiceID, paymentId } = action.payload;
         const now = Date.now();
-        return runPaymentQueued(invoiceID, () =>
-          getSingleDoc('invoices', invoiceID)
-            .then(doc => {
-              const result = removePaymentFromDoc(doc, paymentId, now);
-              if (!result.ok) {
-                toast.add({
-                  title: paymentErrorMessage(result.error),
-                  type: 'warning',
-                });
-                return false;
-              }
-              return updateDocs('invoices', [result.doc])
-                .then(allDocs => {
-                  next({
-                    type: ACTION_TYPES.INVOICE_UPDATE,
-                    payload: allDocs,
-                  });
-                  syncEditMode(dispatch, getState, allDocs, [invoiceID]);
-                  const removed = result.payment;
-                  const toastId = toast.add({
-                    title: i18n.t('invoices:payments:toast:removed'),
-                    timeout: UNDO_TIMEOUT_MS,
-                    actionProps: {
-                      children: i18n.t('invoices:payments:toast:undo'),
-                      onClick: () => {
-                        toast.close(toastId);
-                        dispatch(Actions.recordPayment(invoiceID, removed));
-                      },
-                    },
-                  });
-                  return true;
-                })
-                .catch(err => {
-                  if (err.docs) {
-                    next({
-                      type: ACTION_TYPES.INVOICE_UPDATE,
-                      payload: err.docs,
-                    });
-                  }
-                  toast.add({
-                    title: err.message,
-                    type: 'warning',
-                  });
-                  return false;
-                });
-            })
-            .catch(() => {
+        return queuedInvoiceWrite(invoiceID, doc =>
+          removePaymentFromDoc(doc, paymentId, now)
+        )
+          .then(result => {
+            const { committed } = finalizeQueuedWrites({
+              results: [result],
+              next,
+              dispatch,
+              getState,
+            });
+            if (!result.ok) {
               toast.add({
-                title: paymentErrorMessage('notFound'),
+                title: paymentErrorMessage(result.error ?? 'notFound'),
                 type: 'warning',
               });
               return false;
-            })
-        ).finally(endWrite);
+            }
+            if (!committed.length) {
+              toast.add({
+                title: paymentErrorMessage('writeFailed'),
+                type: 'warning',
+              });
+              return false;
+            }
+            const removed = result.payment;
+            const toastId = toast.add({
+              title: i18n.t('invoices:payments:toast:removed'),
+              timeout: UNDO_TIMEOUT_MS,
+              actionProps: {
+                children: i18n.t('invoices:payments:toast:undo'),
+                onClick: () => {
+                  toast.close(toastId);
+                  dispatch(Actions.recordPayment(invoiceID, removed));
+                },
+              },
+            });
+            return true;
+          })
+          .finally(endWrite);
       }
 
       case ACTION_TYPES.INVOICE_SET_STATUS: {
@@ -627,93 +664,53 @@ const InvoicesMW =
         const ids = [...new Set([].concat(invoiceID))];
         const now = Date.now();
 
-        const processId = id =>
-          runPaymentQueued(id, () =>
-            getSingleDoc('invoices', id)
-              .then(doc => {
-                const result = setDocStatus(doc, status, now);
-                if (!result.ok) {
-                  return { id, ok: false, error: result.error };
-                }
-                return {
-                  id,
-                  ok: true,
-                  doc: result.doc,
-                  stillPaid: result.stillPaid,
-                };
-              })
-              .catch(() => ({ id, ok: false, error: 'notFound' }))
-          );
-
-        return Promise.all(ids.map(processId))
+        return Promise.all(
+          ids.map(id =>
+            queuedInvoiceWrite(id, doc => setDocStatus(doc, status, now))
+          )
+        )
           .then(results => {
             const okResults = results.filter(r => r.ok);
-            const okDocs = okResults.map(r => r.doc);
             const failed = results.filter(r => !r.ok);
-            if (!okDocs.length) {
+            const { committed } = finalizeQueuedWrites({
+              results,
+              next,
+              dispatch,
+              getState,
+            });
+            if (!committed.length) {
               toast.add({
                 title: paymentErrorMessage(failed[0]?.error ?? 'notFound'),
                 type: 'warning',
               });
               return;
             }
-            return updateDocs('invoices', okDocs)
-              .then(allDocs => {
-                next({
-                  type: ACTION_TYPES.INVOICE_UPDATE,
-                  payload: allDocs,
-                });
-                syncEditMode(dispatch, getState, allDocs, ids);
-                if (okResults.some(r => r.stillPaid)) {
-                  toast.add({
-                    title: i18n.t('invoices:payments:toast:stillPaid'),
-                  });
-                } else if (ids.length > 1 || okDocs.length > 1) {
-                  toast.add({
-                    title: i18n.t('invoices:toast:updated', {
-                      count: okDocs.length,
-                    }),
-                  });
-                }
-                if (failed.length) {
-                  toast.add({
-                    title: i18n.t('invoices:payments:toast:skipped', {
-                      count: failed.length,
-                      reason: paymentErrorMessage(failed[0].error),
-                    }),
-                    type: 'warning',
-                  });
-                }
-              })
-              .catch(err => {
-                if (err.docs) {
-                  next({
-                    type: ACTION_TYPES.INVOICE_UPDATE,
-                    payload: err.docs,
-                  });
-                  syncEditMode(dispatch, getState, err.docs, ids);
-                  toast.add({
-                    title: i18n.t('invoices:toast:updated', {
-                      count: err.succeeded?.length ?? 0,
-                    }),
-                    type: 'warning',
-                  });
-                  return;
-                }
-                return getAllDocs('invoices').then(docs => {
-                  next({
-                    type: ACTION_TYPES.INVOICE_UPDATE,
-                    payload: docs,
-                  });
-                  next({
-                    type: ACTION_TYPES.UI_NOTIFICATION_NEW,
-                    payload: {
-                      type: 'warning',
-                      message: err.message,
-                    },
-                  });
-                });
+            if (okResults.some(r => r.stillPaid)) {
+              toast.add({
+                title: i18n.t('invoices:payments:toast:stillPaid'),
               });
+            } else if (ids.length > 1 || committed.length > 1) {
+              toast.add({
+                title: i18n.t('invoices:toast:updated', {
+                  count: committed.length,
+                }),
+              });
+            }
+            if (failed.length) {
+              toast.add({
+                title: i18n.t('invoices:payments:toast:skipped', {
+                  count: failed.length,
+                  reason: paymentErrorMessage(failed[0].error),
+                }),
+                type: 'warning',
+              });
+            }
+          })
+          .catch(err => {
+            toast.add({
+              title: err.message,
+              type: 'warning',
+            });
           })
           .finally(endWrite);
       }

@@ -201,6 +201,28 @@ describe('form helpers', () => {
     const doc = getInvoiceData(f, { defaultCurrency: currency });
     expect(doc.payments).toHaveLength(1);
   });
+  it('reopens a paid invoice with payments when the total rises', () => {
+    const f = form();
+    f.settings.editMode = {
+      active: true,
+      data: {
+        _id: 'old',
+        _rev: '1-x',
+        status: 'paid',
+        paidAt: 999,
+        grandTotal: 100,
+        currency,
+        payments: [{ id: 'p', date: 1, amount: 100, method: 'cash', note: '' }],
+        rows: [{ description: 'x', price: 100, quantity: 1, subtotal: 100 }],
+      },
+    };
+    f.rows = [
+      { id: '1', description: 'Work', price: 15, quantity: 10, subtotal: 150 },
+    ];
+    const doc = getInvoiceData(f, { defaultCurrency: currency });
+    expect(doc.status).toBe('pending');
+    expect(doc.paidAt).toBeUndefined();
+  });
   it('new invoice omits payments key', () => {
     const doc = getInvoiceData(form(), { defaultCurrency: currency });
     expect(doc).not.toHaveProperty('payments');
