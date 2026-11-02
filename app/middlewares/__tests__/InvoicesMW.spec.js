@@ -136,6 +136,15 @@ describe('Invoices Middleware', () => {
       ).resolves.toBe(false);
     });
 
+    it('returns the submitted invoice when the db list has no matching id', async () => {
+      const invoice = { _id: 'new-id', status: 'draft', rows: [] };
+      saveDoc.mockResolvedValueOnce([
+        { _id: 'other-id', status: 'pending', rows: [] },
+      ]);
+      const result = await middleware(Actions.saveInvoice(invoice));
+      expect(result).toEqual(invoice);
+    });
+
     it('should save records to DB', () => {
       // Setup
       const newInvoice = {

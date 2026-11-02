@@ -36,7 +36,7 @@ function persistedInvoice(docs, payload) {
       return match;
     }
   }
-  return docs[docs.length - 1];
+  return payload;
 }
 
 const InvoicesMW =
