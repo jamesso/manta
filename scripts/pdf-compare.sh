@@ -2,6 +2,35 @@
 # Usage: sh scripts/pdf-compare.sh <baselineDir> <afterDir> [--light-ref]
 set -eu
 A="$1"; B="$2"; REF="${3:-}"; W=$(mktemp -d); FAIL=0
+
+# The rendered images must be exactly pages 1..N from pdfinfo.
+verify_rendered_pages() {
+  prefix=$1
+  expect=$2
+  label=$3
+  i=1
+  while [ "$i" -le "$expect" ]; do
+    if [ ! -f "${prefix}-${i}.png" ]; then
+      echo "MISSING PAGE $label $i"
+      return 1
+    fi
+    i=$((i + 1))
+  done
+  for img in "${prefix}"-*.png; do
+    if [ ! -f "$img" ]; then
+      echo "MISSING RENDERED PAGE"
+      return 1
+    fi
+    num=$(basename "$img" .png | sed 's/.*-//')
+    case "$num" in
+      ''|*[!0-9]*) echo "UNNUMBERED PAGE $img"; return 1 ;;
+    esac
+    if [ "$num" -lt 1 ] || [ "$num" -gt "$expect" ]; then
+      echo "EXTRA PAGE $img"
+      return 1
+    fi
+  done
+}
 trap 'rm -rf "$W"' EXIT HUP INT TERM
 [ -d "$A" ] && [ -d "$B" ] || { echo "MISSING DIR"; exit 1; }
 # Baseline and after must contain the same non-empty case set.
@@ -29,6 +58,8 @@ for b in "$B"/*.pdf; do
   cmp -s "$W/fa" "$W/fb" || { echo "FONTS $n differ"; FAIL=1; }
   pdftoppm -r 150 -png "$a" "$W/$n-a" || { echo "TOOL ERROR pdftoppm $a"; exit 1; }
   pdftoppm -r 150 -png "$b" "$W/$n-b" || { echo "TOOL ERROR pdftoppm $b"; exit 1; }
+  verify_rendered_pages "$W/$n-a" "$pa" "$n baseline" || exit 1
+  verify_rendered_pages "$W/$n-b" "$pb" "$n after" || exit 1
   for pa_png in "$W/$n-a"-*.png; do
     [ -f "$pa_png" ] || { echo "MISSING RENDERED PAGE"; exit 1; }
     pb_png=$(echo "$pa_png" | sed 's/-a-\([0-9]*\)\.png$/-b-\1.png/')
