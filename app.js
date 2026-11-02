@@ -106,6 +106,7 @@ function createPreviewWindow() {
     backgroundColor: getBackgroundColor(nativeTheme),
     show: false,
     title: 'Preview Window',
+    ...titleBarOptions(process.platform, nativeTheme),
     webPreferences: SECURE_WEB_PREFERENCES,
   });
   // Register WindowID
@@ -114,6 +115,13 @@ function createPreviewWindow() {
   previewWindownStateKeeper.track(previewWindow);
   // Load Content
   loadPage(previewWindow, 'preview');
+  if (process.platform !== 'darwin') {
+    nativeTheme.on('updated', () => {
+      if (!previewWindow.isDestroyed()) {
+        previewWindow.setTitleBarOverlay(titleBarOverlayFor(nativeTheme));
+      }
+    });
+  }
   // Add Event Listener
   previewWindow.on('show', event => {
     if (isDev || forceDevtools)
