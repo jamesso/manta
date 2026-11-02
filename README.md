@@ -56,7 +56,7 @@ The issue tracker, discussions and wiki of the original project do not apply to 
 - 🏗 Drag and drop to reorder items.
 - 📐 SVG logos for sharp printing.
 - 🎨 Custom designed, highly customizable templates.
-- 🏷 Custom statuses for invoices.
+- 🏷 Invoice statuses: Draft, Pending, Overdue (automatic), Paid, Refunded and Cancelled.
 - 📊 Export to PDF to print or email.
 - 🔒 Complete privacy. Your financial data stays on your computer.
 - 💯 Free and open source (GPL-3.0).

@@ -16,6 +16,7 @@ import {
   SidebarGroup,
   SidebarHeader,
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
@@ -31,6 +32,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Kbd } from '@/components/ui/kbd';
 import * as UIActions from '../../actions/ui';
 import AppUpdate from './AppUpdate';
+import { getOverdueCount } from '../../reducers/InvoicesReducer';
+import { useNow } from '../invoices/useNow';
 
 const ipc = window.manta.ipc;
 const modKey = window.manta.platform === 'darwin' ? '⌘' : 'Ctrl+';
@@ -39,6 +42,8 @@ export default function AppSidebar({ activeTab }) {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const profile = useSelector(s => s.settings.saved?.profile) || {};
+  const now = useNow();
+  const overdue = useSelector(state => getOverdueCount(state, now));
 
   const displayName = profile.company || profile.fullname || 'Manta';
   const fallbackLetter = (displayName.trim()[0] || 'M').toUpperCase();
@@ -116,18 +121,37 @@ export default function AppSidebar({ activeTab }) {
         <SidebarGroup>
           <SidebarMenu>
             {[
-              { tab: 'invoices', label: t('app:nav:invoices'), icon: FileText },
+              {
+                tab: 'invoices',
+                label: t('app:nav:invoices'),
+                icon: FileText,
+                badge: overdue,
+                tooltipExtra:
+                  overdue > 0
+                    ? ` · ${t('invoices:nav:overdueBadge', { count: overdue })}`
+                    : '',
+              },
               { tab: 'contacts', label: t('app:nav:clients'), icon: Users },
               { tab: 'settings', label: t('app:nav:settings'), icon: Settings },
-            ].map(({ tab, label, icon: Icon }) => (
+            ].map(({ tab, label, icon: Icon, badge, tooltipExtra }) => (
               <SidebarMenuItem key={tab}>
                 <SidebarMenuButton
                   isActive={activeTab === tab}
-                  tooltip={label}
+                  tooltip={`${label}${tooltipExtra || ''}`}
                   onClick={() => changeTab(tab)}
                 >
                   <Icon />
                   <span>{label}</span>
+                  {badge > 0 ? (
+                    <SidebarMenuBadge
+                      aria-label={t('invoices:nav:overdueBadge', {
+                        count: badge,
+                      })}
+                      className="bg-status-overdue-bg text-status-overdue"
+                    >
+                      {badge}
+                    </SidebarMenuBadge>
+                  ) : null}
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}

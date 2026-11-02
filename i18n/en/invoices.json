@@ -1,6 +1,95 @@
 {
   "header": {
-    "name": "All Invoices"
+    "name": "Invoices",
+    "count_one": "{{count}} invoice",
+    "count_other": "{{count}} invoices"
+  },
+  "newInvoice": "New invoice",
+  "search": {
+    "label": "Search invoices",
+    "placeholder": "Search number, client or amount"
+  },
+  "tabs": {
+    "all": "All",
+    "draft": "Draft",
+    "outstanding": "Outstanding",
+    "overdue": "Overdue",
+    "paid": "Paid",
+    "closed": "Closed"
+  },
+  "columns": {
+    "select": "Select invoice {{number}}",
+    "selectAll": "Select all invoices",
+    "number": "Number",
+    "client": "Client",
+    "issued": "Issued",
+    "due": "Due",
+    "amount": "Amount",
+    "status": "Status",
+    "actions": "Actions"
+  },
+  "due": {
+    "none": "No due date",
+    "today": "Due today",
+    "inDays_one": "Due in {{count}} day",
+    "inDays_other": "Due in {{count}} days",
+    "overdueDays_one": "{{count}} day overdue",
+    "overdueDays_other": "{{count}} days overdue"
+  },
+  "actions": {
+    "open": "Invoice actions",
+    "preview": "Preview / Export PDF",
+    "edit": "Edit",
+    "duplicate": "Duplicate",
+    "markAsPaid": "Mark as paid",
+    "setStatus": "Set status",
+    "delete": "Delete"
+  },
+  "bulk": {
+    "label": "Selected invoices",
+    "selected_one": "{{count}} selected",
+    "selected_other": "{{count}} selected",
+    "markAsPaid": "Mark as paid",
+    "delete": "Delete",
+    "clear": "Clear selection"
+  },
+  "empty": {
+    "title": "No invoices yet",
+    "description": "Create your first invoice. It will show here.",
+    "noResults": "No matching invoices",
+    "noResultsDescription": "Try another search or tab.",
+    "clearFilters": "Clear filters"
+  },
+  "sheet": {
+    "title": "Invoice {{number}}",
+    "client": "Client",
+    "issued": "Issued",
+    "due": "Due",
+    "currency": "Currency",
+    "items": "Items",
+    "description": "Description",
+    "quantity": "Qty",
+    "price": "Price",
+    "subtotal": "Subtotal",
+    "discount": "Discount",
+    "tax": "Tax",
+    "total": "Total",
+    "note": "Note"
+  },
+  "toast": {
+    "deleted_one": "Invoice deleted",
+    "deleted_other": "{{count}} invoices deleted",
+    "deleteFailed_one": "{{count}} invoice could not be deleted",
+    "deleteFailed_other": "{{count}} invoices could not be deleted",
+    "undo": "Undo",
+    "restored_one": "Invoice restored",
+    "restored_other": "{{count}} invoices restored",
+    "updated_one": "Invoice updated",
+    "updated_other": "{{count}} invoices updated"
+  },
+  "nav": {
+    "overdueBadge_one": "{{count}} overdue invoice",
+    "overdueBadge_other": "{{count}} overdue invoices"
   },
   "fields": {
     "client": "Client",
@@ -10,7 +99,9 @@
     "total": "Total Value"
   },
   "status": {
+    "draft": "Draft",
     "pending": "Pending",
+    "overdue": "Overdue",
     "paid": "Paid",
     "refunded": "Refunded",
     "cancelled": "Cancelled"
