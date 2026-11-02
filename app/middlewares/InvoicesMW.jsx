@@ -146,10 +146,6 @@ const InvoicesMW =
       }
 
       case ACTION_TYPES.INVOICE_SAVE: {
-        const endWrite = protectWrite(dispatch);
-        if (!endWrite) {
-          return false;
-        }
         return saveDoc('invoices', action.payload)
           .then(newDocs => {
             next({
@@ -185,8 +181,7 @@ const InvoicesMW =
               },
             });
             return false;
-          })
-          .finally(endWrite);
+          });
       }
 
       case ACTION_TYPES.INVOICE_EDIT: {

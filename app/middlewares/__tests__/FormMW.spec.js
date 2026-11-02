@@ -446,6 +446,76 @@ describe('Form middleware', () => {
     expect(updates[0].rows[0].description).toBe('Work');
   });
 
+  it('waits for numbering advance before import snapshot during form save', async () => {
+    getAllDocs.mockResolvedValue([]);
+    const settingsStore = {
+      invoice: {
+        numbering: { prefix: 'INV-', next: 5, padding: 4 },
+        currency,
+      },
+      profile: {},
+      general: { language: 'en', theme: 'system', sound: 'default' },
+    };
+    window.manta.settings.get.mockImplementation(key => {
+      if (key === 'invoice.numbering') {
+        return settingsStore.invoice.numbering;
+      }
+      if (key === 'invoice.currency') {
+        return settingsStore.invoice.currency;
+      }
+      if (key === 'invoice') {
+        return settingsStore.invoice;
+      }
+      if (key === 'profile') {
+        return settingsStore.profile;
+      }
+      if (key === 'general') {
+        return settingsStore.general;
+      }
+      return settingsStore.invoice.currency;
+    });
+    window.manta.settings.set.mockImplementation((key, value) => {
+      if (key === 'invoice.numbering') {
+        settingsStore.invoice.numbering = value;
+      }
+    });
+
+    let resolveSaveDoc;
+    saveDoc.mockImplementation(
+      () =>
+        new Promise(resolve => {
+          resolveSaveDoc = () => resolve([{ _id: 'inv-5', _rev: '1-db' }]);
+        })
+    );
+
+    const stack = stackWithForm({ ...makeForm(), invoiceID: 'INV-0005' });
+    const savePromise = stack.dispatch(Actions.saveFormData('final'));
+
+    await vi.waitFor(() => expect(saveDoc).toHaveBeenCalled());
+
+    const { collectBackup } = await import('../../helpers/backupFlow');
+    const { withImportWriteLock } =
+      await import('../../helpers/importWriteLock');
+
+    let snapshotNext;
+    const importPromise = withImportWriteLock(async () => {
+      const backup = await collectBackup({
+        get: key => window.manta.settings.get(key),
+      });
+      snapshotNext = backup.settings.invoice.numbering.next;
+    });
+
+    await new Promise(resolve => setTimeout(resolve, 0));
+    expect(settingsStore.invoice.numbering.next).toBe(5);
+
+    resolveSaveDoc();
+    await savePromise;
+    await importPromise;
+
+    expect(settingsStore.invoice.numbering.next).toBe(6);
+    expect(snapshotNext).toBe(6);
+  });
+
   it('blocks SAVED_FORM_SETTING_UPDATE while import lock is held', async () => {
     const { withImportWriteLock } =
       await import('../../helpers/importWriteLock');

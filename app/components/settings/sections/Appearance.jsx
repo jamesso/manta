@@ -1,12 +1,24 @@
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Monitor, Moon, Sun } from 'lucide-react';
 
 import { Field, FieldLabel } from '@/components/ui/field';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { useDebouncedSave } from '../useDebouncedSave';
 
-export default function Appearance({ value, onSave, saveMessage }) {
+export default function Appearance({
+  value,
+  onSave,
+  saveMessage,
+  registerFlush,
+}) {
   const { t } = useTranslation();
-  const theme = value?.theme || 'system';
+  const { draft, saveNow, flush } = useDebouncedSave(value, onSave);
+  const theme = draft?.theme || 'system';
+
+  useEffect(() => {
+    registerFlush(flush);
+  }, [flush, registerFlush]);
 
   return (
     <div className="space-y-6">
@@ -30,7 +42,7 @@ export default function Appearance({ value, onSave, saveMessage }) {
           value={theme}
           onValueChange={next => {
             if (next) {
-              onSave({ ...value, theme: next });
+              saveNow({ ...draft, theme: next });
             }
           }}
         >

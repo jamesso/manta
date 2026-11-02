@@ -37,6 +37,14 @@ export function useDebouncedSave(value, save, delay = 500) {
   const dirtyRef = useRef(false);
   const [draft, setDraftState] = useState(() => cloneDeep(value));
 
+  useEffect(() => {
+    if (!dirtyRef.current) {
+      baselineRef.current = cloneDeep(value);
+      draftRef.current = cloneDeep(value);
+      setDraftState(cloneDeep(value));
+    }
+  }, [value]);
+
   const runFlush = useCallback(async () => {
     if (!dirtyRef.current) {
       return { ok: true };

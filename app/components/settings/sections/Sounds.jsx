@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Field, FieldLabel } from '@/components/ui/field';
@@ -9,9 +10,15 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { useDebouncedSave } from '../useDebouncedSave';
 
-export default function Sounds({ value, onSave, saveMessage }) {
+export default function Sounds({ value, onSave, saveMessage, registerFlush }) {
   const { t } = useTranslation();
+  const { draft, saveNow, flush } = useDebouncedSave(value, onSave);
+
+  useEffect(() => {
+    registerFlush(flush);
+  }, [flush, registerFlush]);
 
   return (
     <div className="space-y-6">
@@ -31,8 +38,8 @@ export default function Sounds({ value, onSave, saveMessage }) {
       <Field>
         <FieldLabel>{t('settings:fields:sound')}</FieldLabel>
         <Select
-          value={value.sound}
-          onValueChange={sound => onSave({ ...value, sound })}
+          value={draft.sound}
+          onValueChange={sound => saveNow({ ...draft, sound })}
         >
           <SelectTrigger className="bg-background text-foreground">
             <SelectValue />
@@ -49,8 +56,8 @@ export default function Sounds({ value, onSave, saveMessage }) {
         </FieldLabel>
         <Switch
           id="settings-muted"
-          checked={Boolean(value.muted)}
-          onCheckedChange={muted => onSave({ ...value, muted })}
+          checked={Boolean(draft.muted)}
+          onCheckedChange={muted => saveNow({ ...draft, muted })}
         />
       </Field>
     </div>

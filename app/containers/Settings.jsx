@@ -94,6 +94,7 @@ export default function Settings() {
         value={general}
         onSave={data => saveSection('general', data)}
         saveMessage={saveMessage}
+        registerFlush={registerFlush}
       />
     );
   } else if (section === 'language') {
@@ -103,8 +104,8 @@ export default function Settings() {
         invoice={invoice}
         onSaveGeneral={data => saveSection('general', data)}
         onSaveInvoice={data => saveSection('invoice', data)}
-        errors={errors}
         saveMessage={saveMessage}
+        registerFlush={registerFlush}
       />
     );
   } else if (section === 'export') {
@@ -115,6 +116,7 @@ export default function Settings() {
         onSaveInvoice={data => saveSection('invoice', data)}
         onSaveGeneral={data => saveSection('general', data)}
         saveMessage={saveMessage}
+        registerFlush={registerFlush}
       />
     );
   } else if (section === 'updates') {
@@ -125,6 +127,7 @@ export default function Settings() {
         value={general}
         onSave={data => saveSection('general', data)}
         saveMessage={saveMessage}
+        registerFlush={registerFlush}
       />
     );
   }

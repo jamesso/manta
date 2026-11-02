@@ -1,7 +1,8 @@
 import moment from 'moment';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import { Field, FieldLabel } from '@/components/ui/field';
 import {
   Select,
   SelectContent,
@@ -9,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useDebouncedSave } from '../useDebouncedSave';
 
 const LANGS = ['de', 'en', 'fr', 'id', 'it', 'sk', 'ur-PK', 'vi', 'zh-CN'];
 
@@ -32,10 +34,30 @@ export default function LanguageRegion({
   invoice,
   onSaveGeneral,
   onSaveInvoice,
-  errors,
   saveMessage,
+  registerFlush,
 }) {
   const { t } = useTranslation();
+  const {
+    draft: generalDraft,
+    saveNow: saveGeneralNow,
+    flush: flushGeneral,
+  } = useDebouncedSave(general, onSaveGeneral);
+  const {
+    draft: invoiceDraft,
+    saveNow: saveInvoiceNow,
+    flush: flushInvoice,
+  } = useDebouncedSave(invoice, onSaveInvoice);
+
+  useEffect(() => {
+    registerFlush(async () => {
+      const generalResult = await flushGeneral();
+      if (generalResult?.ok === false) {
+        return generalResult;
+      }
+      return flushInvoice();
+    });
+  }, [flushGeneral, flushInvoice, registerFlush]);
 
   return (
     <div className="space-y-6">
@@ -55,8 +77,10 @@ export default function LanguageRegion({
       <Field>
         <FieldLabel>{t('settings:fields:language:name')}</FieldLabel>
         <Select
-          value={general.language}
-          onValueChange={language => onSaveGeneral({ ...general, language })}
+          value={generalDraft.language}
+          onValueChange={language =>
+            saveGeneralNow({ ...generalDraft, language })
+          }
         >
           <SelectTrigger className="bg-background text-foreground">
             <SelectValue />
@@ -73,9 +97,9 @@ export default function LanguageRegion({
       <Field>
         <FieldLabel>{t('settings:fields:dateFormat')}</FieldLabel>
         <Select
-          value={invoice.dateFormat}
+          value={invoiceDraft.dateFormat}
           onValueChange={dateFormat =>
-            onSaveInvoice({ ...invoice, dateFormat })
+            saveInvoiceNow({ ...invoiceDraft, dateFormat })
           }
         >
           <SelectTrigger className="bg-background text-foreground">

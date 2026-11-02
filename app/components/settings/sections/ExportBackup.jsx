@@ -20,6 +20,7 @@ import {
   runImport,
 } from '../../../helpers/backupFlow';
 import ImportDialog from './ImportDialog';
+import { useDebouncedSave } from '../useDebouncedSave';
 
 const ipc = window.manta.ipc;
 
@@ -38,14 +39,35 @@ export default function ExportBackup({
   onSaveInvoice,
   onSaveGeneral,
   saveMessage,
+  registerFlush,
 }) {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  const {
+    draft: generalDraft,
+    saveNow: saveGeneralNow,
+    flush: flushGeneral,
+  } = useDebouncedSave(general, onSaveGeneral);
+  const {
+    draft: invoiceDraft,
+    saveNow: saveInvoiceNow,
+    flush: flushInvoice,
+  } = useDebouncedSave(invoice, onSaveInvoice);
   const [importOpen, setImportOpen] = useState(false);
   const [importing, setImporting] = useState(false);
   const [importState, setImportState] = useState(null);
   const [mode, setMode] = useState('skip');
   const [includeSettings, setIncludeSettings] = useState(false);
+
+  useEffect(() => {
+    registerFlush(async () => {
+      const generalResult = await flushGeneral();
+      if (generalResult?.ok === false) {
+        return generalResult;
+      }
+      return flushInvoice();
+    });
+  }, [flushGeneral, flushInvoice, registerFlush]);
 
   useEffect(() => {
     const onNoAccess = (_event, message) => {
@@ -56,7 +78,7 @@ export default function ExportBackup({
       });
     };
     const onConfirmed = (_event, path) => {
-      onSaveInvoice({ ...invoice, exportDir: path });
+      saveInvoiceNow({ ...invoiceDraft, exportDir: path });
     };
     ipc.on('no-access-directory', onNoAccess);
     ipc.on('confirmed-export-directory', onConfirmed);
@@ -64,7 +86,7 @@ export default function ExportBackup({
       ipc.removeAllListeners('no-access-directory');
       ipc.removeAllListeners('confirmed-export-directory');
     };
-  }, [t, invoice, onSaveInvoice]);
+  }, [t, invoiceDraft, saveInvoiceNow]);
 
   const onExportBackup = async () => {
     try {
@@ -255,7 +277,11 @@ export default function ExportBackup({
       <Field>
         <FieldLabel>{t('settings:fields:pdfExportDir')}</FieldLabel>
         <div className="flex gap-2">
-          <Input readOnly value={invoice.exportDir ?? ''} className="flex-1" />
+          <Input
+            readOnly
+            value={invoiceDraft.exportDir ?? ''}
+            className="flex-1"
+          />
           <Button
             type="button"
             variant="outline"
@@ -271,9 +297,9 @@ export default function ExportBackup({
         </FieldLabel>
         <Switch
           id="preview-pdf"
-          checked={Boolean(general.previewPDF)}
+          checked={Boolean(generalDraft.previewPDF)}
           onCheckedChange={previewPDF =>
-            onSaveGeneral({ ...general, previewPDF })
+            saveGeneralNow({ ...generalDraft, previewPDF })
           }
         />
       </Field>

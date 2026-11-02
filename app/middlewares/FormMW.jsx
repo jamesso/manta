@@ -23,6 +23,7 @@ import {
 import {
   isImportWriteLocked,
   importWriteLockReason,
+  trackImportWriteStart,
 } from '../helpers/importWriteLock';
 import {
   advanceNumbering,
@@ -42,6 +43,18 @@ let saveInFlight = null;
 async function handleSave({ dispatch, getState }, mode) {
   if (saveInFlight) {
     return saveInFlight;
+  }
+
+  const endWrite = trackImportWriteStart();
+  if (!endWrite) {
+    dispatch({
+      type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+      payload: {
+        type: 'warning',
+        message: i18n.t(importWriteLockReason()),
+      },
+    });
+    return false;
   }
 
   const run = (async () => {
@@ -217,6 +230,8 @@ async function handleSave({ dispatch, getState }, mode) {
           message: err.message,
         },
       });
+    } finally {
+      endWrite();
     }
   })();
 
