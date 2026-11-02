@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   buildDefaultTaxRates,
+  buildSellerSnapshot,
   getDefaultTaxRate,
   getSellerTaxIds,
   getTaxRateErrors,
@@ -222,6 +223,15 @@ describe('getSellerTaxIds', () => {
 
   it('ignores placeholder tin', () => {
     expect(getSellerTaxIds({}, { tax: { tin: '123-456-789' } }).taxId).toBe('');
+  });
+});
+
+describe('buildSellerSnapshot', () => {
+  it('copies free-text address onto the snapshot', () => {
+    expect(
+      buildSellerSnapshot({ address: '1 Original Street' }, {}).address
+    ).toBe('1 Original Street');
+    expect(buildSellerSnapshot({}, {}).address).toBe('');
   });
 });
 

@@ -205,6 +205,7 @@ export function buildSellerSnapshot(profile, invoiceSettings) {
     company: String(profile?.company ?? '').trim(),
     email: String(profile?.email ?? '').trim(),
     phone: String(profile?.phone ?? '').trim(),
+    address: String(profile?.address ?? ''),
     postalAddress: {
       street: String(postal.street ?? '').trim(),
       additional: String(postal.additional ?? '').trim(),

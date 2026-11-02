@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
 
-import { toEn16931 } from '../toEn16931.js';
+import { toEn16931, resolveProfile } from '../toEn16931.js';
 import { getInvoiceTotals } from '../../../app/helpers/invoice.js';
 
 const profile = {
@@ -43,6 +43,31 @@ function derived(overrides = {}) {
     ...overrides,
   };
 }
+
+describe('resolveProfile', () => {
+  const currentProfile = { address: '99 Changed Street', fullname: 'Live' };
+
+  it('keeps snapshot free-text address when the key is present', () => {
+    const invoice = { seller: { address: '1 Original Street', taxId: 'T' } };
+    expect(resolveProfile(invoice, { profile: currentProfile }).address).toBe(
+      '1 Original Street'
+    );
+  });
+
+  it('uses current profile address when snapshot omits the key', () => {
+    const invoice = { seller: { taxId: 'T' } };
+    expect(resolveProfile(invoice, { profile: currentProfile }).address).toBe(
+      '99 Changed Street'
+    );
+  });
+
+  it('does not fall through when snapshot address is empty', () => {
+    const invoice = { seller: { address: '', taxId: 'T' } };
+    expect(resolveProfile(invoice, { profile: currentProfile }).address).toBe(
+      ''
+    );
+  });
+});
 
 describe('toEn16931', () => {
   it('maps a single-rate invoice', () => {

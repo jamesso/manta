@@ -19,7 +19,7 @@ function resolveProfile(invoice, settings) {
   if (!snap || typeof snap !== 'object') {
     return base;
   }
-  return {
+  const merged = {
     ...base,
     legalName: snap.legalName ?? base.legalName,
     fullname: snap.fullname ?? base.fullname,
@@ -31,6 +31,10 @@ function resolveProfile(invoice, settings) {
     taxId: snap.taxId ?? base.taxId,
     vatId: snap.vatId ?? base.vatId,
   };
+  if (Object.hasOwn(snap, 'address')) {
+    merged.address = snap.address;
+  }
+  return merged;
 }
 
 function groupLineNetSum(invoice, category, rate, lines) {
