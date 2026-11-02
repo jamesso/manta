@@ -2,6 +2,9 @@ import * as Actions from '../../actions/form';
 import * as TYPES from '../../constants/actions';
 import FormMW from '../FormMW';
 import FormReducer from '../../reducers/FormReducer';
+import InvoicesMW from '../InvoicesMW';
+vi.mock('../../helpers/pouchDB');
+import { saveDoc, updateDoc } from '../../helpers/pouchDB';
 const currency = { code: 'USD', fraction: 2 };
 const makeForm = () => ({
   invoiceID: 'INV-0001',
@@ -243,5 +246,47 @@ describe('Form middleware', () => {
     await pending;
     await integrated(Actions.saveFormData('draft'));
     expect(saves).toHaveLength(1);
+  });
+  it('sends the database revision on the follow-up update', async () => {
+    let resolveSave;
+    let form = makeForm();
+    form.savedSettings = { currency, tax: {}, required_fields: {} };
+    const inv = [];
+    const updates = [];
+    saveDoc.mockImplementation((_db, doc) =>
+      new Promise(resolve => {
+        resolveSave = () => {
+          inv.length = 0;
+          inv.push({ ...doc, _rev: '1-db' });
+          resolve(inv);
+        };
+      })
+    );
+    updateDoc.mockImplementation(async (_db, doc) => {
+      updates.push(doc);
+      if (doc._rev !== inv[0]._rev) {
+        throw new Error('Document update conflict');
+      }
+      inv[0] = { ...doc, _rev: '2-db' };
+      return inv;
+    });
+    const chain = action => {
+      form = FormReducer(form, action);
+      return action;
+    };
+    let formMw;
+    const dispatch = action =>
+      action.type === TYPES.CONTACT_SAVE ? Promise.resolve(true) : formMw(action);
+    const invoiceMw = InvoicesMW({ dispatch, getState: () => ({ form }) })(chain);
+    formMw = FormMW({ dispatch, getState: () => ({ form }) })(invoiceMw);
+    const pending = dispatch(Actions.saveFormData('draft'));
+    dispatch(Actions.updateFieldData('note', { content: 'new work' }));
+    form.settings.required_fields.note = true;
+    resolveSave();
+    await pending;
+    await dispatch(Actions.saveFormData('draft'));
+    expect(updates).toHaveLength(1);
+    expect(updates[0]._rev).toBe('1-db');
+    expect(updates[0]._id).toBe(inv[0]._id);
   });
 });

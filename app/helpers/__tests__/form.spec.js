@@ -151,6 +151,34 @@ describe('form helpers', () => {
     expect(second.recipient._id).toBe(recipientId);
     expect(first.recipient.created_at).toBe(99);
   });
+  it('omits cleared draft adjustments when editing', () => {
+    const f = form();
+    f.settings.required_fields = { currency: true, discount: true, tax: true };
+    f.settings.editMode = {
+      active: true,
+      data: {
+        _id: 'old',
+        _rev: '1-x',
+        status: 'draft',
+        discount: { type: 'flat', amount: 5 },
+        tax: { method: 'default', amount: 10 },
+      },
+    };
+    f.discount = { type: 'flat', amount: '' };
+    f.tax = { method: 'default', amount: '' };
+    const doc = getInvoiceData(f, { mode: 'draft', defaultCurrency: currency });
+    expect(doc).not.toHaveProperty('discount');
+    expect(doc).not.toHaveProperty('tax');
+  });
+  it('validates the live default currency when the field is off', () => {
+    const f = form();
+    f.settings.required_fields.currency = false;
+    window.manta.settings.get.mockImplementation(key =>
+      key === 'invoice.currency' ? { ...currency, fraction: 101 } : {}
+    );
+    expect(getFormErrors(f, 'draft')).toHaveProperty('currency.fraction');
+    window.manta.settings.get.mockReset();
+  });
   it.each([
     [
       'recipient.fullname',

@@ -74,6 +74,10 @@ async function handleSave({ dispatch, getState }, mode) {
       return;
     }
 
+    const persisted =
+      typeof ok === 'object' && ok !== null && ok._id ? ok : null;
+    const savedBase = persisted ?? data;
+
     if (!editMode.active) {
       const numberingBase = resolveStoredNumbering(
         getState().form.reconciledNumbering,
@@ -142,7 +146,7 @@ async function handleSave({ dispatch, getState }, mode) {
           ...afterSave,
           settings: {
             ...afterSave.settings,
-            editMode: { active: true, data },
+            editMode: { active: true, data: savedBase },
           },
         },
         { mode, defaultCurrency }
@@ -152,6 +156,26 @@ async function handleSave({ dispatch, getState }, mode) {
         payload: merged,
       });
       return;
+    }
+
+    if (
+      editMode.active &&
+      persisted &&
+      afterSave.formRevision === startRevision
+    ) {
+      dispatch({
+        type: ACTION_TYPES.FORM_ATTACH_SAVED_INVOICE,
+        payload: getInvoiceData(
+          {
+            ...afterSave,
+            settings: {
+              ...afterSave.settings,
+              editMode: { active: true, data: persisted },
+            },
+          },
+          { mode, defaultCurrency }
+        ),
+      });
     }
 
     if (afterSave.formRevision === startRevision) {

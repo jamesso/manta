@@ -1,6 +1,8 @@
 import * as ACTION_TYPES from '../../constants/actions.jsx';
 import * as Actions from '../../actions/invoices';
 import InvoicesMW from '../InvoicesMW';
+import FormMW from '../FormMW';
+import FormReducer from '../../reducers/FormReducer';
 import { faker } from '@faker-js/faker';
 import i18n from '../../../i18n/i18n';
 
@@ -122,7 +124,7 @@ describe('Invoices Middleware', () => {
       const result = await middleware(
         Actions.saveInvoice({ status: 'draft', rows: [] })
       );
-      expect(result).toBe(true);
+      expect(result).toMatchObject({ status: 'draft', rows: [] });
       expect(
         window.manta.ipc.send.mock.calls.map(([event]) => event)
       ).not.toContain('preview-invoice');
@@ -698,6 +700,43 @@ describe('Invoices Middleware', () => {
       Actions.newInvoiceFromContact({ _id: 'other', fullname: 'Other' })
     );
     expect(dispatch).not.toHaveBeenCalled();
+  });
+
+  it('INVOICE_NEW_FROM_CONTACT starts a new form after confirming on an edit', async () => {
+    let form = {
+      invoiceID: 'INV-0001',
+      issuedAt: null,
+      formRevision: 0,
+      errors: {},
+      recipient: { newRecipient: false, select: { _id: 'c1' }, new: {} },
+      rows: [],
+      currency: { code: 'USD', fraction: 2 },
+      discount: {},
+      tax: {},
+      note: {},
+      dueDate: {},
+      settings: {
+        editMode: { active: true, data: { _id: 'existing', _rev: '1-x' } },
+        required_fields: {},
+      },
+      savedSettings: { currency: { code: 'USD', fraction: 2 }, tax: {}, required_fields: {} },
+    };
+    const chain = action => {
+      form = FormReducer(form, action);
+      return action;
+    };
+    let integrated;
+    const dispatch = action => integrated(action);
+    integrated = FormMW({ dispatch, getState: () => ({ form }) })(chain);
+    const invoicesMw = InvoicesMW({ dispatch, getState: () => ({ form }) })(
+      integrated
+    );
+    dialog.confirm.mockResolvedValueOnce(true);
+    await invoicesMw(
+      Actions.newInvoiceFromContact({ _id: 'other', fullname: 'Other' })
+    );
+    expect(form.settings.editMode.active).toBe(false);
+    expect(form.settings.editMode.data?._id).toBeUndefined();
   });
 
   it('let other actions pass through', () => {

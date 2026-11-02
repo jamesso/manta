@@ -79,9 +79,9 @@ function getEffectiveCurrency(form) {
     return form.currency;
   }
   return (
+    appConfig.get('invoice.currency') ??
     form.savedSettings?.currency ??
-    form.currency ??
-    appConfig.get('invoice.currency')
+    form.currency
   );
 }
 
@@ -282,9 +282,7 @@ function stripUndefined(obj) {
 }
 
 function getCalculatedTotalsErrors(form, defaultCurrency) {
-  const appConfig = window.manta.settings;
-  const currencyDefault =
-    defaultCurrency ?? appConfig.get('invoice.currency');
+  const currencyDefault = defaultCurrency ?? getEffectiveCurrency(form);
   const fields = pickInvoiceFields(form, currencyDefault);
   const totals = getInvoiceValue(fields);
   if (
@@ -453,9 +451,9 @@ export function getInvoiceData(
       grandTotal: getInvoiceValue(fields).grandTotal,
     });
     if (!settings.required_fields.dueDate) delete base.dueDate;
-    if (!settings.required_fields.discount) delete base.discount;
-    if (!settings.required_fields.tax) delete base.tax;
-    if (!settings.required_fields.note) delete base.note;
+    if (!('discount' in fields)) delete base.discount;
+    if (!('tax' in fields)) delete base.tax;
+    if (!('note' in fields)) delete base.note;
     return base;
   }
 

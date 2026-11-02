@@ -26,6 +26,19 @@ import {
 } from '../helpers/pouchDB';
 import { toast } from '@/components/ui/toast';
 
+function persistedInvoice(docs, payload) {
+  if (!Array.isArray(docs) || !docs.length) {
+    return payload;
+  }
+  if (payload?._id) {
+    const match = docs.find(doc => doc._id === payload._id);
+    if (match) {
+      return match;
+    }
+  }
+  return docs[docs.length - 1];
+}
+
 const InvoicesMW =
   ({ dispatch, getState }) =>
   next =>
@@ -33,6 +46,9 @@ const InvoicesMW =
     switch (action.type) {
       case ACTION_TYPES.INVOICE_NEW_FROM_CONTACT: {
         const apply = () => {
+          if (getState().form.settings.editMode.active) {
+            dispatch(FormActions.clearForm(null, true));
+          }
           next(UIActions.changeActiveTab('form'));
           dispatch(
             FormActions.updateRecipient({
@@ -115,7 +131,7 @@ const InvoicesMW =
               });
               ipc.send('preview-invoice', action.payload);
             }
-            return true;
+            return persistedInvoice(newDocs, action.payload);
           })
           .catch(err => {
             next({
@@ -303,7 +319,7 @@ const InvoicesMW =
                 message: i18n.t('messages:invoice:updated'),
               },
             });
-            return true;
+            return persistedInvoice(docs, action.payload);
           })
           .catch(err => {
             next({
