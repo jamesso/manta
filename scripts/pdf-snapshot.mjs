@@ -183,11 +183,11 @@ function containsMantaProfile(resolved) {
   return resolved.toLowerCase().includes(MANTA_PROFILE_MARK);
 }
 
-// Walk the source tree without following symlinks into other directories.
-// realpath still resolves each symlink. A link to the Manta profile fails
-// before any copy.
+// Follow symlink directories. Remember each real path so a cycle stops.
+// Any resolved path inside the Manta profile throws before the copy.
 function assertTreeHasNoMantaProfile(root) {
   const pending = [root];
+  const visited = new Set();
   while (pending.length > 0) {
     const current = pending.pop();
     let resolved;
@@ -199,26 +199,44 @@ function assertTreeHasNoMantaProfile(root) {
     if (containsMantaProfile(resolved)) {
       throw new Error(`Refusing Manta profile: ${resolved}`);
     }
+    if (visited.has(resolved)) continue;
+    visited.add(resolved);
     const info = fs.lstatSync(current);
-    if (!info.isDirectory()) continue;
-    for (const name of fs.readdirSync(current)) {
-      pending.push(path.join(current, name));
+    const symlinkDirectory =
+      info.isSymbolicLink() && fs.statSync(resolved).isDirectory();
+    if (!info.isDirectory() && !symlinkDirectory) continue;
+    for (const name of fs.readdirSync(resolved)) {
+      pending.push(path.join(resolved, name));
     }
   }
 }
 
+function resolvedSymlinkTarget(linkPath) {
+  try {
+    return fs.realpathSync(linkPath);
+  } catch {
+    throw new Error(`Refusing unreadable profile entry: ${linkPath}`);
+  }
+}
+
 // Node's C++ copy keeps symlinks even when dereference is set. Replace
-// anything that remains so the owned tree cannot write outside itself.
+// anything that remains. A link into the Manta profile throws instead of
+// copying that tree.
 function materializeOwnedSymlinks(root) {
   const pending = [root];
+  const visited = new Set();
   while (pending.length > 0) {
     const current = pending.pop();
     const info = fs.lstatSync(current);
     if (info.isSymbolicLink()) {
-      const target = fs.realpathSync(current);
+      const target = resolvedSymlinkTarget(current);
+      if (containsMantaProfile(target)) {
+        throw new Error(`Refusing Manta profile: ${target}`);
+      }
       const targetInfo = fs.statSync(target);
-      fs.unlinkSync(current);
       if (targetInfo.isDirectory()) {
+        assertTreeHasNoMantaProfile(target);
+        fs.unlinkSync(current);
         fs.cpSync(target, current, {
           recursive: true,
           dereference: true,
@@ -226,11 +244,18 @@ function materializeOwnedSymlinks(root) {
         });
         pending.push(current);
       } else {
+        fs.unlinkSync(current);
         fs.copyFileSync(target, current);
       }
       continue;
     }
     if (!info.isDirectory()) continue;
+    const resolved = resolvedSymlinkTarget(current);
+    if (containsMantaProfile(resolved)) {
+      throw new Error(`Refusing Manta profile: ${resolved}`);
+    }
+    if (visited.has(resolved)) continue;
+    visited.add(resolved);
     for (const name of fs.readdirSync(current)) {
       pending.push(path.join(current, name));
     }
