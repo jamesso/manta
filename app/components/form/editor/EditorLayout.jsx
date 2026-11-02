@@ -22,13 +22,34 @@ import LivePreview from './LivePreview';
 export default function EditorLayout() {
   const dispatch = useDispatch();
   const { t } = useTranslation();
-  const { settings, errors, savePending } = useSelector(state => state.form);
+  const form = useSelector(state => state.form);
+  const allDocs = useSelector(state => state.invoices);
+  const { settings, errors, savePending, docType, sourceEstimateId } = form;
+  const isEstimate = docType === 'estimate';
+  const editActive = settings.editMode.active;
+  let heading = t(isEstimate ? 'form:header:newEstimate' : 'form:header:new');
+  if (editActive) {
+    heading = t(isEstimate ? 'form:header:editEstimate' : 'form:header:edit');
+  }
+  const sourceEstimate =
+    !isEstimate && sourceEstimateId
+      ? allDocs.find(d => d._id === sourceEstimateId)
+      : null;
   return (
     <div className="@container flex h-full min-h-0 flex-col text-foreground">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b p-4">
-        <h1 className="text-xl font-semibold">
-          {t(settings.editMode.active ? 'form:header:edit' : 'form:header:new')}
-        </h1>
+        <div>
+          <h1 className="text-xl font-semibold">{heading}</h1>
+          {sourceEstimate ? (
+            <p className="text-sm text-muted-foreground">
+              {t('form:convertedFrom', {
+                number:
+                  sourceEstimate.invoiceID ||
+                  String(sourceEstimate._id).slice(0, 8),
+              })}
+            </p>
+          ) : null}
+        </div>
         <div className="flex flex-wrap gap-2">
           <CustomizeFieldsMenu />
           <Button

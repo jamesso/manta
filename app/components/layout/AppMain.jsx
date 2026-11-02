@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import Form from '../../containers/Form';
 import Dashboard from '../../containers/Dashboard';
 import Invoices from '../../containers/Invoices';
+import Estimates from '../../containers/Estimates';
 import Contacts from '../../containers/Contacts';
 import Items from '../../containers/Items';
 import Settings from '../../containers/Settings';
@@ -20,6 +21,7 @@ class AppMain extends Component {
         {activeTab === 'dashboard' && <Dashboard />}
         {activeTab === 'form' && <Form />}
         {activeTab === 'invoices' && <Invoices />}
+        {activeTab === 'estimates' && <Estimates />}
         {activeTab === 'contacts' && <Contacts />}
         {activeTab === 'items' && <Items />}
         {activeTab === 'settings' && <Settings />}

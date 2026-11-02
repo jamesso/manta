@@ -3,6 +3,7 @@
     "newInvoice": "New invoice",
     "search": "Search",
     "invoices": "Invoices",
+    "estimates": "Estimates",
     "clients": "Clients",
     "items": "Items",
     "dashboard": "Dashboard",
@@ -16,6 +17,8 @@
   "titles": {
     "newInvoice": "New invoice",
     "editInvoice": "Edit invoice",
+    "newEstimate": "New estimate",
+    "editEstimate": "Edit estimate",
     "dashboard": "Dashboard"
   },
   "update": {
@@ -30,7 +33,9 @@
     "empty": "No results found.",
     "goTo": "Go to",
     "actions": "Actions",
+    "newEstimate": "New estimate",
     "invoices": "Invoices",
+    "estimates": "Estimates",
     "clients": "Clients",
     "toggleTheme": "Toggle theme",
     "themeChanged": "Theme set to {{theme}}"

@@ -32,6 +32,8 @@
     "created": "Created",
     "due": "Due",
     "invoice": "Invoice",
+    "estimate": "Estimate",
+    "validUntil": "Valid until",
     "itemDescription": "Item Description",
     "notice": "Notice",
     "order": "No",

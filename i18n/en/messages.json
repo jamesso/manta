@@ -7,6 +7,10 @@
     "deleted": "Invoice deleted successfully",
     "draftSaved": "Draft saved"
   },
+  "estimate": {
+    "saved": "Estimate saved",
+    "draftSaved": "Estimate saved as draft"
+  },
   "contact": {
     "saved": "Client saved",
     "updated": "Client updated",

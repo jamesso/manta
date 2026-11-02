@@ -11,6 +11,7 @@ import {
   updateSavedFormSettings,
 } from '../../../actions/form';
 import { parseNumberInput } from '../../../helpers/form';
+import { getDefaultValidUntil } from '../../../helpers/estimate';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -49,11 +50,20 @@ export default function DetailsCard() {
     invoiceID,
     issuedAt,
     dueDate,
+    validUntil,
     currency,
     settings,
     savedSettings,
     errors,
+    docType,
   } = form;
+  const isEstimate = docType === 'estimate';
+  const estimateValidDays =
+    window.manta.settings.get('invoice.estimateValidDays') ?? 30;
+  const defaultValidUntil = getDefaultValidUntil(
+    issuedAt ?? Date.now(),
+    estimateValidDays
+  );
   const update = (field, value) => dispatch(updateFieldData(field, value));
   const currencyChange = (name, value) => update('currency', { [name]: value });
   return (
@@ -64,7 +74,11 @@ export default function DetailsCard() {
       <CardContent className="space-y-4">
         <Field>
           <FieldLabel htmlFor="invoice-number">
-            {t('form:fields:invoiceNumber:label')}
+            {t(
+              isEstimate
+                ? 'form:fields:estimateNumber:label'
+                : 'form:fields:invoiceNumber:label'
+            )}
           </FieldLabel>
           <Input
             id="invoice-number"
@@ -73,7 +87,11 @@ export default function DetailsCard() {
             onChange={e => update('invoiceID', e.target.value)}
           />
           <FieldDescription>
-            {t('form:fields:invoiceNumber:hint')}
+            {t(
+              isEstimate
+                ? 'form:fields:estimateNumber:hint'
+                : 'form:fields:invoiceNumber:hint'
+            )}
           </FieldDescription>
           {errors.invoiceID && <FieldError>{t(errors.invoiceID)}</FieldError>}
         </Field>
@@ -84,7 +102,19 @@ export default function DetailsCard() {
           onChange={date => date && update('issuedAt', date.getTime())}
           error={errors.issuedAt}
         />
-        {settings.required_fields.dueDate && (
+        {isEstimate ? (
+          <DatePickerField
+            id="valid-until"
+            label={t('form:fields:validUntil')}
+            value={new Date(validUntil ?? defaultValidUntil)}
+            onChange={date =>
+              date &&
+              update('validUntil', moment(date).startOf('day').valueOf())
+            }
+            error={errors.validUntil}
+          />
+        ) : null}
+        {!isEstimate && settings.required_fields.dueDate && (
           <div className="space-y-2">
             <FieldLabel>{t('form:fields:dueDate:name')}</FieldLabel>
             <ToggleGroup

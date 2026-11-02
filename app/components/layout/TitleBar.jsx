@@ -8,14 +8,22 @@ export default function TitleBar({ activeTab }) {
   const editMode = useSelector(
     s => s.form?.settings?.editMode?.active === true
   );
+  const formDocType = useSelector(s => s.form?.docType || 'invoice');
 
   let title = t('app:titles:newInvoice');
   if (activeTab === 'dashboard') {
     title = t('app:titles:dashboard');
   } else if (activeTab === 'form' && editMode) {
-    title = t('app:titles:editInvoice');
+    title =
+      formDocType === 'estimate'
+        ? t('app:titles:editEstimate')
+        : t('app:titles:editInvoice');
+  } else if (activeTab === 'form' && formDocType === 'estimate') {
+    title = t('app:titles:newEstimate');
   } else if (activeTab === 'invoices') {
     title = t('app:nav:invoices');
+  } else if (activeTab === 'estimates') {
+    title = t('app:nav:estimates');
   } else if (activeTab === 'contacts') {
     title = t('app:nav:clients');
   } else if (activeTab === 'items') {

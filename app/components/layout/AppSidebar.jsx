@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   Package,
   Plus,
+  ReceiptText,
   Search,
   Settings,
   Users,
@@ -44,6 +45,7 @@ export default function AppSidebar({ activeTab }) {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const profile = useSelector(s => s.settings.saved?.profile) || {};
+  const formDocType = useSelector(s => s.form?.docType || 'invoice');
   const now = useNow();
   const overdue = useSelector(state => getOverdueCount(state, now));
 
@@ -88,7 +90,7 @@ export default function AppSidebar({ activeTab }) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
-              isActive={activeTab === 'form'}
+              isActive={activeTab === 'form' && formDocType === 'invoice'}
               tooltip={t('app:nav:newInvoice')}
               onClick={() => dispatch(UIActions.newInvoice())}
             >
@@ -131,12 +133,17 @@ export default function AppSidebar({ activeTab }) {
               {
                 tab: 'invoices',
                 label: t('app:nav:invoices'),
-                icon: FileText,
+                icon: ReceiptText,
                 badge: overdue,
                 tooltipExtra:
                   overdue > 0
                     ? ` · ${t('invoices:nav:overdueBadge', { count: overdue })}`
                     : '',
+              },
+              {
+                tab: 'estimates',
+                label: t('app:nav:estimates'),
+                icon: FileText,
               },
               { tab: 'contacts', label: t('app:nav:clients'), icon: Users },
               { tab: 'items', label: t('app:nav:items'), icon: Package },
@@ -144,7 +151,12 @@ export default function AppSidebar({ activeTab }) {
             ].map(({ tab, label, icon: Icon, badge, tooltipExtra }) => (
               <SidebarMenuItem key={tab}>
                 <SidebarMenuButton
-                  isActive={activeTab === tab}
+                  isActive={
+                    activeTab === tab ||
+                    (tab === 'estimates' &&
+                      activeTab === 'form' &&
+                      formDocType === 'estimate')
+                  }
                   tooltip={`${label}${tooltipExtra || ''}`}
                   onClick={() => changeTab(tab)}
                 >

@@ -75,7 +75,8 @@
     "discount": "Discount",
     "tax": "Tax",
     "total": "Total",
-    "note": "Note"
+    "note": "Note",
+    "fromEstimate": "Created from estimate {{number}}"
   },
   "toast": {
     "deleted_one": "Invoice deleted",

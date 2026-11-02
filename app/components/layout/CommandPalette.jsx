@@ -15,7 +15,7 @@ import * as UIActions from '../../actions/ui';
 import * as SettingsActions from '../../actions/settings';
 import { filterCommands, searchRecords } from '../../helpers/commandSearch';
 import { nextTheme } from '../../helpers/theme';
-import { getInvoices } from '../../reducers/InvoicesReducer';
+import { getInvoices, getEstimates } from '../../reducers/InvoicesReducer';
 import { getContacts } from '../../reducers/ContactsReducer';
 import { getCurrentSettings } from '../../reducers/SettingsReducer';
 
@@ -27,6 +27,7 @@ export default function CommandPalette() {
   const dispatch = useDispatch();
   const open = useSelector(s => s.ui.commandPaletteOpen);
   const invoices = useSelector(getInvoices) || [];
+  const estimates = useSelector(getEstimates) || [];
   const contacts = useSelector(getContacts) || [];
   const currentTheme =
     useSelector(s => s.settings.saved?.general?.theme) ?? 'system';
@@ -64,6 +65,11 @@ export default function CommandPalette() {
         keywords: ['invoices'],
       },
       {
+        id: 'nav-estimates',
+        label: t('app:nav:estimates'),
+        keywords: ['quotes', 'estimates'],
+      },
+      {
         id: 'nav-contacts',
         label: t('app:nav:clients'),
         keywords: ['contacts', 'customers', 'clients'],
@@ -91,6 +97,11 @@ export default function CommandPalette() {
         shortcut: `${modKey}N`,
       },
       {
+        id: 'action-new-estimate',
+        label: t('app:palette:newEstimate'),
+        keywords: ['quote', 'new', 'estimate'],
+      },
+      {
         id: 'action-theme',
         label: `${t('app:palette:toggleTheme')} (${t(`app:theme:${currentTheme}`)})`,
         keywords: ['theme', 'dark', 'light'],
@@ -114,6 +125,7 @@ export default function CommandPalette() {
   const filteredNav = filterCommands(navCommands, query);
   const filteredActions = filterCommands(actionCommands, query);
   const records = searchRecords({ query, invoices, contacts });
+  const estimateRecords = searchRecords({ query, invoices: estimates });
 
   const close = () => dispatch(UIActions.setCommandPalette(false));
 
@@ -155,6 +167,10 @@ export default function CommandPalette() {
                       run(() =>
                         dispatch(UIActions.changeActiveTab('invoices'))
                       );
+                    else if (cmd.id === 'nav-estimates')
+                      run(() =>
+                        dispatch(UIActions.changeActiveTab('estimates'))
+                      );
                     else if (cmd.id === 'nav-contacts')
                       run(() =>
                         dispatch(UIActions.changeActiveTab('contacts'))
@@ -181,6 +197,8 @@ export default function CommandPalette() {
                   onSelect={() => {
                     if (cmd.id === 'action-new-invoice') {
                       run(() => dispatch(UIActions.newInvoice()));
+                    } else if (cmd.id === 'action-new-estimate') {
+                      run(() => dispatch(UIActions.newEstimate()));
                     } else if (cmd.id === 'action-theme') {
                       run(() => {
                         const next = nextTheme(currentTheme);
@@ -205,6 +223,19 @@ export default function CommandPalette() {
                   }}
                 >
                   {cmd.label}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          )}
+          {estimateRecords.invoices.length > 0 && (
+            <CommandGroup heading={t('app:palette:estimates')}>
+              {estimateRecords.invoices.map(e => (
+                <CommandItem
+                  key={e._id}
+                  value={`estimate-${e._id}`}
+                  onSelect={() => run(() => ipc.send('preview-invoice', e))}
+                >
+                  {invoiceLabel(e)}
                 </CommandItem>
               ))}
             </CommandGroup>

@@ -57,7 +57,12 @@ const UIMiddleware =
 
       case ACTION_TYPES.UI_NEW_INVOICE: {
         const editMode = getState().form?.settings?.editMode?.active;
+        const apply = () => {
+          dispatch(FormActions.setFormDocType('invoice'));
+          dispatch(UIActions.changeActiveTab('form'));
+        };
         if (!editMode) {
+          dispatch(FormActions.setFormDocType('invoice'));
           dispatch(UIActions.changeActiveTab('form'));
           return undefined;
         }
@@ -71,7 +76,32 @@ const UIMiddleware =
           .then(ok => {
             if (!ok) return;
             dispatch(FormActions.clearForm(null, true));
-            dispatch(UIActions.changeActiveTab('form'));
+            apply();
+          });
+      }
+
+      case ACTION_TYPES.UI_NEW_ESTIMATE: {
+        const editMode = getState().form?.settings?.editMode?.active;
+        const apply = () => {
+          dispatch(FormActions.setFormDocType('estimate'));
+          dispatch(UIActions.changeActiveTab('form'));
+        };
+        if (!editMode) {
+          dispatch(FormActions.clearForm(null, true));
+          apply();
+          return undefined;
+        }
+        return dialog
+          .confirm({
+            title: i18n.t('app:newInvoice:confirmTitle'),
+            message: i18n.t('app:newInvoice:confirmMessage'),
+            confirmLabel: i18n.t('app:newInvoice:confirm'),
+            cancelLabel: i18n.t('app:newInvoice:cancel'),
+          })
+          .then(ok => {
+            if (!ok) return;
+            dispatch(FormActions.clearForm(null, true));
+            apply();
           });
       }
 

@@ -56,7 +56,9 @@ export default function TotalsFooter() {
       ? { ...invoice, payments: editData.payments }
       : null;
   const extraLines =
-    paymentInvoice && getAmountPaid(paymentInvoice) > 0
+    form.docType !== 'estimate' &&
+    paymentInvoice &&
+    getAmountPaid(paymentInvoice) > 0
       ? [
           ['amountPaid', getAmountPaid(paymentInvoice)],
           ['balanceDue', getBalanceDue(paymentInvoice)],

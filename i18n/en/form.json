@@ -2,6 +2,8 @@
   "header": {
     "new": "Create A New Invoice",
     "edit": "Edit Invoice",
+    "newEstimate": "New estimate",
+    "editEstimate": "Edit estimate",
     "btns": {
       "clear": "Clear",
       "update": "Update",
@@ -98,7 +100,12 @@
     "invoiceNumber": {
       "label": "Invoice number",
       "hint": "Next number from Settings"
-    }
+    },
+    "estimateNumber": {
+      "label": "Estimate number",
+      "hint": "Next number from Settings"
+    },
+    "validUntil": "Valid until"
   },
   "cards": {
     "client": "Client",
@@ -136,8 +143,10 @@
     "taxRateRequired": "Choose a tax rate for this line.",
     "discountTooLarge": "Discount is too large for this invoice.",
     "exemptionReasonRequired": "Enter an exemption reason.",
-    "conflictingExemptionReasons": "Tax lines in the same group need the same exemption reason."
+    "conflictingExemptionReasons": "Tax lines in the same group need the same exemption reason.",
+    "validUntilBeforeIssue": "The valid-until date must be on or after the issue date"
   },
+  "convertedFrom": "Created from estimate {{number}}",
   "numbering": {
     "title": "Invoice numbering",
     "prefix": "Prefix",

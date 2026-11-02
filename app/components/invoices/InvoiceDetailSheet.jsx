@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -45,6 +45,7 @@ export default function InvoiceDetailSheet({
   now,
 }) {
   const dispatch = useDispatch();
+  const allDocs = useSelector(state => state.invoices) || [];
   const ipc = window.manta.ipc;
   const [paymentOpen, setPaymentOpen] = useState(false);
 
@@ -82,6 +83,9 @@ export default function InvoiceDetailSheet({
   const balanceDue = getBalanceDue(invoice);
   const showPayments = amountPaid > 0;
   const canPay = canRecordPayment(invoice);
+  const sourceEstimate = invoice.sourceEstimateId
+    ? allDocs.find(d => d._id === invoice.sourceEstimateId)
+    : null;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -99,6 +103,14 @@ export default function InvoiceDetailSheet({
           ) : null}
           <SheetDescription className="sr-only">{number}</SheetDescription>
         </SheetHeader>
+
+        {sourceEstimate ? (
+          <p className="px-4 text-sm text-muted-foreground">
+            {t('invoices:sheet:fromEstimate', {
+              number: getInvoiceNumber(sourceEstimate),
+            })}
+          </p>
+        ) : null}
 
         <dl className="grid gap-3 px-4 text-sm">
           <div>

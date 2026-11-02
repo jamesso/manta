@@ -1,11 +1,15 @@
 import {
   Ban,
+  CalendarX,
   ChartPie,
   CircleAlert,
   CircleCheck,
+  CircleX,
   Clock,
   PencilLine,
+  Send,
   Undo2,
+  ArrowRightLeft,
 } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
@@ -18,6 +22,11 @@ const STATUS_STYLES = {
   paid: 'bg-status-paid-bg text-status-paid',
   refunded: 'bg-status-refunded-bg text-status-refunded',
   cancelled: 'bg-status-cancelled-bg text-status-cancelled',
+  sent: 'bg-status-pending-bg text-status-pending',
+  accepted: 'bg-status-paid-bg text-status-paid',
+  declined: 'bg-status-cancelled-bg text-status-cancelled',
+  expired: 'bg-status-overdue-bg text-status-overdue',
+  converted: 'bg-status-refunded-bg text-status-refunded',
 };
 
 const STATUS_ICONS = {
@@ -28,18 +37,34 @@ const STATUS_ICONS = {
   paid: CircleCheck,
   refunded: Undo2,
   cancelled: Ban,
+  sent: Send,
+  accepted: CircleCheck,
+  declined: CircleX,
+  expired: CalendarX,
+  converted: ArrowRightLeft,
 };
+
+const ESTIMATE_STATUSES = new Set([
+  'sent',
+  'accepted',
+  'declined',
+  'expired',
+  'converted',
+]);
 
 export default function StatusBadge({ status, t }) {
   const display = status;
   const Icon = STATUS_ICONS[display] || Clock;
+  const labelKey = ESTIMATE_STATUSES.has(display)
+    ? `estimates:status:${display}`
+    : `invoices:status:${display}`;
   return (
     <Badge
       variant="outline"
       className={STATUS_STYLES[display] || STATUS_STYLES.pending}
     >
       <Icon aria-hidden className="size-3" />
-      {t(`invoices:status:${display}`)}
+      {t(labelKey)}
     </Badge>
   );
 }

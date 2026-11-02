@@ -1,0 +1,70 @@
+{
+  "header": {
+    "name": "Estimates",
+    "count_one": "{{count}} estimate",
+    "count_other": "{{count}} estimates"
+  },
+  "newEstimate": "New estimate",
+  "search": {
+    "label": "Search estimates",
+    "placeholder": "Search number, client or amount"
+  },
+  "tabs": {
+    "all": "All",
+    "draft": "Draft",
+    "sent": "Sent",
+    "accepted": "Accepted",
+    "declined": "Declined",
+    "expired": "Expired",
+    "converted": "Converted"
+  },
+  "status": {
+    "sent": "Sent",
+    "accepted": "Accepted",
+    "declined": "Declined",
+    "expired": "Expired",
+    "converted": "Converted"
+  },
+  "columns": {
+    "number": "Number",
+    "client": "Client",
+    "issued": "Issued",
+    "validUntil": "Valid until",
+    "amount": "Amount",
+    "status": "Status",
+    "actions": "Actions"
+  },
+  "valid": {
+    "today": "Valid until today",
+    "inDays_one": "Valid {{count}} more day",
+    "inDays_other": "Valid {{count}} more days",
+    "expiredDays_one": "Expired {{count}} day ago",
+    "expiredDays_other": "Expired {{count}} days ago"
+  },
+  "actions": {
+    "open": "Estimate actions",
+    "edit": "Edit",
+    "duplicate": "Duplicate",
+    "markSent": "Mark as sent",
+    "markAccepted": "Mark as accepted",
+    "markDeclined": "Mark as declined",
+    "convert": "Convert to invoice",
+    "openInvoice": "Open invoice",
+    "preview": "Preview / Export PDF",
+    "delete": "Delete"
+  },
+  "empty": {
+    "title": "No estimates yet",
+    "description": "Create an estimate. Convert it into an invoice when the client accepts.",
+    "noResults": "No matching estimates",
+    "clearFilters": "Clear filters"
+  },
+  "toast": {
+    "converted": "Estimate {{number}} converted",
+    "alreadyConverted": "This estimate is already converted into an invoice",
+    "notFound": "This estimate no longer exists",
+    "linkFailed": "The invoice is saved, but the estimate could not be marked as converted",
+    "deleted_one": "Estimate deleted",
+    "deleted_other": "{{count}} estimates deleted"
+  }
+}

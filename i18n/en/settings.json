@@ -18,6 +18,9 @@
       "title": "Invoice defaults",
       "description": "Defaults for new invoices, tax, and currency."
     },
+    "estimates": {
+      "title": "Estimates"
+    },
     "appearance": {
       "title": "Appearance",
       "description": "Choose light, dark, or match the system."
@@ -54,7 +57,8 @@
     "themeInvalid": "Choose System, Light, or Dark",
     "languageInvalid": "Choose a supported language",
     "soundInvalid": "Choose a supported sound",
-    "templateInvalid": "Choose a supported invoice template"
+    "templateInvalid": "Choose a supported invoice template",
+    "validDays": "Enter a whole number from 1 to 365"
   },
   "backup": {
     "export": "Export backup…",
@@ -104,6 +108,7 @@
     "taxId": "Tax ID",
     "vatId": "VAT ID",
     "template": "Template",
+    "estimateValidDays": "Valid for (days)",
     "dateFormat": "Date Format",
     "pdfExportDir": "PDF Export Directory",
     "requiredFields": "Required Fields",

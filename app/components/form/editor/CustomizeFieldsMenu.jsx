@@ -20,7 +20,10 @@ import {
 export default function CustomizeFieldsMenu() {
   const dispatch = useDispatch();
   const { t } = useTranslation();
-  const { settings, savedSettings } = useSelector(state => state.form);
+  const { settings, savedSettings, docType } = useSelector(state => state.form);
+  const fieldNames = ['dueDate', 'currency', 'discount', 'tax', 'note'].filter(
+    name => !(docType === 'estimate' && name === 'dueDate')
+  );
   return (
     <DropdownMenu
       open={settings.open}
@@ -33,7 +36,7 @@ export default function CustomizeFieldsMenu() {
         {t('form:customize:name')}
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        {['dueDate', 'currency', 'discount', 'tax', 'note'].map(name => (
+        {fieldNames.map(name => (
           <DropdownMenuCheckboxItem
             key={name}
             checked={Boolean(settings.required_fields[name])}

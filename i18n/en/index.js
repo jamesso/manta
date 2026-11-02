@@ -6,6 +6,7 @@ import dashboard from './dashboard.json';
 import dialog from './dialog.json';
 import form from './form.json';
 import invoices from './invoices.json';
+import estimates from './estimates.json';
 import messages from './messages.json';
 import preview from './preview.json';
 import settings from './settings.json';
@@ -19,6 +20,7 @@ export default {
   dialog,
   form,
   invoices,
+  estimates,
   messages,
   preview,
   settings,
