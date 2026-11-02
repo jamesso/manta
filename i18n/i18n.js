@@ -34,6 +34,9 @@ i18n.use(initReactI18next).init({
     'zh-CN': zhCN,
   },
   interpolation: {
+    // React escapes text. Leaving the i18next default on encodes "/" in
+    // interpolated dates as &#x2F;, which then prints literally.
+    escapeValue: false,
     function(value, format, lng) {
       if (value instanceof Date) return moment(value).format(format);
       return value;
