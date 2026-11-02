@@ -44,10 +44,15 @@ i18n.use(initReactI18next).init({
   },
 });
 
-i18n.on('languageChanged', currentLang => {
-  moment.locale(currentLang);
-});
+function applyDocumentLanguage(lang) {
+  moment.locale(lang);
+  if (typeof document === 'undefined') return;
+  document.documentElement.lang = lang;
+  document.documentElement.dir = i18n.dir(lang);
+}
 
-moment.locale(defaultLanguage);
+i18n.on('languageChanged', applyDocumentLanguage);
+
+applyDocumentLanguage(defaultLanguage);
 
 export default i18n;
