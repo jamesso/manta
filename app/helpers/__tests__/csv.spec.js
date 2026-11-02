@@ -59,7 +59,7 @@ describe('csv', () => {
     expect(csv).toContain('partial');
     expect(csv).toContain('40.00,60.00');
     const draftLine = csv.split('\r\n').find(l => l.includes(',B,'));
-    expect(draftLine).toMatch(/0\.00,$/);
+    expect(draftLine).toMatch(/0\.00,,invoice,$/);
   });
 
   it('excludes estimates from row count', () => {

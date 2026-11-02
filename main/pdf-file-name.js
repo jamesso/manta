@@ -64,7 +64,11 @@ export function pdfFileName(docId, docType, exportDir) {
     throw new Error('invalid-doc-id');
   }
   const fileName =
-    docType === 'estimate' ? `estimate-${base}.pdf` : `${base}.pdf`;
+    docType === 'estimate'
+      ? `estimate-${base}.pdf`
+      : docType === 'creditNote'
+        ? `credit-note-${base}.pdf`
+        : `${base}.pdf`;
   if (exportDir) {
     const resolved = path.resolve(exportDir, fileName);
     const root = path.resolve(exportDir);

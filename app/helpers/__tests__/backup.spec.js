@@ -222,13 +222,25 @@ describe('backup helpers', () => {
     const parsed = parseBackup(
       JSON.stringify({
         app: 'Manta',
-        version: 5,
+        version: 6,
         invoices: [],
         contacts: [],
       })
     );
     expect(parsed.ok).toBe(false);
     expect(parsed.error).toBe('newer-version');
+  });
+
+  it('accepts version 5 backups with credit note numbering', () => {
+    const parsed = parseBackup(
+      JSON.stringify({
+        app: 'Manta',
+        version: 5,
+        invoices: [],
+        contacts: [],
+      })
+    );
+    expect(parsed.ok).toBe(true);
   });
 
   it('accepts version 4 backups with estimates', () => {

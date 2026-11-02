@@ -19,13 +19,14 @@ import InvoiceDetailSheet from '../components/invoices/InvoiceDetailSheet';
 import { useNow } from '../components/invoices/useNow';
 import { matchesClientQuery, summarizeClients } from '../helpers/clients';
 import { getContacts } from '../reducers/ContactsReducer';
-import { getInvoices } from '../reducers/InvoicesReducer';
+import { getInvoices, getAllSalesDocs } from '../reducers/InvoicesReducer';
 import { getDateFormat } from '../reducers/SettingsReducer';
 
 export default function Contacts() {
   const { t } = useTranslation();
   const contacts = useSelector(getContacts);
   const invoices = useSelector(getInvoices);
+  const allSalesDocs = useSelector(getAllSalesDocs);
   const dateFormat = useSelector(getDateFormat);
   const now = useNow();
 
@@ -37,8 +38,8 @@ export default function Contacts() {
   const [invoiceDetailId, setInvoiceDetailId] = useState(null);
 
   const summaryMap = useMemo(
-    () => summarizeClients(contacts, invoices, now),
-    [contacts, invoices, now]
+    () => summarizeClients(contacts, allSalesDocs, now),
+    [contacts, allSalesDocs, now]
   );
 
   const tableRows = useMemo(() => {

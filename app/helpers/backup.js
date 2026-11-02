@@ -1,7 +1,7 @@
 import { getSettingsErrors, getRawNumberingErrors } from './settings';
 
 export const BACKUP_APP = 'Manta';
-export const BACKUP_VERSION = 4;
+export const BACKUP_VERSION = 5;
 
 const DANGEROUS_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
 
@@ -281,6 +281,26 @@ function mergeInvoiceNumbering(currentInvoice, incomingInvoice) {
     merged.estimateNumbering = { ...curEst, ...incEst, next: estNext };
   } else if (isPlainObject(incEst)) {
     merged.estimateNumbering = { ...incEst };
+  }
+  const curCn = currentInvoice?.creditNoteNumbering;
+  const incCn = incomingInvoice?.creditNoteNumbering;
+  if (incCn != null) {
+    const rawCnErrors = getRawNumberingErrors(incCn);
+    if (Object.keys(rawCnErrors).length) {
+      return { error: 'creditNoteNumbering', merged: null };
+    }
+  }
+  if (isPlainObject(curCn) && isPlainObject(incCn)) {
+    const cnNext =
+      Number.isInteger(curCn.next) &&
+      curCn.next >= 1 &&
+      Number.isInteger(incCn.next) &&
+      incCn.next >= 1
+        ? Math.max(curCn.next, incCn.next)
+        : incCn.next;
+    merged.creditNoteNumbering = { ...curCn, ...incCn, next: cnNext };
+  } else if (isPlainObject(incCn)) {
+    merged.creditNoteNumbering = { ...incCn };
   }
   return { merged };
 }

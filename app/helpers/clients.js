@@ -1,4 +1,5 @@
 import { getBalanceDue, getDisplayStatus, onlyInvoices } from './invoice';
+import { groupCreditNotesByInvoice } from './creditNotes';
 
 export const EMAIL_REGEX =
   /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
@@ -38,8 +39,9 @@ export function buildContact(data, existing, now) {
   };
 }
 
-export function summarizeClients(contacts, invoices, now) {
-  invoices = onlyInvoices(invoices);
+export function summarizeClients(contacts, allSalesDocs, now) {
+  const creditByInvoice = groupCreditNotesByInvoice(allSalesDocs);
+  const invoices = onlyInvoices(allSalesDocs);
   const contactIds = new Set(contacts.map(c => c._id));
   const map = new Map();
   for (const contact of contacts) {
@@ -53,9 +55,10 @@ export function summarizeClients(contacts, invoices, now) {
     const entry = map.get(recipientId);
     entry.invoiceCount += 1;
     entry.invoices.push(invoice);
-    const status = getDisplayStatus(invoice, now);
+    const linked = creditByInvoice.get(invoice._id) ?? [];
+    const status = getDisplayStatus(invoice, now, linked);
     if (status === 'pending' || status === 'partial' || status === 'overdue') {
-      const due = getBalanceDue(invoice);
+      const due = getBalanceDue(invoice, linked);
       const code = invoice.currency?.code ?? 'USD';
       entry.outstanding[code] = (entry.outstanding[code] ?? 0) + due;
     }

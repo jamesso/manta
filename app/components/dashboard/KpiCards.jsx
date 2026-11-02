@@ -74,6 +74,15 @@ export default function KpiCards({ stats, currencyCode, hasInvoices }) {
                 {hasInvoices && card.sub ? (
                   <p className="text-sm text-muted-foreground">{card.sub}</p>
                 ) : null}
+                {card.key === 'paid' &&
+                hasInvoices &&
+                bucket?.creditedThisMonth > 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    {t('dashboard:kpi:creditedThisMonth', {
+                      amount: formatMoney(-bucket.creditedThisMonth, currency),
+                    })}
+                  </p>
+                ) : null}
               </>
             )}
           </CardContent>

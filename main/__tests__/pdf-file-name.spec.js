@@ -17,6 +17,12 @@ describe('pdfFileName', () => {
     );
   });
 
+  it('prefixes credit notes', () => {
+    expect(pdfFileName('abc-123', 'creditNote', dir)).toBe(
+      'credit-note-abc-123.pdf'
+    );
+  });
+
   it('strips path segments from id', () => {
     expect(pdfFileName('../x', 'invoice', dir)).toBe('x.pdf');
   });

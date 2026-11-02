@@ -5,6 +5,7 @@
     "outstanding": "Outstanding",
     "overdue": "Overdue",
     "paidThisMonth": "Paid this month",
+    "creditedThisMonth": "Credit notes: −{{amount}}",
     "drafts": "Drafts",
     "invoiceCount": "{{count}} invoices"
   },

@@ -1,5 +1,6 @@
 import { formatNumber } from '../../helpers/formatNumber';
 import { getPaymentEvents } from './payments';
+import { groupCreditNotesByInvoice, onlyCreditNotes } from './creditNotes';
 import {
   formatInvoiceAmount,
   getBalanceDue,
@@ -68,13 +69,43 @@ function invoiceSortTime(inv) {
   return getIssuedAt(inv) ?? inv.created_at ?? 0;
 }
 
-function getDashboardStats(invoices, now, fallbackCurrency) {
-  invoices = onlyInvoices(invoices);
+function getDashboardStats(allSalesDocs, now, fallbackCurrency) {
+  const creditByInvoice = groupCreditNotesByInvoice(allSalesDocs);
+  const invoices = onlyInvoices(allSalesDocs);
+  const creditNotes = onlyCreditNotes(allSalesDocs);
   const byCurrency = {};
   let draft = 0;
   let overdue = 0;
   const monthStart = startOfLocalMonth(now);
   const monthEnd = startOfNextLocalMonth(now);
+
+  for (const cn of creditNotes) {
+    if (cn.status !== 'issued') {
+      continue;
+    }
+    const issued = getIssuedAt(cn);
+    if (issued == null || issued < monthStart || issued >= monthEnd) {
+      continue;
+    }
+    const code = currencyOf(cn, fallbackCurrency);
+    if (!byCurrency[code]) {
+      byCurrency[code] = {
+        outstanding: 0,
+        overdue: 0,
+        paidThisMonth: 0,
+        creditedThisMonth: 0,
+        creditNoteCount: 0,
+        draftCount: 0,
+        overdueCount: 0,
+        outstandingCount: 0,
+        currency: currencyObjectOf(cn, fallbackCurrency),
+        _newest: 0,
+      };
+    }
+    const bucket = byCurrency[code];
+    bucket.creditedThisMonth += cn.grandTotal ?? 0;
+    bucket.creditNoteCount += 1;
+  }
 
   for (const inv of invoices) {
     const code = currencyOf(inv, fallbackCurrency);
@@ -83,6 +114,8 @@ function getDashboardStats(invoices, now, fallbackCurrency) {
         outstanding: 0,
         overdue: 0,
         paidThisMonth: 0,
+        creditedThisMonth: 0,
+        creditNoteCount: 0,
         draftCount: 0,
         overdueCount: 0,
         outstandingCount: 0,
@@ -97,9 +130,10 @@ function getDashboardStats(invoices, now, fallbackCurrency) {
       bucket.currency = currencyObjectOf(inv, fallbackCurrency);
     }
 
-    const display = getDisplayStatus(inv, now);
+    const linked = creditByInvoice.get(inv._id) ?? [];
+    const display = getDisplayStatus(inv, now, linked);
     const stored = inv.status ?? 'pending';
-    const amount = amountOf(inv);
+    const balance = getBalanceDue(inv, linked);
 
     if (stored === 'draft') {
       bucket.draftCount += 1;
@@ -110,17 +144,6 @@ function getDashboardStats(invoices, now, fallbackCurrency) {
       continue;
     }
 
-    if (display === 'overdue') {
-      bucket.overdue += getBalanceDue(inv);
-      bucket.overdueCount += 1;
-      bucket.outstanding += getBalanceDue(inv);
-      bucket.outstandingCount += 1;
-      overdue += 1;
-    } else if (display === 'pending' || display === 'partial') {
-      bucket.outstanding += getBalanceDue(inv);
-      bucket.outstandingCount += 1;
-    }
-
     for (const event of getPaymentEvents(inv)) {
       if (event.date == null) {
         continue;
@@ -128,6 +151,21 @@ function getDashboardStats(invoices, now, fallbackCurrency) {
       if (event.date >= monthStart && event.date < monthEnd) {
         bucket.paidThisMonth += event.amount;
       }
+    }
+
+    if (balance <= 0) {
+      continue;
+    }
+
+    if (display === 'overdue') {
+      bucket.overdue += balance;
+      bucket.overdueCount += 1;
+      bucket.outstanding += balance;
+      bucket.outstandingCount += 1;
+      overdue += 1;
+    } else if (display === 'pending' || display === 'partial') {
+      bucket.outstanding += balance;
+      bucket.outstandingCount += 1;
     }
   }
 
@@ -211,8 +249,9 @@ function getMonthlyPaid(invoices, now, months = 6, fallbackCurrency) {
   return result;
 }
 
-function getNeedsAttention(invoices, now, days = 7) {
-  invoices = onlyInvoices(invoices);
+function getNeedsAttention(allSalesDocs, now, days = 7) {
+  const creditByInvoice = groupCreditNotesByInvoice(allSalesDocs);
+  const invoices = onlyInvoices(allSalesDocs);
   const startToday = startOfLocalDay(now);
   const endExclusive = addLocalDays(startToday, days + 1);
 
@@ -220,7 +259,8 @@ function getNeedsAttention(invoices, now, days = 7) {
   const upcoming = [];
 
   for (const inv of invoices) {
-    const display = getDisplayStatus(inv, now);
+    const linked = creditByInvoice.get(inv._id) ?? [];
+    const display = getDisplayStatus(inv, now, linked);
     const due = getDueDate(inv);
     if (due === null) {
       continue;

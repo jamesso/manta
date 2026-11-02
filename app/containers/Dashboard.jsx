@@ -29,7 +29,7 @@ import {
 import { getChecklistState } from '../helpers/onboarding';
 import { getContacts } from '../reducers/ContactsReducer';
 import { isBootstrapReady } from '../reducers/BootstrapReducer';
-import { getInvoices } from '../reducers/InvoicesReducer';
+import { getInvoices, getAllSalesDocs } from '../reducers/InvoicesReducer';
 import { getCurrentSettings, getDateFormat } from '../reducers/SettingsReducer';
 import rawLogo from '../../static/imgs/default_logo.svg?raw';
 
@@ -40,6 +40,7 @@ export default function Dashboard() {
   const now = useNow();
   const ready = useSelector(isBootstrapReady);
   const invoices = useSelector(getInvoices);
+  const allSalesDocs = useSelector(getAllSalesDocs);
   const contacts = useSelector(getContacts);
   const settings = useSelector(getCurrentSettings);
   const dateFormat = useSelector(getDateFormat);
@@ -58,8 +59,8 @@ export default function Dashboard() {
   );
 
   const stats = useMemo(
-    () => getDashboardStats(invoices, now, fallbackCurrency),
-    [invoices, now, fallbackCurrency]
+    () => getDashboardStats(allSalesDocs, now, fallbackCurrency),
+    [allSalesDocs, now, fallbackCurrency]
   );
 
   const monthly = useMemo(
@@ -68,8 +69,8 @@ export default function Dashboard() {
   );
 
   const needs = useMemo(
-    () => getNeedsAttention(invoices, now, 7),
-    [invoices, now]
+    () => getNeedsAttention(allSalesDocs, now, 7),
+    [allSalesDocs, now]
   );
 
   const recent = useMemo(() => getRecentInvoices(invoices, 5), [invoices]);
