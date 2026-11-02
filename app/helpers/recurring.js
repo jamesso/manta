@@ -26,6 +26,7 @@ export const TEMPLATE_OMIT = [
   'sentAt',
   'remindedAt',
   'recurringTombstone',
+  'seller',
 ];
 
 function omitKeys(obj, keys) {
@@ -124,6 +125,7 @@ export function buildInvoiceFromProfile(
     dueDate,
   };
   delete draft.invoiceID;
+  delete draft.seller;
   const totals = getInvoiceTotals(draft);
   return {
     ...draft,

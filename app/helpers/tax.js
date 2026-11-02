@@ -193,6 +193,34 @@ export function getSellerTaxIds(profile, invoiceSettings) {
   return { taxId: '', vatId };
 }
 
+export function buildSellerSnapshot(profile, invoiceSettings) {
+  const ids = getSellerTaxIds(profile, invoiceSettings);
+  const postal = profile?.postalAddress ?? {};
+  const bank = profile?.bank ?? {};
+  return {
+    version: 1,
+    ...ids,
+    legalName: String(profile?.legalName ?? '').trim(),
+    fullname: String(profile?.fullname ?? '').trim(),
+    company: String(profile?.company ?? '').trim(),
+    email: String(profile?.email ?? '').trim(),
+    phone: String(profile?.phone ?? '').trim(),
+    postalAddress: {
+      street: String(postal.street ?? '').trim(),
+      additional: String(postal.additional ?? '').trim(),
+      postcode: String(postal.postcode ?? '').trim(),
+      city: String(postal.city ?? '').trim(),
+      region: String(postal.region ?? '').trim(),
+      countryCode: String(postal.countryCode ?? '').trim(),
+    },
+    bank: {
+      accountName: String(bank.accountName ?? '').trim(),
+      iban: String(bank.iban ?? '').trim(),
+      bic: String(bank.bic ?? '').trim(),
+    },
+  };
+}
+
 export function compareTaxGroups(a, b) {
   const catA = a.category ?? 'S';
   const catB = b.category ?? 'S';

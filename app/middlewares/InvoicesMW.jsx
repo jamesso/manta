@@ -38,6 +38,7 @@ import {
   resolveInvoiceNumberingForAllocation,
   runInvoiceNumberingWrite,
 } from '../helpers/invoiceNumberingWrites';
+import { buildSellerSnapshot } from '../helpers/tax';
 import { buildRecurringTombstone } from '../helpers/recurring';
 import { runInvoiceMutationQueued } from '../helpers/invoiceMutations';
 import {
@@ -1032,9 +1033,24 @@ const InvoicesMW =
               if (!statusResult.ok) {
                 return statusResult;
               }
+              let docOut = statusResult.doc;
+              if (
+                isInvoice(doc) &&
+                !isCreditNote(doc) &&
+                getStoredStatus(doc) === 'draft' &&
+                status !== 'draft'
+              ) {
+                docOut = {
+                  ...docOut,
+                  seller: buildSellerSnapshot(
+                    appConfig.get('profile'),
+                    appConfig.get('invoice')
+                  ),
+                };
+              }
               return {
                 ok: true,
-                doc: statusResult.doc,
+                doc: docOut,
                 stillPaid: statusResult.stillPaid,
                 numbering: numberingAfterAssign,
               };

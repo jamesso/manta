@@ -48,7 +48,11 @@ const sampleInvoice = {
 
 describe('buildTemplateFromInvoice', () => {
   it('drops omit keys and clones rows', () => {
-    const t = buildTemplateFromInvoice(sampleInvoice, 0);
+    const inv = {
+      ...sampleInvoice,
+      seller: { version: 1, taxId: 'T', vatId: 'V' },
+    };
+    const t = buildTemplateFromInvoice(inv, 0);
     for (const key of TEMPLATE_OMIT) {
       expect(t).not.toHaveProperty(key);
     }
@@ -103,6 +107,18 @@ describe('buildInvoiceFromProfile', () => {
     expect(inv.created_at).toBe(now);
     expect(inv.rows[0].id).toBe('row-id');
     expect(inv.grandTotal).toBe(100);
+  });
+
+  it('does not copy seller onto recurring draft', () => {
+    const p = {
+      ...profile,
+      template: {
+        ...profile.template,
+        seller: { version: 1, taxId: 'OLD' },
+      },
+    };
+    const inv = buildInvoiceFromProfile(p, '2026-02-01', 1, () => 'x');
+    expect(inv.seller).toBeUndefined();
   });
 
   it('materializes offset due date', () => {

@@ -115,10 +115,12 @@ describe('formToPreviewInvoice', () => {
       ...context,
       profile: { taxId: 'NEW-ID', vatId: 'NEW-VAT' },
     });
-    expect(result.invoice.seller).toEqual({
-      taxId: 'SAVED',
-      vatId: 'SAVED-VAT',
-    });
+    expect(result.invoice.seller).toEqual(
+      expect.objectContaining({
+        taxId: 'SAVED',
+        vatId: 'SAVED-VAT',
+      })
+    );
   });
 
   it('uses profile seller ids for draft edit', () => {
@@ -131,10 +133,12 @@ describe('formToPreviewInvoice', () => {
       ...context,
       profile: { taxId: 'DRAFT-TAX', vatId: 'DRAFT-VAT' },
     });
-    expect(result.invoice.seller).toEqual({
-      taxId: 'DRAFT-TAX',
-      vatId: 'DRAFT-VAT',
-    });
+    expect(result.invoice.seller).toEqual(
+      expect.objectContaining({
+        taxId: 'DRAFT-TAX',
+        vatId: 'DRAFT-VAT',
+      })
+    );
   });
 
   it('uses profile seller ids for new documents', () => {
@@ -146,9 +150,11 @@ describe('formToPreviewInvoice', () => {
         tax: { tin: 'legacy', amount: 19, method: 'default' },
       },
     });
-    expect(result.invoice.seller).toEqual({
-      taxId: 'NEW-TAX',
-      vatId: 'NEW-VAT',
-    });
+    expect(result.invoice.seller).toEqual(
+      expect.objectContaining({
+        taxId: 'NEW-TAX',
+        vatId: 'NEW-VAT',
+      })
+    );
   });
 });
