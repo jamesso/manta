@@ -178,6 +178,12 @@ const InvoicesMW =
             });
           })
           .catch(err => {
+            if (err.docs) {
+              next({
+                type: ACTION_TYPES.INVOICE_RESTORE,
+                payload: err.docs,
+              });
+            }
             next({
               type: ACTION_TYPES.UI_NOTIFICATION_NEW,
               payload: {

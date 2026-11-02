@@ -473,6 +473,28 @@ describe('Invoices Middleware', () => {
         payload: mockData.invoicesRecords,
       });
     });
+
+    it('refreshes Redux from persisted docs on partial restore failure', async () => {
+      const persisted = [{ _id: 'partial-restore-1' }];
+      const err = Object.assign(new Error('partial-restore'), {
+        restored: ['partial-restore-1'],
+        failed: [{ id: undefined }],
+        docs: persisted,
+      });
+      restoreDocs.mockRejectedValueOnce(err);
+      await middleware(Actions.restoreInvoices([{}, {}]));
+      expect(next).toHaveBeenCalledWith({
+        type: ACTION_TYPES.INVOICE_RESTORE,
+        payload: persisted,
+      });
+      expect(next).toHaveBeenCalledWith({
+        type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+        payload: {
+          type: 'warning',
+          message: 'partial-restore',
+        },
+      });
+    });
   });
 
   describe('should handle INVOICE_DUPLICATE action correctly', () => {

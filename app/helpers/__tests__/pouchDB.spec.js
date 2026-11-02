@@ -99,6 +99,25 @@ describe('pouchDB helpers', () => {
       expect(docs.find(d => d._id === 'bulk-a').clientNote).toBe('replaced');
     });
 
+    it('restoreDocs partial failure returns persisted docs with earlier restores', async () => {
+      try {
+        await restoreDocs('invoices', [
+          {
+            _id: 'partial-restore-1',
+            status: 'pending',
+            currency: { code: 'USD' },
+          },
+          { status: 'pending', currency: { code: 'USD' } },
+        ]);
+        expect.unreachable('should reject partial-restore');
+      } catch (err) {
+        expect(err.message).toBe('partial-restore');
+        expect(err.docs.some(d => d._id === 'partial-restore-1')).toBe(true);
+        expect(err.restored).toEqual(['partial-restore-1']);
+        expect(err.failed).toHaveLength(1);
+      }
+    });
+
     it('updateDocs partial failure keeps successful writes in DB', async () => {
       await saveDoc('invoices', {
         _id: 'bulk-u1',

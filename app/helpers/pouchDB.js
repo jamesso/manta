@@ -201,15 +201,33 @@ const removeDocs = (dbName, ids) =>
 
 const restoreDocs = (dbName, docs) =>
   setDB(dbName).then(async db => {
+    const restored = [];
+    const failed = [];
     for (const doc of docs) {
       const { _rev, ...clean } = doc;
       try {
         await db.put(clean);
+        restored.push(doc._id);
       } catch (err) {
-        if (err.status !== 409) throw err;
+        if (err.status === 409) {
+          continue;
+        }
+        failed.push({
+          id: doc._id,
+          status: err.status,
+          message: err.message,
+        });
       }
     }
-    return getAllDocs(dbName);
+    const allDocs = await getAllDocs(dbName);
+    if (failed.length) {
+      throw Object.assign(new Error('partial-restore'), {
+        restored,
+        failed,
+        docs: allDocs,
+      });
+    }
+    return allDocs;
   });
 
 const updateDocs = (dbName, docs) =>

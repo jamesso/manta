@@ -6,6 +6,7 @@ import {
   getDisplayStatus,
   getDueDate,
   getDueInDays,
+  getIssuedAt,
   getInvoiceNumber,
   getInvoiceValue,
   withStatus,
@@ -81,6 +82,18 @@ it('should return correct grandTotal value', () => {
   expect(getInvoiceValue(data2).grandTotal).not.toEqual(151.2);
   expect(getInvoiceValue(data3).grandTotal).toEqual(300);
   expect(getInvoiceValue(data3).grandTotal).not.toEqual(310);
+});
+
+describe('getIssuedAt', () => {
+  it('returns null for garbage and non-finite values', () => {
+    expect(getIssuedAt({ issuedAt: 'garbage' })).toBeNull();
+    expect(getIssuedAt({ created_at: Number.POSITIVE_INFINITY })).toBeNull();
+  });
+
+  it('returns a valid timestamp for created_at', () => {
+    const created = Date.UTC(2025, 0, 15, 10);
+    expect(getIssuedAt({ created_at: created })).toBe(created);
+  });
 });
 
 describe('getDueDate', () => {

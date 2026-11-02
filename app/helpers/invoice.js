@@ -55,7 +55,18 @@ function getInvoiceValue(data) {
 }
 
 function getIssuedAt(invoice) {
-  return invoice.issuedAt ?? invoice.created_at ?? null;
+  const raw = invoice.issuedAt ?? invoice.created_at ?? null;
+  if (raw == null || raw === '') {
+    return null;
+  }
+  if (typeof raw === 'number' && !Number.isFinite(raw)) {
+    return null;
+  }
+  const m = moment(raw);
+  if (!m.isValid()) {
+    return null;
+  }
+  return m.valueOf();
 }
 
 function getStoredStatus(invoice) {
