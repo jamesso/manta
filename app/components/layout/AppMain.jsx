@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import Form from '../../containers/Form';
+import Dashboard from '../../containers/Dashboard';
 import Invoices from '../../containers/Invoices';
 import Contacts from '../../containers/Contacts';
 import Settings from '../../containers/Settings';
@@ -15,6 +16,7 @@ class AppMain extends Component {
     const { activeTab } = this.props;
     return (
       <div className="h-full overflow-auto bg-background">
+        {activeTab === 'dashboard' && <Dashboard />}
         {activeTab === 'form' && <Form />}
         {activeTab === 'invoices' && <Invoices />}
         {activeTab === 'contacts' && <Contacts />}

@@ -1,6 +1,7 @@
 import app from './app.json';
 import common from './common.json';
 import contacts from './contacts.json';
+import dashboard from './dashboard.json';
 import dialog from './dialog.json';
 import form from './form.json';
 import invoices from './invoices.json';
@@ -13,6 +14,7 @@ export default {
   app,
   common,
   contacts,
+  dashboard,
   dialog,
   form,
   invoices,

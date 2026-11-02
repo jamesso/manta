@@ -4,6 +4,7 @@
     "search": "Search",
     "invoices": "Invoices",
     "clients": "Clients",
+    "dashboard": "Dashboard",
     "settings": "Settings",
     "help": "Help",
     "businessProfile": "Business profile",
@@ -13,7 +14,8 @@
   },
   "titles": {
     "newInvoice": "New invoice",
-    "editInvoice": "Edit invoice"
+    "editInvoice": "Edit invoice",
+    "dashboard": "Dashboard"
   },
   "update": {
     "check": "Check for updates",
@@ -64,6 +66,7 @@
       "note": "Toggle note",
       "invoices": "Invoices",
       "clients": "Clients",
+      "dashboard": "Dashboard",
       "tutorial": "Show tutorial"
     }
   },

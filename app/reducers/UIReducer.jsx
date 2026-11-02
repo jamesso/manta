@@ -7,6 +7,7 @@ const initialState = {
   sidebarCollapsed: window.manta.settings.get('ui.sidebarCollapsed') === true,
   commandPaletteOpen: false,
   shortcutsOpen: false,
+  pendingSettingsSection: null,
 };
 
 const UIReducer = handleActions(
@@ -36,6 +37,16 @@ const UIReducer = handleActions(
       Object.assign({}, state, {
         shortcutsOpen: Boolean(action.payload),
         commandPaletteOpen: action.payload ? false : state.commandPaletteOpen,
+      }),
+
+    [ACTION_TYPES.UI_SETTINGS_SECTION_REQUEST]: (state, action) =>
+      Object.assign({}, state, {
+        pendingSettingsSection: action.payload,
+      }),
+
+    [ACTION_TYPES.UI_SETTINGS_SECTION_CLEAR]: (state, action) =>
+      Object.assign({}, state, {
+        pendingSettingsSection: null,
       }),
   },
   initialState

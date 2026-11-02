@@ -1,8 +1,9 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import * as Actions from '../actions/settings';
+import * as UIActions from '../actions/ui';
 import SettingsNav from '../components/settings/SettingsNav';
 import Appearance from '../components/settings/sections/Appearance';
 import BusinessProfile from '../components/settings/sections/BusinessProfile';
@@ -17,6 +18,7 @@ export default function Settings() {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const currentSettings = useSelector(getCurrentSettings);
+  const pendingSection = useSelector(s => s.ui.pendingSettingsSection);
   const [section, setSection] = useState('profile');
   const [errors, setErrors] = useState({});
   const [saveMessage, setSaveMessage] = useState('');
@@ -41,6 +43,15 @@ export default function Settings() {
     },
     [section]
   );
+
+  useEffect(() => {
+    if (!pendingSection) {
+      return;
+    }
+    void changeSection(pendingSection).then(() => {
+      dispatch(UIActions.clearSettingsSectionRequest());
+    });
+  }, [pendingSection, changeSection, dispatch]);
 
   const saveSection = useCallback(
     async (key, data) => {

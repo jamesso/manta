@@ -1,0 +1,52 @@
+{
+  "heading": "Dashboard",
+  "loading": "Loading dashboard…",
+  "kpi": {
+    "outstanding": "Outstanding",
+    "overdue": "Overdue",
+    "paidThisMonth": "Paid this month",
+    "drafts": "Drafts",
+    "invoiceCount": "{{count}} invoices"
+  },
+  "currency": {
+    "label": "Currency"
+  },
+  "chart": {
+    "paid": "Paid",
+    "title": "Payments in the last 6 months",
+    "empty": "No payments in the last 6 months"
+  },
+  "needsAttention": {
+    "title": "Needs attention",
+    "empty": "Nothing needs attention"
+  },
+  "recent": {
+    "title": "Recent invoices",
+    "empty": "No invoices yet",
+    "viewAll": "View all invoices",
+    "newInvoice": "New invoice"
+  },
+  "checklist": {
+    "heading": "Get started with Manta",
+    "progress": "{{done}} of {{total}} done",
+    "allDone": "You're all set",
+    "dismiss": "Dismiss checklist",
+    "toastHidden": "Checklist hidden",
+    "undo": "Undo",
+    "items": {
+      "profile": "Add your business name",
+      "logo": "Add your logo",
+      "client": "Add your first client",
+      "invoice": "Create your first invoice",
+      "pdf": "Export your first PDF"
+    },
+    "links": {
+      "profile": "Edit business profile",
+      "logo": "Upload logo",
+      "client": "Add client",
+      "invoice": "New invoice",
+      "pdf": "Preview and export PDF"
+    },
+    "pdfHint": "Create an invoice first"
+  }
+}

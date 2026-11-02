@@ -38,3 +38,12 @@ export const setShortcutsDialog = createAction(
   ACTION_TYPES.UI_SHORTCUTS_SET,
   v => v
 );
+
+export const requestSettingsSection = createAction(
+  ACTION_TYPES.UI_SETTINGS_SECTION_REQUEST,
+  section => section
+);
+
+export const clearSettingsSectionRequest = createAction(
+  ACTION_TYPES.UI_SETTINGS_SECTION_CLEAR
+);
