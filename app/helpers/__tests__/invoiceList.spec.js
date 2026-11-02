@@ -12,6 +12,7 @@ describe('matchesTab', () => {
   const statuses = [
     'draft',
     'pending',
+    'partial',
     'overdue',
     'paid',
     'refunded',
@@ -25,7 +26,7 @@ describe('matchesTab', () => {
         if (tab === 'all') expect(result).toBe(true);
         else if (tab === 'draft') expect(result).toBe(status === 'draft');
         else if (tab === 'outstanding')
-          expect(result).toBe(status === 'pending');
+          expect(result).toBe(status === 'pending' || status === 'partial');
         else if (tab === 'overdue') expect(result).toBe(status === 'overdue');
         else if (tab === 'paid') expect(result).toBe(status === 'paid');
         else if (tab === 'closed')
@@ -40,15 +41,16 @@ describe('countByTab', () => {
     const rows = [
       { displayStatus: 'draft' },
       { displayStatus: 'pending' },
+      { displayStatus: 'partial' },
       { displayStatus: 'overdue' },
       { displayStatus: 'paid' },
       { displayStatus: 'refunded' },
       { displayStatus: 'cancelled' },
     ];
     expect(countByTab(rows)).toEqual({
-      all: 6,
+      all: 7,
       draft: 1,
-      outstanding: 1,
+      outstanding: 2,
       overdue: 1,
       paid: 1,
       closed: 2,

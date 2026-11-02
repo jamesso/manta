@@ -1,5 +1,6 @@
 import {
   Ban,
+  ChartPie,
   CircleAlert,
   CircleCheck,
   Clock,
@@ -12,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 const STATUS_STYLES = {
   draft: 'bg-status-draft-bg text-status-draft',
   pending: 'bg-status-pending-bg text-status-pending',
+  partial: 'bg-status-partial-bg text-status-partial',
   overdue: 'bg-status-overdue-bg text-status-overdue',
   paid: 'bg-status-paid-bg text-status-paid',
   refunded: 'bg-status-refunded-bg text-status-refunded',
@@ -21,6 +23,7 @@ const STATUS_STYLES = {
 const STATUS_ICONS = {
   draft: PencilLine,
   pending: Clock,
+  partial: ChartPie,
   overdue: CircleAlert,
   paid: CircleCheck,
   refunded: Undo2,

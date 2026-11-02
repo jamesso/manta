@@ -1,5 +1,7 @@
 import {
   formatInvoiceAmount,
+  getAmountPaid,
+  getBalanceDue,
   getDisplayStatus,
   getDueDate,
   getDueInDays,
@@ -18,11 +20,12 @@ export const INVOICE_TABS = [
 
 export const STATUS_SORT_RANK = {
   overdue: 0,
-  pending: 1,
-  draft: 2,
-  paid: 3,
-  refunded: 4,
-  cancelled: 5,
+  partial: 1,
+  pending: 2,
+  draft: 3,
+  paid: 4,
+  refunded: 5,
+  cancelled: 6,
 };
 
 function matchesTab(displayStatus, tab) {
@@ -32,7 +35,7 @@ function matchesTab(displayStatus, tab) {
     case 'draft':
       return displayStatus === 'draft';
     case 'outstanding':
-      return displayStatus === 'pending';
+      return displayStatus === 'pending' || displayStatus === 'partial';
     case 'overdue':
       return displayStatus === 'overdue';
     case 'paid':
@@ -59,6 +62,8 @@ function toInvoiceRow(invoice, now = Date.now()) {
     displayStatus,
     amount: invoice.grandTotal ?? 0,
     amountText: formatInvoiceAmount(invoice),
+    amountPaid: getAmountPaid(invoice),
+    balance: getBalanceDue(invoice),
   };
 }
 

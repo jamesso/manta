@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { deleteInvoice, setInvoiceStatus } from '../../actions/invoices';
+import { deleteInvoice, recordFullPayment } from '../../actions/invoices';
 
 export default function BulkActionsBar({
   selectedIds,
@@ -25,11 +25,11 @@ export default function BulkActionsBar({
         size="sm"
         variant="secondary"
         onClick={() => {
-          dispatch(setInvoiceStatus(selectedIds, 'paid'));
+          dispatch(recordFullPayment(selectedIds));
           onClearSelection();
         }}
       >
-        {t('invoices:bulk:markAsPaid')}
+        {t('invoices:bulk:markPaidInFull')}
       </Button>
       <Button
         type="button"

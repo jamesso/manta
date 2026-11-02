@@ -68,6 +68,8 @@
   --color-status-draft-bg: var(--status-draft-bg);
   --color-status-pending: var(--status-pending);
   --color-status-pending-bg: var(--status-pending-bg);
+  --color-status-partial: var(--status-partial);
+  --color-status-partial-bg: var(--status-partial-bg);
   --color-status-overdue: var(--status-overdue);
   --color-status-overdue-bg: var(--status-overdue-bg);
   --color-status-paid: var(--status-paid);
@@ -120,6 +122,8 @@
   --status-draft-bg: oklch(0.955 0.01 250);
   --status-pending: oklch(0.45 0.117 70);
   --status-pending-bg: oklch(0.955 0.035 70);
+  --status-partial: oklch(0.45 0.07 215);
+  --status-partial-bg: oklch(0.955 0.025 215);
   --status-overdue: oklch(0.45 0.144 25);
   --status-overdue-bg: oklch(0.955 0.035 25);
   --status-paid: oklch(0.45 0.117 150);
@@ -173,6 +177,8 @@
     --status-draft-bg: oklch(0.29 0.01 250);
     --status-pending: oklch(0.86 0.078 70);
     --status-pending-bg: oklch(0.29 0.06 70);
+    --status-partial: oklch(0.86 0.07 215);
+    --status-partial-bg: oklch(0.29 0.045 215);
     --status-overdue: oklch(0.86 0.096 25);
     --status-overdue-bg: oklch(0.29 0.06 25);
     --status-paid: oklch(0.86 0.078 150);

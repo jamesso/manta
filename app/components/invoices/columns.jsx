@@ -3,6 +3,7 @@ import { createColumnHelper } from '@tanstack/react-table';
 import { ArrowUpDown } from 'lucide-react';
 
 import { Checkbox } from '@/components/ui/checkbox';
+import { formatNumber } from '../../../helpers/formatNumber';
 import { STATUS_SORT_RANK } from '../../helpers/invoiceList';
 import DueCell from './DueCell';
 import InvoiceRowActions from './InvoiceRowActions';
@@ -13,7 +14,13 @@ const columnHelper = createColumnHelper();
 const sortHeaderClass =
   'inline-flex min-h-6 items-center gap-1 bg-transparent text-foreground shadow-none';
 
-export function getColumns({ t, dateFormat, onOpen, dispatch }) {
+export function getColumns({
+  t,
+  dateFormat,
+  onOpen,
+  dispatch,
+  onRecordPayment,
+}) {
   return [
     columnHelper.display({
       id: 'select',
@@ -123,9 +130,30 @@ export function getColumns({ t, dateFormat, onOpen, dispatch }) {
           <ArrowUpDown className="size-3.5 opacity-50" />
         </button>
       ),
-      cell: ({ row }) => (
-        <span className="tabular-nums">{row.original.amountText}</span>
-      ),
+      cell: ({ row }) => {
+        const { displayStatus, amountPaid, balance, invoice, amountText } =
+          row.original;
+        const showBalance =
+          (displayStatus === 'partial' || displayStatus === 'overdue') &&
+          amountPaid > 0;
+        const balanceLabel = showBalance
+          ? formatNumber(
+              balance,
+              invoice.currency?.fraction ?? 2,
+              invoice.currency?.separator ?? 'commaDot'
+            )
+          : null;
+        return (
+          <div className="text-end">
+            <span className="tabular-nums">{amountText}</span>
+            {showBalance ? (
+              <div className="text-xs text-muted-foreground tabular-nums">
+                {t('invoices:payments:balanceShort', { amount: balanceLabel })}
+              </div>
+            ) : null}
+          </div>
+        );
+      },
       meta: { align: 'end' },
       sortingFn: 'basic',
     }),
@@ -157,6 +185,7 @@ export function getColumns({ t, dateFormat, onOpen, dispatch }) {
             invoice={row.original.invoice}
             dispatch={dispatch}
             t={t}
+            onRecordPayment={onRecordPayment}
           />
         </div>
       ),

@@ -1,5 +1,6 @@
 import moment from 'moment';
 import { useDispatch } from 'react-redux';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -15,18 +16,24 @@ import {
   deleteInvoice,
   duplicateInvoice,
   editInvoice,
-  setInvoiceStatus,
+  recordFullPayment,
 } from '../../actions/invoices';
 import {
+  getAmountPaid,
+  getBalanceDue,
   getDisplayStatus,
   formatInvoiceAmount,
   getDueDate,
   getInvoiceNumber,
   getInvoiceValue,
   getIssuedAt,
+  getPayments,
   getStoredStatus,
 } from '../../helpers/invoice';
+import { canRecordPayment } from '../../helpers/payments';
 import DueCell from './DueCell';
+import PaymentsList from './PaymentsList';
+import RecordPaymentDialog from './RecordPaymentDialog';
 import StatusBadge from './StatusBadge';
 
 export default function InvoiceDetailSheet({
@@ -39,6 +46,7 @@ export default function InvoiceDetailSheet({
 }) {
   const dispatch = useDispatch();
   const ipc = window.manta.ipc;
+  const [paymentOpen, setPaymentOpen] = useState(false);
 
   if (!invoice) {
     return (
@@ -70,6 +78,10 @@ export default function InvoiceDetailSheet({
 
   const formatMoney = n =>
     formatNumber(n, currency?.fraction ?? 2, currency?.separator ?? 'commaDot');
+  const amountPaid = getAmountPaid(invoice);
+  const balanceDue = getBalanceDue(invoice);
+  const showPayments = amountPaid > 0;
+  const canPay = canRecordPayment(invoice);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -80,6 +92,11 @@ export default function InvoiceDetailSheet({
         <SheetHeader className="flex-row flex-wrap items-center gap-2">
           <SheetTitle>{t('invoices:sheet:title', { number })}</SheetTitle>
           <StatusBadge status={displayStatus} t={t} />
+          {displayStatus === 'overdue' && getPayments(invoice).length > 0 ? (
+            <span className="text-sm text-muted-foreground">
+              {t('invoices:payments:partiallyPaid')}
+            </span>
+          ) : null}
           <SheetDescription className="sr-only">{number}</SheetDescription>
         </SheetHeader>
 
@@ -190,7 +207,26 @@ export default function InvoiceDetailSheet({
             <dt>{t('invoices:sheet:total')}</dt>
             <dd className="tabular-nums">{formatInvoiceAmount(invoice)}</dd>
           </div>
+          {showPayments ? (
+            <>
+              <div className="flex justify-between">
+                <dt>{t('invoices:payments:amountPaid')}</dt>
+                <dd className="tabular-nums">{formatMoney(amountPaid)}</dd>
+              </div>
+              <div className="flex justify-between font-medium">
+                <dt>{t('invoices:payments:balanceDue')}</dt>
+                <dd className="tabular-nums">{formatMoney(balanceDue)}</dd>
+              </div>
+            </>
+          ) : null}
         </dl>
+
+        <div className="mt-4 px-4">
+          <h3 className="mb-2 text-sm font-medium">
+            {t('invoices:payments:title')}
+          </h3>
+          <PaymentsList invoice={invoice} dateFormat={fmt} t={t} />
+        </div>
 
         {invoice.note ? (
           <div className="mt-4 px-4 text-sm">
@@ -220,14 +256,19 @@ export default function InvoiceDetailSheet({
           >
             {t('invoices:actions:duplicate')}
           </Button>
-          {stored !== 'paid' ? (
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => dispatch(setInvoiceStatus(invoice._id, 'paid'))}
-            >
-              {t('invoices:actions:markAsPaid')}
-            </Button>
+          {canPay ? (
+            <>
+              <Button type="button" onClick={() => setPaymentOpen(true)}>
+                {t('invoices:actions:recordPayment')}
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => dispatch(recordFullPayment(invoice._id))}
+              >
+                {t('invoices:actions:markPaidInFull')}
+              </Button>
+            </>
           ) : null}
           <Button
             type="button"
@@ -240,6 +281,11 @@ export default function InvoiceDetailSheet({
             {t('invoices:actions:delete')}
           </Button>
         </SheetFooter>
+        <RecordPaymentDialog
+          invoice={invoice}
+          open={paymentOpen}
+          onOpenChange={setPaymentOpen}
+        />
       </SheetContent>
     </Sheet>
   );

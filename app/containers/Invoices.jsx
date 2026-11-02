@@ -20,6 +20,7 @@ import {
 import BulkActionsBar from '../components/invoices/BulkActionsBar';
 import { getColumns } from '../components/invoices/columns';
 import InvoiceDetailSheet from '../components/invoices/InvoiceDetailSheet';
+import RecordPaymentDialog from '../components/invoices/RecordPaymentDialog';
 import InvoicesEmpty from '../components/invoices/InvoicesEmpty';
 import InvoicesTable from '../components/invoices/InvoicesTable';
 import { features } from '../components/invoices/invoiceTableFeatures';
@@ -37,6 +38,7 @@ export default function Invoices() {
   const [sorting, setSorting] = useState([{ id: 'issuedAt', desc: true }]);
   const [rowSelection, setRowSelection] = useState({});
   const [openId, setOpenId] = useState(null);
+  const [paymentForId, setPaymentForId] = useState(null);
   const searchRef = useRef(null);
 
   const rows = useMemo(
@@ -55,9 +57,11 @@ export default function Invoices() {
 
   const onOpen = useCallback(id => setOpenId(id), []);
 
+  const onRecordPayment = useCallback(id => setPaymentForId(id), []);
+
   const columns = useMemo(
-    () => getColumns({ t, dateFormat, onOpen, dispatch }),
-    [t, dateFormat, onOpen, dispatch]
+    () => getColumns({ t, dateFormat, onOpen, dispatch, onRecordPayment }),
+    [t, dateFormat, onOpen, dispatch, onRecordPayment]
   );
 
   const table = useTable({
@@ -106,6 +110,9 @@ export default function Invoices() {
 
   const openInvoice = openId
     ? invoices.find(inv => inv._id === openId) || null
+    : null;
+  const paymentInvoice = paymentForId
+    ? invoices.find(inv => inv._id === paymentForId) || null
     : null;
 
   const clearFilters = () => {
@@ -200,6 +207,13 @@ export default function Invoices() {
         dateFormat={dateFormat}
         t={t}
         now={now}
+      />
+      <RecordPaymentDialog
+        invoice={paymentInvoice}
+        open={Boolean(paymentForId)}
+        onOpenChange={open => {
+          if (!open) setPaymentForId(null);
+        }}
       />
     </div>
   );

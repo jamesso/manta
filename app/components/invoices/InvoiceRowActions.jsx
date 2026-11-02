@@ -1,4 +1,4 @@
-import { MoreHorizontal } from 'lucide-react';
+import { MoreHorizontal, HandCoins } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -18,15 +18,23 @@ import {
   deleteInvoice,
   duplicateInvoice,
   editInvoice,
+  recordFullPayment,
   setInvoiceStatus,
 } from '../../actions/invoices';
 import { getStoredStatus } from '../../helpers/invoice';
+import { canRecordPayment } from '../../helpers/payments';
 
 const SETTABLE = INVOICE_STATUSES.filter(s => s !== 'paid');
 
-export default function InvoiceRowActions({ invoice, dispatch, t }) {
+export default function InvoiceRowActions({
+  invoice,
+  dispatch,
+  t,
+  onRecordPayment,
+}) {
   const stored = getStoredStatus(invoice);
   const ipc = window.manta.ipc;
+  const showPayment = canRecordPayment(invoice);
 
   return (
     <DropdownMenu>
@@ -51,12 +59,18 @@ export default function InvoiceRowActions({ invoice, dispatch, t }) {
         <DropdownMenuItem onClick={() => dispatch(duplicateInvoice(invoice))}>
           {t('invoices:actions:duplicate')}
         </DropdownMenuItem>
-        {stored !== 'paid' ? (
-          <DropdownMenuItem
-            onClick={() => dispatch(setInvoiceStatus(invoice._id, 'paid'))}
-          >
-            {t('invoices:actions:markAsPaid')}
-          </DropdownMenuItem>
+        {showPayment ? (
+          <>
+            <DropdownMenuItem onClick={() => onRecordPayment(invoice._id)}>
+              <HandCoins />
+              {t('invoices:actions:recordPayment')}
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => dispatch(recordFullPayment(invoice._id))}
+            >
+              {t('invoices:actions:markPaidInFull')}
+            </DropdownMenuItem>
+          </>
         ) : null}
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>

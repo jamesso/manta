@@ -41,7 +41,8 @@
     "preview": "Preview / Export PDF",
     "edit": "Edit",
     "duplicate": "Duplicate",
-    "markAsPaid": "Mark as paid",
+    "recordPayment": "Record payment…",
+    "markPaidInFull": "Mark as paid in full",
     "setStatus": "Set status",
     "delete": "Delete"
   },
@@ -49,7 +50,7 @@
     "label": "Selected invoices",
     "selected_one": "{{count}} selected",
     "selected_other": "{{count}} selected",
-    "markAsPaid": "Mark as paid",
+    "markPaidInFull": "Mark as paid in full",
     "delete": "Delete",
     "clear": "Clear selection"
   },
@@ -101,10 +102,64 @@
   "status": {
     "draft": "Draft",
     "pending": "Pending",
+    "partial": "Partially paid",
     "overdue": "Overdue",
     "paid": "Paid",
     "refunded": "Refunded",
     "cancelled": "Cancelled"
+  },
+  "payments": {
+    "title": "Payments",
+    "empty": "No payments recorded.",
+    "amountPaid": "Amount paid",
+    "balanceDue": "Balance due",
+    "partiallyPaid": "Partially paid",
+    "balanceShort": "{{amount}} due",
+    "remove": "Remove payment of {{amount}} on {{date}}",
+    "methods": {
+      "bank": "Bank transfer",
+      "cash": "Cash",
+      "card": "Card",
+      "paypal": "PayPal",
+      "other": "Other"
+    },
+    "dialog": {
+      "title": "Record payment",
+      "description": "Invoice {{number}} · Balance due {{balance}}",
+      "amount": "Amount",
+      "payFull": "Pay full balance",
+      "date": "Payment date",
+      "method": "Method",
+      "note": "Note",
+      "notePlaceholder": "Reference or remark (optional)",
+      "submit": "Record payment",
+      "cancel": "Cancel"
+    },
+    "errors": {
+      "amountInvalid": "Enter an amount, for example {{example}}.",
+      "amountPositive": "The amount must be more than 0.",
+      "tooManyDecimals_zero": "Use whole numbers only.",
+      "tooManyDecimals_one": "Use at most {{count}} decimal place.",
+      "tooManyDecimals_other": "Use at most {{count}} decimal places.",
+      "overpayment": "The amount is more than the balance due ({{balance}}).",
+      "dateRequired": "Choose a payment date.",
+      "dateFuture": "The payment date cannot be in the future.",
+      "draft": "Drafts cannot get payments. Save the invoice first.",
+      "closed": "Refunded or cancelled invoices cannot get payments. Set the status to Pending first.",
+      "nothingDue": "This invoice has no balance due.",
+      "duplicate": "This payment is already recorded.",
+      "notFound": "The invoice or payment was not found.",
+      "draftWithPayments": "An invoice with payments cannot become a draft. Remove the payments first."
+    },
+    "toast": {
+      "recorded_one": "Payment recorded",
+      "recorded_other": "{{count}} payments recorded",
+      "skipped_one": "{{count}} invoice skipped: {{reason}}",
+      "skipped_other": "{{count}} invoices skipped: {{reason}}",
+      "removed": "Payment removed",
+      "undo": "Undo",
+      "stillPaid": "The payments cover the total, so the invoice stays Paid."
+    }
   },
   "btns": {
     "view": "View",
