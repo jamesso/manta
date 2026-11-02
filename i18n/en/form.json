@@ -113,7 +113,9 @@
     "subtotal": "Subtotal",
     "discount": "Discount",
     "tax": "Tax",
-    "total": "Total"
+    "total": "Total",
+    "amountPaid": "Amount paid",
+    "balanceDue": "Balance due"
   },
   "errors": {
     "summary": "Please correct the highlighted fields.",
@@ -121,7 +123,9 @@
     "draftEmpty": "Add a client or item before saving a draft.",
     "recipientRequired": "Choose a client.",
     "partialContactSave": "Invoice saved, but the contact could not be saved.",
-    "partialNumberingSave": "Invoice saved, but the next invoice number could not be saved."
+    "partialNumberingSave": "Invoice saved, but the next invoice number could not be saved.",
+    "totalBelowPaid": "The new total ({{total}}) is less than the amount already paid ({{paid}}). Remove a payment first.",
+    "currencyLocked": "This invoice has payments. You cannot change its currency."
   },
   "numbering": {
     "title": "Invoice numbering",

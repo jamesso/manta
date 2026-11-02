@@ -20,6 +20,9 @@ import {
   getRecipientErrors,
   hasUnsavedFormChanges,
 } from '../helpers/form';
+import { getPaymentEditErrors } from '../helpers/payments';
+import { formatNumber } from '../../helpers/formatNumber';
+import { toast } from '@/components/ui/toast';
 import {
   isImportWriteLocked,
   importWriteLockReason,
@@ -82,6 +85,34 @@ async function handleSave({ dispatch, getState }, mode) {
         defaultCurrency,
       });
       const { editMode } = formSnapshot.settings;
+      if (editMode.active) {
+        const paymentErrors = getPaymentEditErrors(data, editMode.data);
+        if (paymentErrors.length) {
+          for (const err of paymentErrors) {
+            const currency = data.currency ?? defaultCurrency;
+            const values = err.values
+              ? {
+                  ...err.values,
+                  total: formatNumber(
+                    err.values.total,
+                    currency.fraction ?? 2,
+                    currency.separator
+                  ),
+                  paid: formatNumber(
+                    err.values.paid,
+                    currency.fraction ?? 2,
+                    currency.separator
+                  ),
+                }
+              : undefined;
+            toast.add({
+              title: i18n.t(err.key, values),
+              type: 'warning',
+            });
+          }
+          return false;
+        }
+      }
       let ok;
       if (editMode.active) {
         ok = await dispatch(InvoicesActions.updateInvoice(data));

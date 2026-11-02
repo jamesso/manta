@@ -21,6 +21,7 @@ export function formToPreviewInvoice(
     created_at: issuedAt,
     subtotal: getInvoiceValue(fields).subtotal,
     grandTotal: getInvoiceValue(fields).grandTotal,
+    payments: editMode.active ? editMode.data.payments : undefined,
   };
   const configs =
     editMode.data?.configs ??

@@ -4,6 +4,7 @@ import moment from 'moment';
 
 import i18n from '../../i18n/i18n';
 import { getInvoiceValue, getIssuedAt } from './invoice';
+import { reconcilePaymentStatus } from './payments';
 
 const EMAIL_RE =
   /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
@@ -447,6 +448,7 @@ export function getInvoiceData(
       issuedAt,
       status: resolveSaveStatus(mode, editMode.data),
       paidAt: editMode.data.paidAt,
+      payments: editMode.data.payments,
       subtotal: getInvoiceValue(fields).subtotal,
       grandTotal: getInvoiceValue(fields).grandTotal,
     });
@@ -454,7 +456,7 @@ export function getInvoiceData(
     if (!('discount' in fields)) delete base.discount;
     if (!('tax' in fields)) delete base.tax;
     if (!('note' in fields)) delete base.note;
-    return base;
+    return reconcilePaymentStatus(base, now);
   }
 
   return Object.assign({}, fields, {

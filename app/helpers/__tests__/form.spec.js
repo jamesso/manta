@@ -186,6 +186,25 @@ describe('form helpers', () => {
     const doc = getInvoiceData(f, { defaultCurrency: currency });
     expect(doc.paidAt).toBe(12345);
   });
+  it('keeps payments from edit data when editing', () => {
+    const f = form();
+    f.settings.editMode = {
+      active: true,
+      data: {
+        _id: 'old',
+        _rev: '1-x',
+        status: 'pending',
+        payments: [{ id: 'p', date: 1, amount: 10, method: 'cash' }],
+        rows: [{ description: 'x', price: 1, quantity: 1, subtotal: 1 }],
+      },
+    };
+    const doc = getInvoiceData(f, { defaultCurrency: currency });
+    expect(doc.payments).toHaveLength(1);
+  });
+  it('new invoice omits payments key', () => {
+    const doc = getInvoiceData(form(), { defaultCurrency: currency });
+    expect(doc).not.toHaveProperty('payments');
+  });
   it('omits cleared draft adjustments when editing', () => {
     const f = form();
     f.settings.required_fields = { currency: true, discount: true, tax: true };

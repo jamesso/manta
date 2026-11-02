@@ -56,4 +56,14 @@ describe('formToPreviewInvoice', () => {
     expect(result.invoice.issuedAt).toBe(42);
     expect(result.configs).toEqual({ template: 'business' });
   });
+  it('passes payments in edit mode', () => {
+    const f = input();
+    f.settings.editMode = {
+      active: true,
+      data: {
+        payments: [{ id: 'p', date: 1, amount: 5, method: 'cash' }],
+      },
+    };
+    expect(formToPreviewInvoice(f, context).invoice.payments).toHaveLength(1);
+  });
 });

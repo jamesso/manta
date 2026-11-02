@@ -20,6 +20,7 @@ export default function DatePickerField({
   placeholder,
   error,
   clearable,
+  disabledDays,
 }) {
   const { t } = useTranslation();
   const dateFormat = useSelector(
@@ -44,6 +45,7 @@ export default function DatePickerField({
               weekStartsOn={1}
               selected={value || undefined}
               onSelect={onChange}
+              disabled={disabledDays}
             />
           </PopoverContent>
         </Popover>
