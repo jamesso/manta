@@ -1,0 +1,141 @@
+{
+  "lang": "en",
+  "invoice": {
+    "taxMode": "line",
+    "taxCalc": 1,
+    "currency": {
+      "code": "EUR",
+      "fraction": 2,
+      "placement": "before",
+      "separator": "commaDot"
+    },
+    "discount": {
+      "type": "percentage",
+      "amount": 0
+    },
+    "issuedAt": 1768500000000,
+    "dueDate": {
+      "useCustom": true,
+      "selectedDate": 1771178400000
+    },
+    "configs": {
+      "language": "en",
+      "dateFormat": "MM/DD/YYYY",
+      "template": "business"
+    },
+    "_id": "fx-standard-de",
+    "docType": "invoice",
+    "status": "pending",
+    "invoiceID": "INV-2026-0001",
+    "recipient": {
+      "fullname": "Max Buyer",
+      "company": "Buyer GmbH",
+      "email": "buyer@example.de",
+      "phone": "+49 89 555",
+      "taxId": "",
+      "postalAddress": {
+        "street": "Kundenweg 2",
+        "additional": "",
+        "postcode": "80331",
+        "city": "München",
+        "region": "",
+        "countryCode": "DE"
+      }
+    },
+    "rows": [
+      {
+        "description": "Consulting",
+        "price": 100,
+        "quantity": 1,
+        "taxRate": 19,
+        "taxCategory": "S"
+      }
+    ]
+  },
+  "settings": {
+    "profile": {
+      "fullname": "Jane Seller",
+      "company": "Seller GmbH",
+      "legalName": "Seller GmbH",
+      "address": "Legacy printed address",
+      "email": "seller@example.de",
+      "phone": "+49 30 1234567",
+      "website": "https://seller.example.de",
+      "taxId": "27/123/45678",
+      "vatId": "DE123456789",
+      "postalAddress": {
+        "street": "Musterstraße 1",
+        "additional": "",
+        "postcode": "10115",
+        "city": "Berlin",
+        "region": "",
+        "countryCode": "DE"
+      },
+      "bank": {
+        "accountName": "Seller GmbH",
+        "iban": "DE89370400440532013000",
+        "bic": "COBADEFFXXX"
+      }
+    },
+    "invoice": {
+      "tax": {
+        "tin": "",
+        "method": "default",
+        "amount": 0
+      },
+      "currency": {
+        "code": "EUR",
+        "fraction": 2,
+        "placement": "before",
+        "separator": "commaDot"
+      },
+      "eInvoice": {
+        "enabled": true,
+        "format": "xrechnung-ubl"
+      }
+    }
+  },
+  "expectedIssueCodes": {
+    "facturx-en16931": [],
+    "xrechnung-ubl": [
+      "BUYER_REFERENCE_MISSING"
+    ]
+  },
+  "derived": {
+    "docType": "invoice",
+    "status": "pending",
+    "issuedAt": 1768500000000,
+    "dueAt": 1771178400000,
+    "amountPaid": 0,
+    "totals": {
+      "mode": "line",
+      "lines": [
+        {
+          "net": 100
+        }
+      ],
+      "subtotal": 100,
+      "discount": 0,
+      "taxTotal": 19,
+      "grandTotal": 119,
+      "taxBreakdown": [
+        {
+          "key": "S\u000019",
+          "category": "S",
+          "rate": 19,
+          "base": 100,
+          "amount": 19,
+          "exemptionReason": "",
+          "addedToTotal": true,
+          "conflict": false
+        }
+      ]
+    },
+    "seller": {
+      "taxId": "27/123/45678",
+      "vatId": "DE123456789"
+    },
+    "preceding": null,
+    "lang": "en"
+  }
+}

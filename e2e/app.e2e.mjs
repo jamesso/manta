@@ -499,3 +499,80 @@ test('preview renders an invoice and exports a PDF', async () => {
   expect(header).toBe('%PDF');
   expect(errors).toEqual([]);
 });
+
+test('exports a Factur-X PDF', async () => {
+  const fixture = JSON.parse(
+    fs.readFileSync(
+      path.join(process.cwd(), 'e2e/fixtures/einvoice/standard-de.json'),
+      'utf8'
+    )
+  );
+  const exportDir = fs.mkdtempSync(path.join(os.tmpdir(), 'manta-fx-'));
+  const outPath = path.join(exportDir, 'standard-de.pdf');
+  const settingsPath = path.join(userData, 'Settings');
+  const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+  settings.profile = fixture.settings.profile;
+  settings.invoice = {
+    ...settings.invoice,
+    ...fixture.settings.invoice,
+    exportDir,
+    eInvoice: { enabled: true, format: 'facturx-en16931' },
+  };
+  fs.writeFileSync(settingsPath, JSON.stringify(settings));
+
+  const preview = await pageByTitle(PREVIEW_TITLE);
+  await preview.evaluate(data => {
+    window.manta.settings.set('profile', data.profile);
+    window.manta.settings.set('invoice', data.invoice);
+  }, { profile: settings.profile, invoice: settings.invoice });
+  await app.evaluate(({ BrowserWindow }, profile) => {
+    const previewWin = BrowserWindow.getAllWindows().find(
+      w => w.getTitle() === 'Previewer'
+    );
+    if (previewWin) {
+      previewWin.webContents.send('change-preview-window-profile', profile);
+    }
+  }, settings.profile);
+  const invoice = {
+    ...fixture.invoice,
+    configs: {
+      ...fixture.invoice.configs,
+      template: 'business',
+      language: 'en',
+    },
+  };
+  await app.evaluate(({ BrowserWindow }, inv) => {
+    BrowserWindow.getAllWindows()
+      .find(w => w.getTitle() === 'Previewer')
+      .webContents.send('update-preview', inv);
+  }, invoice);
+  await preview.waitForFunction(
+    id => document.querySelector('.print-area')?.dataset.invoiceId === id,
+    invoice._id,
+    { timeout: 15_000 }
+  );
+
+  await app.evaluate(async ({ dialog }, targetPath) => {
+    dialog.showSaveDialog = async () => ({
+      canceled: false,
+      filePath: targetPath,
+    });
+  }, outPath);
+
+  const result = await preview.evaluate(
+    async ({ invoice: inv, derived: d }) =>
+      window.manta.ipc.invoke('einvoice-export', {
+        kind: 'facturx',
+        invoice: inv,
+        derived: d,
+      }),
+    { invoice, derived: fixture.derived }
+  );
+
+  expect(result.ok).toBe(true);
+  expect(fs.existsSync(outPath)).toBe(true);
+  const buf = fs.readFileSync(outPath);
+  expect(buf.subarray(0, 4).toString('utf8')).toBe('%PDF');
+  const text = buf.toString('latin1');
+  expect(text.includes('factur-x.xml') || text.includes('Factur-X')).toBe(true);
+});

@@ -1,0 +1,141 @@
+{
+  "lang": "en",
+  "invoice": {
+    "taxMode": "line",
+    "taxCalc": 1,
+    "currency": {
+      "code": "EUR",
+      "fraction": 2,
+      "placement": "before",
+      "separator": "commaDot"
+    },
+    "discount": {
+      "type": "percentage",
+      "amount": 0
+    },
+    "issuedAt": 1768500000000,
+    "dueDate": {
+      "useCustom": true,
+      "selectedDate": 1771178400000
+    },
+    "configs": {
+      "language": "en",
+      "dateFormat": "MM/DD/YYYY",
+      "template": "business"
+    },
+    "_id": "fx-exempt",
+    "docType": "invoice",
+    "status": "pending",
+    "invoiceID": "INV-2026-0004",
+    "recipient": {
+      "fullname": "Max Buyer",
+      "company": "Buyer GmbH",
+      "email": "buyer@example.de",
+      "phone": "+49 89 555",
+      "taxId": "",
+      "postalAddress": {
+        "street": "Kundenweg 2",
+        "additional": "",
+        "postcode": "80331",
+        "city": "München",
+        "region": "",
+        "countryCode": "DE"
+      },
+      "buyerReference": "04011000-1234512345-06"
+    },
+    "rows": [
+      {
+        "description": "Design",
+        "price": 250,
+        "quantity": 1,
+        "taxRate": 0,
+        "taxCategory": "E",
+        "taxExemptionReason": "Steuerbefreit gemäß § 19 UStG"
+      }
+    ]
+  },
+  "settings": {
+    "profile": {
+      "fullname": "Jane Seller",
+      "company": "Seller GmbH",
+      "legalName": "Seller GmbH",
+      "address": "Legacy printed address",
+      "email": "seller@example.de",
+      "phone": "+49 30 1234567",
+      "website": "https://seller.example.de",
+      "taxId": "27/123/45678",
+      "vatId": "",
+      "postalAddress": {
+        "street": "Musterstraße 1",
+        "additional": "",
+        "postcode": "10115",
+        "city": "Berlin",
+        "region": "",
+        "countryCode": "DE"
+      },
+      "bank": {
+        "accountName": "Seller GmbH",
+        "iban": "DE89370400440532013000",
+        "bic": "COBADEFFXXX"
+      }
+    },
+    "invoice": {
+      "tax": {
+        "tin": "",
+        "method": "default",
+        "amount": 0
+      },
+      "currency": {
+        "code": "EUR",
+        "fraction": 2,
+        "placement": "before",
+        "separator": "commaDot"
+      },
+      "eInvoice": {
+        "enabled": true,
+        "format": "xrechnung-ubl"
+      }
+    }
+  },
+  "expectedIssueCodes": {
+    "facturx-en16931": [],
+    "xrechnung-ubl": []
+  },
+  "derived": {
+    "docType": "invoice",
+    "status": "pending",
+    "issuedAt": 1768500000000,
+    "dueAt": 1771178400000,
+    "amountPaid": 0,
+    "totals": {
+      "mode": "line",
+      "lines": [
+        {
+          "net": 250
+        }
+      ],
+      "subtotal": 250,
+      "discount": 0,
+      "taxTotal": 0,
+      "grandTotal": 250,
+      "taxBreakdown": [
+        {
+          "key": "E\u00000",
+          "category": "E",
+          "rate": 0,
+          "base": 250,
+          "amount": 0,
+          "exemptionReason": "Steuerbefreit gemäß § 19 UStG",
+          "addedToTotal": true,
+          "conflict": false
+        }
+      ]
+    },
+    "seller": {
+      "taxId": "27/123/45678",
+      "vatId": ""
+    },
+    "preceding": null,
+    "lang": "en"
+  }
+}
