@@ -582,6 +582,78 @@ describe('Form Reducer should handle update Settings', () => {
   });
 });
 
+describe('plan 015 form reducer behavior', () => {
+  const baseState = FormReducer(undefined, { type: '@@INIT' });
+
+  it('FORM_ITEM_MOVE does not mutate the previous rows array', () => {
+    const state = FormReducer(baseState, {
+      type: ACTION_TYPES.FORM_ITEM_ADD,
+      payload: { id: 'a' },
+    });
+    const withTwo = FormReducer(state, {
+      type: ACTION_TYPES.FORM_ITEM_ADD,
+      payload: { id: 'b' },
+    });
+    const priorRows = withTwo.rows;
+    const next = FormReducer(withTwo, {
+      type: ACTION_TYPES.FORM_ITEM_MOVE,
+      payload: { dragIndex: 0, hoverIndex: 1 },
+    });
+    expect(next.rows).not.toBe(priorRows);
+    expect(priorRows.length).toBe(2);
+  });
+
+  it('INVOICE_EDIT sets issuedAt from created_at for legacy invoices', () => {
+    const created = Date.UTC(2020, 0, 15);
+    const next = FormReducer(baseState, {
+      type: ACTION_TYPES.INVOICE_EDIT,
+      payload: {
+        created_at: created,
+        recipient: { fullname: 'A', email: 'a@b.com', _id: 'c1' },
+        rows: [],
+        contacts: [],
+      },
+    });
+    expect(next.issuedAt).toBe(created);
+  });
+
+  it('FORM_LOAD_DUPLICATE clears edit mode and suggested invoiceID', () => {
+    const editState = FormReducer(baseState, {
+      type: ACTION_TYPES.INVOICE_EDIT,
+      payload: {
+        invoiceID: 'OLD-1',
+        created_at: Date.now(),
+        recipient: { fullname: 'A', email: 'a@b.com', _id: 'c1' },
+        rows: [],
+        contacts: [],
+      },
+    });
+    const next = FormReducer(editState, {
+      type: ACTION_TYPES.FORM_LOAD_DUPLICATE,
+      payload: {
+        invoiceID: 'OLD-1',
+        recipient: { fullname: 'A', email: 'a@b.com', _id: 'c1' },
+        rows: [],
+        contacts: [],
+      },
+    });
+    expect(next.settings.editMode.active).toBe(false);
+    expect(next.invoiceID).toMatch(/^INV-/);
+    expect(next.invoiceID).not.toBe('OLD-1');
+  });
+
+  it('FORM_SET_ERRORS and FORM_CLEAR reset errors', () => {
+    const withErrors = FormReducer(baseState, {
+      type: ACTION_TYPES.FORM_SET_ERRORS,
+      payload: { errors: { invoiceID: 'x' }, mode: 'final' },
+    });
+    expect(withErrors.errors.invoiceID).toBe('x');
+    const cleared = FormReducer(withErrors, { type: ACTION_TYPES.FORM_CLEAR });
+    expect(cleared.errors).toEqual({});
+    expect(cleared.errorMode).toBeNull();
+  });
+});
+
 // Test Selectors
 const state = {
   form: {
