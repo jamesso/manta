@@ -7,6 +7,7 @@ import { omit } from 'lodash';
 const contactsDB = new PouchDB('contacts', { adapter: 'idb' });
 const invoicesDB = new PouchDB('invoices', { adapter: 'idb' });
 const itemsDB = new PouchDB('items', { adapter: 'idb' });
+const recurringDB = new PouchDB('recurring', { adapter: 'idb' });
 
 // Handle Data Migration
 async function runMigration(db, version, migrations, done) {
@@ -128,6 +129,10 @@ const setDB = dbName =>
     }
     if (dbName === 'items') {
       resolve(itemsDB);
+      return;
+    }
+    if (dbName === 'recurring') {
+      resolve(recurringDB);
       return;
     }
     if (dbName === 'invoices') {

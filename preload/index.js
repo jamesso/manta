@@ -35,6 +35,7 @@ const CHANNELS = new Set([
   'save-pdf',
   'select-export-directory',
   'set-theme',
+  'system-resumed',
   'update-available',
   'update-checking',
   'update-download-progress',

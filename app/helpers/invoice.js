@@ -496,6 +496,9 @@ function getPaidDate(invoice) {
 }
 
 function getInvoiceNumber(invoice) {
+  if (!invoice.invoiceID && invoice.recurringId) {
+    return '';
+  }
   return invoice.invoiceID || invoice._id.slice(0, 8);
 }
 

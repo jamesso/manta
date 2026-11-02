@@ -75,6 +75,18 @@ export function advanceNumbering(n, savedID) {
   return { ...numbering, next: used + 1 };
 }
 
+export function assignNumberIfMissing(doc, nextStatus, numbering) {
+  const n = normalizeNumbering(numbering);
+  if (doc.status === 'draft' && !doc.invoiceID && nextStatus !== 'draft') {
+    const invoiceID = formatInvoiceNumber(n);
+    return {
+      doc: { ...doc, invoiceID },
+      numbering: advanceNumbering(n, invoiceID),
+    };
+  }
+  return { doc, numbering: n };
+}
+
 export function resolveStoredNumbering(reconciledNumbering, configNumbering) {
   const fromConfig = normalizeNumbering(configNumbering);
   if (!reconciledNumbering) {

@@ -363,6 +363,7 @@ function loadMainProcessFiles() {
   require('./main/logo');
   require('./main/backup');
   require('./main/updater');
+  require('./main/power-events');
 }
 
 function windowStateKeeper(windowName) {

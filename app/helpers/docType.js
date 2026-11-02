@@ -24,7 +24,7 @@ export function isCreditNote(doc) {
 }
 
 export function onlyInvoices(docs = []) {
-  return docs.filter(isInvoice);
+  return docs.filter(d => isInvoice(d) && !d.recurringTombstone);
 }
 
 export function onlyEstimates(docs = []) {

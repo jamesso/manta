@@ -37,6 +37,7 @@ const mockData = {
   contactsRecords: [contactDoc],
   invoicesRecords: [invoiceDoc],
   itemsRecords: [itemDoc],
+  recurringRecords: [],
 };
 
 function resetMockPouchData() {
@@ -48,6 +49,7 @@ function resetMockPouchData() {
     },
   ];
   mockData.itemsRecords = [{ ...itemDoc }];
+  mockData.recurringRecords = [];
 }
 
 const getAllDocs = vi.fn(
@@ -63,6 +65,9 @@ const getAllDocs = vi.fn(
         case 'items':
           resolve(mockData.itemsRecords);
           break;
+        case 'recurring':
+          resolve(mockData.recurringRecords);
+          break;
         default:
           reject(new Error('Incorrect database!'));
       }
@@ -77,6 +82,7 @@ const saveDoc = vi.fn(
       dbName === 'contacts' && resolve([...mockData.contactsRecords, doc]);
       dbName === 'invoices' && resolve([...mockData.invoicesRecords, doc]);
       dbName === 'items' && resolve([...mockData.itemsRecords, doc]);
+      dbName === 'recurring' && resolve([...mockData.recurringRecords, doc]);
     })
 );
 
@@ -88,6 +94,7 @@ const updateDoc = vi.fn(
       dbName === 'contacts' && resolve([...mockData.contactsRecords]);
       dbName === 'invoices' && resolve([...mockData.invoicesRecords]);
       dbName === 'items' && resolve([...mockData.itemsRecords]);
+      dbName === 'recurring' && resolve([...mockData.recurringRecords]);
     })
 );
 
@@ -98,6 +105,11 @@ const getSingleDoc = vi.fn(
       !docID && reject(new Error('No docID found!'));
       dbName === 'contacts' && resolve([...mockData.contactsRecords][0]);
       dbName === 'invoices' && resolve([...mockData.invoicesRecords][0]);
+      dbName === 'recurring' &&
+        resolve(
+          mockData.recurringRecords.find(d => d._id === docID) ??
+            mockData.recurringRecords[0]
+        );
     })
 );
 
