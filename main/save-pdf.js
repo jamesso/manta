@@ -4,10 +4,14 @@ const appConfig = require('./settings');
 const path = require('path');
 const fs = require('fs');
 const { getPrintOptions } = require('./print-options');
+const { pdfFileName } = require('./pdf-file-name');
 
-ipcMain.on('save-pdf', async (event, docId) => {
+ipcMain.on('save-pdf', async (event, docId, meta) => {
   const exportDir = appConfig.get('invoice.exportDir');
-  const pdfPath = path.join(exportDir, `${docId}.pdf`);
+  const pdfPath = path.join(
+    exportDir,
+    pdfFileName(docId, meta && meta.docType, exportDir)
+  );
   const win = BrowserWindow.fromWebContents(event.sender);
   try {
     const data = await win.webContents.printToPDF(

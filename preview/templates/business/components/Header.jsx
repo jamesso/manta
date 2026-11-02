@@ -7,6 +7,7 @@ import moment from 'moment';
 // Helper
 import { calTermDate } from '../../../../helpers/date';
 import { getIssuedAt } from '../../../../app/helpers/invoice';
+import { getDocTitleKey, isEstimate } from '../../../../app/helpers/docType';
 
 // Styles
 import styled from 'styled-components';
@@ -116,7 +117,7 @@ function Header({ t, invoice, profile, configs }) {
           accentColor={accentColor}
           customAccentColor={customAccentColor}
         >
-          {t('preview:common:invoice', { lng: language })}
+          {t(getDocTitleKey(invoice), { lng: language })}
         </Heading>
         <h4>
           #
@@ -133,22 +134,34 @@ function Header({ t, invoice, profile, configs }) {
             .lang(language)
             .format(configs.dateFormat)}
         </p>
-        {invoice.dueDate && [
-          <p key="dueDate">
-            {t('preview:common:due', { lng: language })}:{' '}
-            {invoice.dueDate.useCustom
-              ? moment(invoice.dueDate.selectedDate)
-                  .lang(language)
-                  .format(configs.dateFormat)
-              : moment(
-                  calTermDate(getIssuedAt(invoice), invoice.dueDate.paymentTerm)
-                )
+        {isEstimate(invoice)
+          ? invoice.validUntil != null && (
+              <p key="validUntil">
+                {t('preview:common:validUntil', { lng: language })}:{' '}
+                {moment(invoice.validUntil)
                   .lang(language)
                   .format(configs.dateFormat)}
-          </p>,
-          <p key="dueDateNote">
-            {!invoice.dueDate.useCustom &&
-              `
+              </p>
+            )
+          : invoice.dueDate && [
+              <p key="dueDate">
+                {t('preview:common:due', { lng: language })}:{' '}
+                {invoice.dueDate.useCustom
+                  ? moment(invoice.dueDate.selectedDate)
+                      .lang(language)
+                      .format(configs.dateFormat)
+                  : moment(
+                      calTermDate(
+                        getIssuedAt(invoice),
+                        invoice.dueDate.paymentTerm
+                      )
+                    )
+                      .lang(language)
+                      .format(configs.dateFormat)}
+              </p>,
+              <p key="dueDateNote">
+                {!invoice.dueDate.useCustom &&
+                  `
             (
               ${t(
                 `form:fields:dueDate:paymentTerms:${
@@ -157,8 +170,8 @@ function Header({ t, invoice, profile, configs }) {
               )}
             )
             `}
-          </p>,
-        ]}
+              </p>,
+            ]}
       </RightColumn>
     </InvoiceHeader>
   );

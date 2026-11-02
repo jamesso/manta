@@ -10,6 +10,12 @@ import Template from '../components/sidebar/Template';
 import Toggler from '../components/sidebar/Toggler';
 
 const ipc = window.manta.ipc;
+import {
+  getDocType,
+  getDocTitleKey,
+  isEstimate,
+} from '../../app/helpers/docType';
+import { getDefaultValidUntil } from '../../app/helpers/estimate';
 
 export default function SideBar({
   t,
@@ -27,7 +33,7 @@ export default function SideBar({
   };
 
   const savePDF = () => {
-    ipc.send('save-pdf', invoice._id);
+    ipc.send('save-pdf', invoice._id, { docType: getDocType(invoice) });
     saveConfigs();
   };
 

@@ -224,7 +224,28 @@ for (const template of ['minimal', 'business']) {
   LINE_CASES[`${template}-line-ae`] = { template, invoice: LINE_AE };
 }
 
-const ACTIVE_CASES = SNAPSHOT_SET === 'line' ? LINE_CASES : CASES;
+const ESTIMATE_BASE = {
+  ...BASE,
+  docType: 'estimate',
+  status: 'sent',
+  validUntil: Date.UTC(2026, 1, 14),
+};
+delete ESTIMATE_BASE.dueDate;
+
+const ESTIMATE_CASES = {};
+for (const template of ['minimal', 'business']) {
+  ESTIMATE_CASES[`${template}-default`] = {
+    template,
+    invoice: { ...ESTIMATE_BASE },
+  };
+}
+
+const ACTIVE_CASES =
+  SNAPSHOT_SET === 'line'
+    ? LINE_CASES
+    : SNAPSHOT_SET === 'estimate'
+      ? ESTIMATE_CASES
+      : CASES;
 
 const PROPS = [
   'font-family',
