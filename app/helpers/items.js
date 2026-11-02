@@ -12,14 +12,19 @@ export function isKnownUnit(code) {
   return UNIT_CODES.includes(code);
 }
 
-export function getItemErrors(values, items, selfId) {
+export function getItemErrors(values, items, selfId, options = {}) {
   const errors = {};
   const name = String(values.name ?? '').trim();
+  const willBeActive =
+    options.willBeActive ??
+    (values.archived !== true &&
+      values.archived !== 'true' &&
+      Boolean(values.archived) !== true);
   if (!name) {
     errors.name = 'items:errors:nameRequired';
   } else if (name.length > 120) {
     errors.name = 'items:errors:nameTooLong';
-  } else {
+  } else if (willBeActive) {
     const normalizedName = normalize(name);
     const taken = items.some(
       item =>

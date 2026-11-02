@@ -2,6 +2,7 @@ import { applyItemToRow } from '../../../../helpers/items';
 import {
   shouldAddRowOnEnter,
   shouldApplyTextChange,
+  shouldBlockAutocompleteEnter,
 } from '../ItemAutocomplete';
 
 describe('ItemAutocomplete behavior', () => {
@@ -11,7 +12,13 @@ describe('ItemAutocomplete behavior', () => {
     expect(shouldApplyTextChange('input-change', true)).toBe(false);
   });
 
-  it('adds a row on Enter only when popup is closed', () => {
+  it('blocks IME Enter while the popup is open', () => {
+    const event = { key: 'Enter', nativeEvent: { isComposing: true } };
+    expect(shouldBlockAutocompleteEnter(event, true, true)).toBe(true);
+    expect(shouldBlockAutocompleteEnter(event, false, true)).toBe(false);
+  });
+
+  it('adds a row on Enter only when the popup is closed', () => {
     expect(
       shouldAddRowOnEnter({ key: 'Enter', open: false, isComposing: false })
     ).toBe(true);

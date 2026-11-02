@@ -31,6 +31,22 @@ export function shouldAddRowOnEnter({ key, open, isComposing }) {
   return !open;
 }
 
+export function shouldBlockAutocompleteEnter(event, open, composing) {
+  return (
+    event.key === 'Enter' &&
+    open &&
+    (composing || event.nativeEvent?.isComposing)
+  );
+}
+
+export function blockBaseUIKeyHandler(event) {
+  if (typeof event.preventBaseUIHandler === 'function') {
+    event.preventBaseUIHandler();
+  }
+  event.preventDefault();
+  event.stopPropagation();
+}
+
 export default function ItemAutocomplete({
   id,
   value,
@@ -44,6 +60,7 @@ export default function ItemAutocomplete({
   const { t } = useTranslation();
   const [userOpen, setUserOpen] = useState(false);
   const skipTextChangeRef = useRef(false);
+  const composingRef = useRef(false);
 
   const matches = useMemo(() => searchItems(items, value), [items, value]);
   const open = userOpen && matches.length > 0 && value.trim().length >= 1;
@@ -76,19 +93,30 @@ export default function ItemAutocomplete({
         id={id}
         className={cn(inputClassName, inputProps.className)}
         {...inputProps}
+        onCompositionStart={event => {
+          composingRef.current = true;
+          inputProps.onCompositionStart?.(event);
+        }}
+        onCompositionEnd={event => {
+          composingRef.current = false;
+          inputProps.onCompositionEnd?.(event);
+        }}
         onKeyDown={event => {
           inputProps.onKeyDown?.(event);
           if (event.defaultPrevented) {
             return;
           }
-          if (event.nativeEvent.isComposing) {
+          const composing =
+            composingRef.current || Boolean(event.nativeEvent?.isComposing);
+          if (shouldBlockAutocompleteEnter(event, open, composing)) {
+            blockBaseUIKeyHandler(event);
             return;
           }
           if (
             shouldAddRowOnEnter({
               key: event.key,
               open,
-              isComposing: event.nativeEvent.isComposing,
+              isComposing: composing,
             })
           ) {
             event.preventDefault();

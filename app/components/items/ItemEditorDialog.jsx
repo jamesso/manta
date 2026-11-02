@@ -88,7 +88,9 @@ export default function ItemEditorDialog({
 
   const onSubmit = async event => {
     event.preventDefault();
-    const nextErrors = getItemErrors(values, items, item?._id);
+    const nextErrors = getItemErrors(values, items, item?._id, {
+      willBeActive: item ? !item.archived : true,
+    });
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length) {
       if (nextErrors.name && nameRef.current) {

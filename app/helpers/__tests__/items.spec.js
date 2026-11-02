@@ -89,6 +89,21 @@ describe('items helpers', () => {
       ).toBeUndefined();
     });
 
+    it('skips active-name validation for archived updates', () => {
+      const items = [
+        { _id: 'live', name: 'Design', archived: false },
+        { _id: 'dead', name: 'Design', archived: true },
+      ];
+      expect(
+        getItemErrors(
+          { name: 'Design', unitPrice: '1', unitCode: 'C62' },
+          items,
+          'dead',
+          { willBeActive: false }
+        ).name
+      ).toBeUndefined();
+    });
+
     it('allows editing self', () => {
       expect(
         getItemErrors(

@@ -7,7 +7,11 @@ import {
   removeDocs,
   restoreDocs,
 } from '../helpers/pouchDB';
-import { getItemErrors } from '../helpers/items';
+import {
+  prepareItemsForRestore,
+  runItemCatalogWrite,
+  validateItemDocForWrite,
+} from '../helpers/itemCatalogWrites';
 import i18n from '../../i18n/i18n';
 import { UNDO_TIMEOUT_MS } from '../constants/invoices';
 import { toast } from '@/components/ui/toast';
@@ -40,13 +44,14 @@ function protectWrite(dispatch) {
   return null;
 }
 
-function itemValuesFromDoc(doc) {
-  return {
-    name: doc.name ?? '',
-    description: doc.description ?? '',
-    unitPrice: String(doc.unitPrice ?? ''),
-    unitCode: doc.unitCode,
-  };
+function warnItemValidation(dispatch, errors) {
+  dispatch({
+    type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+    payload: {
+      type: 'warning',
+      message: i18n.t(errors.name ?? errors.unitPrice ?? errors.unitCode),
+    },
+  });
 }
 
 const ItemsMW =
@@ -79,8 +84,15 @@ const ItemsMW =
         if (!endWrite) {
           return false;
         }
-        return saveDoc('items', action.payload)
-          .then(newDocs => {
+        return runItemCatalogWrite(async () => {
+          const items = await getAllDocs('items');
+          const errors = validateItemDocForWrite(action.payload, items);
+          if (Object.keys(errors).length) {
+            warnItemValidation(dispatch, errors);
+            return false;
+          }
+          try {
+            const newDocs = await saveDoc('items', action.payload);
             next({
               type: ACTION_TYPES.ITEM_SAVE,
               payload: newDocs,
@@ -93,8 +105,7 @@ const ItemsMW =
               },
             });
             return true;
-          })
-          .catch(err => {
+          } catch (err) {
             next({
               type: ACTION_TYPES.UI_NOTIFICATION_NEW,
               payload: {
@@ -103,8 +114,8 @@ const ItemsMW =
               },
             });
             return false;
-          })
-          .finally(endWrite);
+          }
+        }).finally(endWrite);
       }
 
       case ACTION_TYPES.ITEM_UPDATE: {
@@ -112,54 +123,40 @@ const ItemsMW =
         if (!endWrite) {
           return false;
         }
-        return getAllDocs('items')
-          .then(allDocs => {
-            const errors = getItemErrors(
-              itemValuesFromDoc(action.payload),
-              allDocs,
-              action.payload._id
-            );
-            if (Object.keys(errors).length) {
-              dispatch({
-                type: ACTION_TYPES.UI_NOTIFICATION_NEW,
-                payload: {
-                  type: 'warning',
-                  message: i18n.t(
-                    errors.name ?? errors.unitPrice ?? errors.unitCode
-                  ),
-                },
-              });
-              return false;
-            }
-            return updateDoc('items', action.payload)
-              .then(newDocs => {
-                next({
-                  type: ACTION_TYPES.ITEM_UPDATE,
-                  payload: newDocs,
-                });
-                dispatch({
-                  type: ACTION_TYPES.UI_NOTIFICATION_NEW,
-                  payload: {
-                    type: 'success',
-                    message: i18n.t(
-                      action.meta?.messageKey ?? 'messages:item:updated'
-                    ),
-                  },
-                });
-                return true;
-              })
-              .catch(err => {
-                next({
-                  type: ACTION_TYPES.UI_NOTIFICATION_NEW,
-                  payload: {
-                    type: 'warning',
-                    message: err.message,
-                  },
-                });
-                return false;
-              });
-          })
-          .finally(endWrite);
+        return runItemCatalogWrite(async () => {
+          const items = await getAllDocs('items');
+          const errors = validateItemDocForWrite(action.payload, items);
+          if (Object.keys(errors).length) {
+            warnItemValidation(dispatch, errors);
+            return false;
+          }
+          try {
+            const newDocs = await updateDoc('items', action.payload);
+            next({
+              type: ACTION_TYPES.ITEM_UPDATE,
+              payload: newDocs,
+            });
+            dispatch({
+              type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+              payload: {
+                type: 'success',
+                message: i18n.t(
+                  action.meta?.messageKey ?? 'messages:item:updated'
+                ),
+              },
+            });
+            return true;
+          } catch (err) {
+            next({
+              type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+              payload: {
+                type: 'warning',
+                message: err.message,
+              },
+            });
+            return false;
+          }
+        }).finally(endWrite);
       }
 
       case ACTION_TYPES.ITEM_DELETE: {
@@ -168,47 +165,48 @@ const ItemsMW =
           return undefined;
         }
         const ids = [...new Set([].concat(action.payload))];
-        return removeDocs('items', ids)
-          .then(({ removed, failed, docs }) => {
-            next({
-              type: ACTION_TYPES.ITEM_DELETE,
-              payload: docs,
-            });
-            if (failed.length) {
-              dispatch({
+        return runItemCatalogWrite(() =>
+          removeDocs('items', ids)
+            .then(({ removed, failed, docs }) => {
+              next({
+                type: ACTION_TYPES.ITEM_DELETE,
+                payload: docs,
+              });
+              if (failed.length) {
+                dispatch({
+                  type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+                  payload: {
+                    type: 'warning',
+                    message: i18n.t('messages:item:deleteFailed'),
+                  },
+                });
+              }
+              if (removed.length) {
+                const toastId = toast.add({
+                  title: i18n.t('messages:item:deleted', {
+                    count: removed.length,
+                  }),
+                  timeout: UNDO_TIMEOUT_MS,
+                  actionProps: {
+                    children: i18n.t('messages:item:undo'),
+                    onClick: () => {
+                      toast.close(toastId);
+                      dispatch(Actions.restoreItems(removed));
+                    },
+                  },
+                });
+              }
+            })
+            .catch(err => {
+              next({
                 type: ACTION_TYPES.UI_NOTIFICATION_NEW,
                 payload: {
                   type: 'warning',
-                  message: i18n.t('messages:item:deleteFailed'),
+                  message: err.message,
                 },
               });
-            }
-            if (removed.length) {
-              const toastId = toast.add({
-                title: i18n.t('messages:item:deleted', {
-                  count: removed.length,
-                }),
-                timeout: UNDO_TIMEOUT_MS,
-                actionProps: {
-                  children: i18n.t('messages:item:undo'),
-                  onClick: () => {
-                    toast.close(toastId);
-                    dispatch(Actions.restoreItems(removed));
-                  },
-                },
-              });
-            }
-          })
-          .catch(err => {
-            next({
-              type: ACTION_TYPES.UI_NOTIFICATION_NEW,
-              payload: {
-                type: 'warning',
-                message: err.message,
-              },
-            });
-          })
-          .finally(endWrite);
+            })
+        ).finally(endWrite);
       }
 
       case ACTION_TYPES.ITEM_RESTORE: {
@@ -216,17 +214,31 @@ const ItemsMW =
         if (!endWrite) {
           return undefined;
         }
-        return restoreDocs('items', action.payload)
-          .then(docs => {
+        return runItemCatalogWrite(async () => {
+          const current = await getAllDocs('items');
+          const { docs, archivedDueToConflict } = prepareItemsForRestore(
+            action.payload,
+            current
+          );
+          try {
+            const allDocs = await restoreDocs('items', docs);
             next({
               type: ACTION_TYPES.ITEM_RESTORE,
-              payload: docs,
+              payload: allDocs,
             });
+            if (archivedDueToConflict) {
+              dispatch({
+                type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+                payload: {
+                  type: 'warning',
+                  message: i18n.t('items:errors:nameTaken'),
+                },
+              });
+            }
             toast.add({
               title: i18n.t('messages:item:restored'),
             });
-          })
-          .catch(err => {
+          } catch (err) {
             if (err.docs) {
               next({
                 type: ACTION_TYPES.ITEM_RESTORE,
@@ -240,8 +252,8 @@ const ItemsMW =
                 message: err.message,
               },
             });
-          })
-          .finally(endWrite);
+          }
+        }).finally(endWrite);
       }
 
       default: {
