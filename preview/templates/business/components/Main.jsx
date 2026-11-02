@@ -84,6 +84,12 @@ const InvoiceTotal = styled.tr`
       border-top: 4px solid ${props.accentColor};
     }
   `};
+  ${props =>
+    props.nowrapLabel
+      ? `
+    td.label { white-space: nowrap; }
+  `
+      : ''};
 `;
 
 const InvoiceDiscount = styled.tr`
@@ -279,9 +285,13 @@ function Main({ invoice, configs, t }) {
           <InvoiceTotal
             accentColor={accentColor}
             customAccentColor={customAccentColor}
+            nowrapLabel={isCreditNote(invoice)}
           >
             <td colSpan="2" />
-            <td className="label">
+            <td
+              className="label"
+              colSpan={isCreditNote(invoice) ? 2 : undefined}
+            >
               {t(
                 isCreditNote(invoice)
                   ? 'preview:common:totalCredit'
@@ -289,7 +299,7 @@ function Main({ invoice, configs, t }) {
                 { lng: language }
               )}
             </td>
-            <td colSpan="2">
+            <td colSpan={isCreditNote(invoice) ? undefined : 2}>
               {currencyBefore ? currency : null}{' '}
               {formatNumber(
                 totals.mode === 'line' ? totals.grandTotal : invoice.grandTotal,
