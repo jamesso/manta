@@ -12,6 +12,7 @@ import {
   roundMoney,
   withStatus,
 } from './invoice';
+import { isInvoice } from './docType';
 
 function startOfDay(ms) {
   return moment(ms).startOf('day').valueOf();
@@ -82,6 +83,7 @@ function parseMoneyInput(raw, separator) {
 
 function canRecordPayment(invoice) {
   return (
+    isInvoice(invoice) &&
     ['pending', 'paid'].includes(getStoredStatus(invoice)) &&
     getBalanceDue(invoice) > 0
   );
@@ -158,6 +160,9 @@ function normalizeNote(note) {
 }
 
 function addPaymentToDoc(doc, input, { fullBalance = false, now }) {
+  if (!isInvoice(doc)) {
+    return { ok: false, error: 'notInvoice' };
+  }
   const draft = { ...doc };
   const stored = getStoredStatus(draft);
   if (stored === 'draft') {
@@ -241,6 +246,9 @@ function addPaymentToDoc(doc, input, { fullBalance = false, now }) {
 }
 
 function removePaymentFromDoc(doc, paymentId, now) {
+  if (!isInvoice(doc)) {
+    return { ok: false, error: 'notInvoice' };
+  }
   if (!Array.isArray(doc.payments)) {
     return { ok: false, error: 'notFound' };
   }
@@ -284,6 +292,9 @@ function markDocPaidInFull(doc, now) {
 }
 
 function setDocStatus(doc, status, now) {
+  if (!isInvoice(doc)) {
+    return { ok: false, error: 'notInvoice' };
+  }
   if (status === 'paid') {
     return markDocPaidInFull(doc, now);
   }

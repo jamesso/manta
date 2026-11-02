@@ -12,6 +12,18 @@ import * as Actions from '../actions/invoices';
 
 // Helpers
 import { INVOICE_STATUSES, UNDO_TIMEOUT_MS } from '../constants/invoices';
+import { ESTIMATE_SETTABLE_STATUSES } from '../constants/estimates';
+import {
+  buildLinkIndex,
+  canConvert,
+  estimateToInvoiceDraft,
+  isSettableStatus,
+  withConversion,
+  markInvoiceDeletedForUndo,
+  clearInvoiceDeletedForUndo,
+} from '../helpers/estimate';
+import { isEstimate, isInvoice } from '../helpers/docType';
+import { getInvoiceNumber } from '../helpers/invoice';
 import {
   addPaymentToDoc,
   removePaymentFromDoc,
@@ -288,7 +300,11 @@ const InvoicesMW =
                 type: ACTION_TYPES.UI_NOTIFICATION_NEW,
                 payload: {
                   type: 'success',
-                  message: i18n.t('messages:invoice:draftSaved'),
+                  message: i18n.t(
+                    isEstimate(action.payload)
+                      ? 'messages:estimate:draftSaved'
+                      : 'messages:invoice:draftSaved'
+                  ),
                 },
               });
             } else {
@@ -296,7 +312,11 @@ const InvoicesMW =
                 type: ACTION_TYPES.UI_NOTIFICATION_NEW,
                 payload: {
                   type: 'success',
-                  message: i18n.t('messages:invoice:saved'),
+                  message: i18n.t(
+                    isEstimate(action.payload)
+                      ? 'messages:estimate:saved'
+                      : 'messages:invoice:saved'
+                  ),
                 },
               });
               ipc.send('preview-invoice', action.payload);
@@ -369,10 +389,21 @@ const InvoicesMW =
               });
             }
             if (removed.length) {
+              for (const doc of removed) {
+                if (isInvoice(doc)) {
+                  markInvoiceDeletedForUndo(doc._id);
+                }
+              }
+              const allEstimates = removed.every(isEstimate);
               const toastId = toast.add({
-                title: i18n.t('invoices:toast:deleted', {
-                  count: removed.length,
-                }),
+                title: i18n.t(
+                  allEstimates
+                    ? removed.length === 1
+                      ? 'estimates:toast:deleted_one'
+                      : 'estimates:toast:deleted_other'
+                    : 'invoices:toast:deleted',
+                  { count: removed.length }
+                ),
                 timeout: UNDO_TIMEOUT_MS,
                 actionProps: {
                   children: i18n.t('invoices:toast:undo'),
@@ -403,6 +434,11 @@ const InvoicesMW =
         }
         return restoreDocs('invoices', action.payload)
           .then(docs => {
+            for (const doc of action.payload) {
+              if (isInvoice(doc)) {
+                clearInvoiceDeletedForUndo(doc._id);
+              }
+            }
             next({
               type: ACTION_TYPES.INVOICE_RESTORE,
               payload: docs,
@@ -449,6 +485,11 @@ const InvoicesMW =
                   'issuedAt',
                   'created_at',
                   'payments',
+                  'convertedInvoiceId',
+                  'convertedAt',
+                  'sourceEstimateId',
+                  'validUntil',
+                  'sentAt',
                 ]),
                 { contacts: allDocs }
               ),
@@ -563,9 +604,12 @@ const InvoicesMW =
 
         return Promise.all(
           ids.map(id =>
-            queuedInvoiceWrite(id, doc =>
-              addPaymentToDoc(doc, paymentInput, { fullBalance, now })
-            )
+            queuedInvoiceWrite(id, doc => {
+              if (!isInvoice(doc)) {
+                return { ok: false, error: 'notInvoice' };
+              }
+              return addPaymentToDoc(doc, paymentInput, { fullBalance, now });
+            })
           )
         )
           .then(results =>
@@ -616,9 +660,12 @@ const InvoicesMW =
         }
         const { invoiceID, paymentId } = action.payload;
         const now = Date.now();
-        return queuedInvoiceWrite(invoiceID, doc =>
-          removePaymentFromDoc(doc, paymentId, now)
-        )
+        return queuedInvoiceWrite(invoiceID, doc => {
+          if (!isInvoice(doc)) {
+            return { ok: false, error: 'notInvoice' };
+          }
+          return removePaymentFromDoc(doc, paymentId, now);
+        })
           .then(result =>
             finalizeQueuedWrites({
               results: [result],
@@ -664,7 +711,11 @@ const InvoicesMW =
           return undefined;
         }
         const { invoiceID, status } = action.payload;
-        if (!INVOICE_STATUSES.includes(status)) {
+        const allowedStatuses = [
+          ...INVOICE_STATUSES,
+          ...ESTIMATE_SETTABLE_STATUSES,
+        ];
+        if (!allowedStatuses.includes(status)) {
           next({
             type: ACTION_TYPES.UI_NOTIFICATION_NEW,
             payload: {
@@ -680,7 +731,12 @@ const InvoicesMW =
 
         return Promise.all(
           ids.map(id =>
-            queuedInvoiceWrite(id, doc => setDocStatus(doc, status, now))
+            queuedInvoiceWrite(id, doc => {
+              if (!isSettableStatus(doc, status)) {
+                return { ok: false, error: 'invalidStatus' };
+              }
+              return setDocStatus(doc, status, now);
+            })
           )
         )
           .then(results =>
@@ -726,6 +782,103 @@ const InvoicesMW =
               title: err.message,
               type: 'warning',
             });
+          })
+          .finally(endWrite);
+      }
+
+      case ACTION_TYPES.ESTIMATE_CONVERT: {
+        if (warnImportBlocked(dispatch)) {
+          return false;
+        }
+        const runConvert = () =>
+          getAllDocs('invoices').then(docs => {
+            const est = docs.find(d => d._id === action.payload._id);
+            if (!est) {
+              toast.add({
+                title: i18n.t('estimates:toast:notFound'),
+                type: 'warning',
+              });
+              return false;
+            }
+            if (!canConvert(est, buildLinkIndex(docs))) {
+              toast.add({
+                title: i18n.t('estimates:toast:alreadyConverted'),
+                type: 'warning',
+              });
+              return false;
+            }
+            return getAllDocs('contacts').then(contacts => {
+              dispatch({
+                type: ACTION_TYPES.FORM_LOAD_DUPLICATE,
+                payload: {
+                  ...estimateToInvoiceDraft(est),
+                  contacts,
+                },
+              });
+              dispatch(UIActions.changeActiveTab('form'));
+              return true;
+            });
+          });
+
+        if (!hasUnsavedFormChanges(getState().form)) {
+          return runConvert().catch(err => {
+            next({
+              type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+              payload: { type: 'warning', message: err.message },
+            });
+            return false;
+          });
+        }
+        return dialog
+          .confirm({
+            title: i18n.t('app:newInvoice:confirmTitle'),
+            message: i18n.t('app:newInvoice:confirmMessage'),
+            confirmLabel: i18n.t('app:newInvoice:confirm'),
+            cancelLabel: i18n.t('app:newInvoice:cancel'),
+          })
+          .then(ok => {
+            if (!ok) return false;
+            return runConvert();
+          })
+          .catch(err => {
+            next({
+              type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+              payload: { type: 'warning', message: err.message },
+            });
+            return false;
+          });
+      }
+
+      case ACTION_TYPES.ESTIMATE_MARK_CONVERTED: {
+        const endWrite = protectWrite(dispatch);
+        if (!endWrite) {
+          return false;
+        }
+        const { estimateId, invoiceId } = action.payload;
+        return getSingleDoc('invoices', estimateId)
+          .then(doc =>
+            updateDoc('invoices', withConversion(doc, invoiceId, Date.now()))
+          )
+          .then(docs => {
+            next({
+              type: ACTION_TYPES.INVOICE_UPDATE,
+              payload: docs,
+            });
+            toast.add({
+              title: i18n.t('estimates:toast:converted', {
+                number: getInvoiceNumber(
+                  docs.find(d => d._id === estimateId) ?? { _id: estimateId }
+                ),
+              }),
+            });
+            return true;
+          })
+          .catch(() => {
+            toast.add({
+              title: i18n.t('estimates:toast:linkFailed'),
+              type: 'warning',
+            });
+            return false;
           })
           .finally(endWrite);
       }
