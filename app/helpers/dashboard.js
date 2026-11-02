@@ -3,7 +3,7 @@ import {
   formatInvoiceAmount,
   getDisplayStatus,
   getDueDate,
-  getInvoiceValue,
+  getInvoiceTotal,
   getIssuedAt,
   getPaidDate,
 } from './invoice';
@@ -37,13 +37,7 @@ function monthKey(ts) {
 }
 
 function amountOf(inv) {
-  if (Number.isFinite(inv.grandTotal)) {
-    return inv.grandTotal;
-  }
-  if (Array.isArray(inv.rows)) {
-    return getInvoiceValue(inv).grandTotal;
-  }
-  return 0;
+  return getInvoiceTotal(inv);
 }
 
 function currencyOf(inv, fallback) {

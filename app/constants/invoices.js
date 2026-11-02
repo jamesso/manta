@@ -8,9 +8,11 @@ export const INVOICE_STATUSES = [
 export const DISPLAY_STATUSES = [
   'draft',
   'pending',
+  'partial',
   'overdue',
   'paid',
   'refunded',
   'cancelled',
 ];
+export const PAYMENT_METHODS = ['bank', 'cash', 'card', 'paypal', 'other'];
 export const UNDO_TIMEOUT_MS = 6000;

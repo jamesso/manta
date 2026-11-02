@@ -3,6 +3,110 @@ import moment from 'moment';
 import { calTermDate } from '../../helpers/date';
 import { formatNumber } from '../../helpers/formatNumber';
 import { INVOICE_STATUSES } from '../constants/invoices';
+import { normalizeFraction, roundMoney } from './money';
+
+function getCurrencyFraction(invoice) {
+  const n = Number(invoice?.currency?.fraction);
+  if (Number.isInteger(n) && n >= 0 && n <= 8) {
+    return n;
+  }
+  return 2;
+}
+
+function getInvoiceTotal(invoice) {
+  if (Number.isFinite(invoice.grandTotal)) {
+    return invoice.grandTotal;
+  }
+  if (Array.isArray(invoice.rows)) {
+    return Number(getInvoiceValue(invoice).grandTotal) || 0;
+  }
+  return 0;
+}
+
+const MIN_DATE = -8640000000000000;
+const MAX_DATE = 8640000000000000;
+
+function isValidPaymentDate(date) {
+  return (
+    typeof date === 'number' &&
+    Number.isFinite(date) &&
+    date >= MIN_DATE &&
+    date <= MAX_DATE
+  );
+}
+
+function amountRepresentableAtFraction(amount, fraction) {
+  if (!Number.isFinite(amount) || amount <= 0) {
+    return false;
+  }
+  return roundMoney(amount, fraction) === amount;
+}
+
+function getPayments(invoice) {
+  if (!Array.isArray(invoice.payments)) {
+    return [];
+  }
+  const f = getCurrencyFraction(invoice);
+  const seen = new Set();
+  const valid = [];
+  for (const entry of invoice.payments) {
+    if (entry == null || typeof entry !== 'object') {
+      continue;
+    }
+    const id = entry.id;
+    if (typeof id !== 'string' || id === '' || seen.has(id)) {
+      continue;
+    }
+    const amount = Number(entry.amount);
+    if (
+      !Number.isFinite(amount) ||
+      amount <= 0 ||
+      !amountRepresentableAtFraction(amount, f)
+    ) {
+      continue;
+    }
+    if (!isValidPaymentDate(entry.date)) {
+      continue;
+    }
+    seen.add(id);
+    valid.push({
+      id,
+      date: entry.date,
+      amount,
+      method: entry.method,
+      note: entry.note,
+    });
+  }
+  valid.sort((a, b) => {
+    if (a.date !== b.date) {
+      return a.date - b.date;
+    }
+    return a.id.localeCompare(b.id);
+  });
+  return valid;
+}
+
+function getAmountPaid(invoice) {
+  const f = getCurrencyFraction(invoice);
+  if (!Array.isArray(invoice.payments)) {
+    return getStoredStatus(invoice) === 'paid'
+      ? roundMoney(getInvoiceTotal(invoice), f)
+      : 0;
+  }
+  const sum = getPayments(invoice).reduce((acc, p) => acc + p.amount, 0);
+  return roundMoney(sum, f);
+}
+
+/**
+ * Plan 023 subtracts issued credit notes here.
+ */
+function getBalanceDue(invoice) {
+  const f = getCurrencyFraction(invoice);
+  return roundMoney(
+    roundMoney(getInvoiceTotal(invoice), f) - getAmountPaid(invoice),
+    f
+  );
+}
 
 function getInvoiceValue(data) {
   function calSub(data) {
@@ -112,6 +216,9 @@ function getDisplayStatus(invoice, now = Date.now()) {
   if (due !== null && due < moment(now).startOf('day').valueOf()) {
     return 'overdue';
   }
+  if (getAmountPaid(invoice) > 0 && getBalanceDue(invoice) > 0) {
+    return 'partial';
+  }
   return 'pending';
 }
 
@@ -168,13 +275,19 @@ function formatInvoiceAmount(invoice) {
 
 export {
   formatInvoiceAmount,
+  getAmountPaid,
+  getBalanceDue,
+  getCurrencyFraction,
   getDisplayStatus,
   getDueDate,
   getDueInDays,
   getInvoiceNumber,
+  getInvoiceTotal,
   getInvoiceValue,
   getIssuedAt,
   getPaidDate,
+  getPayments,
   getStoredStatus,
+  roundMoney,
   withStatus,
 };

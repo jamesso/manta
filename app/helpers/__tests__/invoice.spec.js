@@ -1,8 +1,11 @@
 import moment from 'moment';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { formatNumber } from '../../../helpers/formatNumber';
 import {
   formatInvoiceAmount,
+  getAmountPaid,
+  getBalanceDue,
   getDisplayStatus,
   getDueDate,
   getDueInDays,
@@ -10,6 +13,8 @@ import {
   getInvoiceNumber,
   getInvoiceValue,
   getPaidDate,
+  getPayments,
+  roundMoney,
   withStatus,
 } from '../invoice';
 
@@ -210,6 +215,64 @@ describe('getDisplayStatus', () => {
     const startToday = Date.UTC(2026, 0, 15);
     expect(getDisplayStatus(invoice, startToday)).toBe('overdue');
   });
+
+  it('partial when partially paid and not overdue', () => {
+    const invoice = {
+      status: 'pending',
+      grandTotal: 100,
+      currency: { fraction: 2 },
+      payments: [
+        {
+          id: 'p1',
+          date: Date.UTC(2026, 0, 1),
+          amount: 40,
+          method: 'cash',
+        },
+      ],
+      dueDate: {
+        useCustom: true,
+        selectedDate: { years: 2026, months: 0, date: 20 },
+      },
+    };
+    const now = Date.UTC(2026, 0, 10);
+    expect(getDisplayStatus(invoice, now)).toBe('partial');
+  });
+
+  it('overdue wins over partial', () => {
+    const pastDue = {
+      status: 'pending',
+      grandTotal: 100,
+      currency: { fraction: 2 },
+      payments: [
+        {
+          id: 'p1',
+          date: Date.UTC(2026, 0, 1),
+          amount: 40,
+          method: 'cash',
+        },
+      ],
+      dueDate: {
+        useCustom: true,
+        selectedDate: { years: 2026, months: 0, date: 1 },
+      },
+    };
+    expect(getDisplayStatus(pastDue, Date.UTC(2026, 0, 15))).toBe('overdue');
+  });
+
+  it('pending when nothing paid', () => {
+    expect(
+      getDisplayStatus(
+        { status: 'pending', grandTotal: 100 },
+        Date.UTC(2026, 0, 1)
+      )
+    ).toBe('pending');
+  });
+
+  it('paid stays paid', () => {
+    expect(getDisplayStatus({ status: 'paid' }, Date.UTC(2026, 0, 1))).toBe(
+      'paid'
+    );
+  });
 });
 
 describe('getDueInDays timezone edge', () => {
@@ -329,5 +392,137 @@ describe('getInvoiceNumber', () => {
       'INV-1'
     );
     expect(getInvoiceNumber({ _id: 'abcdefghijklmnop' })).toBe('abcdefgh');
+  });
+});
+
+describe('roundMoney', () => {
+  it('matches reference rounding values', () => {
+    expect(roundMoney(1.005, 2)).toBe(1.01);
+    expect(roundMoney(2.675, 2)).toBe(2.68);
+    expect(roundMoney(3937.0375, 2)).toBe(3937.04);
+    expect(roundMoney(99.995, 2)).toBe(100);
+    expect(roundMoney(0.125, 2)).toBe(0.13);
+    expect(roundMoney(-1.005, 2)).toBe(-1.01);
+    expect(roundMoney(Number.NaN, 2)).toBe(0);
+    expect(roundMoney(1234.5, 'x')).toBe(1234.5);
+  });
+
+  it('matches formatNumber after rounding', () => {
+    for (const x of [1.005, 2.675, 3937.0375, 99.995, 0.125]) {
+      expect(formatNumber(roundMoney(x, 2), 2, 'commaDot')).toBe(
+        formatNumber(x, 2, 'commaDot')
+      );
+    }
+  });
+});
+
+describe('getPayments', () => {
+  const base = { currency: { fraction: 2 } };
+
+  it('returns empty when payments missing', () => {
+    expect(getPayments({})).toEqual([]);
+  });
+
+  it('dedupes ids and drops invalid entries', () => {
+    const invoice = {
+      ...base,
+      payments: [
+        { id: 'a', date: Date.UTC(2026, 0, 2), amount: 10, method: 'cash' },
+        { id: 'a', date: Date.UTC(2026, 0, 3), amount: 20, method: 'cash' },
+        { id: 'b', amount: 5 },
+        { id: 'c', date: Date.UTC(2026, 0, 1), amount: -1 },
+        { id: 'd', date: Date.UTC(2026, 0, 1), amount: 'x' },
+        null,
+        { id: 'e', date: Date.UTC(2026, 0, 4), amount: 15, method: 'bank' },
+      ],
+    };
+    expect(getPayments(invoice).map(p => p.id)).toEqual(['a', 'e']);
+  });
+
+  it('sorts by date', () => {
+    const invoice = {
+      ...base,
+      payments: [
+        { id: 'b', date: Date.UTC(2026, 0, 5), amount: 1, method: 'cash' },
+        { id: 'a', date: Date.UTC(2026, 0, 1), amount: 2, method: 'cash' },
+      ],
+    };
+    expect(getPayments(invoice).map(p => p.id)).toEqual(['a', 'b']);
+  });
+});
+
+describe('getAmountPaid', () => {
+  it('legacy paid without payments array uses total', () => {
+    expect(
+      getAmountPaid({
+        status: 'paid',
+        grandTotal: 100,
+        currency: { fraction: 2 },
+      })
+    ).toBe(100);
+  });
+
+  it('paid with empty payments array is zero', () => {
+    expect(
+      getAmountPaid({
+        status: 'paid',
+        grandTotal: 100,
+        payments: [],
+        currency: { fraction: 2 },
+      })
+    ).toBe(0);
+  });
+
+  it('pending without payments is zero', () => {
+    expect(
+      getAmountPaid({
+        status: 'pending',
+        grandTotal: 100,
+        currency: { fraction: 2 },
+      })
+    ).toBe(0);
+  });
+
+  it('sums rounded payments', () => {
+    expect(
+      getAmountPaid({
+        status: 'pending',
+        grandTotal: 1,
+        currency: { fraction: 2 },
+        payments: [
+          { id: 'a', date: 1, amount: 0.1, method: 'cash' },
+          { id: 'b', date: 2, amount: 0.2, method: 'cash' },
+        ],
+      })
+    ).toBe(0.3);
+  });
+});
+
+describe('getBalanceDue', () => {
+  it('3937.0375 total minus 3937.04 payment is zero', () => {
+    const invoice = {
+      status: 'pending',
+      grandTotal: 3937.0375,
+      currency: { fraction: 2 },
+      payments: [
+        {
+          id: 'p',
+          date: Date.UTC(2026, 0, 1),
+          amount: 3937.04,
+          method: 'bank',
+        },
+      ],
+    };
+    expect(getBalanceDue(invoice)).toBe(0);
+  });
+
+  it('supports fraction 0', () => {
+    const invoice = {
+      status: 'pending',
+      grandTotal: 100,
+      currency: { fraction: 0 },
+      payments: [{ id: 'p', date: 1, amount: 40, method: 'cash' }],
+    };
+    expect(getBalanceDue(invoice)).toBe(60);
   });
 });
