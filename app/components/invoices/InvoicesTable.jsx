@@ -50,7 +50,7 @@ export default function InvoicesTable({ table, onOpen }) {
               className="cursor-pointer"
               onClick={() => onOpen(row.id)}
             >
-              {row.getVisibleCells().map(cell => (
+              {row.getAllCells().map(cell => (
                 <TableCell
                   key={cell.id}
                   className={
