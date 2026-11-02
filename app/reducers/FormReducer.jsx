@@ -15,10 +15,15 @@ import { getIssuedAt } from '../helpers/invoice';
 import {
   formatInvoiceNumber,
   normalizeNumbering,
+  resolveStoredNumbering,
+  suggestedInvoiceNumberFromReconciled,
 } from '../helpers/numbering';
 
-function suggestedInvoiceNumber() {
-  return formatInvoiceNumber(normalizeNumbering(invoiceSettings.numbering));
+function invoiceNumberForState(state) {
+  return suggestedInvoiceNumberFromReconciled(
+    state.reconciledNumbering,
+    appConfig.get('invoice.numbering')
+  );
 }
 
 const initialState = {
@@ -35,7 +40,10 @@ const initialState = {
   },
   discount: {},
   note: {},
-  invoiceID: suggestedInvoiceNumber(),
+  invoiceID: suggestedInvoiceNumberFromReconciled(
+    null,
+    invoiceSettings.numbering
+  ),
   issuedAt: null,
   errors: {},
   errorMode: null,
@@ -88,7 +96,7 @@ function populateFromDuplicate(state, payload) {
       setEditRecipient(contacts, recipient)
     ),
     rows: rows.map(row => ({ ...row })),
-    invoiceID: suggestedInvoiceNumber(),
+    invoiceID: invoiceNumberForState(state),
     issuedAt: null,
     currency: currency !== undefined ? currency : state.savedSettings.currency,
     discount: discount !== undefined ? discount : {},
@@ -308,7 +316,8 @@ const FormReducer = handleActions(
       Object.assign({}, initialState, {
         currency: state.savedSettings.currency,
         tax: state.savedSettings.tax,
-        invoiceID: suggestedInvoiceNumber(),
+        invoiceID: invoiceNumberForState(state),
+        reconciledNumbering: state.reconciledNumbering,
         settings: Object.assign({}, state.settings, {
           open: false,
           editMode: {

@@ -130,6 +130,27 @@ describe('form helpers', () => {
     ];
     expect(Object.keys(getFormErrors(f, 'final')).length).toBeGreaterThan(0);
   });
+  it('reuses saved recipient ids in edit mode for new clients', () => {
+    const f = form();
+    const recipientId = 'contact-abc';
+    f.settings.editMode = {
+      active: true,
+      data: {
+        _id: 'inv-1',
+        recipient: {
+          _id: recipientId,
+          created_at: 99,
+          fullname: 'Jane',
+          email: 'jane@example.com',
+        },
+      },
+    };
+    const first = getInvoiceData(f, { defaultCurrency: currency });
+    const second = getInvoiceData(f, { defaultCurrency: currency });
+    expect(first.recipient._id).toBe(recipientId);
+    expect(second.recipient._id).toBe(recipientId);
+    expect(first.recipient.created_at).toBe(99);
+  });
   it.each([
     [
       'recipient.fullname',

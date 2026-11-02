@@ -45,6 +45,24 @@ export function advanceNumbering(n, savedID) {
   return { ...numbering, next: used + 1 };
 }
 
+export function resolveStoredNumbering(reconciledNumbering, configNumbering) {
+  const fromConfig = normalizeNumbering(configNumbering);
+  if (!reconciledNumbering) {
+    return fromConfig;
+  }
+  const reconciled = normalizeNumbering(reconciledNumbering);
+  return reconciled.next > fromConfig.next ? reconciled : fromConfig;
+}
+
+export function suggestedInvoiceNumberFromReconciled(
+  reconciledNumbering,
+  configNumbering
+) {
+  return formatInvoiceNumber(
+    resolveStoredNumbering(reconciledNumbering, configNumbering)
+  );
+}
+
 export function mergeNumbering(stored, saved, edited) {
   const base = normalizeNumbering(stored);
   const savedNorm = normalizeNumbering(saved);

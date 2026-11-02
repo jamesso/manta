@@ -431,10 +431,14 @@ export function getInvoiceData(
   const { editMode } = settings;
   const fields = pickInvoiceFields(formData, defaultCurrency);
   if (formData.recipient.newRecipient) {
+    const savedRecipient =
+      editMode.active && editMode.data?.recipient
+        ? editMode.data.recipient
+        : null;
     fields.recipient = {
       ...fields.recipient,
-      _id: crypto.randomUUID(),
-      created_at: Date.now(),
+      _id: savedRecipient?._id ?? crypto.randomUUID(),
+      created_at: savedRecipient?.created_at ?? Date.now(),
     };
   }
   const issuedAt =

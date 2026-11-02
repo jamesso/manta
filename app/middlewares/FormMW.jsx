@@ -22,9 +22,16 @@ import {
 } from '../helpers/form';
 import {
   advanceNumbering,
-  formatInvoiceNumber,
-  normalizeNumbering,
+  resolveStoredNumbering,
+  suggestedInvoiceNumberFromReconciled,
 } from '../helpers/numbering';
+
+function suggestedInvoiceNumberForForm(form) {
+  return suggestedInvoiceNumberFromReconciled(
+    form.reconciledNumbering,
+    appConfig.get('invoice.numbering')
+  );
+}
 
 let saveInFlight = null;
 
@@ -68,12 +75,17 @@ async function handleSave({ dispatch, getState }, mode) {
     }
 
     if (!editMode.active) {
+      const numberingBase = resolveStoredNumbering(
+        getState().form.reconciledNumbering,
+        appConfig.get('invoice.numbering')
+      );
       const advancedNumbering = advanceNumbering(
-        normalizeNumbering(appConfig.get('invoice.numbering')),
+        numberingBase,
         data.invoiceID
       );
       try {
         appConfig.set('invoice.numbering', advancedNumbering);
+        dispatch({ type: ACTION_TYPES.FORM_CLEAR_RECONCILED_NUMBERING });
       } catch (err) {
         dispatch({
           type: ACTION_TYPES.FORM_RECONCILE_NUMBERING,
@@ -90,6 +102,9 @@ async function handleSave({ dispatch, getState }, mode) {
     }
 
     if (formSnapshot.recipient.newRecipient) {
+      const contactAlreadyOnInvoice =
+        editMode.active && editMode.data?.recipient?._id;
+      if (!contactAlreadyOnInvoice) {
       const contactErrors = getRecipientErrors(formSnapshot.recipient, 'final');
       if (Object.keys(contactErrors).length === 0) {
         const contactOk = await dispatch(
@@ -104,6 +119,7 @@ async function handleSave({ dispatch, getState }, mode) {
             },
           });
         }
+      }
       }
     }
 
@@ -189,21 +205,14 @@ const FormMW =
 
       case ACTION_TYPES.FORM_CLEAR: {
         dispatch(FormActions.closeFormSettings());
-        const reconciled = getState().form.reconciledNumbering;
         next(action);
         dispatch(FormActions.addItem());
-        const numbering = reconciled
-          ? normalizeNumbering(reconciled)
-          : normalizeNumbering(appConfig.get('invoice.numbering'));
         dispatch(
           FormActions.updateFieldData(
             'invoiceID',
-            formatInvoiceNumber(numbering)
+            suggestedInvoiceNumberForForm(getState().form)
           )
         );
-        if (reconciled) {
-          dispatch({ type: ACTION_TYPES.FORM_CLEAR_RECONCILED_NUMBERING });
-        }
         break;
       }
 
@@ -212,9 +221,7 @@ const FormMW =
         dispatch(
           FormActions.updateFieldData(
             'invoiceID',
-            formatInvoiceNumber(
-              normalizeNumbering(appConfig.get('invoice.numbering'))
-            )
+            suggestedInvoiceNumberForForm(getState().form)
           )
         );
         return result;
