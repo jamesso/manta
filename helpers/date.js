@@ -1,5 +1,4 @@
 function calTermDate(createdAt, adjustment) {
-  const createdDate = new Date(createdAt);
   let numberOfDaysToAdd;
   switch (adjustment) {
     case 'net10': {
@@ -23,8 +22,9 @@ function calTermDate(createdAt, adjustment) {
       break;
     }
   }
-  const paymentTermDate = new Date();
-  return paymentTermDate.setDate(createdDate.getDate() + numberOfDaysToAdd);
+  const termDate = new Date(createdAt);
+  termDate.setDate(termDate.getDate() + numberOfDaysToAdd);
+  return termDate.getTime();
 }
 
 export { calTermDate };
