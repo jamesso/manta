@@ -169,6 +169,16 @@ function setInitialValues() {
       email: 'info@opsociety.org',
       phone: '+01 (0) 1-2345-6789',
       website: 'http://www.opsociety.org/',
+      legalName: '',
+      postalAddress: {
+        street: '',
+        additional: '',
+        postcode: '',
+        city: '',
+        region: '',
+        countryCode: '',
+      },
+      bank: { accountName: '', iban: '', bic: '' },
     },
     general: {
       language: 'en',
@@ -206,6 +216,7 @@ function setInitialValues() {
       estimateNumbering: { prefix: 'EST-', next: 1, padding: 4 },
       creditNoteNumbering: { prefix: 'CN-', next: 1, padding: 4 },
       estimateValidDays: 30,
+      eInvoice: { enabled: false, format: 'xrechnung-ubl' },
     },
   };
 
@@ -358,6 +369,7 @@ function addEventListeners() {
 function loadMainProcessFiles() {
   require('./main/preview-window');
   require('./main/save-pdf');
+  require('./main/einvoice');
   require('./main/select-export-directory');
   require('./main/select-logo-file');
   require('./main/logo');
