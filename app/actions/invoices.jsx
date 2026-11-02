@@ -20,6 +20,7 @@ export const newInvoiceFromContact = createAction(
 
 export const deleteInvoice = createAction(
   ACTION_TYPES.INVOICE_DELETE,
+  /** @param {string|string[]} invoiceID */
   invoiceID => invoiceID
 );
 
@@ -41,4 +42,9 @@ export const setInvoiceStatus = createAction(
 export const saveInvoiceConfigs = createAction(
   ACTION_TYPES.INVOICE_CONFIGS_SAVE,
   (invoiceID, configs) => ({ invoiceID, configs })
+);
+
+export const restoreInvoices = createAction(
+  ACTION_TYPES.INVOICE_RESTORE,
+  docs => docs
 );

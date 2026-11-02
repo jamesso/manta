@@ -89,4 +89,26 @@ const deleteDoc = vi.fn(
     })
 );
 
-export { getAllDocs, getSingleDoc, saveDoc, updateDoc, deleteDoc, mockData };
+const removeDocs = vi.fn((dbName, ids) =>
+  Promise.resolve({
+    removed: ids.map(id => ({ _id: id })),
+    failed: [],
+    docs: [],
+  })
+);
+
+const restoreDocs = vi.fn(() => Promise.resolve(mockData.invoicesRecords));
+
+const updateDocs = vi.fn(() => Promise.resolve(mockData.invoicesRecords));
+
+export {
+  getAllDocs,
+  getSingleDoc,
+  saveDoc,
+  updateDoc,
+  deleteDoc,
+  removeDocs,
+  restoreDocs,
+  updateDocs,
+  mockData,
+};

@@ -6,16 +6,20 @@ import i18n from '../../../i18n/i18n';
 
 // Mock Functions
 vi.mock('../../helpers/pouchDB');
-vi.mock('../../helpers/invoice');
+vi.mock('@/components/ui/toast', () => ({
+  toast: { add: vi.fn(() => 't1'), close: vi.fn() },
+}));
 import {
   getAllDocs,
   getSingleDoc,
   saveDoc,
-  deleteDoc,
   updateDoc,
+  removeDocs,
+  restoreDocs,
+  updateDocs,
   mockData,
 } from '../../helpers/pouchDB';
-import { getInvoiceValue } from '../../helpers/invoice';
+import { toast } from '@/components/ui/toast';
 Date.now = vi.fn(() => 'now');
 
 describe('Invoices Middleware', () => {
@@ -28,6 +32,11 @@ describe('Invoices Middleware', () => {
       form: { settings: { editMode: { active: false } } },
     }));
     middleware = InvoicesMW({ dispatch, getState })(next);
+    toast.add.mockClear();
+    toast.close.mockClear();
+    removeDocs.mockClear();
+    restoreDocs.mockClear();
+    updateDocs.mockClear();
   });
 
   describe('should handle INVOICE_GET_ALL action', () => {
@@ -364,44 +373,24 @@ describe('Invoices Middleware', () => {
   });
 
   describe('should handle INVOICE_DELETE action', () => {
-    it('should remove record from DB correctly', () => {
+    it('should remove record from DB correctly', async () => {
       const invoiceID = 'jon-invoice';
-      middleware(Actions.deleteInvoice(invoiceID)).then(() =>
-        deleteDoc('invoices', invoiceID).then(data => {
-          // Correctly resolves
-          expect(data).toEqual([]);
-        })
-      );
+      await middleware(Actions.deleteInvoice(invoiceID));
+      expect(removeDocs).toHaveBeenCalledWith('invoices', [invoiceID]);
     });
 
-    it('should call next and dispatch notification ', () => {
-      // Setup
+    it('should call next with remaining docs', async () => {
       const invoiceID = 'jon-invoice';
       const action = Actions.deleteInvoice(invoiceID);
-      // Execute
-      middleware(action).then(() =>
-        deleteDoc('invoices', invoiceID).then(data => {
-          // Call next after the promised is returned
-          expect(next.mock.calls.length).toBe(1);
-          expect(next).toHaveBeenCalledWith(
-            Object.assign({}, action, {
-              payload: [],
-            })
-          );
-          // Dispatch success notification
-          expect(dispatch.mock.calls.length).toBe(1);
-          expect(dispatch).toHaveBeenCalledWith({
-            type: ACTION_TYPES.UI_NOTIFICATION_NEW,
-            payload: {
-              type: 'success',
-              message: i18n.t('messages:invoice:deleted'),
-            },
-          });
-        })
-      );
+      await middleware(action);
+      expect(next).toHaveBeenCalledWith({
+        type: ACTION_TYPES.INVOICE_DELETE,
+        payload: [],
+      });
+      expect(toast.add).toHaveBeenCalled();
     });
 
-    it('should clear the form if this invoice is being editted', () => {
+    it('should clear the form when the edited invoice was removed', async () => {
       const getState = vi.fn(() => ({
         form: {
           settings: {
@@ -413,42 +402,75 @@ describe('Invoices Middleware', () => {
         },
       }));
       const middleware = InvoicesMW({ dispatch, getState })(next);
-      const invoiceID = 'jon-invoice';
-      // Execute
-      middleware(Actions.deleteInvoice(invoiceID)).then(() =>
-        deleteDoc('invoices', invoiceID).then(data => {
-          expect(dispatch.mock.calls.length).toBe(2);
-          // Dispatch success notification
-          expect(dispatch.mock.calls[0][0]).toEqual({
-            type: ACTION_TYPES.UI_NOTIFICATION_NEW,
-            payload: {
-              type: 'success',
-              message: i18n.t('messages:invoice:deleted'),
-            },
-          });
-          // Dispatch clear Form action
-          expect(dispatch.mock.calls[1][0]).toEqual({
-            type: ACTION_TYPES.FORM_CLEAR,
-          });
-        })
-      );
+      await middleware(Actions.deleteInvoice('jon-invoice'));
+      expect(dispatch).toHaveBeenCalledWith({ type: ACTION_TYPES.FORM_CLEAR });
     });
 
-    it('handle error correctly', () => {
-      // Setup
-      const invoiceID = 'ned-stark';
-      const expectedError = new Error('No invoice found!');
-      // Execute
-      middleware(Actions.deleteInvoice(invoiceID)).then(() => {
-        // Expect
-        expect(next).toHaveBeenCalled();
-        expect(next).toHaveBeenCalledWith({
-          type: ACTION_TYPES.UI_NOTIFICATION_NEW,
-          payload: {
-            type: 'warning',
-            message: expectedError.message,
+    it('does not clear the form when delete failed for the edited id', async () => {
+      removeDocs.mockResolvedValueOnce({
+        removed: [],
+        failed: ['jon-invoice'],
+        docs: mockData.invoicesRecords,
+      });
+      const getState = vi.fn(() => ({
+        form: {
+          settings: {
+            editMode: {
+              active: true,
+              data: { _id: 'jon-invoice' },
+            },
           },
-        });
+        },
+      }));
+      const middleware = InvoicesMW({ dispatch, getState })(next);
+      await middleware(Actions.deleteInvoice('jon-invoice'));
+      expect(dispatch).not.toHaveBeenCalledWith({
+        type: ACTION_TYPES.FORM_CLEAR,
+      });
+    });
+
+    it('undo dispatches restore with removed snapshots', async () => {
+      const removed = [{ _id: 'jon-invoice', status: 'pending' }];
+      removeDocs.mockResolvedValueOnce({
+        removed,
+        failed: [],
+        docs: [],
+      });
+      await middleware(Actions.deleteInvoice('jon-invoice'));
+      const addArg = toast.add.mock.calls[0][0];
+      addArg.actionProps.onClick();
+      expect(toast.close).toHaveBeenCalledWith('t1');
+      expect(dispatch).toHaveBeenCalledWith(Actions.restoreInvoices(removed));
+    });
+
+    it('deduplicates ids for bulk delete', async () => {
+      await middleware(Actions.deleteInvoice(['a', 'a', 'b']));
+      expect(removeDocs).toHaveBeenCalledWith('invoices', ['a', 'b']);
+    });
+
+    it('handle error correctly', async () => {
+      const expectedError = new Error('db down');
+      removeDocs.mockRejectedValueOnce(expectedError);
+      await middleware(Actions.deleteInvoice('ned-stark'));
+      expect(next).toHaveBeenCalledWith({
+        type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+        payload: {
+          type: 'warning',
+          message: expectedError.message,
+        },
+      });
+    });
+  });
+
+  describe('INVOICE_RESTORE', () => {
+    it('restores docs and updates state', async () => {
+      const docs = [{ _id: 'x' }];
+      restoreDocs.mockResolvedValueOnce(mockData.invoicesRecords);
+      await middleware(Actions.restoreInvoices(docs));
+      expect(restoreDocs).toHaveBeenCalledWith('invoices', docs);
+      expect(next).toHaveBeenCalledWith({
+        type: ACTION_TYPES.INVOICE_RESTORE,
+        payload: mockData.invoicesRecords,
       });
     });
   });
@@ -459,19 +481,24 @@ describe('Invoices Middleware', () => {
         _id: 'a-random-string',
         _rev: 'another-random-string',
         created_at: 'yesterday',
+        status: 'paid',
+        paidAt: 1,
+        issuedAt: 2,
       };
-      // Action
       middleware(Actions.duplicateInvoice(invoiceData));
-      // Expect
       expect(dispatch.mock.calls.length).toBe(1);
       expect(dispatch).toHaveBeenCalledWith({
         type: ACTION_TYPES.INVOICE_SAVE,
-        payload: Object.assign({}, invoiceData, {
+        payload: expect.objectContaining({
           _id: 'id-string',
           _rev: null,
           created_at: 'now',
+          status: 'draft',
         }),
       });
+      const payload = dispatch.mock.calls[0][0].payload;
+      expect(payload.paidAt).toBeUndefined();
+      expect(payload.issuedAt).toBeUndefined();
     });
   });
 
@@ -513,38 +540,53 @@ describe('Invoices Middleware', () => {
   });
 
   describe('should handle INVOICE_SET_STATUS action', () => {
-    it('get the doc, merge with status object and dispatch a new action', () => {
+    it('get the doc, merge with status object and dispatch a new action', async () => {
       const invoiceID = 'id-string';
       const status = 'paid';
-      middleware(Actions.setInvoiceStatus(invoiceID, status)).then(() =>
-        getSingleDoc('invoices', invoiceID).then(doc => {
-          expect(dispatch.mock.calls.length).toBe(1);
-          expect(dispatch).toHaveBeenCalledWith({
-            type: ACTION_TYPES.INVOICE_UPDATE,
-            payload: Object.assign({}, doc, { status }),
-          });
-        })
-      );
+      await middleware(Actions.setInvoiceStatus(invoiceID, status));
+      const doc = await getSingleDoc('invoices', invoiceID);
+      expect(dispatch).toHaveBeenCalledWith({
+        type: ACTION_TYPES.INVOICE_UPDATE,
+        payload: expect.objectContaining({ status: 'paid', paidAt: 'now' }),
+      });
+      expect(doc).toBeDefined();
     });
 
-    it('handle error correctly', () => {
-      // Setup
+    it('rejects overdue as a stored status', async () => {
+      await middleware(Actions.setInvoiceStatus('id-string', 'overdue'));
+      expect(getSingleDoc).not.toHaveBeenCalled();
+      expect(next).toHaveBeenCalledWith({
+        type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+        payload: {
+          type: 'warning',
+          message: 'Unknown invoice status: overdue',
+        },
+      });
+    });
+
+    it('bulk update calls updateDocs', async () => {
+      getSingleDoc.mockResolvedValueOnce({ _id: 'a', status: 'pending' });
+      getSingleDoc.mockResolvedValueOnce({ _id: 'b', status: 'pending' });
+      await middleware(Actions.setInvoiceStatus(['a', 'b'], 'paid'));
+      expect(updateDocs).toHaveBeenCalled();
+      expect(next).toHaveBeenCalledWith({
+        type: ACTION_TYPES.INVOICE_UPDATE,
+        payload: mockData.invoicesRecords,
+      });
+    });
+
+    it('handle error correctly', async () => {
       const invoiceID = 'id-string';
       const status = 'paid';
       const expectedError = new Error('No invoice found!');
-      // Execute
-      middleware(Actions.setInvoiceStatus(invoiceID, status)).then(() => {
-        getSingleDoc('test', invoiceID).then(() => {
-          // Expect
-          expect(next).toHaveBeenCalled();
-          expect(next).toHaveBeenCalledWith({
-            type: ACTION_TYPES.UI_NOTIFICATION_NEW,
-            payload: {
-              type: 'warning',
-              message: expectedError.message,
-            },
-          });
-        });
+      getSingleDoc.mockImplementationOnce(() => Promise.reject(expectedError));
+      await middleware(Actions.setInvoiceStatus(invoiceID, status));
+      expect(next).toHaveBeenCalledWith({
+        type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+        payload: {
+          type: 'warning',
+          message: expectedError.message,
+        },
       });
     });
   });

@@ -51,4 +51,81 @@ describe('pouchDB helpers', () => {
   it('getSingleDoc rejects for a missing document', async () => {
     await expect(getSingleDoc('contacts', 'missing')).rejects.toBeDefined();
   });
+
+  describe('bulk invoice helpers', () => {
+    let removeDocs;
+    let restoreDocs;
+    let updateDocs;
+
+    beforeAll(async () => {
+      const mod = await import('../pouchDB.js');
+      removeDocs = mod.removeDocs;
+      restoreDocs = mod.restoreDocs;
+      updateDocs = mod.updateDocs;
+    });
+
+    it('removeDocs snapshots without _rev and tracks failures', async () => {
+      await saveDoc('invoices', {
+        _id: 'bulk-a',
+        status: 'pending',
+        currency: { code: 'USD' },
+      });
+      const { removed, failed, docs } = await removeDocs('invoices', [
+        'bulk-a',
+        'missing',
+      ]);
+      expect(removed).toHaveLength(1);
+      expect(removed[0]._id).toBe('bulk-a');
+      expect(removed[0]._rev).toBeUndefined();
+      expect(failed).toEqual(['missing']);
+      expect(docs.some(d => d._id === 'bulk-a')).toBe(false);
+    });
+
+    it('restoreDocs re-creates removed docs and skips 409 conflicts', async () => {
+      const snapshot = {
+        _id: 'bulk-a',
+        status: 'pending',
+        currency: { code: 'USD' },
+        clientNote: 'original',
+      };
+      await restoreDocs('invoices', [snapshot]);
+      let docs = await getAllDocs('invoices');
+      expect(docs.find(d => d._id === 'bulk-a').clientNote).toBe('original');
+
+      const live = docs.find(d => d._id === 'bulk-a');
+      await updateDoc('invoices', { ...live, clientNote: 'replaced' });
+      await restoreDocs('invoices', [snapshot]);
+      docs = await getAllDocs('invoices');
+      expect(docs.find(d => d._id === 'bulk-a').clientNote).toBe('replaced');
+    });
+
+    it('updateDocs partial failure keeps successful writes in DB', async () => {
+      await saveDoc('invoices', {
+        _id: 'bulk-u1',
+        status: 'pending',
+        currency: { code: 'USD' },
+      });
+      await saveDoc('invoices', {
+        _id: 'bulk-u2',
+        status: 'pending',
+        currency: { code: 'USD' },
+      });
+      const all = await getAllDocs('invoices');
+      const d1 = all.find(d => d._id === 'bulk-u1');
+      const d2 = all.find(d => d._id === 'bulk-u2');
+      const stale = { ...d2, _rev: '1-deadbeef' };
+      try {
+        await updateDocs('invoices', [
+          { ...d1, status: 'paid' },
+          { ...stale, status: 'paid' },
+        ]);
+        expect.unreachable('should reject partial-update');
+      } catch (err) {
+        expect(err.message).toBe('partial-update');
+        expect(err.docs.find(x => x._id === 'bulk-u1').status).toBe('paid');
+        expect(err.succeeded).toEqual(['bulk-u1']);
+        expect(err.failed).toHaveLength(1);
+      }
+    });
+  });
 });

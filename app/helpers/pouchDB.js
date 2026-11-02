@@ -182,4 +182,70 @@ const updateDoc = (dbName, updatedDoc) =>
     .then(db => db.put(updatedDoc))
     .then(() => getAllDocs(dbName));
 
-export { getAllDocs, getSingleDoc, deleteDoc, saveDoc, updateDoc };
+const removeDocs = (dbName, ids) =>
+  setDB(dbName).then(async db => {
+    const removed = [];
+    const failed = [];
+    for (const id of ids) {
+      try {
+        const doc = await db.get(id, { attachments: true });
+        await db.remove(doc);
+        const { _rev, ...snapshot } = doc;
+        removed.push(snapshot);
+      } catch (err) {
+        failed.push(id);
+      }
+    }
+    return { removed, failed, docs: await getAllDocs(dbName) };
+  });
+
+const restoreDocs = (dbName, docs) =>
+  setDB(dbName).then(async db => {
+    for (const doc of docs) {
+      const { _rev, ...clean } = doc;
+      try {
+        await db.put(clean);
+      } catch (err) {
+        if (err.status !== 409) throw err;
+      }
+    }
+    return getAllDocs(dbName);
+  });
+
+const updateDocs = (dbName, docs) =>
+  setDB(dbName).then(async db => {
+    const succeeded = [];
+    const failed = [];
+    for (const doc of docs) {
+      try {
+        await db.put(doc);
+        succeeded.push(doc._id);
+      } catch (error) {
+        failed.push({
+          id: doc._id,
+          status: error.status,
+          message: error.message,
+        });
+      }
+    }
+    const allDocs = await getAllDocs(dbName);
+    if (failed.length) {
+      throw Object.assign(new Error('partial-update'), {
+        succeeded,
+        failed,
+        docs: allDocs,
+      });
+    }
+    return allDocs;
+  });
+
+export {
+  getAllDocs,
+  getSingleDoc,
+  deleteDoc,
+  saveDoc,
+  updateDoc,
+  removeDocs,
+  restoreDocs,
+  updateDocs,
+};

@@ -1,4 +1,7 @@
-import InvoicesReducer, { getInvoices } from '../InvoicesReducer';
+import InvoicesReducer, {
+  getInvoices,
+  getOverdueCount,
+} from '../InvoicesReducer';
 import * as ACTION_TYPES from '../../constants/actions.jsx';
 import { faker } from '@faker-js/faker';
 const initialState = [];
@@ -43,6 +46,15 @@ describe('Invoices Reducer', () => {
       })
     ).toEqual(docs);
   });
+
+  it('should handle restore invoices', () => {
+    expect(
+      InvoicesReducer(initialState, {
+        type: ACTION_TYPES.INVOICE_RESTORE,
+        payload: docs,
+      })
+    ).toEqual(docs);
+  });
 });
 
 // Test Selectors
@@ -53,5 +65,30 @@ const state = {
 describe('Invoices Selector', () => {
   it('should return invoices list', () => {
     expect(getInvoices(state)).toEqual(state.invoices);
+  });
+
+  it('getOverdueCount counts pending past-due only', () => {
+    const now = Date.UTC(2026, 0, 15);
+    const invoices = [
+      { _id: 'd', status: 'draft' },
+      { _id: 'p', status: 'paid' },
+      {
+        _id: 'f',
+        status: 'pending',
+        dueDate: {
+          useCustom: true,
+          selectedDate: { years: 2026, months: 0, date: 20 },
+        },
+      },
+      {
+        _id: 'o',
+        status: 'pending',
+        dueDate: {
+          useCustom: true,
+          selectedDate: { years: 2026, months: 0, date: 1 },
+        },
+      },
+    ];
+    expect(getOverdueCount({ invoices }, now)).toBe(1);
   });
 });

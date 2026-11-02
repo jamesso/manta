@@ -1,5 +1,6 @@
 import { handleActions, combineActions } from 'redux-actions';
 import * as Actions from '../actions/invoices';
+import { getDisplayStatus } from '../helpers/invoice';
 
 const InvoicesReducer = handleActions(
   {
@@ -9,7 +10,8 @@ const InvoicesReducer = handleActions(
       Actions.saveInvoiceConfigs,
       Actions.updateInvoice,
       Actions.deleteInvoice,
-      Actions.setInvoiceStatus
+      Actions.setInvoiceStatus,
+      Actions.restoreInvoices
     )]: (state, action) => action.payload,
   },
   []
@@ -17,5 +19,7 @@ const InvoicesReducer = handleActions(
 
 export default InvoicesReducer;
 
-// Selector
 export const getInvoices = state => state.invoices;
+
+export const getOverdueCount = (state, now = Date.now()) =>
+  state.invoices.filter(inv => getDisplayStatus(inv, now) === 'overdue').length;
