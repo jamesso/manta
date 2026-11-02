@@ -139,6 +139,58 @@ export function suggestedInvoiceNumberFromReconciled(
   return formatInvoiceNumber(reconciled);
 }
 
+export function isInvoiceNumberUsedByOtherDoc(invoiceID, ownDocId, invoices) {
+  if (!invoiceID || typeof invoiceID !== 'string') {
+    return false;
+  }
+  for (const doc of invoices ?? []) {
+    if (!doc || doc._id === ownDocId || doc.recurringTombstone) {
+      continue;
+    }
+    if (doc.docType === 'estimate' || doc.docType === 'creditNote') {
+      continue;
+    }
+    if (doc.docType && doc.docType !== 'invoice') {
+      continue;
+    }
+    if (doc.invoiceID === invoiceID) {
+      return true;
+    }
+  }
+  return false;
+}
+
+export function resolveFormInvoiceIdForWrite({
+  formInvoiceId,
+  ownDocId,
+  persistedInvoiceId,
+  numbering,
+  invoices,
+}) {
+  if (persistedInvoiceId) {
+    return typeof formInvoiceId === 'string'
+      ? formInvoiceId.trim()
+      : formInvoiceId;
+  }
+  const base = normalizeNumbering(numbering);
+  const suggested = formatInvoiceNumber(base);
+  const trimmed = typeof formInvoiceId === 'string' ? formInvoiceId.trim() : '';
+  const keepTyped =
+    trimmed &&
+    trimmed !== suggested &&
+    !isInvoiceNumberUsedByOtherDoc(trimmed, ownDocId, invoices);
+  if (keepTyped) {
+    return trimmed;
+  }
+  let working = base;
+  let candidate = formatInvoiceNumber(working);
+  while (isInvoiceNumberUsedByOtherDoc(candidate, ownDocId, invoices)) {
+    working = advanceNumbering(working, candidate);
+    candidate = formatInvoiceNumber(working);
+  }
+  return candidate;
+}
+
 export function mergeNumbering(stored, saved, edited) {
   const base = normalizeNumbering(stored);
   const savedNorm = normalizeNumbering(saved);

@@ -17,6 +17,7 @@ import {
   getSingleDoc,
 } from '../../helpers/pouchDB';
 import { clearInvoiceMutationQueuesForTests } from '../../helpers/invoiceMutations';
+import { clearInvoiceNumberingWriteChainForTests } from '../../helpers/invoiceNumberingWrites';
 import * as dialog from '@/lib/dialog';
 import * as InvoiceActions from '../../actions/invoices';
 const currency = { code: 'USD', fraction: 2 };
@@ -42,10 +43,18 @@ const makeForm = () => ({
   savedSettings: { currency, tax: {}, required_fields: {} },
   settings: { editMode: { active: false }, required_fields: {} },
 });
+
+async function waitUntil(condition) {
+  await vi.waitFor(() => {
+    expect(condition()).toBe(true);
+  });
+}
+
 describe('Form middleware', () => {
   let form, dispatch, next, middleware;
   beforeEach(() => {
     clearInvoiceMutationQueuesForTests();
+    clearInvoiceNumberingWriteChainForTests();
     form = makeForm();
     next = vi.fn();
     dispatch = vi.fn(() => Promise.resolve(true));
@@ -102,6 +111,9 @@ describe('Form middleware', () => {
     );
     const first = middleware(Actions.saveFormData());
     const second = middleware(Actions.saveFormData());
+    await waitUntil(() =>
+      dispatch.mock.calls.some(([a]) => a.type === TYPES.INVOICE_SAVE)
+    );
     resolve(true);
     await Promise.all([first, second]);
     expect(
@@ -120,6 +132,9 @@ describe('Form middleware', () => {
     );
     const pending = middleware(Actions.saveFormData());
     form = { ...form, formRevision: 1 };
+    await waitUntil(() =>
+      dispatch.mock.calls.some(([a]) => a.type === TYPES.INVOICE_SAVE)
+    );
     resolve(true);
     await pending;
     expect(dispatch.mock.calls.map(([a]) => a.type)).not.toContain(
@@ -228,6 +243,7 @@ describe('Form middleware', () => {
     integrated(
       Actions.updateFieldData('note', { content: 'typed during save' })
     );
+    await waitUntil(() => saves.length > 0);
     resolve(true);
     await pending;
     await integrated(Actions.saveFormData('draft'));
@@ -267,6 +283,7 @@ describe('Form middleware', () => {
     integrated(
       Actions.updateFieldData('note', { content: 'typed during save' })
     );
+    await waitUntil(() => saves.length > 0);
     resolve(true);
     await pending;
     await integrated(Actions.saveFormData('draft'));
@@ -312,6 +329,7 @@ describe('Form middleware', () => {
     const pending = dispatch(Actions.saveFormData('draft'));
     dispatch(Actions.updateFieldData('note', { content: 'new work' }));
     form.settings.required_fields.note = true;
+    await vi.waitFor(() => expect(saveDoc).toHaveBeenCalled());
     resolveSave();
     await pending;
     await dispatch(Actions.saveFormData('draft'));
@@ -717,4 +735,150 @@ describe('Form middleware', () => {
     expect(types).not.toContain(TYPES.INVOICE_SAVE);
     expect(window.manta.settings.set).not.toHaveBeenCalled();
   });
+
+  it.each([false, true])(
+    'assigns a distinct number when form save races status allocation (edit=%s)',
+    async edit => {
+      let numbering = { prefix: 'INV-', next: 1, padding: 4 };
+      window.manta.settings.get.mockImplementation(key => {
+        if (key === 'invoice.numbering') {
+          return numbering;
+        }
+        if (key === 'invoice.currency') {
+          return currency;
+        }
+        if (key === 'invoice') {
+          return { numbering, currency };
+        }
+        return undefined;
+      });
+      window.manta.settings.set.mockImplementation((key, value) => {
+        if (key === 'invoice.numbering') {
+          numbering = value;
+        }
+      });
+      const docs = [
+        {
+          _id: 'a',
+          docType: 'invoice',
+          status: 'draft',
+          rows: [{ subtotal: 1 }],
+          grandTotal: 1,
+          currency,
+          _rev: '1-a',
+        },
+      ];
+      getAllDocs.mockImplementation(async name =>
+        name === 'invoices' ? structuredClone(docs) : []
+      );
+      getSingleDoc.mockImplementation(async (_name, id) =>
+        structuredClone(docs.find(d => d._id === id))
+      );
+      let releaseStatus;
+      let signalStatus;
+      let signalForm;
+      const statusStarted = new Promise(r => {
+        signalStatus = r;
+      });
+      const formStored = new Promise(r => {
+        signalForm = r;
+      });
+      const hold = new Promise(r => {
+        releaseStatus = r;
+      });
+      updateDocs.mockImplementation(async (_name, updates) => {
+        signalStatus();
+        await hold;
+        for (const patch of updates) {
+          Object.assign(
+            docs.find(x => x._id === patch._id),
+            patch
+          );
+        }
+        return structuredClone(docs);
+      });
+      saveDoc.mockImplementation(async (_name, doc) => {
+        docs.push(structuredClone(doc));
+        signalForm();
+        return structuredClone(docs);
+      });
+      if (edit) {
+        docs.push({
+          _id: 'b',
+          _rev: '1-b',
+          docType: 'invoice',
+          status: 'draft',
+          rows: [{ subtotal: 1 }],
+          grandTotal: 1,
+          recipient: { fullname: 'Jane' },
+          currency,
+        });
+      }
+      updateDoc.mockImplementation(async (_name, doc) => {
+        Object.assign(
+          docs.find(d => d._id === doc._id),
+          structuredClone(doc)
+        );
+        signalForm();
+        return structuredClone(docs);
+      });
+      const raceForm = {
+        ...makeForm(),
+        formRevision: 0,
+        formGeneration: 0,
+        savedSettings: { currency, tax: {}, required_fields: {} },
+        settings: {
+          editMode: { active: false },
+          required_fields: {},
+        },
+      };
+      if (edit) {
+        raceForm.settings.editMode = {
+          active: true,
+          data: structuredClone(docs[1]),
+        };
+      }
+      let raceFormState = raceForm;
+      const chain = action => {
+        raceFormState = FormReducer(raceFormState, action);
+        return action;
+      };
+      let formMw;
+      const dispatchRace = action => {
+        if (
+          action.type === TYPES.INVOICE_SAVE ||
+          action.type === TYPES.INVOICE_UPDATE ||
+          action.type === TYPES.INVOICE_SET_STATUS
+        ) {
+          return invoiceMw(action);
+        }
+        if (action.type === TYPES.CONTACT_SAVE) {
+          return Promise.resolve(true);
+        }
+        return formMw(action);
+      };
+      const invoiceMw = InvoicesMW({
+        dispatch: dispatchRace,
+        getState: () => ({ form: raceFormState }),
+      })(chain);
+      formMw = FormMW({
+        dispatch: dispatchRace,
+        getState: () => ({ form: raceFormState }),
+      })(invoiceMw);
+      const status = invoiceMw({
+        type: TYPES.INVOICE_SET_STATUS,
+        payload: { invoiceID: 'a', status: 'pending' },
+      });
+      await statusStarted;
+      const save = formMw({ type: TYPES.FORM_SAVE, payload: 'draft' });
+      releaseStatus();
+      await Promise.all([status, save]);
+      expect(docs).toHaveLength(2);
+      expect(new Set(docs.map(d => d.invoiceID)).size).toBe(2);
+      expect(docs.map(d => d.invoiceID).sort()).toEqual([
+        'INV-0001',
+        'INV-0002',
+      ]);
+    }
+  );
 });

@@ -6,6 +6,7 @@ import {
   mergeNumbering,
   assignNumberIfMissing,
   reconcileNumberingWithPersistedInvoices,
+  resolveFormInvoiceIdForWrite,
 } from '../numbering';
 
 describe('normalizeNumbering', () => {
@@ -160,5 +161,31 @@ describe('reconcileNumberingWithPersistedInvoices', () => {
       { docType: 'creditNote', invoiceID: 'INV-0003' },
     ]);
     expect(next.next).toBe(1);
+  });
+});
+
+describe('resolveFormInvoiceIdForWrite', () => {
+  const numbering = { prefix: 'INV-', next: 1, padding: 4 };
+
+  it('allocates the next free id when the form matches the suggested number but it is taken', () => {
+    const id = resolveFormInvoiceIdForWrite({
+      formInvoiceId: 'INV-0001',
+      ownDocId: 'new-id',
+      persistedInvoiceId: undefined,
+      numbering,
+      invoices: [{ _id: 'a', docType: 'invoice', invoiceID: 'INV-0001' }],
+    });
+    expect(id).toBe('INV-0002');
+  });
+
+  it('keeps a typed number that is not used elsewhere', () => {
+    const id = resolveFormInvoiceIdForWrite({
+      formInvoiceId: 'INV-0099',
+      ownDocId: 'new-id',
+      persistedInvoiceId: undefined,
+      numbering,
+      invoices: [],
+    });
+    expect(id).toBe('INV-0099');
   });
 });

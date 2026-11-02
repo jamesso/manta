@@ -55,6 +55,7 @@ import {
   defaultNumberingFor,
   normalizeNumbering,
   numberingKeyFor,
+  resolveFormInvoiceIdForWrite,
   resolveStoredNumbering,
   suggestedInvoiceNumberFromReconciled,
 } from '../helpers/numbering';
@@ -74,29 +75,70 @@ function suggestedInvoiceNumberForForm(form) {
   );
 }
 
-async function advanceStoredNumberingAfterSave(
+function needsInvoiceNumberingQueue(docType, editMode) {
+  if (docType !== 'invoice') {
+    return false;
+  }
+  if (editMode.active) {
+    return editMode.data?.status === 'draft' && !editMode.data?.invoiceID;
+  }
+  return true;
+}
+
+async function persistInvoiceCounterAfterAssign(
   dispatch,
   getState,
-  docTypeForNumbering,
   savedInvoiceId
 ) {
-  if (docTypeForNumbering !== 'invoice' || !savedInvoiceId) {
-    return;
-  }
-  await runInvoiceNumberingWrite(async () => {
+  const numberingBase = await resolveInvoiceNumberingForAllocation(
+    appConfig,
+    getState().form.reconciledNumbering
+  );
+  const advancedNumbering = advanceNumbering(
+    normalizeNumbering(numberingBase, defaultNumberingFor('invoice')),
+    savedInvoiceId
+  );
+  await persistInvoiceNumberingCounter(appConfig, advancedNumbering, {
+    dispatch,
+    actionTypes: ACTION_TYPES,
+    i18n,
+  });
+}
+
+async function saveInvoiceWithNumberingQueue({
+  dispatch,
+  getState,
+  editMode,
+  data,
+}) {
+  return runInvoiceNumberingWrite(async () => {
     const numberingBase = await resolveInvoiceNumberingForAllocation(
       appConfig,
       getState().form.reconciledNumbering
     );
-    const advancedNumbering = advanceNumbering(
-      normalizeNumbering(numberingBase, defaultNumberingFor('invoice')),
-      savedInvoiceId
-    );
-    await persistInvoiceNumberingCounter(appConfig, advancedNumbering, {
-      dispatch,
-      actionTypes: ACTION_TYPES,
-      i18n,
+    const invoices = await getAllDocs('invoices');
+    const persistedInvoiceId = editMode.active
+      ? editMode.data?.invoiceID
+      : undefined;
+    const ownDocId = editMode.active ? editMode.data._id : data._id;
+    const invoiceID = resolveFormInvoiceIdForWrite({
+      formInvoiceId: data.invoiceID,
+      ownDocId,
+      persistedInvoiceId,
+      numbering: numberingBase,
+      invoices,
     });
+    const payload = { ...data, invoiceID };
+    const writeOk = editMode.active
+      ? await dispatch(InvoicesActions.updateInvoice(payload))
+      : await dispatch(InvoicesActions.saveInvoice(payload));
+    if (writeOk === false) {
+      return false;
+    }
+    const savedId =
+      (typeof writeOk === 'object' && writeOk?.invoiceID) || invoiceID;
+    await persistInvoiceCounterAfterAssign(dispatch, getState, savedId);
+    return writeOk;
   });
 }
 
@@ -473,13 +515,25 @@ async function handleSave({ dispatch, getState }, mode) {
             return false;
           }
         }
-        ok = editMode.active
-          ? await dispatch(InvoicesActions.updateInvoice(data))
-          : await dispatch(InvoicesActions.saveInvoice(data));
+        if (needsInvoiceNumberingQueue(docType, editMode)) {
+          ok = await saveInvoiceWithNumberingQueue({
+            dispatch,
+            getState,
+            editMode,
+            data,
+          });
+        } else {
+          ok = editMode.active
+            ? await dispatch(InvoicesActions.updateInvoice(data))
+            : await dispatch(InvoicesActions.saveInvoice(data));
+        }
         if (ok === false) {
           return;
         }
         savedBase = typeof ok === 'object' && ok !== null && ok._id ? ok : data;
+        if (needsInvoiceNumberingQueue(docType, editMode)) {
+          data = { ...data, invoiceID: savedBase.invoiceID ?? data.invoiceID };
+        }
       }
 
       if (savedBase === undefined) {
@@ -488,14 +542,7 @@ async function handleSave({ dispatch, getState }, mode) {
 
       if (!editMode.active) {
         const docTypeForNumbering = formSnapshot.docType || 'invoice';
-        if (docTypeForNumbering === 'invoice' && data.invoiceID) {
-          await advanceStoredNumberingAfterSave(
-            dispatch,
-            getState,
-            docTypeForNumbering,
-            data.invoiceID
-          );
-        } else if (docTypeForNumbering !== 'invoice') {
+        if (docTypeForNumbering !== 'invoice') {
           const key = numberingKeyFor(docTypeForNumbering);
           const numberingBase = resolveStoredNumbering(
             getState().form.reconciledNumbering,
@@ -525,18 +572,6 @@ async function handleSave({ dispatch, getState }, mode) {
             });
           }
         }
-      } else if (
-        docType === 'invoice' &&
-        editMode.data?.status === 'draft' &&
-        !editMode.data?.invoiceID &&
-        data.invoiceID
-      ) {
-        await advanceStoredNumberingAfterSave(
-          dispatch,
-          getState,
-          'invoice',
-          data.invoiceID
-        );
       }
 
       if (!editMode.active && data.sourceEstimateId) {
