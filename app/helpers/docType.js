@@ -19,6 +19,10 @@ export function isEstimate(doc) {
   return getDocType(doc) === 'estimate';
 }
 
+export function isCreditNote(doc) {
+  return getDocType(doc) === 'creditNote';
+}
+
 export function onlyInvoices(docs = []) {
   return docs.filter(isInvoice);
 }
@@ -31,6 +35,9 @@ export function getDocTitleKey(doc) {
   if (isEstimate(doc)) {
     return 'preview:common:estimate';
   }
+  if (isCreditNote(doc)) {
+    return 'preview:common:creditNote';
+  }
   if (isInvoice(doc)) {
     return 'preview:common:invoice';
   }
@@ -38,5 +45,8 @@ export function getDocTitleKey(doc) {
 }
 
 export function listTabFor(docType) {
-  return docType === 'estimate' ? 'estimates' : 'invoices';
+  if (docType === 'estimate') {
+    return 'estimates';
+  }
+  return 'invoices';
 }

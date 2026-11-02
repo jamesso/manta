@@ -2,8 +2,8 @@ import moment from 'moment';
 
 import { calTermDate } from '../../helpers/date';
 import { formatNumber } from '../../helpers/formatNumber';
-import { INVOICE_STATUSES } from '../constants/invoices';
-import { isEstimate } from './docType';
+import { INVOICE_STATUSES, CREDIT_NOTE_STATUSES } from '../constants/invoices';
+import { isEstimate, isCreditNote } from './docType';
 import { getEstimateDisplayStatus, getEstimateStoredStatus } from './estimate';
 export {
   DOC_TYPES,
@@ -101,6 +101,33 @@ function getPayments(invoice) {
   return valid;
 }
 
+function getCreditedTotal(invoice, creditNotes = []) {
+  const f = getCurrencyFraction(invoice);
+  let sum = 0;
+  for (const note of creditNotes) {
+    if (!isCreditNote(note) || note.creditedInvoiceId !== invoice._id) {
+      continue;
+    }
+    if (note.status !== 'issued') {
+      continue;
+    }
+    const invCode = invoice.currency?.code;
+    const noteCode = note.currency?.code;
+    if (!invCode || !noteCode || invCode !== noteCode) {
+      continue;
+    }
+    if (getCurrencyFraction(note) !== f) {
+      continue;
+    }
+    const total = note.grandTotal;
+    if (!Number.isFinite(total) || total < 0) {
+      continue;
+    }
+    sum += total;
+  }
+  return roundMoney(sum, f);
+}
+
 function getAmountPaid(invoice) {
   const f = getCurrencyFraction(invoice);
   if (!Array.isArray(invoice.payments)) {
@@ -113,12 +140,14 @@ function getAmountPaid(invoice) {
 }
 
 /**
- * Plan 023 subtracts issued credit notes here.
+ * Plan 023 subtracts issued credit notes when creditNotes is provided.
  */
-function getBalanceDue(invoice) {
+function getBalanceDue(invoice, creditNotes = []) {
   const f = getCurrencyFraction(invoice);
+  const credited =
+    creditNotes.length > 0 ? getCreditedTotal(invoice, creditNotes) : 0;
   return roundMoney(
-    roundMoney(getInvoiceTotal(invoice), f) - getAmountPaid(invoice),
+    roundMoney(getInvoiceTotal(invoice), f) - getAmountPaid(invoice) - credited,
     f
   );
 }
@@ -370,6 +399,13 @@ function getStoredStatus(invoice) {
   if (isEstimate(invoice)) {
     return getEstimateStoredStatus(invoice);
   }
+  if (isCreditNote(invoice)) {
+    const status = invoice.status;
+    if (CREDIT_NOTE_STATUSES.includes(status)) {
+      return status;
+    }
+    return 'draft';
+  }
   const status = invoice.status;
   if (INVOICE_STATUSES.includes(status)) {
     return status;
@@ -403,9 +439,12 @@ function getDueDate(invoice) {
   return termMs;
 }
 
-function getDisplayStatus(invoice, now = Date.now()) {
+function getDisplayStatus(invoice, now = Date.now(), creditNotes = []) {
   if (isEstimate(invoice)) {
     return getEstimateDisplayStatus(invoice, now);
+  }
+  if (isCreditNote(invoice)) {
+    return getStoredStatus(invoice);
   }
   const s = getStoredStatus(invoice);
   if (s !== 'pending') {
@@ -415,7 +454,7 @@ function getDisplayStatus(invoice, now = Date.now()) {
   if (due !== null && due < moment(now).startOf('day').valueOf()) {
     return 'overdue';
   }
-  if (getAmountPaid(invoice) > 0 && getBalanceDue(invoice) > 0) {
+  if (getAmountPaid(invoice) > 0 && getBalanceDue(invoice, creditNotes) > 0) {
     return 'partial';
   }
   return 'pending';
@@ -476,6 +515,7 @@ export {
   formatInvoiceAmount,
   getAmountPaid,
   getBalanceDue,
+  getCreditedTotal,
   getCurrencyFraction,
   getDisplayStatus,
   getDueDate,
