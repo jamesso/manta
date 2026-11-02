@@ -204,6 +204,7 @@ function setInitialValues() {
       },
       numbering: { prefix: 'INV-', next: 1, padding: 4 },
       estimateNumbering: { prefix: 'EST-', next: 1, padding: 4 },
+      creditNoteNumbering: { prefix: 'CN-', next: 1, padding: 4 },
       estimateValidDays: 30,
     },
   };

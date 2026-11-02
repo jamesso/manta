@@ -67,3 +67,23 @@ export const removePayment = createAction(
   ACTION_TYPES.INVOICE_PAYMENT_REMOVE,
   (invoiceID, paymentId) => ({ invoiceID, paymentId })
 );
+
+export const createCreditNote = createAction(
+  ACTION_TYPES.CREDIT_NOTE_NEW_FROM_INVOICE,
+  invoice => invoice
+);
+
+export const issueCreditNote = createAction(
+  ACTION_TYPES.CREDIT_NOTE_ISSUE,
+  id => id
+);
+
+export const voidCreditNote = createAction(
+  ACTION_TYPES.CREDIT_NOTE_VOID,
+  id => id
+);
+
+export const syncCreditedInvoice = createAction(
+  ACTION_TYPES.CREDIT_NOTE_SYNC_INVOICE,
+  invoiceId => invoiceId
+);

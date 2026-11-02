@@ -22,8 +22,17 @@ import {
   markInvoiceDeletedForUndo,
   clearInvoiceDeletedForUndo,
 } from '../helpers/estimate';
-import { isEstimate, isInvoice } from '../helpers/docType';
+import { isEstimate, isInvoice, isCreditNote } from '../helpers/docType';
 import { getInvoiceNumber } from '../helpers/invoice';
+import { runInvoiceMutationQueued } from '../helpers/invoiceMutations';
+import {
+  buildCreditNoteDraft,
+  canCreateCreditNote,
+  groupCreditNotesByInvoice,
+  partitionDeletable,
+  resolveStatusAfterCredit,
+  validateCreditTotal,
+} from '../helpers/creditNotes';
 import {
   addPaymentToDoc,
   removePaymentFromDoc,
@@ -84,18 +93,54 @@ function persistedInvoice(docs, payload) {
   return payload;
 }
 
-const paymentQueues = new Map();
 let invoiceListRefresh = Promise.resolve();
 
 function runPaymentQueued(invoiceId, fn) {
-  const prev = paymentQueues.get(invoiceId) || Promise.resolve();
-  const next = prev.then(fn, fn).finally(() => {
-    if (paymentQueues.get(invoiceId) === next) {
-      paymentQueues.delete(invoiceId);
+  return runInvoiceMutationQueued(invoiceId, fn);
+}
+
+function linkedCreditNotes(allDocs, invoiceId) {
+  return allDocs.filter(
+    d => isCreditNote(d) && d.creditedInvoiceId === invoiceId
+  );
+}
+
+function repairInvoicesWithCredits(allDocs, now) {
+  const byInvoice = groupCreditNotesByInvoice(allDocs);
+  const updates = [];
+  for (const inv of allDocs) {
+    if (!isInvoice(inv)) {
+      continue;
     }
-  });
-  paymentQueues.set(invoiceId, next);
-  return next;
+    const linked = byInvoice.get(inv._id) ?? [];
+    if (!linked.length) {
+      continue;
+    }
+    const next = resolveStatusAfterCredit(inv, linked, now);
+    if (next !== inv) {
+      updates.push(next);
+    }
+  }
+  return updates;
+}
+
+async function handleSyncCreditedInvoice(invoiceId, { next, dispatch, getState }) {
+  const allDocs = await getAllDocs('invoices');
+  const invoice = allDocs.find(d => d._id === invoiceId);
+  if (!invoice) {
+    next({ type: ACTION_TYPES.INVOICE_UPDATE, payload: allDocs });
+    return allDocs;
+  }
+  const linked = linkedCreditNotes(allDocs, invoiceId);
+  const updated = resolveStatusAfterCredit(invoice, linked, Date.now());
+  if (updated !== invoice) {
+    await updateDocs('invoices', [updated]);
+    const fresh = await getAllDocs('invoices');
+    next({ type: ACTION_TYPES.INVOICE_UPDATE, payload: fresh });
+    return fresh;
+  }
+  next({ type: ACTION_TYPES.INVOICE_UPDATE, payload: allDocs });
+  return allDocs;
 }
 
 function paymentErrorMessage(errorKey) {
@@ -169,9 +214,21 @@ function finalizeQueuedWrites({ results, next, dispatch, getState }) {
 
 function queuedInvoiceWrite(invoiceId, mutate) {
   return runPaymentQueued(invoiceId, () =>
-    getSingleDoc('invoices', invoiceId)
-      .then(doc => {
-        const result = mutate(doc);
+    Promise.all([
+      getSingleDoc('invoices', invoiceId),
+      getAllDocs('invoices'),
+    ])
+      .then(([doc, allDocs]) => {
+        if (!doc) {
+          return {
+            id: invoiceId,
+            ok: false,
+            committed: false,
+            error: 'notFound',
+          };
+        }
+        const creditNotes = linkedCreditNotes(allDocs, invoiceId);
+        const result = mutate(doc, creditNotes);
         if (!result.ok) {
           return {
             id: invoiceId,
@@ -183,11 +240,11 @@ function queuedInvoiceWrite(invoiceId, mutate) {
           };
         }
         return updateDocs('invoices', [result.doc])
-          .then(allDocs => ({
+          .then(allDocsAfter => ({
             id: invoiceId,
             ok: true,
             committed: true,
-            allDocs,
+            allDocs: allDocsAfter,
             doc: result.doc,
             payment: result.payment,
             stillPaid: result.stillPaid,
@@ -270,10 +327,26 @@ const InvoicesMW =
 
       case ACTION_TYPES.INVOICE_GET_ALL: {
         return getAllDocs('invoices')
-          .then(allDocs => {
+          .then(async allDocs => {
+            const now = Date.now();
+            const repairs = repairInvoicesWithCredits(allDocs, now);
+            let payload = allDocs;
+            if (repairs.length) {
+              try {
+                await updateDocs('invoices', repairs);
+                payload = await getAllDocs('invoices');
+              } catch {
+                toast.add({
+                  title: i18n.t('invoices:creditNotes:errors:syncFailed', {
+                    defaultValue: 'Could not repair invoice status after credits.',
+                  }),
+                  type: 'warning',
+                });
+              }
+            }
             next(
               Object.assign({}, action, {
-                payload: allDocs,
+                payload,
               })
             );
           })
@@ -364,8 +437,35 @@ const InvoicesMW =
           return undefined;
         }
         const ids = [...new Set([].concat(action.payload))];
-        return removeDocs('invoices', ids)
-          .then(({ removed, failed, docs }) => {
+        return runInvoiceMutationQueued('delete-batch', () =>
+          getAllDocs('invoices').then(allDocs => {
+            const { deletable, blocked } = partitionDeletable(ids, allDocs);
+            if (blocked.length) {
+              const byReason = blocked.reduce((acc, b) => {
+                acc[b.reason] = (acc[b.reason] ?? 0) + 1;
+                return acc;
+              }, {});
+              for (const [reason, count] of Object.entries(byReason)) {
+                toast.add({
+                  title: i18n.t(`invoices:creditNotes:toast:${reason}`, {
+                    count,
+                    defaultValue: reason,
+                  }),
+                  type: 'warning',
+                });
+              }
+            }
+            if (!deletable.length) {
+              return null;
+            }
+            return removeDocs('invoices', deletable);
+          })
+        )
+          .then(result => {
+            if (!result) {
+              return;
+            }
+            const { removed, failed, docs } = result;
             next({
               type: ACTION_TYPES.INVOICE_DELETE,
               payload: docs,
@@ -604,11 +704,15 @@ const InvoicesMW =
 
         return Promise.all(
           ids.map(id =>
-            queuedInvoiceWrite(id, doc => {
+            queuedInvoiceWrite(id, (doc, creditNotes) => {
               if (!isInvoice(doc)) {
                 return { ok: false, error: 'notInvoice' };
               }
-              return addPaymentToDoc(doc, paymentInput, { fullBalance, now });
+              return addPaymentToDoc(doc, paymentInput, {
+                fullBalance,
+                now,
+                creditNotes,
+              });
             })
           )
         )
@@ -660,11 +764,11 @@ const InvoicesMW =
         }
         const { invoiceID, paymentId } = action.payload;
         const now = Date.now();
-        return queuedInvoiceWrite(invoiceID, doc => {
+        return queuedInvoiceWrite(invoiceID, (doc, creditNotes) => {
           if (!isInvoice(doc)) {
             return { ok: false, error: 'notInvoice' };
           }
-          return removePaymentFromDoc(doc, paymentId, now);
+          return removePaymentFromDoc(doc, paymentId, now, creditNotes);
         })
           .then(result =>
             finalizeQueuedWrites({
@@ -731,14 +835,14 @@ const InvoicesMW =
 
         return Promise.all(
           ids.map(id =>
-            queuedInvoiceWrite(id, doc => {
+            queuedInvoiceWrite(id, (doc, creditNotes) => {
               if (!isSettableStatus(doc, status)) {
                 return { ok: false, error: 'invalidStatus' };
               }
               if (isEstimate(doc)) {
                 return { ok: true, doc: { ...doc, status } };
               }
-              return setDocStatus(doc, status, now);
+              return setDocStatus(doc, status, now, creditNotes);
             })
           )
         )
@@ -884,6 +988,183 @@ const InvoicesMW =
             return false;
           })
           .finally(endWrite);
+      }
+
+      case ACTION_TYPES.CREDIT_NOTE_NEW_FROM_INVOICE: {
+        if (warnImportBlocked(dispatch)) {
+          return undefined;
+        }
+        const loadCreditForm = () =>
+          getAllDocs('invoices').then(docs => {
+            const invoice = docs.find(
+              d => d._id === action.payload._id
+            );
+            if (!invoice) {
+              toast.add({
+                title: i18n.t('invoices:toast:notFound', {
+                  defaultValue: 'Invoice not found',
+                }),
+                type: 'warning',
+              });
+              return;
+            }
+            const linked = linkedCreditNotes(docs, invoice._id);
+            if (!canCreateCreditNote(invoice, linked)) {
+              toast.add({
+                title: i18n.t('invoices:creditNotes:errors:notAllowed', {
+                  defaultValue: 'Cannot create credit note for this invoice.',
+                }),
+                type: 'warning',
+              });
+              return;
+            }
+            return getAllDocs('contacts').then(contacts => {
+              dispatch({
+                type: ACTION_TYPES.FORM_LOAD_DUPLICATE,
+                payload: {
+                  ...buildCreditNoteDraft(invoice, {
+                    idFn: () => crypto.randomUUID(),
+                  }),
+                  contacts,
+                },
+              });
+              dispatch(UIActions.changeActiveTab('form'));
+            });
+          });
+
+        if (!hasUnsavedFormChanges(getState().form)) {
+          return loadCreditForm().catch(err => {
+            next({
+              type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+              payload: { type: 'warning', message: err.message },
+            });
+          });
+        }
+        return dialog
+          .confirm({
+            title: i18n.t('app:newInvoice:confirmTitle'),
+            message: i18n.t('app:newInvoice:confirmMessage'),
+            confirmLabel: i18n.t('app:newInvoice:confirm'),
+            cancelLabel: i18n.t('app:newInvoice:cancel'),
+          })
+          .then(ok => {
+            if (!ok) return;
+            return loadCreditForm();
+          })
+          .catch(err => {
+            next({
+              type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+              payload: { type: 'warning', message: err.message },
+            });
+          });
+      }
+
+      case ACTION_TYPES.CREDIT_NOTE_ISSUE: {
+        const endWrite = protectWrite(dispatch);
+        if (!endWrite) {
+          return undefined;
+        }
+        const id = action.payload;
+        return getAllDocs('invoices')
+          .then(async docs => {
+            const cn = docs.find(d => d._id === id);
+            if (!cn || !isCreditNote(cn)) {
+              toast.add({ title: 'Credit note not found', type: 'warning' });
+              return;
+            }
+            const stored = cn.status ?? 'draft';
+            if (stored === 'issued') {
+              await handleSyncCreditedInvoice(cn.creditedInvoiceId, {
+                next,
+                dispatch,
+                getState,
+              });
+              return;
+            }
+            if (stored === 'void') {
+              toast.add({
+                title: i18n.t('invoices:creditNotes:errors:void', {
+                  defaultValue: 'Credit note is void.',
+                }),
+                type: 'warning',
+              });
+              return;
+            }
+            const invoice = docs.find(d => d._id === cn.creditedInvoiceId);
+            const linked = linkedCreditNotes(docs, cn.creditedInvoiceId);
+            const code = validateCreditTotal(cn, invoice, linked);
+            if (code) {
+              toast.add({
+                title: i18n.t(`invoices:creditNotes:errors:${code}`),
+                type: 'warning',
+              });
+              return;
+            }
+            return runInvoiceMutationQueued(cn.creditedInvoiceId, () =>
+              updateDocs('invoices', [{ ...cn, status: 'issued' }]).then(
+                () =>
+                  handleSyncCreditedInvoice(cn.creditedInvoiceId, {
+                    next,
+                    dispatch,
+                    getState,
+                  })
+              )
+            );
+          })
+          .finally(endWrite);
+      }
+
+      case ACTION_TYPES.CREDIT_NOTE_VOID: {
+        const endWrite = protectWrite(dispatch);
+        if (!endWrite) {
+          return undefined;
+        }
+        const id = action.payload;
+        return getAllDocs('invoices')
+          .then(docs => {
+            const cn = docs.find(d => d._id === id);
+            if (!cn || !isCreditNote(cn)) {
+              toast.add({ title: 'Credit note not found', type: 'warning' });
+              return;
+            }
+            const stored = cn.status ?? 'draft';
+            if (stored === 'draft') {
+              toast.add({
+                title: i18n.t('invoices:creditNotes:errors:draftVoid', {
+                  defaultValue: 'Draft credit notes cannot be voided.',
+                }),
+                type: 'warning',
+              });
+              return;
+            }
+            if (stored === 'void') {
+              return handleSyncCreditedInvoice(cn.creditedInvoiceId, {
+                next,
+                dispatch,
+                getState,
+              });
+            }
+            return runInvoiceMutationQueued(cn.creditedInvoiceId, () =>
+              updateDocs('invoices', [
+                { ...cn, status: 'void', voidedAt: Date.now() },
+              ]).then(() =>
+                handleSyncCreditedInvoice(cn.creditedInvoiceId, {
+                  next,
+                  dispatch,
+                  getState,
+                })
+              )
+            );
+          })
+          .finally(endWrite);
+      }
+
+      case ACTION_TYPES.CREDIT_NOTE_SYNC_INVOICE: {
+        return handleSyncCreditedInvoice(action.payload, {
+          next,
+          dispatch,
+          getState,
+        });
       }
 
       default: {

@@ -13,6 +13,7 @@ import {
   withStatus,
 } from './invoice';
 import { isInvoice } from './docType';
+import { resolveStatusAfterCredit } from './creditNotes';
 
 function startOfDay(ms) {
   return moment(ms).startOf('day').valueOf();
@@ -81,15 +82,15 @@ function parseMoneyInput(raw, separator) {
   return { value, decimals };
 }
 
-function canRecordPayment(invoice) {
+function canRecordPayment(invoice, creditNotes = []) {
   return (
     isInvoice(invoice) &&
     ['pending', 'paid'].includes(getStoredStatus(invoice)) &&
-    getBalanceDue(invoice) > 0
+    getBalanceDue(invoice, creditNotes) > 0
   );
 }
 
-function getPaymentErrors({ amountRaw, date }, invoice, now) {
+function getPaymentErrors({ amountRaw, date }, invoice, now, creditNotes = []) {
   const f = getCurrencyFraction(invoice);
   const separator = invoice.currency?.separator ?? 'commaDot';
   const errors = {};
@@ -104,7 +105,9 @@ function getPaymentErrors({ amountRaw, date }, invoice, now) {
       errors.amount = 'invoices:payments:errors:tooManyDecimals';
     } else if (parsed.value <= 0) {
       errors.amount = 'invoices:payments:errors:amountPositive';
-    } else if (roundMoney(parsed.value, f) > getBalanceDue(invoice)) {
+    } else if (
+      roundMoney(parsed.value, f) > getBalanceDue(invoice, creditNotes)
+    ) {
       errors.amount = 'invoices:payments:errors:overpayment';
     }
   }
@@ -129,7 +132,11 @@ function getClearingPaymentDate(invoice, now) {
   return now;
 }
 
-function reconcilePaymentStatus(doc, now) {
+function reconcilePaymentStatus(doc, now, creditNotes = []) {
+  const linked = creditNotes.filter(n => n && n.creditedInvoiceId === doc._id);
+  if (linked.length > 0) {
+    return resolveStatusAfterCredit(doc, linked, now);
+  }
   if (!Array.isArray(doc.payments)) {
     return doc;
   }
@@ -137,7 +144,7 @@ function reconcilePaymentStatus(doc, now) {
   if (stored !== 'pending' && stored !== 'paid') {
     return doc;
   }
-  const balance = getBalanceDue(doc);
+  const balance = getBalanceDue(doc, creditNotes);
   if (stored === 'paid' && balance <= 0) {
     return doc;
   }
@@ -159,7 +166,11 @@ function normalizeNote(note) {
   return trimmed;
 }
 
-function addPaymentToDoc(doc, input, { fullBalance = false, now }) {
+function addPaymentToDoc(
+  doc,
+  input,
+  { fullBalance = false, now, creditNotes = [] }
+) {
   if (!isInvoice(doc)) {
     return { ok: false, error: 'notInvoice' };
   }
@@ -171,7 +182,7 @@ function addPaymentToDoc(doc, input, { fullBalance = false, now }) {
   if (stored === 'refunded' || stored === 'cancelled') {
     return { ok: false, error: 'closed' };
   }
-  const balance = getBalanceDue(draft);
+  const balance = getBalanceDue(draft, creditNotes);
   if (balance <= 0) {
     return { ok: false, error: 'nothingDue' };
   }
@@ -240,12 +251,12 @@ function addPaymentToDoc(doc, input, { fullBalance = false, now }) {
   const newDoc = { ...draft, payments };
   return {
     ok: true,
-    doc: reconcilePaymentStatus(newDoc, now),
+    doc: reconcilePaymentStatus(newDoc, now, creditNotes),
     payment,
   };
 }
 
-function removePaymentFromDoc(doc, paymentId, now) {
+function removePaymentFromDoc(doc, paymentId, now, creditNotes = []) {
   if (!isInvoice(doc)) {
     return { ok: false, error: 'notInvoice' };
   }
@@ -260,12 +271,12 @@ function removePaymentFromDoc(doc, paymentId, now) {
   const newDoc = { ...doc, payments };
   return {
     ok: true,
-    doc: reconcilePaymentStatus(newDoc, now),
+    doc: reconcilePaymentStatus(newDoc, now, creditNotes),
     payment,
   };
 }
 
-function markDocPaidInFull(doc, now) {
+function markDocPaidInFull(doc, now, creditNotes = []) {
   const stored = getStoredStatus(doc);
   if (stored === 'draft') {
     return { ok: false, error: 'draft' };
@@ -273,7 +284,7 @@ function markDocPaidInFull(doc, now) {
   if (stored === 'refunded' || stored === 'cancelled') {
     return { ok: false, error: 'closed' };
   }
-  const balance = getBalanceDue(doc);
+  const balance = getBalanceDue(doc, creditNotes);
   if (balance > 0) {
     return addPaymentToDoc(
       doc,
@@ -282,7 +293,7 @@ function markDocPaidInFull(doc, now) {
         method: 'other',
         note: '',
       },
-      { fullBalance: true, now }
+      { fullBalance: true, now, creditNotes }
     );
   }
   if (stored === 'paid') {
@@ -291,12 +302,12 @@ function markDocPaidInFull(doc, now) {
   return { ok: true, doc: withStatus(doc, 'paid', now) };
 }
 
-function setDocStatus(doc, status, now) {
+function setDocStatus(doc, status, now, creditNotes = []) {
   if (!isInvoice(doc)) {
     return { ok: false, error: 'notInvoice' };
   }
   if (status === 'paid') {
-    return markDocPaidInFull(doc, now);
+    return markDocPaidInFull(doc, now, creditNotes);
   }
   if (status === 'draft' && getPayments(doc).length > 0) {
     return { ok: false, error: 'draftWithPayments' };
@@ -309,12 +320,16 @@ function setDocStatus(doc, status, now) {
       return { ok: true, doc, stillPaid: true };
     }
   }
-  const next = reconcilePaymentStatus(withStatus(doc, status, now), now);
+  const next = reconcilePaymentStatus(
+    withStatus(doc, status, now),
+    now,
+    creditNotes
+  );
   const stillPaid = status === 'pending' && getStoredStatus(next) === 'paid';
   return { ok: true, doc: next, stillPaid };
 }
 
-function getPaymentEditErrors(newDoc, editData) {
+function getPaymentEditErrors(newDoc, editData, creditNotes = []) {
   const hasPaymentArray = Array.isArray(editData.payments);
   const legacyPaid = !hasPaymentArray && getStoredStatus(editData) === 'paid';
   if (!hasPaymentArray && !legacyPaid) {

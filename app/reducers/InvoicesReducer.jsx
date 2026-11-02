@@ -6,6 +6,7 @@ import {
   onlyEstimates,
   onlyInvoices,
 } from '../helpers/invoice';
+import { onlyCreditNotes } from '../helpers/creditNotes';
 
 const InvoicesReducer = handleActions(
   {
@@ -30,6 +31,19 @@ export const getInvoices = createSelector([getAllSalesDocs], onlyInvoices);
 
 export const getEstimates = createSelector([getAllSalesDocs], onlyEstimates);
 
+export const getCreditNotes = createSelector(
+  [getAllSalesDocs],
+  onlyCreditNotes
+);
+
+export const getInvoicesPageDocs = createSelector([getAllSalesDocs], docs =>
+  docs.filter(d => onlyInvoices([d]).length || onlyCreditNotes([d]).length)
+);
+
 export const getOverdueCount = (state, now = Date.now()) =>
-  getInvoices(state).filter(inv => getDisplayStatus(inv, now) === 'overdue')
-    .length;
+  getInvoices(state).filter(inv => {
+    const credits = getCreditNotes(state).filter(
+      cn => cn.creditedInvoiceId === inv._id
+    );
+    return getDisplayStatus(inv, now, credits) === 'overdue';
+  }).length;

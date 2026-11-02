@@ -877,12 +877,14 @@ describe('Invoices Middleware', () => {
     });
 
     it('syncs edit mode for the open invoice', async () => {
-      getSingleDoc.mockResolvedValueOnce({
+      const pendingDoc = {
         _id: 'open-id',
         status: 'pending',
         grandTotal: 50,
         currency: { fraction: 2 },
-      });
+      };
+      getAllDocs.mockResolvedValueOnce([pendingDoc]);
+      getSingleDoc.mockResolvedValueOnce(pendingDoc);
       const freshDoc = {
         _id: 'open-id',
         _rev: '2',

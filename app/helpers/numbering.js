@@ -4,15 +4,30 @@ export const DEFAULT_ESTIMATE_NUMBERING = {
   next: 1,
   padding: 4,
 };
+export const DEFAULT_CREDIT_NOTE_NUMBERING = {
+  prefix: 'CN-',
+  next: 1,
+  padding: 4,
+};
 
 export function numberingKeyFor(docType) {
-  return docType === 'estimate' ? 'estimateNumbering' : 'numbering';
+  if (docType === 'estimate') {
+    return 'estimateNumbering';
+  }
+  if (docType === 'creditNote') {
+    return 'creditNoteNumbering';
+  }
+  return 'numbering';
 }
 
 export function defaultNumberingFor(docType) {
-  return docType === 'estimate'
-    ? DEFAULT_ESTIMATE_NUMBERING
-    : DEFAULT_NUMBERING;
+  if (docType === 'estimate') {
+    return DEFAULT_ESTIMATE_NUMBERING;
+  }
+  if (docType === 'creditNote') {
+    return DEFAULT_CREDIT_NOTE_NUMBERING;
+  }
+  return DEFAULT_NUMBERING;
 }
 
 function clampInt(value, min, max, fallback) {
