@@ -25,7 +25,7 @@ import {
   formatInvoiceAmount,
   getDueDate,
   getInvoiceNumber,
-  getInvoiceValue,
+  getInvoiceTotals,
   getIssuedAt,
   getPayments,
   getStoredStatus,
@@ -62,7 +62,7 @@ export default function InvoiceDetailSheet({
   const fmt = invoice.configs?.dateFormat ?? dateFormat;
   const issued = getIssuedAt(invoice);
   const due = getDueDate(invoice);
-  const values = getInvoiceValue(invoice);
+  const values = getInvoiceTotals(invoice);
   const currency = invoice.currency;
   const row = {
     original: {
@@ -197,10 +197,10 @@ export default function InvoiceDetailSheet({
               <dd className="tabular-nums">{formatMoney(values.discount)}</dd>
             </div>
           ) : null}
-          {values.taxAmount != null ? (
+          {values.taxTotal != null && values.taxTotal !== 0 ? (
             <div className="flex justify-between">
               <dt>{t('invoices:sheet:tax')}</dt>
-              <dd className="tabular-nums">{formatMoney(values.taxAmount)}</dd>
+              <dd className="tabular-nums">{formatMoney(values.taxTotal)}</dd>
             </div>
           ) : null}
           <div className="flex justify-between border-t pt-2 font-medium">

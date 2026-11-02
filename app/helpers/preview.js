@@ -1,5 +1,6 @@
 import { getDefaultPreviewConfigs } from '../../preview/constants/defaultConfigs';
-import { getInvoiceValue, getIssuedAt } from './invoice';
+import { getInvoiceTotals, getIssuedAt } from './invoice';
+import { getSellerTaxIds } from './tax';
 import { pickInvoiceFields } from './form';
 
 export function formToPreviewInvoice(
@@ -11,6 +12,7 @@ export function formToPreviewInvoice(
   const editIssued = editMode.active ? getIssuedAt(editMode.data) : null;
   const issuedAt = form.issuedAt ?? editIssued ?? now;
   const fields = pickInvoiceFields(form, invoiceSettings.currency);
+  const seller = getSellerTaxIds(profile, invoiceSettings);
   const invoice = {
     ...fields,
     _id: editMode.data?._id ?? 'preview',
@@ -19,8 +21,9 @@ export function formToPreviewInvoice(
       : { ...form.recipient.select },
     issuedAt,
     created_at: issuedAt,
-    subtotal: getInvoiceValue(fields).subtotal,
-    grandTotal: getInvoiceValue(fields).grandTotal,
+    subtotal: getInvoiceTotals(fields).subtotal,
+    grandTotal: getInvoiceTotals(fields).grandTotal,
+    seller,
     payments: editMode.active ? editMode.data.payments : undefined,
   };
   const configs =

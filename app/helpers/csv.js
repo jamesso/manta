@@ -5,7 +5,7 @@ import {
   getBalanceDue,
   getDisplayStatus,
   getDueDate,
-  getInvoiceValue,
+  getInvoiceTotals,
   getIssuedAt,
 } from './invoice';
 
@@ -42,8 +42,8 @@ export function buildInvoicesCsv(invoices, now) {
   const header =
     'number,client,issued,due,status,currency,subtotal,tax,discount,total,amount_paid,balance_due';
   const lines = sorted.map(invoice => {
-    const { subtotal, taxAmount, discount, grandTotal } =
-      getInvoiceValue(invoice);
+    const { subtotal, taxTotal, discount, grandTotal } =
+      getInvoiceTotals(invoice);
     const fraction = invoice.currency?.fraction ?? 2;
     const fmt = n => Number(n ?? 0).toFixed(fraction);
     const due = getDueDate(invoice);
@@ -65,7 +65,7 @@ export function buildInvoicesCsv(invoices, now) {
       escapeCsvField(getDisplayStatus(invoice, now)),
       escapeCsvField(invoice.currency?.code ?? '', { text: true }),
       fmt(subtotal),
-      fmt(taxAmount ?? 0),
+      fmt(taxTotal ?? 0),
       fmt(discount ?? 0),
       fmt(grandTotal),
       fmt(getAmountPaid(invoice)),
