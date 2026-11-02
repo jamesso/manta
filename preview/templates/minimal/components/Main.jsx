@@ -9,6 +9,7 @@ import {
   getAmountPaid,
   getBalanceDue,
 } from '../../../../app/helpers/invoice';
+import { isCreditNote } from '../../../../app/helpers/docType';
 import currencies from '../../../../libs/currencies.json';
 
 // Styles
@@ -254,7 +255,14 @@ function Main({ invoice, configs, t }) {
         )}
 
         <Total>
-          <td>{t('preview:common:total', { lng: currentLanguage })}</td>
+          <td>
+            {t(
+              isCreditNote(invoice)
+                ? 'preview:common:totalCredit'
+                : 'preview:common:total',
+              { lng: currentLanguage }
+            )}
+          </td>
           <td>
             {currencyBefore ? currency : null}{' '}
             {formatNumber(

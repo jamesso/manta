@@ -56,6 +56,9 @@ describe('docType', () => {
     expect(getDocTitleKey({ docType: 'estimate' })).toBe(
       'preview:common:estimate'
     );
+    expect(getDocTitleKey({ docType: 'creditNote' })).toBe(
+      'preview:common:creditNote'
+    );
     expect(getDocTitleKey({})).toBe('preview:common:invoice');
     expect(getDocTitleKey({ docType: 'foo' })).toBe(null);
     expect(listTabFor('estimate')).toBe('estimates');

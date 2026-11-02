@@ -7,7 +7,11 @@ import moment from 'moment';
 // Helper
 import { calTermDate } from '../../../../helpers/date';
 import { getIssuedAt } from '../../../../app/helpers/invoice';
-import { getDocTitleKey, isEstimate } from '../../../../app/helpers/docType';
+import {
+  getDocTitleKey,
+  isEstimate,
+  isCreditNote,
+} from '../../../../app/helpers/docType';
 
 // Styles
 import styled from 'styled-components';
@@ -134,6 +138,19 @@ function Header({ t, invoice, profile, configs }) {
             .lang(language)
             .format(configs.dateFormat)}
         </p>
+        {isCreditNote(invoice) && invoice.creditedInvoice ? (
+          <p>
+            {t('preview:common:creditsInvoice', {
+              lng: language,
+              number: invoice.creditedInvoice.invoiceID ?? '',
+              date: invoice.creditedInvoice.issuedAt
+                ? moment(invoice.creditedInvoice.issuedAt)
+                    .lang(language)
+                    .format(configs.dateFormat)
+                : '',
+            })}
+          </p>
+        ) : null}
         {isEstimate(invoice)
           ? invoice.validUntil != null && (
               <p key="validUntil">
@@ -143,7 +160,8 @@ function Header({ t, invoice, profile, configs }) {
                   .format(configs.dateFormat)}
               </p>
             )
-          : invoice.dueDate && [
+          : !isCreditNote(invoice) &&
+            invoice.dueDate && [
               <p key="dueDate">
                 {t('preview:common:due', { lng: language })}:{' '}
                 {invoice.dueDate.useCustom

@@ -134,6 +134,31 @@ for (const template of ['minimal', 'business']) {
   };
 }
 
+CASES['minimal-credit-note'] = {
+  template: 'minimal',
+  invoice: {
+    ...BASE,
+    docType: 'creditNote',
+    status: 'issued',
+    invoiceID: 'CN-0001',
+    creditedInvoiceId: 'pdf-snapshot-0001',
+    creditedInvoice: { invoiceID: 'INV-0042', issuedAt: T },
+    dueDate: undefined,
+  },
+};
+CASES['business-credit-note'] = {
+  template: 'business',
+  invoice: {
+    ...BASE,
+    docType: 'creditNote',
+    status: 'issued',
+    invoiceID: 'CN-0001',
+    creditedInvoiceId: 'pdf-snapshot-0001',
+    creditedInvoice: { invoiceID: 'INV-0042', issuedAt: T },
+    dueDate: undefined,
+  },
+};
+
 const SNAPSHOT_SET = process.env.SNAPSHOT_SET || 'legacy';
 
 const LINE_BASE = {
