@@ -16,7 +16,10 @@ describe('Settings Middleware', () => {
   beforeEach(() => {
     next = vi.fn();
     dispatch = vi.fn();
-    middleware = SettingsMW({ dispatch })(next);
+    middleware = SettingsMW({
+      dispatch,
+      getState: () => ({ settings: { saved: { invoice: {} } } }),
+    })(next);
   });
 
   it('should handle SETTINGS_GET_INITIAL action', () => {
@@ -77,8 +80,36 @@ describe('Settings Middleware', () => {
       );
     });
 
-    // TODO
-    it('should save data', () => {});
+    it('does not rewind an advanced numbering counter from stale settings', () => {
+      window.manta.settings.get.mockImplementation(key =>
+        key === 'invoice.numbering'
+          ? { prefix: 'INV-', next: 8, padding: 4 }
+          : 'someSettings'
+      );
+      action.payload.invoice.numbering = {
+        prefix: 'INV-',
+        next: 1,
+        padding: 4,
+      };
+      middleware = SettingsMW({
+        dispatch,
+        getState: () => ({
+          settings: {
+            saved: {
+              invoice: { numbering: { prefix: 'INV-', next: 1, padding: 4 } },
+            },
+          },
+        }),
+      })(next);
+      middleware(action);
+      expect(window.manta.settings.set).toHaveBeenCalledWith(
+        'invoice',
+        expect.objectContaining({
+          numbering: { prefix: 'INV-', next: 8, padding: 4 },
+        })
+      );
+      window.manta.settings.get.mockImplementation(() => 'someSettings');
+    });
 
     it('should reload sounds cache', () => {
       middleware(action);

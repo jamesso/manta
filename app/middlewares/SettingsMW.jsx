@@ -9,9 +9,10 @@ import * as ACTION_TYPES from '../constants/actions.jsx';
 
 // Helper
 import { validateTax, validateCurrency } from '../helpers/form';
+import { mergeNumbering, normalizeNumbering } from '../helpers/numbering';
 
 const SettingsMW =
-  ({ dispatch }) =>
+  ({ dispatch, getState }) =>
   next =>
   action => {
     switch (action.type) {
@@ -59,6 +60,11 @@ const SettingsMW =
         // change general.theme or themeSource.
         const { theme } = appConfig.get('general') || {};
         const newTheme = action.payload.general.theme;
+        action.payload.invoice.numbering = mergeNumbering(
+          normalizeNumbering(appConfig.get('invoice.numbering')),
+          getState().settings?.saved?.invoice?.numbering ?? {},
+          action.payload.invoice.numbering ?? {}
+        );
         // Save Settings
         appConfig.set('profile', action.payload.profile);
         appConfig.set('invoice', action.payload.invoice);

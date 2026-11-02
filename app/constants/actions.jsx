@@ -17,6 +17,9 @@ export const FORM_FIELD_UPDATE_DATA = 'FORM_FIELD_UPDATE_DATA';
 export const FORM_SETTING_TOGGLE = 'FORM_SETTING_TOGGLE';
 export const FORM_SETTING_CLOSE = 'FORM_SETTING_CLOSE';
 export const SAVED_FORM_SETTING_UPDATE = 'SAVED_FORM_SETTING_UPDATE';
+export const FORM_SET_ERRORS = 'FORM_SET_ERRORS';
+export const FORM_LOAD_DUPLICATE = 'FORM_LOAD_DUPLICATE';
+export const FORM_SAVE_PENDING = 'FORM_SAVE_PENDING';
 
 // INVOICE
 // ===========================================================

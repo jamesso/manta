@@ -76,7 +76,7 @@ function App() {
       dispatch(FormActions.toggleField('currency'))
     );
     ipc.on('menu-form-toggle-vat', () =>
-      dispatch(FormActions.toggleField('vat'))
+      dispatch(FormActions.toggleField('tax'))
     );
     ipc.on('menu-form-toggle-discount', () =>
       dispatch(FormActions.toggleField('discount'))

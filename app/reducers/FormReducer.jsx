@@ -4,9 +4,22 @@ import * as ACTION_TYPES from '../constants/actions.jsx';
 import { handleActions } from 'redux-actions';
 import { createSelector } from 'reselect';
 const appConfig = window.manta.settings;
-const invoiceSettings = appConfig.get('invoice');
+const rawInvoiceSettings = appConfig.get('invoice');
+const invoiceSettings =
+  typeof rawInvoiceSettings === 'object' && rawInvoiceSettings !== null
+    ? rawInvoiceSettings
+    : { currency: {}, tax: {}, required_fields: {}, numbering: {} };
 // Helper
 import { setEditRecipient } from '../helpers/form';
+import { getIssuedAt } from '../helpers/invoice';
+import {
+  formatInvoiceNumber,
+  normalizeNumbering,
+} from '../helpers/numbering';
+
+function suggestedInvoiceNumber() {
+  return formatInvoiceNumber(normalizeNumbering(invoiceSettings.numbering));
+}
 
 const initialState = {
   recipient: {
@@ -22,7 +35,12 @@ const initialState = {
   },
   discount: {},
   note: {},
-  invoiceID: '',
+  invoiceID: suggestedInvoiceNumber(),
+  issuedAt: null,
+  errors: {},
+  errorMode: null,
+  savePending: false,
+  formRevision: 0,
   // Set default values for currency and tax
   currency: invoiceSettings.currency,
   tax: invoiceSettings.tax,
@@ -42,64 +60,132 @@ const initialState = {
   },
 };
 
+function populateFromInvoice(state, payload) {
+  const {
+    invoiceID,
+    recipient,
+    rows,
+    currency,
+    tax,
+    dueDate,
+    discount,
+    note,
+    contacts,
+  } = payload;
+  return Object.assign({}, state, {
+    recipient: Object.assign(
+      {},
+      state.recipient,
+      setEditRecipient(contacts, recipient)
+    ),
+    rows: rows.map(row => ({ ...row })),
+    invoiceID: invoiceID !== undefined ? invoiceID : state.invoiceID,
+    issuedAt: getIssuedAt(payload) ?? null,
+    currency: currency !== undefined ? currency : state.currency,
+    discount: discount !== undefined ? discount : state.discount,
+    tax: tax !== undefined ? tax : state.tax,
+    dueDate: dueDate !== undefined ? dueDate : state.dueDate,
+    note:
+      note !== undefined
+        ? Object.assign({}, state.note, {
+            content: note,
+          })
+        : state.note,
+    errors: {},
+    errorMode: null,
+    settings: Object.assign({}, state.settings, {
+      required_fields: Object.assign({}, state.settings.required_fields, {
+        invoiceID: invoiceID !== undefined,
+        currency: currency !== state.savedSettings.currency,
+        tax: tax !== undefined,
+        dueDate: dueDate !== undefined,
+        discount: discount !== undefined,
+        note: note !== undefined,
+      }),
+    }),
+  });
+}
+
+function withRevision(state) {
+  return Object.assign({}, state, {
+    formRevision: (state.formRevision || 0) + 1,
+  });
+}
+
 const FormReducer = handleActions(
   {
     [ACTION_TYPES.FORM_RECIPIENT_UPDATE]: (state, action) =>
-      Object.assign({}, state, {
-        recipient: action.payload,
-      }),
+      withRevision(
+        Object.assign({}, state, {
+          recipient: action.payload,
+        })
+      ),
 
     [ACTION_TYPES.FORM_ITEM_ADD]: (state, action) =>
-      Object.assign({}, state, {
-        rows: [...state.rows, action.payload],
-      }),
+      withRevision(
+        Object.assign({}, state, {
+          rows: [...state.rows, action.payload],
+        })
+      ),
 
     [ACTION_TYPES.FORM_ITEM_REMOVE]: (state, action) =>
-      Object.assign({}, state, {
-        rows: state.rows.filter(item => item.id !== action.payload),
-      }),
+      withRevision(
+        Object.assign({}, state, {
+          rows: state.rows.filter(item => item.id !== action.payload),
+        })
+      ),
 
     [ACTION_TYPES.FORM_ITEM_UPDATE]: (state, action) =>
-      Object.assign({}, state, {
-        rows: state.rows.map(item =>
-          item.id !== action.payload.id ? item : action.payload
-        ),
-      }),
+      withRevision(
+        Object.assign({}, state, {
+          rows: state.rows.map(item =>
+            item.id !== action.payload.id ? item : action.payload
+          ),
+        })
+      ),
 
     [ACTION_TYPES.FORM_ITEM_MOVE]: (state, action) => {
       const { dragIndex, hoverIndex } = action.payload;
-      const dragRow = state.rows[dragIndex];
-      const newRows = state.rows;
+      const newRows = [...state.rows];
+      const dragRow = newRows[dragIndex];
       newRows.splice(dragIndex, 1);
       newRows.splice(hoverIndex, 0, dragRow);
-      return Object.assign({}, state, {
-        rows: newRows,
-      });
+      return withRevision(
+        Object.assign({}, state, {
+          rows: newRows,
+        })
+      );
     },
 
     [ACTION_TYPES.FORM_FIELD_UPDATE_DATA]: (state, action) => {
       const { field, data } = action.payload;
       if (typeof data === 'object') {
-        return Object.assign({}, state, {
-          [field]: {
-            ...state[field],
-            ...data,
-          },
-        });
+        return withRevision(
+          Object.assign({}, state, {
+            [field]: {
+              ...state[field],
+              ...data,
+            },
+          })
+        );
       }
-      return Object.assign({}, state, {
-        [field]: data,
-      });
+      return withRevision(
+        Object.assign({}, state, {
+          [field]: data,
+        })
+      );
     },
 
     [ACTION_TYPES.FORM_FIELD_TOGGLE]: (state, action) =>
-      Object.assign({}, state, {
-        settings: Object.assign({}, state.settings, {
-          required_fields: Object.assign({}, state.settings.required_fields, {
-            [action.payload]: !state.settings.required_fields[action.payload],
+      withRevision(
+        Object.assign({}, state, {
+          settings: Object.assign({}, state.settings, {
+            required_fields: Object.assign({}, state.settings.required_fields, {
+              [action.payload]: !state.settings.required_fields[action.payload],
+            }),
           }),
-        }),
-      }),
+        })
+      ),
 
     [ACTION_TYPES.FORM_SETTING_TOGGLE]: state =>
       Object.assign({}, state, {
@@ -116,54 +202,39 @@ const FormReducer = handleActions(
       }),
 
     [ACTION_TYPES.INVOICE_EDIT]: (state, action) => {
-      const {
-        invoiceID,
-        recipient,
-        rows,
-        currency,
-        tax,
-        dueDate,
-        discount,
-        note,
-        contacts,
-      } = action.payload;
-      return Object.assign({}, state, {
-        // Populate data
-        recipient: Object.assign(
-          {},
-          state.recipient,
-          setEditRecipient(contacts, recipient)
-        ),
-        rows,
-        // Optional Data
-        invoiceID: invoiceID !== undefined ? invoiceID : state.invoiceID,
-        currency: currency !== undefined ? currency : state.currency,
-        discount: discount !== undefined ? discount : state.discount,
-        tax: tax !== undefined ? tax : state.tax,
-        dueDate: dueDate !== undefined ? dueDate : state.dueDate,
-        note:
-          note !== undefined
-            ? Object.assign({}, state.note, {
-                content: note,
-              })
-            : state.note,
-        // Update settings
-        settings: Object.assign({}, state.settings, {
+      const populated = populateFromInvoice(state, action.payload);
+      return Object.assign({}, populated, {
+        settings: Object.assign({}, populated.settings, {
           editMode: {
             active: true,
             data: action.payload,
           },
-          required_fields: Object.assign({}, state.settings.required_fields, {
-            invoiceID: invoiceID !== undefined,
-            currency: currency !== state.savedSettings.currency,
-            tax: tax !== undefined,
-            dueDate: dueDate !== undefined,
-            discount: discount !== undefined,
-            note: note !== undefined,
-          }),
         }),
       });
     },
+
+    [ACTION_TYPES.FORM_LOAD_DUPLICATE]: (state, action) =>
+      Object.assign({}, populateFromInvoice(state, action.payload), {
+        invoiceID: suggestedInvoiceNumber(),
+        issuedAt: null,
+        settings: Object.assign({}, state.settings, {
+          editMode: {
+            active: false,
+          },
+          required_fields: state.savedSettings.required_fields,
+        }),
+      }),
+
+    [ACTION_TYPES.FORM_SET_ERRORS]: (state, action) =>
+      Object.assign({}, state, {
+        errors: action.payload.errors,
+        errorMode: action.payload.mode,
+      }),
+
+    [ACTION_TYPES.FORM_SAVE_PENDING]: (state, action) =>
+      Object.assign({}, state, {
+        savePending: Boolean(action.payload),
+      }),
 
     [ACTION_TYPES.SAVED_FORM_SETTING_UPDATE]: (state, action) => {
       const invoiceSettings = action.payload;
@@ -178,11 +249,9 @@ const FormReducer = handleActions(
 
     [ACTION_TYPES.FORM_CLEAR]: state =>
       Object.assign({}, initialState, {
-        // Reset to lastest saved settings
         currency: state.savedSettings.currency,
-        // Reset to lastest saved settings
         tax: state.savedSettings.tax,
-        // Update current settings
+        invoiceID: suggestedInvoiceNumber(),
         settings: Object.assign({}, state.settings, {
           open: false,
           editMode: {
@@ -190,7 +259,6 @@ const FormReducer = handleActions(
           },
           required_fields: state.savedSettings.required_fields,
         }),
-        // Updated saved settings to the current saved settings
         savedSettings: state.savedSettings,
       }),
   },

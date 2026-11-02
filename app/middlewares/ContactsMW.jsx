@@ -45,6 +45,7 @@ const ContactsMW =
                 message: i18n.t('messages:contact:saved'),
               },
             });
+            return true;
           })
           .catch(err => {
             next({
@@ -54,6 +55,7 @@ const ContactsMW =
                 message: err.message,
               },
             });
+            return false;
           });
       }
 

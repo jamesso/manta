@@ -1,3 +1,5 @@
+import { getIssuedAt } from './invoice';
+
 export function normalize(text) {
   return String(text ?? '')
     .normalize('NFD')
@@ -54,7 +56,7 @@ export function searchRecords({
 
   const matchedInvoices = invoices
     .filter(inv => matchTerms(invoiceFields(inv), query))
-    .sort((a, b) => (b.created_at || 0) - (a.created_at || 0))
+    .sort((a, b) => (getIssuedAt(b) || 0) - (getIssuedAt(a) || 0))
     .slice(0, limit);
 
   const matchedContacts = contacts

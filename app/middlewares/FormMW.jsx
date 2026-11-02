@@ -1,6 +1,7 @@
 // Node Libs
 import i18n from '../../i18n/i18n';
 const appConfig = window.manta.settings;
+const ipc = window.manta.ipc;
 
 // Actions Verbs
 import * as ACTION_TYPES from '../constants/actions.jsx';
@@ -13,7 +14,140 @@ import * as SettingsActions from '../actions/settings';
 import * as UIActions from '../actions/ui';
 
 // Helper
-import { getInvoiceData, validateFormData } from '../helpers/form';
+import {
+  getInvoiceData,
+  getFormErrors,
+  getRecipientErrors,
+  hasUnsavedFormChanges,
+} from '../helpers/form';
+import {
+  advanceNumbering,
+  formatInvoiceNumber,
+  normalizeNumbering,
+} from '../helpers/numbering';
+
+let saveInFlight = null;
+
+async function handleSave({ dispatch, getState }, mode) {
+  if (saveInFlight) {
+    return saveInFlight;
+  }
+
+  const run = (async () => {
+    try {
+    const formSnapshot = getState().form;
+    const startRevision = formSnapshot.formRevision;
+    dispatch(FormActions.setFormSavePending(true));
+    const errors = getFormErrors(formSnapshot, mode);
+    if (Object.keys(errors).length) {
+      dispatch(FormActions.setFormErrors(errors, mode));
+      dispatch({
+        type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+        payload: {
+          type: 'warning',
+          message: i18n.t('form:errors:summary'),
+        },
+      });
+      return;
+    }
+
+    const defaultCurrency = appConfig.get('invoice.currency');
+    const data = getInvoiceData(formSnapshot, {
+      mode,
+      defaultCurrency,
+    });
+    const { editMode } = formSnapshot.settings;
+    let ok;
+    if (editMode.active) {
+      ok = await dispatch(InvoicesActions.updateInvoice(data));
+    } else {
+      ok = await dispatch(InvoicesActions.saveInvoice(data));
+    }
+    if (ok === false) {
+      return;
+    }
+
+    if (!editMode.active) {
+      try {
+        appConfig.set(
+          'invoice.numbering',
+          advanceNumbering(
+            normalizeNumbering(appConfig.get('invoice.numbering')),
+            data.invoiceID
+          )
+        );
+      } catch (err) {
+        dispatch({
+          type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+          payload: {
+            type: 'warning',
+            message: err.message,
+          },
+        });
+      }
+    }
+
+    if (formSnapshot.recipient.newRecipient) {
+      const contactErrors = getRecipientErrors(formSnapshot.recipient, 'final');
+      if (Object.keys(contactErrors).length === 0) {
+        const contactOk = await dispatch(
+          ContactsActions.saveContact(data.recipient)
+        );
+        if (contactOk === false) {
+          dispatch({
+            type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+            payload: {
+              type: 'warning',
+              message: i18n.t('form:errors:partialContactSave'),
+            },
+          });
+        }
+      }
+    }
+
+    if (
+      editMode.active &&
+      editMode.data.status === 'draft' &&
+      mode === 'final'
+    ) {
+      ipc.send('preview-invoice', data);
+    }
+
+    if (editMode.active) {
+      dispatch(UIActions.changeActiveTab('invoices'));
+    }
+
+    if (getState().form.formRevision === startRevision) {
+      dispatch(FormActions.clearForm(null, true));
+    }
+    } catch (err) {
+      dispatch({
+        type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+        payload: {
+          type: 'warning',
+          message: err.message,
+        },
+      });
+    }
+  })();
+
+  saveInFlight = run.finally(() => {
+    saveInFlight = null;
+    dispatch(FormActions.setFormSavePending(false));
+  });
+  return saveInFlight;
+}
+
+function refreshErrorsIfNeeded({ dispatch, getState }, action) {
+  const form = getState().form;
+  if (!form.errors || !Object.keys(form.errors).length || form.errorMode == null) {
+    return action;
+  }
+  dispatch(
+    FormActions.setFormErrors(getFormErrors(form, form.errorMode), form.errorMode)
+  );
+  return action;
+}
 
 const FormMW =
   ({ dispatch, getState }) =>
@@ -21,28 +155,7 @@ const FormMW =
   action => {
     switch (action.type) {
       case ACTION_TYPES.FORM_SAVE: {
-        const currentFormData = getState().form;
-        // Validate Form Data
-        if (!validateFormData(currentFormData)) return;
-        const currentInvoiceData = getInvoiceData(currentFormData);
-        // UPDATE DOC
-        if (currentFormData.settings.editMode.active) {
-          // Update existing invoice
-          dispatch(InvoicesActions.updateInvoice(currentInvoiceData));
-          // Change Tab to invoices
-          dispatch(UIActions.changeActiveTab('invoices'));
-        } else {
-          // CREATE DOC
-          dispatch(InvoicesActions.saveInvoice(currentInvoiceData));
-        }
-        // Save Contact to DB if it's a new one
-        if (currentFormData.recipient.newRecipient) {
-          const newContactData = currentInvoiceData.recipient;
-          dispatch(ContactsActions.saveContact(newContactData));
-        }
-        // Clear The Form
-        dispatch(FormActions.clearForm(null, true));
-        break;
+        return handleSave({ dispatch, getState }, action.payload);
       }
 
       case ACTION_TYPES.FORM_ITEM_ADD: {
@@ -54,20 +167,46 @@ const FormMW =
       }
 
       case ACTION_TYPES.FORM_CLEAR: {
-        // Close Setting Panel
         dispatch(FormActions.closeFormSettings());
-        // Clear The Form
         next(action);
-        // Create An item
         dispatch(FormActions.addItem());
+        dispatch(
+          FormActions.updateFieldData(
+            'invoiceID',
+            formatInvoiceNumber(
+              normalizeNumbering(appConfig.get('invoice.numbering'))
+            )
+          )
+        );
         break;
       }
 
+      case ACTION_TYPES.FORM_LOAD_DUPLICATE: {
+        const result = next(action);
+        dispatch(
+          FormActions.updateFieldData(
+            'invoiceID',
+            formatInvoiceNumber(
+              normalizeNumbering(appConfig.get('invoice.numbering'))
+            )
+          )
+        );
+        return result;
+      }
+
+      case ACTION_TYPES.FORM_FIELD_UPDATE_DATA:
+      case ACTION_TYPES.FORM_ITEM_REMOVE:
+      case ACTION_TYPES.FORM_ITEM_UPDATE:
+      case ACTION_TYPES.FORM_ITEM_MOVE:
+      case ACTION_TYPES.FORM_RECIPIENT_UPDATE: {
+        const result = next(action);
+        refreshErrorsIfNeeded({ dispatch, getState }, action);
+        return result;
+      }
+
       case ACTION_TYPES.SAVED_FORM_SETTING_UPDATE: {
-        // Save setting to DB
         const { setting, data } = action.payload;
         appConfig.set(`invoice.${setting}`, data);
-        // Dispatch notification
         dispatch({
           type: ACTION_TYPES.UI_NOTIFICATION_NEW,
           payload: {
@@ -75,13 +214,10 @@ const FormMW =
             message: i18n.t('messages:settings:saved'),
           },
         });
-        // Pass new data to action and continue
         next({
           type: ACTION_TYPES.SAVED_FORM_SETTING_UPDATE,
           payload: appConfig.get('invoice'),
         });
-        // Reload app settings so that
-        // Settings tab will have up-to-date information
         dispatch(SettingsActions.getInitalSettings());
         break;
       }

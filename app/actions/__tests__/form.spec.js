@@ -65,6 +65,7 @@ it('clearForm should create CLEAR_FORM action', () => {
 it('saveFormData should create FORM_SAVE action', () => {
   expect(actions.saveFormData()).toEqual({
     type: ACTION_TYPES.FORM_SAVE,
+    payload: 'final',
   });
 });
 

@@ -13,6 +13,8 @@ import * as Actions from '../actions/invoices';
 // Helpers
 import { INVOICE_STATUSES, UNDO_TIMEOUT_MS } from '../constants/invoices';
 import { withStatus } from '../helpers/invoice';
+import { hasUnsavedFormChanges } from '../helpers/form';
+import * as dialog from '@/lib/dialog';
 import {
   getAllDocs,
   getSingleDoc,
@@ -68,14 +70,25 @@ const InvoicesMW =
               type: ACTION_TYPES.INVOICE_SAVE,
               payload: newDocs,
             });
-            dispatch({
-              type: ACTION_TYPES.UI_NOTIFICATION_NEW,
-              payload: {
-                type: 'success',
-                message: i18n.t('messages:invoice:saved'),
-              },
-            });
-            ipc.send('preview-invoice', action.payload);
+            if (action.payload.status === 'draft') {
+              dispatch({
+                type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+                payload: {
+                  type: 'success',
+                  message: i18n.t('messages:invoice:draftSaved'),
+                },
+              });
+            } else {
+              dispatch({
+                type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+                payload: {
+                  type: 'success',
+                  message: i18n.t('messages:invoice:saved'),
+                },
+              });
+              ipc.send('preview-invoice', action.payload);
+            }
+            return true;
           })
           .catch(err => {
             next({
@@ -85,6 +98,7 @@ const InvoicesMW =
                 message: err.message,
               },
             });
+            return false;
           });
       }
 
@@ -195,20 +209,57 @@ const InvoicesMW =
       }
 
       case ACTION_TYPES.INVOICE_DUPLICATE: {
-        const duplicateInvoice = Object.assign(
-          {},
-          omit(action.payload, ['paidAt', 'issuedAt']),
-          {
-            created_at: Date.now(),
-            _id: crypto.randomUUID(),
-            _rev: null,
-            status: 'draft',
-          }
-        );
-        return dispatch({
-          type: ACTION_TYPES.INVOICE_SAVE,
-          payload: duplicateInvoice,
-        });
+        const proceed = () =>
+          getAllDocs('contacts').then(allDocs => {
+            dispatch({
+              type: ACTION_TYPES.FORM_LOAD_DUPLICATE,
+              payload: Object.assign(
+                {},
+                omit(action.payload, [
+                  '_id',
+                  '_rev',
+                  'status',
+                  'paidAt',
+                  'issuedAt',
+                  'created_at',
+                ]),
+                { contacts: allDocs }
+              ),
+            });
+            dispatch(UIActions.changeActiveTab('form'));
+          });
+
+        if (!hasUnsavedFormChanges(getState().form)) {
+          return proceed().catch(err => {
+            next({
+              type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+              payload: {
+                type: 'warning',
+                message: err.message,
+              },
+            });
+          });
+        }
+        return dialog
+          .confirm({
+            title: i18n.t('app:newInvoice:confirmTitle'),
+            message: i18n.t('app:newInvoice:confirmMessage'),
+            confirmLabel: i18n.t('app:newInvoice:confirm'),
+            cancelLabel: i18n.t('app:newInvoice:cancel'),
+          })
+          .then(ok => {
+            if (!ok) return;
+            return proceed();
+          })
+          .catch(err => {
+            next({
+              type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+              payload: {
+                type: 'warning',
+                message: err.message,
+              },
+            });
+          });
       }
 
       case ACTION_TYPES.INVOICE_UPDATE: {
@@ -225,6 +276,7 @@ const InvoicesMW =
                 message: i18n.t('messages:invoice:updated'),
               },
             });
+            return true;
           })
           .catch(err => {
             next({
@@ -234,6 +286,7 @@ const InvoicesMW =
                 message: err.message,
               },
             });
+            return false;
           });
       }
 

@@ -1,270 +1,433 @@
 import * as dialog from '@/lib/dialog';
-const appConfig = window.manta.settings;
-import { getInvoiceValue } from './invoice';
 import { isEmpty, pick, includes } from 'lodash';
+import moment from 'moment';
+
 import i18n from '../../i18n/i18n';
-function validateFormData(formData) {
-  const {
-    invoiceID,
-    recipient,
-    rows,
-    dueDate,
-    currency,
-    discount,
-    tax,
-    note,
-    settings,
-  } = formData;
-  // Required fields
-  const { required_fields } = settings;
-  if (!validateInvoiceID(required_fields.invoiceID, invoiceID)) return false;
-  if (!validateRecipient(recipient)) return false;
-  if (!validateRows(rows)) return false;
-  if (!validateDueDate(required_fields.dueDate, dueDate)) return false;
-  if (!validateCurrency(required_fields.currency, currency)) return false;
-  if (!validateDiscount(required_fields.discount, discount)) return false;
-  if (!validateTax(required_fields.tax, tax)) return false;
-  if (!validateNote(required_fields.note, note)) return false;
-  return true;
+import { getInvoiceValue, getIssuedAt } from './invoice';
+
+const EMAIL_RE =
+  /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+
+export function isBlankRow(row) {
+  const noDesc = !row.description || String(row.description).trim() === '';
+  const noPrice = row.price === '' || row.price == null;
+  const noQty = row.quantity === '' || row.quantity == null;
+  return noDesc && noPrice && noQty;
 }
 
-function getInvoiceData(formData) {
-  const {
-    invoiceID,
-    recipient,
-    rows,
-    dueDate,
-    currency,
-    discount,
-    tax,
-    note,
-    settings,
-  } = formData;
-  // Required fields
-  const { editMode, required_fields } = settings;
-  // Set Initial Value
-  const invoiceData = { rows };
-  // Set Recipient
-  if (recipient.newRecipient) {
-    // Add id & created_at so the invoice records will remembers
-    invoiceData.recipient = Object.assign({}, recipient.new, {
-      _id: crypto.randomUUID(),
-      created_at: Date.now(),
-    });
-  } else {
-    // TODO
-    // Migh as well filter out _rev
-    invoiceData.recipient = recipient.select;
+export function parseNumberInput(raw, { integer = false } = {}) {
+  if (raw === '' || raw == null || String(raw).trim() === '') {
+    return '';
   }
-  // Set InvoiceID
-  if (required_fields.invoiceID) invoiceData.invoiceID = invoiceID;
-  // Set DueDate
-  if (required_fields.dueDate) invoiceData.dueDate = dueDate;
-  // Set Currency
-  if (required_fields.currency) {
-    invoiceData.currency = currency;
-  } else {
-    invoiceData.currency = appConfig.get('invoice.currency');
+  const n = Number(raw);
+  if (!Number.isFinite(n)) {
+    return '';
   }
-  // Set Discount
-  if (required_fields.discount) invoiceData.discount = discount;
-  // Set Tax
-  if (required_fields.tax) invoiceData.tax = tax;
-  // Set Note
-  if (required_fields.note) invoiceData.note = note.content;
-
-  // Return final value
-  return Object.assign({}, invoiceData, {
-    // Metadata
-    _id: editMode.active ? editMode.data._id : crypto.randomUUID(),
-    _rev: editMode.active ? editMode.data._rev : null,
-    created_at: editMode.active ? editMode.data.created_at : Date.now(),
-    status: editMode.active ? editMode.data.status : 'pending',
-    // Alway calculate subtotal & grandTotal
-    subtotal: getInvoiceValue(invoiceData).subtotal,
-    grandTotal: getInvoiceValue(invoiceData).grandTotal,
-  });
+  if (integer && !Number.isInteger(n)) {
+    return '';
+  }
+  return n;
 }
 
-// VALIDATION RULES
-function validateRecipient(recipient) {
+export function updateRowField(row, name, raw) {
+  const next = { ...row };
+  if (name === 'description') {
+    next.description = raw;
+  } else if (name === 'price' || name === 'quantity') {
+    next[name] = parseNumberInput(raw, { integer: name === 'quantity' });
+  }
+  const { price, quantity } = next;
+  if (price === '' || quantity === '') {
+    next.subtotal = '';
+  } else {
+    next.subtotal = price * quantity;
+  }
+  return next;
+}
+
+function recipientHasDraftIdentity(recipient) {
+  const data = recipient.newRecipient ? recipient.new : recipient.select;
+  if (!data || isEmpty(data)) return false;
+  return Boolean(data.fullname || data.company || data.email);
+}
+
+function hasDraftContent(form) {
+  if (recipientHasDraftIdentity(form.recipient)) return true;
+  return form.rows.some(
+    row => row.description && String(row.description).trim()
+  );
+}
+
+export function getRecipientErrors(recipient, mode) {
+  if (mode === 'draft') {
+    return {};
+  }
   if (recipient.newRecipient === true) {
-    // Is Recipient Form Data Empty?
     if (isEmpty(recipient.new)) {
-      dialog.alert({
-        type: 'warning',
-        title: i18n.t('dialog:validation:recipient:empty:title'),
-        message: i18n.t('dialog:validation:recipient:empty:message'),
-      });
-      return false;
+      return { recipient: 'dialog:validation:recipient:empty:message' };
     }
-    // Are required fields empty?
     if (
       recipient.new.fullname === undefined ||
       recipient.new.fullname === '' ||
       recipient.new.email === undefined ||
       recipient.new.email === ''
     ) {
-      dialog.alert({
-        type: 'warning',
-        title: i18n.t('dialog:validation:recipient:requiredFields:title'),
-        message: i18n.t('dialog:validation:recipient:requiredFields:message'),
-      });
-      return false;
+      return {
+        'recipient.fullname':
+          recipient.new.fullname === '' || recipient.new.fullname === undefined
+            ? 'dialog:validation:recipient:requiredFields:message'
+            : undefined,
+        'recipient.email':
+          recipient.new.email === '' || recipient.new.email === undefined
+            ? 'dialog:validation:recipient:requiredFields:message'
+            : undefined,
+      };
     }
-    // Is email address valid?
-    const regex =
-      /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
-    if (!regex.test(recipient.new.email)) {
-      dialog.alert({
-        type: 'warning',
-        title: i18n.t('dialog:validation:recipient:email:title'),
-        message: i18n.t('dialog:validation:recipient:email:message'),
-      });
-      return false;
+    const errors = {};
+    if (!EMAIL_RE.test(recipient.new.email)) {
+      errors['recipient.email'] = 'dialog:validation:recipient:email:message';
     }
+    return errors;
   }
-  // Passed
-  return true;
+  if (!recipient.select || !recipient.select._id) {
+    return { recipient: 'form:errors:recipientRequired' };
+  }
+  return {};
 }
 
-function validateRows(rows) {
-  let validated = true;
-  for (let i = 0; i < rows.length; i++) {
-    const row = rows[i];
-    // Does it contain description?
+export function getRowErrors(rows, mode) {
+  if (mode === 'draft') {
+    return {};
+  }
+  const errors = {};
+  const nonBlank = rows.filter(row => !isBlankRow(row));
+  if (nonBlank.length === 0) {
+    return { rows: 'form:errors:noItems' };
+  }
+  for (const row of nonBlank) {
     if (!row.description) {
-      dialog.alert({
-        type: 'warning',
-        title: i18n.t('dialog:validation:rows:emptyDescription:title'),
-        message: i18n.t('dialog:validation:rows:emptyDescription:message'),
-      });
-      validated = false;
-      break;
+      errors[`rows.${row.id}.description`] =
+        'dialog:validation:rows:emptyDescription:message';
     }
-    // Is the price presented and greater than 0?
     if (!row.price || row.price <= 0) {
-      dialog.alert({
-        type: 'warning',
-        title: i18n.t('dialog:validation:rows:priceZero:title'),
-        message: i18n.t('dialog:validation:rows:priceZero:message'),
-      });
-      validated = false;
-      break;
+      errors[`rows.${row.id}.price`] =
+        'dialog:validation:rows:priceZero:message';
     }
-    // Is the quantity presented and greater than 0?
     if (!row.quantity || row.quantity <= 0) {
-      dialog.alert({
-        type: 'warning',
-        title: i18n.t('dialog:validation:rows:qtyZero:title'),
-        message: i18n.t('dialog:validation:rows:qtyZero:message'),
-      });
-      validated = false;
-      break;
+      errors[`rows.${row.id}.quantity`] =
+        'dialog:validation:rows:qtyZero:message';
     }
   }
-  return validated;
+  return errors;
 }
 
-function validateDueDate(isRequired, dueDate) {
-  const { selectedDate, paymentTerm, useCustom } = dueDate;
-  if (isRequired) {
-    // If use customDate
-    if (useCustom) {
-      if (!selectedDate || selectedDate === null) {
-        dialog.alert({
-          type: 'warning',
-          title: i18n.t('dialog:validation:dueDate:title'),
-          message: i18n.t('dialog:validation:dueDate:message'),
-        });
-        return false;
-      }
-      return true;
-    }
-    return true;
+export function getIssuedAtErrors(form, mode) {
+  if (mode === 'draft') {
+    return {};
   }
-  return true;
-}
-
-function validateCurrency(isRequired, currency) {
-  if (isRequired) {
-    if (currency.fraction < 0) {
-      dialog.alert({
-        type: 'warning',
-        title: i18n.t('dialog:validation:currency:fraction:title'),
-        message: i18n.t('dialog:validation:currency:fraction:message'),
-      });
-      return false;
-    }
-    return true;
+  const { issuedAt } = form;
+  if (issuedAt == null) {
+    return {};
   }
-  return true;
+  if (typeof issuedAt === 'number' && !Number.isFinite(issuedAt)) {
+    return { issuedAt: 'dialog:validation:dueDate:message' };
+  }
+  const m = moment(issuedAt);
+  if (!m.isValid()) {
+    return { issuedAt: 'dialog:validation:dueDate:message' };
+  }
+  return {};
 }
 
-function validateDiscount(isRequired, discount) {
+export function getDueDateErrors(isRequired, dueDate, mode) {
+  if (mode === 'draft' || !isRequired) {
+    return {};
+  }
+  const { selectedDate, useCustom } = dueDate;
+  if (useCustom) {
+    if (!selectedDate || selectedDate === null) {
+      return { dueDate: 'dialog:validation:dueDate:message' };
+    }
+  }
+  return {};
+}
+
+export function getCurrencyErrors(isRequired, currency, mode) {
+  const errors = {};
+  const fraction = currency?.fraction;
+  if (fraction !== undefined && fraction !== '') {
+    if (!Number.isFinite(Number(fraction)) || Number(fraction) < 0) {
+      errors['currency.fraction'] =
+        'dialog:validation:currency:fraction:message';
+    }
+  }
+  if (mode === 'draft') {
+    return errors;
+  }
+  if (isRequired && fraction < 0) {
+    errors['currency.fraction'] = 'dialog:validation:currency:fraction:message';
+  }
+  return errors;
+}
+
+export function getDiscountErrors(isRequired, discount, mode) {
+  if (mode === 'draft' || !isRequired) {
+    return {};
+  }
   const { amount } = discount;
-  if (isRequired) {
-    if (!amount || amount === '' || amount === 0) {
-      dialog.alert({
-        type: 'warning',
-        title: i18n.t('dialog:validation:discount:title'),
-        message: i18n.t('dialog:validation:discount:message'),
-      });
-      return false;
-    }
-    return true;
+  if (!amount || amount === '' || amount === 0) {
+    return { discount: 'dialog:validation:discount:message' };
   }
-  return true;
+  return {};
 }
 
-function validateTax(isRequired, tax) {
+export function getTaxErrors(isRequired, tax, mode) {
+  if (mode === 'draft' || !isRequired) {
+    return {};
+  }
   const { amount } = tax;
-  if (isRequired) {
-    if (!amount || amount === '' || amount <= 0) {
-      dialog.alert({
-        type: 'warning',
-        title: i18n.t('dialog:validation:tax:title'),
-        message: i18n.t('dialog:validation:tax:message'),
-      });
-      return false;
-    }
-    return true;
+  if (!amount || amount === '' || amount <= 0) {
+    return { tax: 'dialog:validation:tax:message' };
   }
-  return true;
+  return {};
 }
 
-function validateNote(isRequired, note) {
+export function getNoteErrors(isRequired, note, mode) {
+  if (mode === 'draft' || !isRequired) {
+    return {};
+  }
   const { content } = note;
-  if (isRequired) {
-    if (!content || content === '') {
-      dialog.alert({
-        type: 'warning',
-        title: i18n.t('dialog:validation:note:title'),
-        message: i18n.t('dialog:validation:note:message'),
-      });
-      return false;
+  if (!content || content === '') {
+    return { note: 'dialog:validation:note:message' };
+  }
+  return {};
+}
+
+export function getInvoiceIDErrors(form, mode) {
+  if (mode === 'draft') {
+    return {};
+  }
+  const { invoiceID, settings } = form;
+  const { editMode } = settings;
+  if (editMode.active && editMode.data.invoiceID === undefined) {
+    return {};
+  }
+  if (!invoiceID || invoiceID === '') {
+    return { invoiceID: 'dialog:validation:invoiceID:message' };
+  }
+  return {};
+}
+
+function stripUndefined(obj) {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([, v]) => v !== undefined)
+  );
+}
+
+function getDraftNumericErrors(form) {
+  const errors = {};
+  for (const row of form.rows) {
+    if (isBlankRow(row)) continue;
+    if (
+      row.price !== '' &&
+      row.price != null &&
+      (!Number.isFinite(Number(row.price)) || Number(row.price) <= 0)
+    ) {
+      errors[`rows.${row.id}.price`] =
+        'dialog:validation:rows:priceZero:message';
     }
-    return true;
+    if (
+      row.quantity !== '' &&
+      row.quantity != null &&
+      (!Number.isFinite(Number(row.quantity)) || Number(row.quantity) <= 0)
+    ) {
+      errors[`rows.${row.id}.quantity`] =
+        'dialog:validation:rows:qtyZero:message';
+    }
+  }
+  const fraction = form.currency?.fraction;
+  if (
+    fraction !== undefined &&
+    fraction !== '' &&
+    (!Number.isFinite(Number(fraction)) || Number(fraction) < 0)
+  ) {
+    errors['currency.fraction'] = 'dialog:validation:currency:fraction:message';
+  }
+  return errors;
+}
+
+export function getFormErrors(form, mode) {
+  const { required_fields } = form.settings;
+  if (mode === 'draft') {
+    if (!hasDraftContent(form)) {
+      return { draftEmpty: 'form:errors:draftEmpty' };
+    }
+    return stripUndefined({
+      ...getCurrencyErrors(required_fields.currency, form.currency, mode),
+      ...getIssuedAtErrors(form, mode),
+      ...getDraftNumericErrors(form),
+    });
+  }
+  return stripUndefined({
+    ...getInvoiceIDErrors(form, mode),
+    ...getRecipientErrors(form.recipient, mode),
+    ...getRowErrors(form.rows, mode),
+    ...getDueDateErrors(required_fields.dueDate, form.dueDate, mode),
+    ...getCurrencyErrors(required_fields.currency, form.currency, mode),
+    ...getDiscountErrors(required_fields.discount, form.discount, mode),
+    ...getTaxErrors(required_fields.tax, form.tax, mode),
+    ...getNoteErrors(required_fields.note, form.note, mode),
+    ...getIssuedAtErrors(form, mode),
+  });
+}
+
+export function pickInvoiceFields(form, defaultCurrency) {
+  const {
+    invoiceID,
+    recipient,
+    rows,
+    dueDate,
+    currency,
+    discount,
+    tax,
+    note,
+    settings,
+  } = form;
+  const { required_fields } = settings;
+  const invoiceData = {
+    rows: rows
+      .filter(row => !isBlankRow(row))
+      .map(row => ({
+        ...row,
+        subtotal: Number(row.subtotal) || 0,
+      })),
+  };
+
+  if (recipient.newRecipient) {
+    invoiceData.recipient = { ...recipient.new };
+  } else {
+    invoiceData.recipient = recipient.select;
+  }
+
+  if (invoiceID) {
+    invoiceData.invoiceID = invoiceID;
+  }
+  if (required_fields.dueDate) {
+    invoiceData.dueDate = dueDate;
+  }
+  if (required_fields.currency) {
+    invoiceData.currency = currency;
+  } else {
+    invoiceData.currency = defaultCurrency;
+  }
+  if (required_fields.discount) {
+    invoiceData.discount = discount;
+  }
+  if (required_fields.tax) {
+    invoiceData.tax = tax;
+  }
+  if (required_fields.note) {
+    invoiceData.note = note.content;
+  }
+  return invoiceData;
+}
+
+export function resolveSaveStatus(mode, editData) {
+  if (mode === 'draft') {
+    return 'draft';
+  }
+  if (!editData) {
+    return 'pending';
+  }
+  if (editData.status === 'draft') {
+    return 'pending';
+  }
+  return editData.status ?? 'pending';
+}
+
+export function getInvoiceData(
+  formData,
+  { mode = 'final', defaultCurrency, now = Date.now() } = {}
+) {
+  const { settings } = formData;
+  const { editMode } = settings;
+  const fields = pickInvoiceFields(formData, defaultCurrency);
+  if (formData.recipient.newRecipient) {
+    fields.recipient = {
+      ...fields.recipient,
+      _id: crypto.randomUUID(),
+      created_at: Date.now(),
+    };
+  }
+  const issuedAt =
+    formData.issuedAt ?? (editMode.active ? getIssuedAt(editMode.data) : now);
+
+  if (editMode.active) {
+    const base = { ...editMode.data };
+    Object.assign(base, fields, {
+      issuedAt,
+      status: resolveSaveStatus(mode, editMode.data),
+      subtotal: getInvoiceValue(fields).subtotal,
+      grandTotal: getInvoiceValue(fields).grandTotal,
+    });
+    if (!settings.required_fields.dueDate) delete base.dueDate;
+    if (!settings.required_fields.discount) delete base.discount;
+    if (!settings.required_fields.tax) delete base.tax;
+    if (!settings.required_fields.note) delete base.note;
+    return base;
+  }
+
+  return Object.assign({}, fields, {
+    _id: crypto.randomUUID(),
+    created_at: now,
+    issuedAt,
+    status: resolveSaveStatus(mode, null),
+    subtotal: getInvoiceValue(fields).subtotal,
+    grandTotal: getInvoiceValue(fields).grandTotal,
+  });
+}
+
+export function validateTax(isRequired, tax) {
+  const errors = getTaxErrors(isRequired, tax, 'final');
+  const key = errors.tax;
+  if (key) {
+    dialog.alert({
+      type: 'warning',
+      title: i18n.t('dialog:validation:tax:title'),
+      message: i18n.t(key),
+    });
+    return false;
   }
   return true;
 }
 
-function validateInvoiceID(isRequired, invoiceID) {
-  if (isRequired) {
-    if (!invoiceID || invoiceID === '') {
-      dialog.alert({
-        type: 'warning',
-        title: i18n.t('dialog:validation:invoiceID:title'),
-        message: i18n.t('dialog:validation:invoiceID:message'),
-      });
-      return false;
-    }
-    return true;
+export function validateCurrency(isRequired, currency) {
+  const errors = getCurrencyErrors(isRequired, currency, 'final');
+  const key = errors['currency.fraction'];
+  if (key) {
+    dialog.alert({
+      type: 'warning',
+      title: i18n.t('dialog:validation:currency:fraction:title'),
+      message: i18n.t(key),
+    });
+    return false;
   }
   return true;
 }
 
-// SET RECIPIENT INFORMATION IN EDIT MODE
+export function hasUnsavedFormChanges(form) {
+  if (form.settings.editMode.active) {
+    return true;
+  }
+  if (hasDraftContent(form)) {
+    return true;
+  }
+  if (form.issuedAt != null) {
+    return true;
+  }
+  return form.rows.some(row => !isBlankRow(row));
+}
+
 function setEditRecipient(allContacts, currentContact) {
   if (allContacts.length) {
     const contactIDs = allContacts.map(contact => contact._id);
@@ -281,15 +444,4 @@ function setEditRecipient(allContacts, currentContact) {
   };
 }
 
-export {
-  getInvoiceData,
-  validateFormData,
-  validateRecipient,
-  validateRows,
-  validateDueDate,
-  validateCurrency,
-  validateDiscount,
-  validateTax,
-  validateNote,
-  setEditRecipient,
-};
+export { setEditRecipient };

@@ -29,7 +29,11 @@ describe('Invoices Middleware', () => {
     next = vi.fn();
     dispatch = vi.fn();
     getState = vi.fn(() => ({
-      form: { settings: { editMode: { active: false } } },
+      form: {
+        settings: { editMode: { active: false } },
+        recipient: { newRecipient: true, new: {} },
+        rows: [],
+      },
     }));
     middleware = InvoicesMW({ dispatch, getState })(next);
     toast.add.mockClear();
@@ -108,6 +112,23 @@ describe('Invoices Middleware', () => {
   });
 
   describe('should handle INVOICE_SAVE action', () => {
+    it('returns success for a draft without opening preview', async () => {
+      window.manta.ipc.send.mockClear();
+      const result = await middleware(
+        Actions.saveInvoice({ status: 'draft', rows: [] })
+      );
+      expect(result).toBe(true);
+      expect(
+        window.manta.ipc.send.mock.calls.map(([event]) => event)
+      ).not.toContain('preview-invoice');
+    });
+    it('returns false if invoice persistence fails', async () => {
+      saveDoc.mockRejectedValueOnce(new Error('disk full'));
+      await expect(
+        middleware(Actions.saveInvoice({ status: 'draft', rows: [] }))
+      ).resolves.toBe(false);
+    });
+
     it('should save records to DB', () => {
       // Setup
       const newInvoice = {
@@ -497,30 +518,36 @@ describe('Invoices Middleware', () => {
     });
   });
 
-  describe('should handle INVOICE_DUPLICATE action correctly', () => {
-    it('update the current invoice and dispatch save action', () => {
-      const invoiceData = {
-        _id: 'a-random-string',
-        _rev: 'another-random-string',
-        created_at: 'yesterday',
+  describe('INVOICE_DUPLICATE', () => {
+    it('opens a copy in the editor without saving it', async () => {
+      const data = {
+        _id: 'a',
+        _rev: 'b',
         status: 'paid',
         paidAt: 1,
         issuedAt: 2,
+        created_at: 3,
+        rows: [],
       };
-      middleware(Actions.duplicateInvoice(invoiceData));
-      expect(dispatch.mock.calls.length).toBe(1);
+      await middleware(Actions.duplicateInvoice(data));
+      expect(saveDoc).not.toHaveBeenCalled();
       expect(dispatch).toHaveBeenCalledWith({
-        type: ACTION_TYPES.INVOICE_SAVE,
+        type: ACTION_TYPES.FORM_LOAD_DUPLICATE,
         payload: expect.objectContaining({
-          _id: 'id-string',
-          _rev: null,
-          created_at: 'now',
-          status: 'draft',
+          rows: [],
+          contacts: expect.any(Array),
         }),
       });
-      const payload = dispatch.mock.calls[0][0].payload;
-      expect(payload.paidAt).toBeUndefined();
-      expect(payload.issuedAt).toBeUndefined();
+      const payload = dispatch.mock.calls.find(
+        ([a]) => a.type === ACTION_TYPES.FORM_LOAD_DUPLICATE
+      )[0].payload;
+      expect(payload).not.toHaveProperty('_id');
+      expect(payload).not.toHaveProperty('status');
+      expect(payload).not.toHaveProperty('issuedAt');
+      expect(dispatch).toHaveBeenCalledWith({
+        type: ACTION_TYPES.UI_TAB_CHANGE,
+        payload: 'form',
+      });
     });
   });
 
