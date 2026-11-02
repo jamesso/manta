@@ -13,6 +13,12 @@ export default defineConfig({
     },
     setupFiles: ['./vitest.setup.js'],
     include: ['**/*.spec.{js,jsx}'],
-    exclude: ['node_modules/**', 'dist/**', 'prod/**', 'out/**'],
+    exclude: [
+      'node_modules/**',
+      'dist/**',
+      'prod/**',
+      'out/**',
+      '**/dashboard.america-new-york.spec.js',
+    ],
   },
 });

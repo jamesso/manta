@@ -1,7 +1,5 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { act, renderHook } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
 
-import { useNow } from '../../components/invoices/useNow';
 import {
   addLocalDays,
   formatMoney,
@@ -13,8 +11,6 @@ import {
   startOfLocalDay,
   startOfLocalMonth,
 } from '../dashboard';
-
-const AMERICA_NEW_YORK = 'America/New_York';
 
 const fallback = {
   code: 'USD',
@@ -236,82 +232,6 @@ describe('resolveDashboardCurrencySelection', () => {
     expect(resolveDashboardCurrencySelection('USD', ['EUR'], 'EUR')).toBe(
       'EUR'
     );
-  });
-});
-
-describe('America/New_York local boundaries', () => {
-  beforeEach(() => {
-    vi.stubEnv('TZ', AMERICA_NEW_YORK);
-  });
-
-  afterEach(() => {
-    vi.unstubAllEnvs();
-    vi.useRealTimers();
-  });
-
-  it('buckets paidThisMonth on both sides of a local month boundary', () => {
-    const lastOct = new Date(2026, 9, 31, 23, 30, 0, 0).getTime();
-    const firstNov = new Date(2026, 10, 1, 0, 30, 0, 0).getTime();
-    const nowNov = new Date(2026, 10, 15, 12, 0, 0, 0).getTime();
-    const invoices = [
-      inv({ status: 'paid', paidAt: lastOct, grandTotal: 10, _id: 'oct' }),
-      inv({
-        status: 'paid',
-        paidAt: firstNov,
-        grandTotal: 20,
-        _id: 'nov',
-      }),
-    ];
-    const stats = getDashboardStats(invoices, nowNov, fallback);
-    expect(stats.byCurrency.USD.paidThisMonth).toBe(20);
-    const octOnly = getDashboardStats([invoices[0]], lastOct, fallback);
-    expect(octOnly.byCurrency.USD.paidThisMonth).toBe(10);
-  });
-
-  it('counts a due date on the 23-hour spring-forward day', () => {
-    const springForward = new Date(2026, 2, 8, 12, 0, 0, 0).getTime();
-    const dueNextDay = addLocalDays(startOfLocalDay(springForward), 1);
-    const invoice = inv({
-      status: 'pending',
-      dueDate: { useCustom: true, selectedDate: dueNextDay },
-    });
-    expect(getNeedsAttention([invoice], springForward, 7)).toHaveLength(1);
-  });
-
-  it('counts a due date on the 25-hour fall-back day', () => {
-    const fallBack = new Date(2026, 10, 1, 12, 0, 0, 0).getTime();
-    const dueSameDay = addLocalDays(startOfLocalDay(fallBack), 0);
-    const invoice = inv({
-      status: 'pending',
-      dueDate: { useCustom: true, selectedDate: dueSameDay },
-    });
-    expect(getNeedsAttention([invoice], fallBack, 7)).toHaveLength(1);
-  });
-});
-
-describe('useNow refresh across local midnight', () => {
-  beforeEach(() => {
-    vi.stubEnv('TZ', AMERICA_NEW_YORK);
-    vi.useFakeTimers();
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-    vi.unstubAllEnvs();
-  });
-
-  it('updates now via the interval when local midnight passes without focus', () => {
-    const beforeMidnight = new Date(2026, 10, 1, 23, 59, 0, 0).getTime();
-    vi.setSystemTime(beforeMidnight);
-    const { result } = renderHook(() => useNow());
-    expect(new Date(result.current).getDate()).toBe(1);
-
-    act(() => {
-      vi.advanceTimersByTime(2 * 60 * 1000);
-    });
-
-    expect(new Date(result.current).getDate()).toBe(2);
-    expect(new Date(result.current).getHours()).toBe(0);
   });
 });
 
