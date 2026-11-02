@@ -10,7 +10,11 @@ const invoiceSettings =
     ? rawInvoiceSettings
     : { currency: {}, tax: {}, required_fields: {}, numbering: {} };
 // Helper
-import { setEditRecipient, editorTaxModeFromDoc } from '../helpers/form';
+import {
+  setEditRecipient,
+  editorTaxModeFromDoc,
+  requiredTaxFieldFromDoc,
+} from '../helpers/form';
 import { getIssuedAt } from '../helpers/invoice';
 import {
   formatInvoiceNumber,
@@ -86,7 +90,7 @@ function populateFromDuplicate(state, payload) {
   const required_fields = {
     invoiceID: invoiceID !== undefined,
     currency: currency !== undefined,
-    tax: tax !== undefined,
+    tax: requiredTaxFieldFromDoc(payload),
     dueDate: dueDate !== undefined,
     discount: discount !== undefined,
     note: note !== undefined,
@@ -113,7 +117,7 @@ function populateFromDuplicate(state, payload) {
       },
       required_fields,
     }),
-    taxMode: editorTaxModeFromDoc({ tax, rows }),
+    taxMode: editorTaxModeFromDoc(payload),
   });
 }
 
@@ -154,7 +158,7 @@ function populateFromInvoice(state, payload) {
       required_fields: Object.assign({}, state.settings.required_fields, {
         invoiceID: invoiceID !== undefined,
         currency: currency !== state.savedSettings.currency,
-        tax: tax !== undefined,
+        tax: requiredTaxFieldFromDoc(payload),
         dueDate: dueDate !== undefined,
         discount: discount !== undefined,
         note: note !== undefined,

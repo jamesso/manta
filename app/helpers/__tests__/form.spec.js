@@ -10,6 +10,7 @@ import {
   pickInvoiceFields,
   isBlankRow,
 } from '../form';
+import { getInvoiceTotals } from '../invoice';
 vi.mock('@/lib/dialog', () => ({ alert: vi.fn() }));
 const currency = { code: 'USD', fraction: 2, separator: 'commaDot' };
 const form = () => ({
@@ -333,5 +334,88 @@ describe('form helpers', () => {
     const f = form();
     mutate(f);
     expect(getFormErrors(f, 'final')[path]).toEqual(expect.any(String));
+  });
+
+  const lineRow = {
+    id: 'r1',
+    description: 'Work',
+    price: 100,
+    quantity: 1,
+    subtotal: 100,
+    taxRateId: 'vat19',
+    taxRate: 19,
+    taxCategory: 'S',
+    taxExemptionReason: '',
+  };
+
+  it('preserves line tax snapshots when saving an edited line invoice', () => {
+    const f = form();
+    f.taxMode = 'line';
+    f.settings.required_fields.tax = true;
+    f.rows = [{ ...lineRow }];
+    f.settings.editMode = {
+      active: true,
+      data: {
+        _id: 'inv-line',
+        status: 'pending',
+        taxMode: 'line',
+        taxCalc: 1,
+        rows: [{ ...lineRow }],
+      },
+    };
+    const doc = getInvoiceData(f, { defaultCurrency: currency });
+    expect(doc.rows[0].taxRate).toBe(19);
+    expect(doc.rows[0].taxCategory).toBe('S');
+    expect(getInvoiceTotals(doc).grandTotal).toBe(119);
+  });
+
+  it('clears line tax snapshots when tax is off on save', () => {
+    const f = form();
+    f.taxMode = 'line';
+    f.settings.required_fields.tax = false;
+    f.rows = [{ ...lineRow }];
+    const doc = getInvoiceData(f, { defaultCurrency: currency });
+    expect(doc.rows[0].taxRateId).toBeUndefined();
+    expect(doc.rows[0].taxRate).toBeUndefined();
+  });
+
+  it('line mode rejects missing tax category on final save', () => {
+    const f = form();
+    f.taxMode = 'line';
+    f.settings.required_fields.tax = true;
+    f.rows = [
+      {
+        id: '1',
+        description: 'Work',
+        price: 10,
+        quantity: 1,
+        subtotal: 10,
+        taxRate: 0,
+      },
+    ];
+    expect(getFormErrors(f, 'final')['rows.1.taxCategory']).toEqual(
+      expect.any(String)
+    );
+    expect(getFormErrors(f, 'draft')).not.toHaveProperty('rows.1.taxCategory');
+  });
+
+  it('line mode rejects invalid tax category on final save', () => {
+    const f = form();
+    f.taxMode = 'line';
+    f.settings.required_fields.tax = true;
+    f.rows = [
+      {
+        id: '1',
+        description: 'Work',
+        price: 10,
+        quantity: 1,
+        subtotal: 10,
+        taxRate: 0,
+        taxCategory: 'INVALID',
+      },
+    ];
+    expect(getFormErrors(f, 'final')['rows.1.taxCategory']).toEqual(
+      expect.any(String)
+    );
   });
 });

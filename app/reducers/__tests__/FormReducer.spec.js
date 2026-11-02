@@ -709,6 +709,95 @@ describe('plan 015 form reducer behavior', () => {
     expect(cleared.errorMode).toBeNull();
   });
 
+  it('INVOICE_EDIT of line-mode invoice keeps tax column and row rates', () => {
+    const linePayload = {
+      taxMode: 'line',
+      taxCalc: 1,
+      currency: { fraction: 2 },
+      rows: [
+        {
+          id: 'r1',
+          description: 'Work',
+          price: 100,
+          quantity: 1,
+          subtotal: 100,
+          taxRateId: 'vat19',
+          taxRate: 19,
+          taxCategory: 'S',
+          taxExemptionReason: '',
+        },
+      ],
+      recipient: { fullname: 'A', email: 'a@b.c', _id: 'c1' },
+      contacts: [],
+    };
+    const next = FormReducer(baseState, {
+      type: ACTION_TYPES.INVOICE_EDIT,
+      payload: linePayload,
+    });
+    expect(next.taxMode).toBe('line');
+    expect(next.settings.required_fields.tax).toBe(true);
+    expect(next.rows[0].taxRate).toBe(19);
+  });
+
+  it('FORM_LOAD_DUPLICATE of line-mode invoice keeps tax settings', () => {
+    const linePayload = {
+      taxMode: 'line',
+      taxCalc: 1,
+      currency: { fraction: 2 },
+      rows: [
+        {
+          id: 'r1',
+          description: 'Work',
+          price: 100,
+          quantity: 1,
+          subtotal: 100,
+          taxRateId: 'vat19',
+          taxRate: 19,
+          taxCategory: 'S',
+          taxExemptionReason: '',
+        },
+      ],
+      recipient: { fullname: 'A', email: 'a@b.c', _id: 'c1' },
+      contacts: [],
+    };
+    const next = FormReducer(baseState, {
+      type: ACTION_TYPES.FORM_LOAD_DUPLICATE,
+      payload: linePayload,
+    });
+    expect(next.settings.editMode.active).toBe(false);
+    expect(next.taxMode).toBe('line');
+    expect(next.settings.required_fields.tax).toBe(true);
+    expect(next.rows[0].taxRate).toBe(19);
+  });
+
+  it('INVOICE_EDIT of empty line-mode doc turns tax field off', () => {
+    const next = FormReducer(baseState, {
+      type: ACTION_TYPES.INVOICE_EDIT,
+      payload: {
+        taxMode: 'line',
+        taxCalc: 1,
+        rows: [],
+        recipient: { fullname: 'A', email: 'a@b.c', _id: 'c1' },
+        contacts: [],
+      },
+    });
+    expect(next.settings.required_fields.tax).toBe(false);
+  });
+
+  it('legacy invoice with tax stays invoice mode', () => {
+    const next = FormReducer(baseState, {
+      type: ACTION_TYPES.INVOICE_EDIT,
+      payload: {
+        tax: { tin: 'OLD', amount: 10, method: 'default' },
+        rows: [{ id: 'r1', price: 1, quantity: 1, subtotal: 1 }],
+        recipient: { fullname: 'A', email: 'a@b.c', _id: 'c1' },
+        contacts: [],
+      },
+    });
+    expect(next.taxMode).toBe('invoice');
+    expect(next.settings.required_fields.tax).toBe(true);
+  });
+
   it('FORM_EDIT_DATA_SYNC replaces edit data when ids match', () => {
     const withEdit = FormReducer(
       Object.assign({}, baseState, {

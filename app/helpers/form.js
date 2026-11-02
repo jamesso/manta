@@ -306,7 +306,21 @@ function editorTaxModeFromDoc(doc) {
   return 'line';
 }
 
-function resolveSellerForSave(form, profile, invoiceSettings) {
+export function requiredTaxFieldFromDoc(doc) {
+  if (isLineTaxInvoice(doc)) {
+    const rows = doc?.rows ?? [];
+    return rows.some(row => {
+      if (Number.isFinite(Number(row.taxRate))) {
+        return true;
+      }
+      const id = row.taxRateId;
+      return typeof id === 'string' && id.trim() !== '';
+    });
+  }
+  return doc?.tax !== undefined;
+}
+
+export function resolveSellerForSave(form, profile, invoiceSettings) {
   const ids = getSellerTaxIds(profile, invoiceSettings);
   const { editMode } = form.settings;
   if (!editMode.active) {
@@ -349,11 +363,14 @@ function getLineTaxFormErrors(form, mode) {
     }
     const pseudo = {
       name: 'row',
-      category: row.taxCategory ?? 'S',
+      category: row.taxCategory,
       rate: Number(row.taxRate),
       exemptionReason: row.taxExemptionReason ?? '',
     };
     const rateErrs = getTaxRateErrors(pseudo);
+    if (rateErrs.category) {
+      errors[`rows.${row.id}.taxCategory`] = rateErrs.category;
+    }
     if (rateErrs.rate) {
       errors[`rows.${row.id}.taxRate`] = 'form:errors:taxRateRequired';
     }
