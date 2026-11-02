@@ -19,6 +19,11 @@ export default function Viewer() {
   const UILang = useSelector(getUILang);
 
   useEffect(() => {
+    if (!UILang) return;
+    i18n.changeLanguage(UILang);
+  }, [UILang]);
+
+  useEffect(() => {
     const onPreview = (_event, invoiceData) => {
       dispatch(ActionsCreator.updateInvoice(invoiceData));
     };
