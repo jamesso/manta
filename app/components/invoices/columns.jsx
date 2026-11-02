@@ -10,33 +10,34 @@ import StatusBadge from './StatusBadge';
 
 const columnHelper = createColumnHelper();
 
+const sortHeaderClass =
+  'inline-flex min-h-6 items-center gap-1 bg-transparent text-foreground shadow-none';
+
 export function getColumns({ t, dateFormat, onOpen, dispatch }) {
   return [
     columnHelper.display({
       id: 'select',
       header: ({ table }) => (
-        <span className="inline-flex size-6 items-center justify-center">
-          <Checkbox
-            aria-label={t('invoices:columns:selectAll')}
-            checked={table.getIsAllRowsSelected()}
-            indeterminate={
-              table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()
-            }
-            onCheckedChange={value => table.toggleAllRowsSelected(!!value)}
-          />
-        </span>
+        <Checkbox
+          className="size-6"
+          aria-label={t('invoices:columns:selectAll')}
+          checked={table.getIsAllRowsSelected()}
+          indeterminate={
+            table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()
+          }
+          onCheckedChange={value => table.toggleAllRowsSelected(!!value)}
+        />
       ),
       cell: ({ row }) => (
         <div onClick={event => event.stopPropagation()} role="presentation">
-          <span className="inline-flex size-6 items-center justify-center">
-            <Checkbox
-              aria-label={t('invoices:columns:select', {
-                number: row.original.number,
-              })}
-              checked={row.getIsSelected()}
-              onCheckedChange={value => row.toggleSelected(!!value)}
-            />
-          </span>
+          <Checkbox
+            className="size-6"
+            aria-label={t('invoices:columns:select', {
+              number: row.original.number,
+            })}
+            checked={row.getIsSelected()}
+            onCheckedChange={value => row.toggleSelected(!!value)}
+          />
         </div>
       ),
     }),
@@ -44,7 +45,7 @@ export function getColumns({ t, dateFormat, onOpen, dispatch }) {
       header: ({ column }) => (
         <button
           type="button"
-          className="inline-flex min-h-6 items-center gap-1"
+          className={sortHeaderClass}
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           {t('invoices:columns:number')}
@@ -54,7 +55,7 @@ export function getColumns({ t, dateFormat, onOpen, dispatch }) {
       cell: ({ row }) => (
         <button
           type="button"
-          className="min-h-6 text-start font-medium text-primary underline-offset-4 hover:underline"
+          className="min-h-6 bg-transparent text-start font-medium text-primary shadow-none underline-offset-4 hover:underline"
           onClick={event => {
             event.stopPropagation();
             onOpen(row.id);
@@ -69,7 +70,7 @@ export function getColumns({ t, dateFormat, onOpen, dispatch }) {
       header: ({ column }) => (
         <button
           type="button"
-          className="inline-flex min-h-6 items-center gap-1"
+          className={sortHeaderClass}
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           {t('invoices:columns:client')}
@@ -82,7 +83,7 @@ export function getColumns({ t, dateFormat, onOpen, dispatch }) {
       header: ({ column }) => (
         <button
           type="button"
-          className="inline-flex min-h-6 items-center gap-1"
+          className={sortHeaderClass}
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           {t('invoices:columns:issued')}
@@ -101,7 +102,7 @@ export function getColumns({ t, dateFormat, onOpen, dispatch }) {
       header: ({ column }) => (
         <button
           type="button"
-          className="inline-flex min-h-6 items-center gap-1"
+          className={sortHeaderClass}
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           {t('invoices:columns:due')}
@@ -115,7 +116,7 @@ export function getColumns({ t, dateFormat, onOpen, dispatch }) {
       header: ({ column }) => (
         <button
           type="button"
-          className="inline-flex min-h-6 w-full items-center justify-end gap-1"
+          className={`${sortHeaderClass} w-full justify-end`}
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           {t('invoices:columns:amount')}
@@ -133,7 +134,7 @@ export function getColumns({ t, dateFormat, onOpen, dispatch }) {
       header: ({ column }) => (
         <button
           type="button"
-          className="inline-flex min-h-6 items-center gap-1"
+          className={sortHeaderClass}
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           {t('invoices:columns:status')}
