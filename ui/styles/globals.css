@@ -19,7 +19,6 @@
 /* Files that Tailwind scans for class names (paths relative to this file). */
 @source "../../app";
 @source "../../preview";
-@source "../../modal";
 @source "..";
 
 /* Dark mode follows the OS or nativeTheme.themeSource. No .dark class, no JS. */

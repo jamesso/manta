@@ -42,5 +42,4 @@ beforeEach(() => {
   vi.spyOn(globalThis.crypto, 'randomUUID').mockReturnValue('id-string');
 });
 
-vi.mock('./app/renderers/dialog.js');
 vi.mock('./libs/sounds.js');

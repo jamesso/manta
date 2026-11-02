@@ -353,7 +353,6 @@ function addEventListeners() {
 }
 
 function loadMainProcessFiles() {
-  require('./main/modal-window');
   require('./main/preview-window');
   require('./main/save-pdf');
   require('./main/select-export-directory');

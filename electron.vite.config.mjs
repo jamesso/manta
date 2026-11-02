@@ -50,7 +50,6 @@ export default defineConfig({
         input: {
           app: root('./app/index.html'),
           preview: root('./preview/index.html'),
-          modal: root('./modal/index.html'),
         },
       },
     },

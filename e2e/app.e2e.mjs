@@ -173,19 +173,12 @@ async function showMain(page) {
   await page.waitForLoadState('load');
 }
 
-test('theme setting reaches every window', async () => {
+test('theme setting reaches Manta and Previewer', async () => {
   const main = await pageByTitle(MAIN_TITLE);
   await showMain(main);
-  await main.evaluate(() =>
-    window.manta.ipc.send('show-modal', {
-      type: 'info',
-      title: 'Theme check',
-      message: 'Theme check',
-      buttons: ['OK'],
-    })
-  );
-  await pageByTitle('Dialog');
-  expect(app.windows().length).toBeGreaterThanOrEqual(3);
+  await pageByTitle(PREVIEW_TITLE);
+  const titles = (await Promise.all(app.windows().map(p => p.title()))).sort();
+  expect(titles).toEqual([MAIN_TITLE, PREVIEW_TITLE].sort());
   for (const theme of ['dark', 'light']) {
     await main.evaluate(t => window.manta.ipc.send('set-theme', t), theme);
     await expect
@@ -221,18 +214,13 @@ test('theme setting reaches every window', async () => {
   await expect
     .poll(() => app.evaluate(({ nativeTheme }) => nativeTheme.themeSource))
     .toBe('system');
-  await app.evaluate(({ BrowserWindow }) =>
-    BrowserWindow.getAllWindows()
-      .find(w => w.getTitle() === 'Dialog')
-      ?.close()
-  );
   await app.evaluate(({ BrowserWindow }) => {
-    const main = BrowserWindow.getAllWindows().find(
+    const mainWin = BrowserWindow.getAllWindows().find(
       w => w.getTitle() === 'Manta'
     );
-    if (main) {
-      main.show();
-      main.focus();
+    if (mainWin) {
+      mainWin.show();
+      mainWin.focus();
     }
   });
 });
