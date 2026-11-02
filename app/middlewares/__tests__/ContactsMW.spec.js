@@ -50,7 +50,6 @@ describe('Contacts Middleware', () => {
     it('calls next after the promised is returned', () => {
       const action = Actions.getAllContacts();
       middleware(action).then(() => {
-        // Never call dispatch
         expect(dispatch.mock.calls.length).toBe(0);
         // Calling next with resolved data
         return getAllDocs('contacts').then(data => {

@@ -37,7 +37,6 @@ const SettingsMW =
             exportedPdf: false,
           },
         };
-        dispatch({ type: ACTION_TYPES.BOOTSTRAP_SETTINGS_READY });
         return next(
           Object.assign({}, action, {
             payload: {

@@ -68,7 +68,6 @@ describe('Invoices Middleware', () => {
     it('calls next after the promised is returned', () => {
       const action = Actions.getInvoices();
       middleware(action).then(() => {
-        // Never call dispatch
         expect(dispatch.mock.calls.length).toBe(0);
         // Call next with resolved data
         return getAllDocs('invoices').then(data => {
@@ -728,7 +727,11 @@ describe('Invoices Middleware', () => {
         editMode: { active: true, data: { _id: 'existing', _rev: '1-x' } },
         required_fields: {},
       },
-      savedSettings: { currency: { code: 'USD', fraction: 2 }, tax: {}, required_fields: {} },
+      savedSettings: {
+        currency: { code: 'USD', fraction: 2 },
+        tax: {},
+        required_fields: {},
+      },
     };
     const chain = action => {
       form = FormReducer(form, action);
