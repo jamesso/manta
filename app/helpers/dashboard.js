@@ -1,11 +1,12 @@
 import { formatNumber } from '../../helpers/formatNumber';
+import { getPaymentEvents } from './payments';
 import {
   formatInvoiceAmount,
+  getBalanceDue,
   getDisplayStatus,
   getDueDate,
   getInvoiceTotal,
   getIssuedAt,
-  getPaidDate,
 } from './invoice';
 
 function startOfLocalDay(ts) {
@@ -108,20 +109,22 @@ function getDashboardStats(invoices, now, fallbackCurrency) {
     }
 
     if (display === 'overdue') {
-      bucket.overdue += amount;
+      bucket.overdue += getBalanceDue(inv);
       bucket.overdueCount += 1;
-      bucket.outstanding += amount;
+      bucket.outstanding += getBalanceDue(inv);
       bucket.outstandingCount += 1;
       overdue += 1;
-    } else if (display === 'pending') {
-      bucket.outstanding += amount;
+    } else if (display === 'pending' || display === 'partial') {
+      bucket.outstanding += getBalanceDue(inv);
       bucket.outstandingCount += 1;
     }
 
-    if (stored === 'paid') {
-      const paid = getPaidDate(inv);
-      if (paid != null && paid >= monthStart && paid < monthEnd) {
-        bucket.paidThisMonth += amount;
+    for (const event of getPaymentEvents(inv)) {
+      if (event.date == null) {
+        continue;
+      }
+      if (event.date >= monthStart && event.date < monthEnd) {
+        bucket.paidThisMonth += event.amount;
       }
     }
   }
@@ -180,23 +183,25 @@ function getMonthlyPaid(invoices, now, months = 6, fallbackCurrency) {
   }
 
   for (const inv of invoices) {
-    if (inv.status !== 'paid') {
+    const stored = inv.status ?? 'pending';
+    if (stored !== 'pending' && stored !== 'paid') {
       continue;
     }
-    const paid = getPaidDate(inv);
-    if (paid == null) {
-      continue;
-    }
-    const paidMonth = startOfLocalMonth(paid);
-    if (paidMonth < startMonthStart || paidMonth > endMonthStart) {
-      continue;
-    }
-    const code = currencyOf(inv, fallbackCurrency);
-    ensureBuckets(code);
-    const key = monthKey(paidMonth);
-    const row = result[code].find(r => r.key === key);
-    if (row) {
-      row.total += amountOf(inv);
+    for (const event of getPaymentEvents(inv)) {
+      if (event.date == null) {
+        continue;
+      }
+      const paidMonth = startOfLocalMonth(event.date);
+      if (paidMonth < startMonthStart || paidMonth > endMonthStart) {
+        continue;
+      }
+      const code = currencyOf(inv, fallbackCurrency);
+      ensureBuckets(code);
+      const key = monthKey(paidMonth);
+      const row = result[code].find(r => r.key === key);
+      if (row) {
+        row.total += event.amount;
+      }
     }
   }
 
@@ -218,7 +223,7 @@ function getNeedsAttention(invoices, now, days = 7) {
     }
     if (display === 'overdue') {
       overdueList.push(inv);
-    } else if (display === 'pending') {
+    } else if (display === 'pending' || display === 'partial') {
       if (due >= startToday && due < endExclusive) {
         upcoming.push(inv);
       }

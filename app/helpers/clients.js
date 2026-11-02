@@ -1,4 +1,4 @@
-import { getDisplayStatus, getInvoiceValue } from './invoice';
+import { getBalanceDue, getDisplayStatus } from './invoice';
 
 export const EMAIL_REGEX =
   /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
@@ -51,10 +51,10 @@ export function summarizeClients(contacts, invoices, now) {
     entry.invoiceCount += 1;
     entry.invoices.push(invoice);
     const status = getDisplayStatus(invoice, now);
-    if (status === 'pending' || status === 'overdue') {
-      const { grandTotal } = getInvoiceValue(invoice);
+    if (status === 'pending' || status === 'partial' || status === 'overdue') {
+      const due = getBalanceDue(invoice);
       const code = invoice.currency?.code ?? 'USD';
-      entry.outstanding[code] = (entry.outstanding[code] ?? 0) + grandTotal;
+      entry.outstanding[code] = (entry.outstanding[code] ?? 0) + due;
     }
   }
   for (const entry of map.values()) {

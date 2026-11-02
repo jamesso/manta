@@ -1,6 +1,8 @@
 import moment from 'moment';
 
 import {
+  getAmountPaid,
+  getBalanceDue,
   getDisplayStatus,
   getDueDate,
   getInvoiceValue,
@@ -38,13 +40,18 @@ export function buildInvoicesCsv(invoices, now) {
     return at - bt;
   });
   const header =
-    'number,client,issued,due,status,currency,subtotal,tax,discount,total';
+    'number,client,issued,due,status,currency,subtotal,tax,discount,total,amount_paid,balance_due';
   const lines = sorted.map(invoice => {
     const { subtotal, taxAmount, discount, grandTotal } =
       getInvoiceValue(invoice);
     const fraction = invoice.currency?.fraction ?? 2;
     const fmt = n => Number(n ?? 0).toFixed(fraction);
     const due = getDueDate(invoice);
+    const display = getDisplayStatus(invoice, now);
+    const balanceDue =
+      display === 'draft' || display === 'refunded' || display === 'cancelled'
+        ? ''
+        : fmt(getBalanceDue(invoice));
     const fields = [
       escapeCsvField(invoice.invoiceID || invoice._id, { text: true }),
       escapeCsvField(
@@ -61,6 +68,8 @@ export function buildInvoicesCsv(invoices, now) {
       fmt(taxAmount ?? 0),
       fmt(discount ?? 0),
       fmt(grandTotal),
+      fmt(getAmountPaid(invoice)),
+      balanceDue,
     ];
     return fields.join(',');
   });

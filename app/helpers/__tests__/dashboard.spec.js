@@ -118,6 +118,27 @@ describe('getDashboardStats', () => {
     expect(stats.byCurrency.USD.paidThisMonth).toBeCloseTo(13);
   });
 
+  it('uses balance due for partial payments', () => {
+    const now = Date.UTC(2026, 10, 15);
+    const invoices = [
+      inv({
+        status: 'pending',
+        grandTotal: 100,
+        payments: [
+          {
+            id: 'p1',
+            date: Date.UTC(2026, 10, 3),
+            amount: 40,
+            method: 'cash',
+          },
+        ],
+      }),
+    ];
+    const stats = getDashboardStats(invoices, now, fallback);
+    expect(stats.byCurrency.USD.outstanding).toBe(60);
+    expect(stats.byCurrency.USD.paidThisMonth).toBe(40);
+  });
+
   it('excludes refunded and cancelled from money, counts drafts', () => {
     const now = Date.UTC(2026, 5, 1);
     const invoices = [
