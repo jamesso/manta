@@ -28,6 +28,4 @@ const BootstrapReducer = handleActions(
 export default BootstrapReducer;
 
 export const isBootstrapReady = state =>
-  state.bootstrap.invoices &&
-  state.bootstrap.contacts &&
-  state.bootstrap.settings;
+  state.startup.invoices && state.startup.contacts && state.startup.settings;

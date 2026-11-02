@@ -1,3 +1,13 @@
+/* The print wrapper sits outside .paper. Restore the Bootstrap body
+   font, line-height and color it used to inherit. */
+.print-area {
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, sans-serif;
+  line-height: 1.5;
+  color: #212529;
+}
+
 /* Invoice paper. Reproduces the Bootstrap 4 reboot rules the templates relied on.
    Layer `paper` beats Tailwind base; unlayered styled-components still beat it.
    Preflight stays off, so this file does not revert Preflight rules. */

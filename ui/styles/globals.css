@@ -10,8 +10,7 @@
 @import 'tailwindcss/utilities.css' layer(utilities) source(none);
 @import './paper.css' layer(paper);
 
-/* Old styles. Plan 018 removes them. */
-@import '../../static/css/bootstrap.min.css' layer(legacy);
+/* Old styles. Plan 018 removes them. Keep the legacy layer while general.css remains. */
 @import '../../static/css/general.css' layer(legacy);
 
 @import 'tw-animate-css';
@@ -190,11 +189,20 @@
 }
 
 @layer base {
+  html {
+    box-sizing: border-box;
+  }
+  *,
+  ::before,
+  ::after {
+    box-sizing: inherit;
+  }
   * {
     @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
+    margin: 0;
   }
 }
 

@@ -12,5 +12,5 @@ export default combineReducers({
   invoices: InvoicesReducer,
   contacts: ContactsReducer,
   settings: SettingsReducer,
-  bootstrap: BootstrapReducer,
+  startup: BootstrapReducer,
 });
