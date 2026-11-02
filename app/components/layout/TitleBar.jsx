@@ -21,7 +21,7 @@ export default function TitleBar({ activeTab }) {
   }
 
   return (
-    <header className="titlebar titlebar-inset drag-region flex h-10 shrink-0 items-center gap-2 border-b bg-background text-foreground">
+    <header className="titlebar titlebar-inset titlebar-mac-traffic drag-region flex h-10 shrink-0 items-center gap-2 border-b bg-background text-foreground">
       <SidebarTrigger />
       <h1 className="truncate text-sm font-medium text-foreground">{title}</h1>
     </header>

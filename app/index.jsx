@@ -16,6 +16,7 @@ import App from './App';
 import ErrorBoundary from './components/shared/ErrorBoundary';
 import StyledRoot from './components/shared/StyledRoot';
 import DialogHost from './components/layout/DialogHost';
+import { UpdateProvider } from './components/layout/UpdateProvider';
 import { Toaster } from '@/components/ui/toast';
 
 document.documentElement.dataset.platform = window.manta.platform;
@@ -25,9 +26,11 @@ const store = configureStore();
 createRoot(document.getElementById('root')).render(
   <StyledRoot>
     <Provider store={store}>
-      <ErrorBoundary>
-        <App />
-      </ErrorBoundary>
+      <UpdateProvider>
+        <ErrorBoundary>
+          <App />
+        </ErrorBoundary>
+      </UpdateProvider>
       <DialogHost />
       <Toaster />
     </Provider>

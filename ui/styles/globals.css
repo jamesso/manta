@@ -229,6 +229,11 @@
         0.5rem
     );
   }
+  html[data-platform='darwin'] .titlebar-mac-traffic {
+    @media (max-width: 899px) {
+      padding-left: 88px;
+    }
+  }
   /* Do not use the px-2 class here. Bootstrap defines it with !important. */
   html[data-platform='darwin']
     [data-slot='sidebar-wrapper']:has([data-state='collapsed'])
