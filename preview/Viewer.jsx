@@ -25,8 +25,11 @@ export default function Viewer() {
   }, [UILang]);
 
   useEffect(() => {
+    const blocked = () =>
+      exportFrozenRef.current || window.__mantaExportFrozen === true;
+
     const onPreview = (_event, invoiceData) => {
-      if (exportFrozenRef.current) {
+      if (blocked()) {
         return;
       }
       dispatch(ActionsCreator.updateInvoice(invoiceData));
@@ -35,13 +38,14 @@ export default function Viewer() {
       dispatch(ActionsCreator.changeUILanguage(newLang));
     };
     const onProfile = (_event, newProfile) => {
-      if (exportFrozenRef.current) {
+      if (blocked()) {
         return;
       }
       dispatch(ActionsCreator.updateProfile(newProfile));
     };
     const onFreeze = (_event, frozen) => {
       exportFrozenRef.current = Boolean(frozen);
+      window.__mantaExportFrozen = Boolean(frozen);
     };
     const onExported = (_event, options) => {
       const noti = Notify(options);

@@ -12,6 +12,7 @@ import { getEInvoiceIssues } from '../helpers/einvoice/getEInvoiceIssues.js';
 import { toUblJson } from '../helpers/einvoice/toUblJson.js';
 import {
   EINVOICE_PREVIEW_READY_SCRIPT,
+  EINVOICE_PREVIEW_UNFREEZE_SCRIPT,
   exportKey,
 } from '../helpers/einvoice/exportKey.js';
 
@@ -120,6 +121,21 @@ function setPreviewExportFrozen(win, frozen) {
   }
 }
 
+async function clearPreviewExportFrozen(win) {
+  if (!win || win.isDestroyed()) {
+    return;
+  }
+  try {
+    await win.webContents.executeJavaScript(
+      EINVOICE_PREVIEW_UNFREEZE_SCRIPT,
+      true
+    );
+  } catch {
+    // preview may be gone
+  }
+  setPreviewExportFrozen(win, false);
+}
+
 ipcMain.handle('einvoice-export', async (event, payload) => {
   if (!isPreviewMainFrame(event)) {
     return { ok: false, error: 'untrusted-sender' };
@@ -184,7 +200,6 @@ ipcMain.handle('einvoice-export', async (event, payload) => {
       return { ok: true, path: filePath, warnings };
     }
 
-    setPreviewExportFrozen(win, true);
     try {
       const ready = await waitForPreviewExportReady(win);
       if (
@@ -223,7 +238,7 @@ ipcMain.handle('einvoice-export', async (event, payload) => {
       });
       return { ok: true, path: filePath, warnings };
     } finally {
-      setPreviewExportFrozen(win, false);
+      await clearPreviewExportFrozen(win);
     }
   } catch (err) {
     return { ok: false, error: err.message };

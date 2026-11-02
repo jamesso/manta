@@ -75,5 +75,9 @@ export const EINVOICE_PREVIEW_READY_SCRIPT = `(() => {
   const key = el.getAttribute('data-export-key');
   if (!id || !key) return null;
   if (document.fonts && document.fonts.status !== 'loaded') return null;
+  window.__mantaExportFrozen = true;
   return { id, key };
 })()`;
+
+export const EINVOICE_PREVIEW_UNFREEZE_SCRIPT =
+  'window.__mantaExportFrozen = false';
