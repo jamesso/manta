@@ -1,30 +1,44 @@
-// Libs
 import React from 'react';
-import PropTypes from 'prop-types';
-import { Section, Label } from '../shared';
+import {
+  AlignVerticalJustifyCenter,
+  AlignVerticalJustifyEnd,
+  AlignVerticalJustifyStart,
+} from 'lucide-react';
+import { Field, FieldLabel } from '@/components/ui/field';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { firstOrNull } from '../../helper';
 
-function Alignment({ t, alignItems, handleInputChange, UILang }) {
+const OPTIONS = [
+  ['top', AlignVerticalJustifyStart],
+  ['middle', AlignVerticalJustifyCenter],
+  ['bottom', AlignVerticalJustifyEnd],
+];
+
+export default function Alignment({ t, alignItems, update, UILang }) {
   return (
-    <Section>
-      <Label>{t('preview:sidebar:alignment:name', { lng: UILang })}</Label>
-      <select name="alignItems" value={alignItems} onChange={handleInputChange}>
-        <option value="top">{t('preview:sidebar:alignment:top')}</option>
-        <option value="middle">
-          {t('preview:sidebar:alignment:middle', { lng: UILang })}
-        </option>
-        <option value="bottom">
-          {t('preview:sidebar:alignment:bottom', { lng: UILang })}
-        </option>
-      </select>
-    </Section>
+    <Field>
+      <FieldLabel>
+        {t('preview:sidebar:alignment:name', { lng: UILang })}
+      </FieldLabel>
+      <ToggleGroup
+        variant="outline"
+        spacing={0}
+        className="w-full"
+        value={[alignItems]}
+        onValueChange={groupValue => {
+          const next = firstOrNull(groupValue);
+          if (next) update('alignItems', next);
+        }}
+      >
+        {OPTIONS.map(([value, Icon]) => (
+          <ToggleGroupItem key={value} value={value} className="flex-1">
+            <Icon />
+            <span>
+              {t(`preview:sidebar:alignment:${value}`, { lng: UILang })}
+            </span>
+          </ToggleGroupItem>
+        ))}
+      </ToggleGroup>
+    </Field>
   );
 }
-
-Alignment.propTypes = {
-  alignItems: PropTypes.string.isRequired,
-  handleInputChange: PropTypes.func.isRequired,
-  t: PropTypes.func.isRequired,
-  UILang: PropTypes.string.isRequired,
-};
-
-export default Alignment;

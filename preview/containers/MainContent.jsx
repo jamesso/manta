@@ -1,58 +1,26 @@
-// Libs
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-
-// Styles
-import styled from 'styled-components';
-
-const Wrapper = styled.div`
-  display: flex;
-  flex: 1;
-  align-items: flex-start;
-  justify-content: center;
-  overflow: auto;
-  padding-top: 30px;
-`;
-
-const Message = styled.p`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-size: 12px;
-  height: 100%;
-  margin: 0;
-`;
-
-// Components
+import React from 'react';
 import { InvoiceTemplate } from '../templates';
 
-class MainContent extends Component {
-  render() {
-    const { t, invoice } = this.props;
-    return (
-      <Wrapper>
-        {invoice._id ? (
-          <div className="print-area" data-invoice-id={invoice._id}>
-            <div className="paper" dir="ltr">
-              <InvoiceTemplate {...this.props} />
-            </div>
+export default function MainContent({ t, invoice, configs, profile, UILang }) {
+  return (
+    <main className="min-w-0 flex-1 overflow-auto bg-muted/40 pt-8 pb-8">
+      {invoice._id ? (
+        <div className="print-area" data-invoice-id={invoice._id}>
+          <div className="paper" dir="ltr">
+            <InvoiceTemplate
+              t={t}
+              invoice={invoice}
+              configs={configs}
+              profile={profile}
+              UILang={UILang}
+            />
           </div>
-        ) : (
-          <Message>{t('preview:common:chooseInvoiceToPreview')}</Message>
-        )}
-      </Wrapper>
-    );
-  }
+        </div>
+      ) : (
+        <p className="flex h-full items-center justify-center text-xs tracking-wide text-foreground uppercase">
+          {t('preview:common:chooseInvoiceToPreview', { lng: UILang })}
+        </p>
+      )}
+    </main>
+  );
 }
-
-MainContent.propTypes = {
-  configs: PropTypes.object.isRequired,
-  invoice: PropTypes.object.isRequired,
-  profile: PropTypes.object.isRequired,
-  UILang: PropTypes.string.isRequired,
-  t: PropTypes.func.isRequired,
-};
-
-export default MainContent;

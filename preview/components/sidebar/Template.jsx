@@ -1,27 +1,30 @@
-// Libs
 import React from 'react';
-import PropTypes from 'prop-types';
+import { Field, FieldLabel } from '@/components/ui/field';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { firstOrNull } from '../../helper';
 
-// Styling
-import { Section, Label } from '../shared';
-
-function Template({ t, template, handleInputChange, UILang }) {
+export default function Template({ t, template, update, UILang }) {
+  const pressed = template === 'business' ? 'business' : 'minimal';
   return (
-    <Section>
-      <Label>{t('preview:sidebar:template', { lng: UILang })}</Label>
-      <select name="template" value={template} onChange={handleInputChange}>
-        <option value="minimal">Minimal</option>
-        <option value="business">Business</option>
-      </select>
-    </Section>
+    <Field>
+      <FieldLabel>{t('preview:sidebar:template', { lng: UILang })}</FieldLabel>
+      <ToggleGroup
+        variant="outline"
+        spacing={0}
+        className="w-full"
+        value={[pressed]}
+        onValueChange={groupValue => {
+          const next = firstOrNull(groupValue);
+          if (next) update('template', next);
+        }}
+      >
+        <ToggleGroupItem value="minimal" className="flex-1">
+          Minimal
+        </ToggleGroupItem>
+        <ToggleGroupItem value="business" className="flex-1">
+          Business
+        </ToggleGroupItem>
+      </ToggleGroup>
+    </Field>
   );
 }
-
-Template.propTypes = {
-  handleInputChange: PropTypes.func.isRequired,
-  t: PropTypes.func.isRequired,
-  template: PropTypes.string.isRequired,
-  UILang: PropTypes.string.isRequired,
-};
-
-export default Template;

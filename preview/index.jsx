@@ -22,6 +22,9 @@ import Viewer from './Viewer';
 // Middleware
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
+document.documentElement.dataset.platform = window.manta.platform;
+document.documentElement.lang = i18n.language;
+
 // Create Store
 const store = createStore(combineReducers, composeEnhancers(applyMiddleware()));
 

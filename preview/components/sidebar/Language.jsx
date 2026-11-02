@@ -1,50 +1,43 @@
-// Libs
 import React from 'react';
-import PropTypes from 'prop-types';
-import { Section, Label } from '../shared';
+import { Field, FieldLabel } from '@/components/ui/field';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
-function Language({ t, language, handleInputChange, UILang }) {
+const CODES = ['de', 'en', 'fr', 'id', 'it', 'sk', 'ur-PK', 'vi', 'zh-CN'];
+
+export default function Language({ t, language, update, UILang }) {
+  const items = CODES.map(code => ({
+    value: code,
+    label: t(`settings:fields:language:${code}`, { lng: code }),
+  }));
   return (
-    <Section>
-      <Label>{t('settings:fields:language:name', { lng: UILang })}</Label>
-      <select name="language" value={language} onChange={handleInputChange}>
-        <option value="de">
-          {t('settings:fields:language:de', { lng: 'de' })}
-        </option>
-        <option value="en">
-          {t('settings:fields:language:en', { lng: 'en' })}
-        </option>
-        <option value="fr">
-          {t('settings:fields:language:fr', { lng: 'fr' })}
-        </option>
-        <option value="id">
-          {t('settings:fields:language:id', { lng: 'id' })}
-        </option>
-        <option value="it">
-          {t('settings:fields:language:it', { lng: 'it' })}
-        </option>
-        <option value="sk">
-          {t('settings:fields:language:sk', { lng: 'sk' })}
-        </option>
-        <option value="ur-PK">
-          {t('settings:fields:language:ur-PK', { lng: 'ur-PK' })}
-        </option>
-        <option value="vi">
-          {t('settings:fields:language:vi', { lng: 'vi' })}
-        </option>
-        <option value="zh-CN">
-          {t('settings:fields:language:zh-CN', { lng: 'zh-CN' })}
-        </option>
-      </select>
-    </Section>
+    <Field>
+      <FieldLabel>
+        {t('settings:fields:language:name', { lng: UILang })}
+      </FieldLabel>
+      <Select
+        value={language}
+        items={items}
+        onValueChange={value => {
+          if (value) update('language', value);
+        }}
+      >
+        <SelectTrigger className="w-full bg-background text-foreground">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {items.map(item => (
+            <SelectItem key={item.value} value={item.value}>
+              {item.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </Field>
   );
 }
-
-Language.propTypes = {
-  language: PropTypes.string.isRequired,
-  handleInputChange: PropTypes.func.isRequired,
-  t: PropTypes.func.isRequired,
-  UILang: PropTypes.string.isRequired,
-};
-
-export default Language;

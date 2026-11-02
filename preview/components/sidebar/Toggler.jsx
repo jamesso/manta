@@ -1,62 +1,36 @@
-// Libs
 import React from 'react';
-import PropTypes from 'prop-types';
-import { Section, Label } from '../shared';
+import { Field, FieldLabel } from '@/components/ui/field';
+import { Switch } from '@/components/ui/switch';
 
-function Toggler({ t, configs, handleInputChange, UILang }) {
-  const { showLogo, useSymbol, showRecipient, customAccentColor } = configs;
+const ROWS = [
+  ['showLogo', 'preview:sidebar:toggle:logo'],
+  ['useSymbol', 'preview:sidebar:toggle:symbol'],
+  ['showRecipient', 'preview:sidebar:toggle:recipient'],
+  ['customAccentColor', 'preview:sidebar:accentColor:name'],
+];
+
+export default function Toggler({ t, configs, update, UILang }) {
   return (
-    <Section>
-      <Label>{t('preview:sidebar:toggle:name', { lng: UILang })}</Label>
-      <label>
-        <input
-          name="showLogo"
-          type="checkbox"
-          checked={showLogo}
-          onChange={handleInputChange}
-        />
-        {'\u00A0'}
-        {t('preview:sidebar:toggle:logo', { lng: UILang })}
-      </label>
-      <label>
-        <input
-          name="useSymbol"
-          type="checkbox"
-          checked={useSymbol}
-          onChange={handleInputChange}
-        />
-        {'\u00A0'}
-        {t('preview:sidebar:toggle:symbol', { lng: UILang })}
-      </label>
-      <label>
-        <input
-          name="showRecipient"
-          type="checkbox"
-          checked={showRecipient}
-          onChange={handleInputChange}
-        />
-        {'\u00A0'}
-        {t('preview:sidebar:toggle:recipient', { lng: UILang })}
-      </label>
-      <label>
-        <input
-          name="customAccentColor"
-          type="checkbox"
-          checked={customAccentColor}
-          onChange={handleInputChange}
-        />
-        {'\u00A0'}
-        {t('preview:sidebar:accentColor:name', { lng: UILang })}
-      </label>
-    </Section>
+    <div className="space-y-3">
+      <p className="text-sm font-medium">
+        {t('preview:sidebar:toggle:name', { lng: UILang })}
+      </p>
+      {ROWS.map(([name, key]) => (
+        <Field
+          key={name}
+          orientation="horizontal"
+          className="items-center justify-between"
+        >
+          <FieldLabel htmlFor={`preview-${name}`}>
+            {t(key, { lng: UILang })}
+          </FieldLabel>
+          <Switch
+            id={`preview-${name}`}
+            checked={Boolean(configs[name])}
+            onCheckedChange={checked => update(name, checked)}
+          />
+        </Field>
+      ))}
+    </div>
   );
 }
-
-Toggler.propTypes = {
-  configs: PropTypes.object.isRequired,
-  handleInputChange: PropTypes.func.isRequired,
-  t: PropTypes.func.isRequired,
-  UILang: PropTypes.string.isRequired,
-};
-
-export default Toggler;

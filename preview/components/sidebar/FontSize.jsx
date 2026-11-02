@@ -1,30 +1,24 @@
-// Libs
 import React from 'react';
-import PropTypes from 'prop-types';
-import { Section, Label, Range } from '../shared';
+import { Field, FieldLabel } from '@/components/ui/field';
+import { Slider } from '@/components/ui/slider';
+import { toConfigValue } from '../../helper';
 
-function FontSize({ t, fontSize, handleInputChange, UILang }) {
+export default function FontSize({ t, fontSize, update, UILang }) {
   return (
-    <Section>
-      <Label>{t('preview:sidebar:fontSize', { lng: UILang })}</Label>
-      <Range
-        name="fontSize"
-        type="range"
-        min="100"
-        max="500"
-        step="100"
-        value={fontSize}
-        onChange={handleInputChange}
+    <Field>
+      <FieldLabel className="flex items-center justify-between">
+        <span>{t('preview:sidebar:fontSize', { lng: UILang })}</span>
+        <span>{Number(fontSize) / 100}</span>
+      </FieldLabel>
+      <Slider
+        min={100}
+        max={500}
+        step={100}
+        value={[Number(fontSize)]}
+        onValueChange={value =>
+          update('fontSize', toConfigValue('fontSize', value))
+        }
       />
-    </Section>
+    </Field>
   );
 }
-
-FontSize.propTypes = {
-  fontSize: PropTypes.string.isRequired,
-  handleInputChange: PropTypes.func.isRequired,
-  t: PropTypes.func.isRequired,
-  UILang: PropTypes.string.isRequired,
-};
-
-export default FontSize;

@@ -17,12 +17,13 @@
     },
     "accentColor": {
       "name" : "Accent Color",
-      "useCustom": "Use Custom"
+      "useCustom": "Use Custom",
+      "custom": "Custom color"
     },
     "actions": {
       "name": "Actions",
       "savePDF": "Export PDF",
-      "saveConfigs": "Save Configs"
+      "saveConfigs": "Save settings"
     }
   },
   "common": {

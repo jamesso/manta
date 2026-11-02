@@ -1,55 +1,59 @@
-// Libs
 import React from 'react';
-import PropTypes from 'prop-types';
 import moment from 'moment';
+import { Field, FieldLabel } from '@/components/ui/field';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
-// Styling
-import { Section, Label } from '../shared';
+const FORMATS = [
+  'dddd, MMMM Do, YYYY',
+  'MMMM Do, YYYY',
+  'MM/DD/YYYY',
+  'MM/DD/YY',
+  'dddd, DD MMMM YYYY',
+  'DD/MMMM/YYYY',
+  'DD/MM/YYYY',
+  'DD/MM/YY',
+];
 
-function DateFormat({ t, dateFormat, handleInputChange, language, UILang }) {
+export default function DateFormat({
+  t,
+  dateFormat,
+  language,
+  update,
+  UILang,
+}) {
+  const items = FORMATS.map(format => ({
+    value: format,
+    label: `${moment().locale(language).format(format)} (${format})`,
+  }));
   return (
-    <Section>
-      <Label>{t('settings:fields:dateFormat', { lng: UILang })}</Label>
-      <select name="dateFormat" value={dateFormat} onChange={handleInputChange}>
-        <option value="dddd, MMMM Do, YYYY">
-          {moment(Date.now()).lang(language).format('dddd, MMMM Do, YYYY')}{' '}
-          (dddd, MMMM Do, YYYY)
-        </option>
-        <option value="MMMM Do, YYYY">
-          {moment(Date.now()).lang(language).format('MMMM Do, YYYY')} (MMMM Do,
-          YYYY)
-        </option>
-        <option value="MM/DD/YYYY">
-          {moment(Date.now()).lang(language).format('MM/DD/YYYY')} (MM/DD/YYYY)
-        </option>
-        <option value="MM/DD/YY">
-          {moment(Date.now()).lang(language).format('MM/DD/YY')} (MM/DD/YY)
-        </option>
-        <option value="dddd, DD MMMM YYYY">
-          {moment(Date.now()).lang(language).format('dddd, DD MMMM YYYY')}{' '}
-          (dddd, DD MMMM YYYY)
-        </option>
-        <option value="DD/MMMM/YYYY">
-          {moment(Date.now()).lang(language).format('DD/MMMM/YYYY')}{' '}
-          (DD/MMMM/YYYY)
-        </option>
-        <option value="DD/MM/YYYY">
-          {moment(Date.now()).lang(language).format('DD/MM/YYYY')} (DD/MM/YYYY)
-        </option>
-        <option value="DD/MM/YY">
-          {moment(Date.now()).lang(language).format('DD/MM/YY')} (DD/MM/YY)
-        </option>
-      </select>
-    </Section>
+    <Field>
+      <FieldLabel>
+        {t('settings:fields:dateFormat', { lng: UILang })}
+      </FieldLabel>
+      <Select
+        value={dateFormat}
+        items={items}
+        onValueChange={value => {
+          if (value) update('dateFormat', value);
+        }}
+      >
+        <SelectTrigger className="w-full bg-background text-foreground">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {items.map(item => (
+            <SelectItem key={item.value} value={item.value}>
+              {item.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </Field>
   );
 }
-
-DateFormat.propTypes = {
-  dateFormat: PropTypes.string.isRequired,
-  handleInputChange: PropTypes.func.isRequired,
-  language: PropTypes.string.isRequired,
-  t: PropTypes.func.isRequired,
-  UILang: PropTypes.string.isRequired,
-};
-
-export default DateFormat;

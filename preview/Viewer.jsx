@@ -1,81 +1,79 @@
-// Libs
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { withTranslation } from 'react-i18next';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+import i18n from '../i18n/i18n';
 import { Notify } from '../helpers/notify';
-import { connect } from 'react-redux';
-import { compose } from 'redux';
-const ipc = window.manta.ipc;
-
-// Style
-import styled from 'styled-components';
-const Wrapper = styled.div`
-  display: flex;
-  height: 100%;
-`;
-
-// Components
 import SideBar from './containers/SideBar';
 import MainContent from './containers/MainContent';
-
-// Actions
 import * as ActionsCreator from './actions';
-
-// Selectors
 import { getConfigs, getInvoice, getProfile, getUILang } from './reducers';
 
-// Components
-class Viewer extends Component {
-  constructor(props) {
-    super(props);
-    this.updateConfigs = this.updateConfigs.bind(this);
-  }
+const ipc = window.manta.ipc;
 
-  componentDidMount() {
-    const { dispatch } = this.props;
-    ipc.on('update-preview', (event, invoiceData) => {
+export default function Viewer() {
+  const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const configs = useSelector(getConfigs);
+  const invoice = useSelector(getInvoice);
+  const profile = useSelector(getProfile);
+  const UILang = useSelector(getUILang);
+
+  useEffect(() => {
+    const onPreview = (_event, invoiceData) => {
       dispatch(ActionsCreator.updateInvoice(invoiceData));
-    });
-    ipc.on('change-preview-window-language', (event, newLang) => {
+    };
+    const onLanguage = (_event, newLang) => {
       dispatch(ActionsCreator.changeUILanguage(newLang));
-    });
-    ipc.on('change-preview-window-profile', (event, newProfile) => {
+    };
+    const onProfile = (_event, newProfile) => {
       dispatch(ActionsCreator.updateProfile(newProfile));
-    });
-
-    ipc.on('pfd-exported', (event, options) => {
+    };
+    const onExported = (_event, options) => {
       const noti = Notify(options);
-      // Handle click on notification
       noti.onclick = () => {
         ipc.send('reveal-file', options.location);
       };
-    });
-  }
+    };
+    ipc.on('update-preview', onPreview);
+    ipc.on('change-preview-window-language', onLanguage);
+    ipc.on('change-preview-window-profile', onProfile);
+    ipc.on('pfd-exported', onExported);
+    return () => {
+      ipc.removeAllListeners([
+        'update-preview',
+        'change-preview-window-language',
+        'change-preview-window-profile',
+        'pfd-exported',
+      ]);
+    };
+  }, [dispatch]);
 
-  componentWillUnmount() {
-    ipc.removeAllListeners([
-      'pfd-exported',
-      'update-preview',
-      'update-preview-window',
-    ]);
-  }
-
-  updateConfigs(config) {
-    const { dispatch } = this.props;
+  const updateConfigs = config => {
     dispatch(
       ActionsCreator.updateConfigs({ name: config.name, value: config.value })
     );
-  }
+  };
 
-  render() {
-    const { t, invoice, configs, profile, UILang } = this.props;
-    return (
-      <Wrapper>
+  const title = invoice._id
+    ? invoice.invoiceID || invoice._id
+    : t('preview:common:chooseInvoiceToPreview', { lng: UILang });
+
+  return (
+    <div
+      dir={i18n.dir(UILang)}
+      className="flex h-screen flex-col bg-background text-foreground"
+    >
+      <header className="titlebar titlebar-inset titlebar-mac-traffic drag-region flex h-10 shrink-0 items-center gap-2 border-b bg-background text-foreground">
+        <h1 className="truncate text-sm font-medium text-foreground">
+          {title}
+        </h1>
+      </header>
+      <div className="flex min-h-0 flex-1">
         <SideBar
           UILang={UILang}
           configs={configs}
           invoice={invoice}
-          updateConfigs={this.updateConfigs}
+          updateConfigs={updateConfigs}
           t={t}
         />
         <MainContent
@@ -85,24 +83,7 @@ class Viewer extends Component {
           UILang={UILang}
           t={t}
         />
-      </Wrapper>
-    );
-  }
+      </div>
+    </div>
+  );
 }
-
-Viewer.propTypes = {
-  configs: PropTypes.object.isRequired,
-  profile: PropTypes.object.isRequired,
-  dispatch: PropTypes.func.isRequired,
-  invoice: PropTypes.object.isRequired,
-  t: PropTypes.func.isRequired,
-};
-
-const mapStateToProps = state => ({
-  configs: getConfigs(state),
-  invoice: getInvoice(state),
-  profile: getProfile(state),
-  UILang: getUILang(state),
-});
-
-export default compose(connect(mapStateToProps), withTranslation())(Viewer);

@@ -1,30 +1,24 @@
-// Libs
 import React from 'react';
-import PropTypes from 'prop-types';
-import { Section, Label, Range } from '../shared';
+import { Field, FieldLabel } from '@/components/ui/field';
+import { Slider } from '@/components/ui/slider';
+import { toConfigValue } from '../../helper';
 
-function LogoSize({ t, logoSize, handleInputChange, UILang }) {
+export default function LogoSize({ t, logoSize, update, UILang }) {
   return (
-    <Section>
-      <Label>{t('preview:sidebar:logoSize', { lng: UILang })}</Label>
-      <Range
-        name="logoSize"
-        type="range"
-        min="5"
-        max="50"
-        step="2.5"
-        value={logoSize}
-        onChange={handleInputChange}
+    <Field>
+      <FieldLabel className="flex items-center justify-between">
+        <span>{t('preview:sidebar:logoSize', { lng: UILang })}</span>
+        <span>{`${logoSize}%`}</span>
+      </FieldLabel>
+      <Slider
+        min={5}
+        max={50}
+        step={2.5}
+        value={[Number(logoSize)]}
+        onValueChange={value =>
+          update('logoSize', toConfigValue('logoSize', value))
+        }
       />
-    </Section>
+    </Field>
   );
 }
-
-LogoSize.propTypes = {
-  logoSize: PropTypes.string.isRequired,
-  handleInputChange: PropTypes.func.isRequired,
-  t: PropTypes.func.isRequired,
-  UILang: PropTypes.string.isRequired,
-};
-
-export default LogoSize;
