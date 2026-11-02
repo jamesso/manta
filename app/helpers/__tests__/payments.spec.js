@@ -192,6 +192,19 @@ describe('addPaymentToDoc guards', () => {
     ).toBe('overpayment');
   });
 
+  it('refuses invalid payment ids', () => {
+    const doc = inv100();
+    const copy = { ...doc };
+    expect(
+      addPaymentToDoc(doc, { id: '', date: 1, amount: 10 }, { now }).ok
+    ).toBe(false);
+    expect(doc).toEqual(copy);
+    expect(
+      addPaymentToDoc(doc, { id: 42, date: 1, amount: 10 }, { now }).ok
+    ).toBe(false);
+    expect(doc).toEqual(copy);
+  });
+
   it('maps unknown method to other', () => {
     const r = addPaymentToDoc(
       inv100(),
@@ -232,11 +245,24 @@ describe('setDocStatus', () => {
   });
 
   it('pending on fully paid stays paid with stillPaid', () => {
-    const doc = inv100({ status: 'paid', paidAt: 1 });
+    const doc = {
+      ...inv100({ status: 'paid', paidAt: 1 }),
+      payments: [{ id: 'p', date: 1, amount: 100, method: 'cash', note: '' }],
+    };
     const r = setDocStatus(doc, 'pending', now);
     expect(r.ok).toBe(true);
     expect(getStoredStatus(r.doc)).toBe('paid');
     expect(r.stillPaid).toBe(true);
+  });
+
+  it('reopens legacy paid invoice as pending without a payments array', () => {
+    const doc = inv100({ status: 'paid', paidAt: 1 });
+    const r = setDocStatus(doc, 'pending', now);
+    expect(r.ok).toBe(true);
+    expect(getStoredStatus(r.doc)).toBe('pending');
+    expect(r.doc.paidAt).toBeUndefined();
+    expect(r.doc).not.toHaveProperty('payments');
+    expect(r.stillPaid).toBeFalsy();
   });
 
   it('cancelled keeps payments and removes paidAt', () => {

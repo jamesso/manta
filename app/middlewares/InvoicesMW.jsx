@@ -73,6 +73,7 @@ function persistedInvoice(docs, payload) {
 }
 
 const paymentQueues = new Map();
+let invoiceListRefresh = Promise.resolve();
 
 function runPaymentQueued(invoiceId, fn) {
   const prev = paymentQueues.get(invoiceId) || Promise.resolve();
@@ -109,15 +110,6 @@ function syncEditMode(dispatch, getState, allDocs, ids) {
   }
 }
 
-function pickNewestErrDocs(results) {
-  for (let i = results.length - 1; i >= 0; i -= 1) {
-    if (results[i].allDocs) {
-      return results[i].allDocs;
-    }
-  }
-  return null;
-}
-
 function publishInvoiceDocs(next, allDocs) {
   if (allDocs) {
     next({
@@ -136,32 +128,31 @@ function finalizeQueuedWrites({ results, next, dispatch, getState }) {
     return Promise.resolve({ committed, failed, allDocs: null });
   }
 
-  return getAllDocs('invoices')
-    .then(allDocs => {
-      publishInvoiceDocs(next, allDocs);
-      if (committed.length) {
-        syncEditMode(
-          dispatch,
-          getState,
-          allDocs,
-          committed.map(r => r.id)
-        );
-      }
-      return { committed, failed, allDocs };
-    })
-    .catch(() => {
-      const fallback = pickNewestErrDocs(results);
-      publishInvoiceDocs(next, fallback);
-      if (committed.length && fallback) {
-        syncEditMode(
-          dispatch,
-          getState,
-          fallback,
-          committed.map(r => r.id)
-        );
-      }
-      return { committed, failed, allDocs: fallback };
-    });
+  const refresh = () =>
+    getAllDocs('invoices')
+      .then(allDocs => {
+        publishInvoiceDocs(next, allDocs);
+        if (committed.length) {
+          syncEditMode(
+            dispatch,
+            getState,
+            allDocs,
+            committed.map(r => r.id)
+          );
+        }
+        return { committed, failed, allDocs };
+      })
+      .catch(err => {
+        toast.add({
+          title: err.message,
+          type: 'warning',
+        });
+        return { committed, failed, allDocs: null };
+      });
+
+  const chained = invoiceListRefresh.then(refresh, refresh);
+  invoiceListRefresh = chained;
+  return chained;
 }
 
 function queuedInvoiceWrite(invoiceId, mutate) {

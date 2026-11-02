@@ -172,7 +172,14 @@ function addPaymentToDoc(doc, input, { fullBalance = false, now }) {
   }
   const f = getCurrencyFraction(draft);
   const payments = Array.isArray(draft.payments) ? [...draft.payments] : [];
-  const id = input.id ?? crypto.randomUUID();
+  let id;
+  if (input.id == null) {
+    id = crypto.randomUUID();
+  } else if (typeof input.id !== 'string' || input.id === '') {
+    return { ok: false, error: 'amountInvalid' };
+  } else {
+    id = input.id;
+  }
   if (payments.some(p => p && p.id === id)) {
     return { ok: false, error: 'duplicate' };
   }
@@ -287,7 +294,7 @@ function setDocStatus(doc, status, now) {
     const f = getCurrencyFraction(doc);
     const total = roundMoney(getInvoiceTotal(doc), f);
     const paid = getAmountPaid(doc);
-    if (paid >= total && total >= 0) {
+    if (Array.isArray(doc.payments) && paid >= total && total >= 0) {
       return { ok: true, doc, stillPaid: true };
     }
   }
