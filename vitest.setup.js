@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 
-window.manta = {
+const mantaHost = typeof globalThis.window !== 'undefined' ? globalThis.window : globalThis;
+mantaHost.manta = {
   ipc: {
     send: vi.fn(),
     on: vi.fn(),
