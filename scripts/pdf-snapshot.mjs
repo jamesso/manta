@@ -179,8 +179,66 @@ export function assertDisposableProfile(dir) {
   return resolved;
 }
 
+function containsMantaProfile(resolved) {
+  return resolved.toLowerCase().includes(MANTA_PROFILE_MARK);
+}
+
+// Walk the source tree without following symlinks into other directories.
+// realpath still resolves each symlink. A link to the Manta profile fails
+// before any copy.
+function assertTreeHasNoMantaProfile(root) {
+  const pending = [root];
+  while (pending.length > 0) {
+    const current = pending.pop();
+    let resolved;
+    try {
+      resolved = fs.realpathSync(current);
+    } catch {
+      throw new Error(`Refusing unreadable profile entry: ${current}`);
+    }
+    if (containsMantaProfile(resolved)) {
+      throw new Error(`Refusing Manta profile: ${resolved}`);
+    }
+    const info = fs.lstatSync(current);
+    if (!info.isDirectory()) continue;
+    for (const name of fs.readdirSync(current)) {
+      pending.push(path.join(current, name));
+    }
+  }
+}
+
+// Node's C++ copy keeps symlinks even when dereference is set. Replace
+// anything that remains so the owned tree cannot write outside itself.
+function materializeOwnedSymlinks(root) {
+  const pending = [root];
+  while (pending.length > 0) {
+    const current = pending.pop();
+    const info = fs.lstatSync(current);
+    if (info.isSymbolicLink()) {
+      const target = fs.realpathSync(current);
+      const targetInfo = fs.statSync(target);
+      fs.unlinkSync(current);
+      if (targetInfo.isDirectory()) {
+        fs.cpSync(target, current, {
+          recursive: true,
+          dereference: true,
+          filter: () => true,
+        });
+        pending.push(current);
+      } else {
+        fs.copyFileSync(target, current);
+      }
+      continue;
+    }
+    if (!info.isDirectory()) continue;
+    for (const name of fs.readdirSync(current)) {
+      pending.push(path.join(current, name));
+    }
+  }
+}
+
 // Copy caller input into a new directory. Electron is only ever pointed at
-// the directory this function creates.
+// the directory this function creates. The copy contains no symlinks.
 export function createOwnedProfile(sourceDir) {
   const source = sourceDir ? assertDisposableProfile(sourceDir) : null;
   const owned = fs.mkdtempSync(
@@ -191,7 +249,9 @@ export function createOwnedProfile(sourceDir) {
     return { launchProfile: owned, callerProfile: null };
   }
   try {
-    fs.cpSync(source, owned, { recursive: true });
+    assertTreeHasNoMantaProfile(source);
+    fs.cpSync(source, owned, { recursive: true, dereference: true });
+    materializeOwnedSymlinks(owned);
   } catch (err) {
     fs.rmSync(owned, { recursive: true, force: true });
     throw err;
