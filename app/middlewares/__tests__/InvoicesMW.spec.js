@@ -846,9 +846,16 @@ describe('Invoices Middleware', () => {
         grandTotal: 50,
         currency: { fraction: 2 },
       });
-      updateDocs.mockResolvedValueOnce([
-        { _id: 'open-id', _rev: '2', status: 'pending', grandTotal: 50 },
-      ]);
+      const freshDoc = {
+        _id: 'open-id',
+        _rev: '2',
+        status: 'pending',
+        grandTotal: 50,
+        currency: { fraction: 2 },
+        payments: [{ id: 'p1', amount: 10, date: 1, method: 'cash', note: '' }],
+      };
+      updateDocs.mockResolvedValueOnce([freshDoc]);
+      getAllDocs.mockResolvedValueOnce([freshDoc]);
       getState.mockReturnValue({
         form: {
           settings: {
@@ -864,6 +871,7 @@ describe('Invoices Middleware', () => {
           method: 'cash',
         })
       );
+      expect(getAllDocs).toHaveBeenCalledWith('invoices');
       expect(dispatch).toHaveBeenCalledWith({
         type: ACTION_TYPES.FORM_EDIT_DATA_SYNC,
         payload: expect.objectContaining({ _id: 'open-id', _rev: '2' }),
@@ -883,7 +891,7 @@ describe('Invoices Middleware', () => {
         middleware(
           Actions.recordPayment('inv-q', {
             id: 'pay-a',
-            amount: 60,
+            amount: 40,
             date: payDate,
             method: 'cash',
           })
@@ -891,23 +899,17 @@ describe('Invoices Middleware', () => {
         middleware(
           Actions.recordPayment('inv-q', {
             id: 'pay-b',
-            amount: 60,
+            amount: 40,
             date: payDate,
             method: 'bank',
           })
         ),
       ]);
       const stored = getStored();
-      const paid = getAmountPaid(stored);
-      expect(paid).toBeLessThanOrEqual(100);
-      if (firstOk && secondOk) {
-        expect(stored.payments).toHaveLength(2);
-        expect(paid).toBe(100);
-      } else {
-        expect(firstOk || secondOk).toBe(true);
-        expect(stored.payments).toHaveLength(1);
-        expect(paid).toBe(60);
-      }
+      expect(firstOk).toBe(true);
+      expect(secondOk).toBe(true);
+      expect(stored.payments).toHaveLength(2);
+      expect(getAmountPaid(stored)).toBe(80);
     });
 
     it('rejects a duplicate payment id', async () => {

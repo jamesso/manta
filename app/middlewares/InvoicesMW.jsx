@@ -109,7 +109,7 @@ function syncEditMode(dispatch, getState, allDocs, ids) {
   }
 }
 
-function pickLatestAllDocs(results) {
+function pickNewestErrDocs(results) {
   for (let i = results.length - 1; i >= 0; i -= 1) {
     if (results[i].allDocs) {
       return results[i].allDocs;
@@ -130,17 +130,38 @@ function publishInvoiceDocs(next, allDocs) {
 function finalizeQueuedWrites({ results, next, dispatch, getState }) {
   const committed = results.filter(r => r.committed);
   const failed = results.filter(r => !r.ok);
-  const allDocs = pickLatestAllDocs(results);
-  publishInvoiceDocs(next, allDocs);
-  if (committed.length) {
-    syncEditMode(
-      dispatch,
-      getState,
-      allDocs ?? [],
-      committed.map(r => r.id)
-    );
+  const needsListRefresh = results.some(r => r.committed || r.allDocs);
+
+  if (!needsListRefresh) {
+    return Promise.resolve({ committed, failed, allDocs: null });
   }
-  return { committed, failed, allDocs };
+
+  return getAllDocs('invoices')
+    .then(allDocs => {
+      publishInvoiceDocs(next, allDocs);
+      if (committed.length) {
+        syncEditMode(
+          dispatch,
+          getState,
+          allDocs,
+          committed.map(r => r.id)
+        );
+      }
+      return { committed, failed, allDocs };
+    })
+    .catch(() => {
+      const fallback = pickNewestErrDocs(results);
+      publishInvoiceDocs(next, fallback);
+      if (committed.length && fallback) {
+        syncEditMode(
+          dispatch,
+          getState,
+          fallback,
+          committed.map(r => r.id)
+        );
+      }
+      return { committed, failed, allDocs: fallback };
+    });
 }
 
 function queuedInvoiceWrite(invoiceId, mutate) {
@@ -556,36 +577,37 @@ const InvoicesMW =
             )
           )
         )
-          .then(results => {
-            const { committed, failed } = finalizeQueuedWrites({
+          .then(results =>
+            finalizeQueuedWrites({
               results,
               next,
               dispatch,
               getState,
-            });
-            if (!committed.length) {
+            }).then(({ committed, failed }) => {
+              if (!committed.length) {
+                toast.add({
+                  title: paymentErrorMessage(failed[0]?.error ?? 'notFound'),
+                  type: 'warning',
+                });
+                return false;
+              }
               toast.add({
-                title: paymentErrorMessage(failed[0]?.error ?? 'notFound'),
-                type: 'warning',
-              });
-              return false;
-            }
-            toast.add({
-              title: i18n.t('invoices:payments:toast:recorded', {
-                count: committed.length,
-              }),
-            });
-            if (failed.length) {
-              toast.add({
-                title: i18n.t('invoices:payments:toast:skipped', {
-                  count: failed.length,
-                  reason: paymentErrorMessage(failed[0].error),
+                title: i18n.t('invoices:payments:toast:recorded', {
+                  count: committed.length,
                 }),
-                type: 'warning',
               });
-            }
-            return true;
-          })
+              if (failed.length) {
+                toast.add({
+                  title: i18n.t('invoices:payments:toast:skipped', {
+                    count: failed.length,
+                    reason: paymentErrorMessage(failed[0].error),
+                  }),
+                  type: 'warning',
+                });
+              }
+              return true;
+            })
+          )
           .catch(err => {
             toast.add({
               title: err.message,
@@ -606,41 +628,42 @@ const InvoicesMW =
         return queuedInvoiceWrite(invoiceID, doc =>
           removePaymentFromDoc(doc, paymentId, now)
         )
-          .then(result => {
-            const { committed } = finalizeQueuedWrites({
+          .then(result =>
+            finalizeQueuedWrites({
               results: [result],
               next,
               dispatch,
               getState,
-            });
-            if (!result.ok) {
-              toast.add({
-                title: paymentErrorMessage(result.error ?? 'notFound'),
-                type: 'warning',
-              });
-              return false;
-            }
-            if (!committed.length) {
-              toast.add({
-                title: paymentErrorMessage('writeFailed'),
-                type: 'warning',
-              });
-              return false;
-            }
-            const removed = result.payment;
-            const toastId = toast.add({
-              title: i18n.t('invoices:payments:toast:removed'),
-              timeout: UNDO_TIMEOUT_MS,
-              actionProps: {
-                children: i18n.t('invoices:payments:toast:undo'),
-                onClick: () => {
-                  toast.close(toastId);
-                  dispatch(Actions.recordPayment(invoiceID, removed));
+            }).then(({ committed }) => {
+              if (!result.ok) {
+                toast.add({
+                  title: paymentErrorMessage(result.error ?? 'notFound'),
+                  type: 'warning',
+                });
+                return false;
+              }
+              if (!committed.length) {
+                toast.add({
+                  title: paymentErrorMessage('writeFailed'),
+                  type: 'warning',
+                });
+                return false;
+              }
+              const removed = result.payment;
+              const toastId = toast.add({
+                title: i18n.t('invoices:payments:toast:removed'),
+                timeout: UNDO_TIMEOUT_MS,
+                actionProps: {
+                  children: i18n.t('invoices:payments:toast:undo'),
+                  onClick: () => {
+                    toast.close(toastId);
+                    dispatch(Actions.recordPayment(invoiceID, removed));
+                  },
                 },
-              },
-            });
-            return true;
-          })
+              });
+              return true;
+            })
+          )
           .finally(endWrite);
       }
 
@@ -669,43 +692,44 @@ const InvoicesMW =
             queuedInvoiceWrite(id, doc => setDocStatus(doc, status, now))
           )
         )
-          .then(results => {
-            const okResults = results.filter(r => r.ok);
-            const failed = results.filter(r => !r.ok);
-            const { committed } = finalizeQueuedWrites({
+          .then(results =>
+            finalizeQueuedWrites({
               results,
               next,
               dispatch,
               getState,
-            });
-            if (!committed.length) {
-              toast.add({
-                title: paymentErrorMessage(failed[0]?.error ?? 'notFound'),
-                type: 'warning',
-              });
-              return;
-            }
-            if (okResults.some(r => r.stillPaid)) {
-              toast.add({
-                title: i18n.t('invoices:payments:toast:stillPaid'),
-              });
-            } else if (ids.length > 1 || committed.length > 1) {
-              toast.add({
-                title: i18n.t('invoices:toast:updated', {
-                  count: committed.length,
-                }),
-              });
-            }
-            if (failed.length) {
-              toast.add({
-                title: i18n.t('invoices:payments:toast:skipped', {
-                  count: failed.length,
-                  reason: paymentErrorMessage(failed[0].error),
-                }),
-                type: 'warning',
-              });
-            }
-          })
+            }).then(({ committed }) => {
+              const okResults = results.filter(r => r.ok);
+              const failed = results.filter(r => !r.ok);
+              if (!committed.length) {
+                toast.add({
+                  title: paymentErrorMessage(failed[0]?.error ?? 'notFound'),
+                  type: 'warning',
+                });
+                return;
+              }
+              if (okResults.some(r => r.stillPaid)) {
+                toast.add({
+                  title: i18n.t('invoices:payments:toast:stillPaid'),
+                });
+              } else if (ids.length > 1 || committed.length > 1) {
+                toast.add({
+                  title: i18n.t('invoices:toast:updated', {
+                    count: committed.length,
+                  }),
+                });
+              }
+              if (failed.length) {
+                toast.add({
+                  title: i18n.t('invoices:payments:toast:skipped', {
+                    count: failed.length,
+                    reason: paymentErrorMessage(failed[0].error),
+                  }),
+                  type: 'warning',
+                });
+              }
+            })
+          )
           .catch(err => {
             toast.add({
               title: err.message,
