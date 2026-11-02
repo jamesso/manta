@@ -16,11 +16,13 @@ import {
   deleteInvoice,
   duplicateInvoice,
   editInvoice,
+  createCreditNote,
   recordFullPayment,
 } from '../../actions/invoices';
 import {
   getAmountPaid,
   getBalanceDue,
+  getCreditedTotal,
   getDisplayStatus,
   formatInvoiceAmount,
   getDueDate,
@@ -30,7 +32,9 @@ import {
   getPayments,
   getStoredStatus,
 } from '../../helpers/invoice';
+import { canCreateCreditNote } from '../../helpers/creditNotes';
 import { canRecordPayment } from '../../helpers/payments';
+import { FileMinus } from 'lucide-react';
 import DueCell from './DueCell';
 import PaymentsList from './PaymentsList';
 import RecordPaymentDialog from './RecordPaymentDialog';
@@ -44,6 +48,8 @@ export default function InvoiceDetailSheet({
   dateFormat,
   t,
   now,
+  linkedCreditNotes = [],
+  onOpenCreditNote,
 }) {
   const dispatch = useDispatch();
   const allDocs = useSelector(getAllSalesDocs) || [];
@@ -60,7 +66,7 @@ export default function InvoiceDetailSheet({
 
   const number = getInvoiceNumber(invoice);
   const stored = getStoredStatus(invoice);
-  const displayStatus = getDisplayStatus(invoice, now);
+  const displayStatus = getDisplayStatus(invoice, now, linkedCreditNotes);
   const fmt = invoice.configs?.dateFormat ?? dateFormat;
   const issued = getIssuedAt(invoice);
   const due = getDueDate(invoice);
@@ -81,9 +87,11 @@ export default function InvoiceDetailSheet({
   const formatMoney = n =>
     formatNumber(n, currency?.fraction ?? 2, currency?.separator ?? 'commaDot');
   const amountPaid = getAmountPaid(invoice);
-  const balanceDue = getBalanceDue(invoice);
+  const credited = getCreditedTotal(invoice, linkedCreditNotes);
+  const balanceDue = getBalanceDue(invoice, linkedCreditNotes);
   const showPayments = amountPaid > 0;
-  const canPay = canRecordPayment(invoice);
+  const canPay = canRecordPayment(invoice, linkedCreditNotes);
+  const showCreateCredit = canCreateCreditNote(invoice, linkedCreditNotes);
   const sourceEstimate = invoice.sourceEstimateId
     ? allDocs.find(d => d._id === invoice.sourceEstimateId)
     : null;
@@ -220,19 +228,74 @@ export default function InvoiceDetailSheet({
             <dt>{t('invoices:sheet:total')}</dt>
             <dd className="tabular-nums">{formatInvoiceAmount(invoice)}</dd>
           </div>
-          {showPayments ? (
+          {showPayments || credited > 0 ? (
             <>
-              <div className="flex justify-between">
-                <dt>{t('invoices:payments:amountPaid')}</dt>
-                <dd className="tabular-nums">{formatMoney(amountPaid)}</dd>
-              </div>
+              {credited > 0 ? (
+                <div className="flex justify-between">
+                  <dt>{t('invoices:sheet:credited')}</dt>
+                  <dd className="tabular-nums">{formatMoney(credited)}</dd>
+                </div>
+              ) : null}
+              {showPayments ? (
+                <div className="flex justify-between">
+                  <dt>{t('invoices:payments:amountPaid')}</dt>
+                  <dd className="tabular-nums">{formatMoney(amountPaid)}</dd>
+                </div>
+              ) : null}
               <div className="flex justify-between font-medium">
-                <dt>{t('invoices:payments:balanceDue')}</dt>
-                <dd className="tabular-nums">{formatMoney(balanceDue)}</dd>
+                <dt>
+                  {balanceDue < 0
+                    ? t('invoices:sheet:refundDue')
+                    : t('invoices:sheet:balanceDue')}
+                </dt>
+                <dd className="tabular-nums">
+                  {formatMoney(Math.abs(balanceDue))}
+                </dd>
               </div>
             </>
           ) : null}
         </dl>
+
+        {linkedCreditNotes.length > 0 ? (
+          <div className="mt-4 px-4">
+            <h3 className="mb-2 text-sm font-medium">
+              {t('invoices:sheet:creditNotes')}
+            </h3>
+            <ul className="space-y-2">
+              {linkedCreditNotes.map(cn => {
+                const cnIssued = getIssuedAt(cn);
+                return (
+                  <li key={cn._id}>
+                    <button
+                      type="button"
+                      className="flex w-full items-center gap-2 rounded-md border px-3 py-2 text-start text-sm hover:bg-muted/50"
+                      onClick={() => onOpenCreditNote?.(cn._id)}
+                    >
+                      <span className="min-w-0 flex-1">
+                        <span className="font-medium">
+                          {getInvoiceNumber(cn)}
+                        </span>
+                        {cnIssued ? (
+                          <span className="ms-2 text-muted-foreground">
+                            {moment(cnIssued).format(fmt)}
+                          </span>
+                        ) : null}
+                      </span>
+                      <StatusBadge
+                        status={getStoredStatus(cn)}
+                        docType="creditNote"
+                        t={t}
+                      />
+                      <span className="tabular-nums shrink-0">
+                        {formatInvoiceAmount(cn)}
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ) : null}
 
         <div className="mt-4 px-4">
           <h3 className="mb-2 text-sm font-medium">
@@ -269,6 +332,16 @@ export default function InvoiceDetailSheet({
           >
             {t('invoices:actions:duplicate')}
           </Button>
+          {showCreateCredit ? (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => dispatch(createCreditNote(invoice))}
+            >
+              <FileMinus />
+              {t('invoices:actions:createCreditNote')}
+            </Button>
+          ) : null}
           {canPay ? (
             <>
               <Button type="button" onClick={() => setPaymentOpen(true)}>

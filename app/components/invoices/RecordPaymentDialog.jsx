@@ -41,7 +41,12 @@ import {
   startOfDay,
 } from '../../helpers/payments';
 
-export default function RecordPaymentDialog({ invoice, open, onOpenChange }) {
+export default function RecordPaymentDialog({
+  invoice,
+  open,
+  onOpenChange,
+  creditNotes = [],
+}) {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const formId = useId();
@@ -58,12 +63,14 @@ export default function RecordPaymentDialog({ invoice, open, onOpenChange }) {
       return;
     }
     paymentIdRef.current = crypto.randomUUID();
-    setAmountRaw(formatAmountInput(getBalanceDue(invoice), invoice.currency));
+    setAmountRaw(
+      formatAmountInput(getBalanceDue(invoice, creditNotes), invoice.currency)
+    );
     setDate(new Date());
     setMethod('bank');
     setNote('');
     setSubmitted(false);
-  }, [open, invoice]);
+  }, [open, invoice, creditNotes]);
 
   if (!invoice) {
     return null;
@@ -73,12 +80,13 @@ export default function RecordPaymentDialog({ invoice, open, onOpenChange }) {
     ? getPaymentErrors(
         { amountRaw, date: startOfDay(date.getTime()) },
         invoice,
-        Date.now()
+        Date.now(),
+        creditNotes
       )
     : {};
   const currency = invoice.currency ?? {};
   const balanceText = formatInvoiceAmount({
-    grandTotal: getBalanceDue(invoice),
+    grandTotal: getBalanceDue(invoice, creditNotes),
     currency,
   });
 
@@ -89,7 +97,8 @@ export default function RecordPaymentDialog({ invoice, open, onOpenChange }) {
     const fieldErrors = getPaymentErrors(
       { amountRaw, date: dayMs },
       invoice,
-      Date.now()
+      Date.now(),
+      creditNotes
     );
     if (Object.keys(fieldErrors).length) {
       return;

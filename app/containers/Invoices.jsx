@@ -9,17 +9,26 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import * as UIActions from '../actions/ui';
 import { getDateFormat } from '../reducers/SettingsReducer';
-import { getInvoices } from '../reducers/InvoicesReducer';
+import {
+  getAllSalesDocs,
+  getCreditNotes,
+  getInvoices,
+} from '../reducers/InvoicesReducer';
 import {
   INVOICE_TABS,
   countByTab,
   matchesSearch,
   matchesTab,
+  toCreditNoteRow,
   toInvoiceRow,
 } from '../helpers/invoiceList';
+import { groupCreditNotesByInvoice } from '../helpers/creditNotes';
+import { isCreditNote } from '../helpers/docType';
 import BulkActionsBar from '../components/invoices/BulkActionsBar';
 import { getColumns } from '../components/invoices/columns';
+import { getCreditNoteColumns } from '../components/invoices/creditNoteColumns';
 import InvoiceDetailSheet from '../components/invoices/InvoiceDetailSheet';
+import CreditNoteDetailSheet from '../components/invoices/CreditNoteDetailSheet';
 import RecordPaymentDialog from '../components/invoices/RecordPaymentDialog';
 import InvoicesEmpty from '../components/invoices/InvoicesEmpty';
 import InvoicesTable from '../components/invoices/InvoicesTable';
@@ -30,6 +39,8 @@ export default function Invoices() {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const invoices = useSelector(getInvoices);
+  const creditNotes = useSelector(getCreditNotes);
+  const allSalesDocs = useSelector(getAllSalesDocs);
   const dateFormat = useSelector(getDateFormat);
   const now = useNow();
 
@@ -41,28 +52,55 @@ export default function Invoices() {
   const [paymentForId, setPaymentForId] = useState(null);
   const searchRef = useRef(null);
 
-  const rows = useMemo(
-    () => invoices.map(i => toInvoiceRow(i, now)),
-    [invoices, now]
+  const creditByInvoice = useMemo(
+    () => groupCreditNotesByInvoice(allSalesDocs),
+    [allSalesDocs]
   );
-  const counts = useMemo(() => countByTab(rows), [rows]);
+
+  const invoiceRows = useMemo(
+    () =>
+      invoices.map(i => toInvoiceRow(i, now, creditByInvoice.get(i._id) ?? [])),
+    [invoices, now, creditByInvoice]
+  );
+
+  const creditNoteRows = useMemo(
+    () => creditNotes.map(cn => toCreditNoteRow(cn)),
+    [creditNotes]
+  );
+
+  const rows = useMemo(() => {
+    if (tab === 'creditNotes') {
+      return creditNoteRows;
+    }
+    return invoiceRows;
+  }, [tab, invoiceRows, creditNoteRows]);
+
+  const counts = useMemo(
+    () => countByTab([...invoiceRows, ...creditNoteRows]),
+    [invoiceRows, creditNoteRows]
+  );
 
   const visible = useMemo(
-    () =>
-      rows.filter(
-        row => matchesTab(row.displayStatus, tab) && matchesSearch(row, query)
-      ),
+    () => rows.filter(row => matchesTab(row, tab) && matchesSearch(row, query)),
     [rows, tab, query]
   );
 
   const onOpen = useCallback(id => setOpenId(id), []);
-
+  const onOpenInvoice = useCallback(id => setOpenId(id), []);
   const onRecordPayment = useCallback(id => setPaymentForId(id), []);
 
-  const columns = useMemo(
-    () => getColumns({ t, dateFormat, onOpen, dispatch, onRecordPayment }),
-    [t, dateFormat, onOpen, dispatch, onRecordPayment]
-  );
+  const columns = useMemo(() => {
+    if (tab === 'creditNotes') {
+      return getCreditNoteColumns({
+        t,
+        dateFormat,
+        onOpen,
+        onOpenInvoice,
+        dispatch,
+      });
+    }
+    return getColumns({ t, dateFormat, onOpen, dispatch, onRecordPayment });
+  }, [tab, t, dateFormat, onOpen, onOpenInvoice, dispatch, onRecordPayment]);
 
   const table = useTable({
     features,
@@ -108,9 +146,9 @@ export default function Invoices() {
     }
   }, [rows, openId]);
 
-  const openInvoice = openId
-    ? invoices.find(inv => inv._id === openId) || null
-    : null;
+  const openDoc = openId ? allSalesDocs.find(d => d._id === openId) : null;
+  const openInvoice = openDoc && !isCreditNote(openDoc) ? openDoc : null;
+  const openCreditNote = openDoc && isCreditNote(openDoc) ? openDoc : null;
   const paymentInvoice = paymentForId
     ? invoices.find(inv => inv._id === paymentForId) || null
     : null;
@@ -120,7 +158,8 @@ export default function Invoices() {
     setQuery('');
   };
 
-  const showEmptyNone = invoices.length === 0;
+  const showEmptyNone =
+    tab === 'creditNotes' ? creditNotes.length === 0 : invoices.length === 0;
   const showEmptyResults = !showEmptyNone && visible.length === 0;
 
   return (
@@ -179,15 +218,21 @@ export default function Invoices() {
         </TabsList>
       </Tabs>
 
-      <BulkActionsBar
-        selectedIds={selectedIds}
-        t={t}
-        dispatch={dispatch}
-        onClearSelection={() => setRowSelection({})}
-      />
+      {tab !== 'creditNotes' ? (
+        <BulkActionsBar
+          selectedIds={selectedIds}
+          t={t}
+          dispatch={dispatch}
+          onClearSelection={() => setRowSelection({})}
+        />
+      ) : null}
 
       {showEmptyNone ? (
-        <InvoicesEmpty variant="none" t={t} />
+        <InvoicesEmpty
+          variant="none"
+          t={t}
+          creditNotesTab={tab === 'creditNotes'}
+        />
       ) : showEmptyResults ? (
         <InvoicesEmpty
           variant="noResults"
@@ -200,13 +245,29 @@ export default function Invoices() {
 
       <InvoiceDetailSheet
         invoice={openInvoice}
-        open={Boolean(openId)}
+        open={Boolean(openInvoice)}
         onOpenChange={open => {
           if (!open) setOpenId(null);
         }}
         dateFormat={dateFormat}
         t={t}
         now={now}
+        linkedCreditNotes={creditByInvoice.get(openInvoice?._id) ?? []}
+        onOpenCreditNote={id => setOpenId(id)}
+      />
+      <CreditNoteDetailSheet
+        creditNote={openCreditNote}
+        open={Boolean(openCreditNote)}
+        onOpenChange={open => {
+          if (!open) setOpenId(null);
+        }}
+        dateFormat={dateFormat}
+        t={t}
+        onOpenInvoice={onOpenInvoice}
+        invoiceMissing={
+          openCreditNote &&
+          !allSalesDocs.some(d => d._id === openCreditNote.creditedInvoiceId)
+        }
       />
       <RecordPaymentDialog
         invoice={paymentInvoice}
@@ -214,6 +275,7 @@ export default function Invoices() {
         onOpenChange={open => {
           if (!open) setPaymentForId(null);
         }}
+        creditNotes={creditByInvoice.get(paymentForId) ?? []}
       />
     </div>
   );

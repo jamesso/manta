@@ -15,7 +15,8 @@
     "outstanding": "Outstanding",
     "overdue": "Overdue",
     "paid": "Paid",
-    "closed": "Closed"
+    "closed": "Closed",
+    "creditNotes": "Credit notes"
   },
   "columns": {
     "select": "Select invoice {{number}}",
@@ -41,6 +42,7 @@
     "preview": "Preview / Export PDF",
     "edit": "Edit",
     "duplicate": "Duplicate",
+    "createCreditNote": "Create credit note",
     "recordPayment": "Record payment…",
     "markPaidInFull": "Mark as paid in full",
     "setStatus": "Set status",
@@ -76,7 +78,11 @@
     "tax": "Tax",
     "total": "Total",
     "note": "Note",
-    "fromEstimate": "Created from estimate {{number}}"
+    "fromEstimate": "Created from estimate {{number}}",
+    "credited": "Credited",
+    "balanceDue": "Balance due",
+    "refundDue": "Refund due",
+    "creditNotes": "Credit notes"
   },
   "toast": {
     "deleted_one": "Invoice deleted",
@@ -166,5 +172,50 @@
     "view": "View",
     "edit": "Edit",
     "markAsPaid": "Mark as Paid"
+  },
+  "creditNotes": {
+    "status": {
+      "draft": "Draft",
+      "issued": "Issued",
+      "void": "Void"
+    },
+    "columns": {
+      "credits": "Credits"
+    },
+    "sheet": {
+      "title": "Credit note {{number}}",
+      "credits": "Credits invoice {{number}} of {{date}}",
+      "totalCredit": "Total credit"
+    },
+    "actions": {
+      "issue": "Issue",
+      "void": "Void",
+      "edit": "Edit",
+      "delete": "Delete",
+      "preview": "Preview / Export PDF"
+    },
+    "void": {
+      "title": "Void credit note {{number}}?",
+      "description": "This cannot be undone. The credited amount goes back to the invoice.",
+      "confirm": "Void"
+    },
+    "errors": {
+      "creditedMissing": "The credited invoice is missing.",
+      "creditZero": "The credit amount must be more than 0.",
+      "creditCurrency": "The credit note currency must match the invoice.",
+      "creditExceeds": "The credit is more than the amount you can still credit."
+    },
+    "toast": {
+      "issued": "Credit note issued",
+      "voided": "Credit note voided",
+      "hasCreditNotes_one": "This invoice has a credit note. Remove or void it first.",
+      "hasCreditNotes_other": "This invoice has credit notes. Remove or void them first.",
+      "issuedCreditNote_one": "This invoice has an issued credit note.",
+      "issuedCreditNote_other": "This invoice has issued credit notes."
+    },
+    "empty": {
+      "title": "No credit notes yet",
+      "description": "Create a credit note from an invoice to see it here."
+    }
   }
 }

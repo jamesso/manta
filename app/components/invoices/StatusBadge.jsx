@@ -42,6 +42,8 @@ const STATUS_ICONS = {
   declined: CircleX,
   expired: CalendarX,
   converted: ArrowRightLeft,
+  issued: CircleCheck,
+  void: Ban,
 };
 
 const ESTIMATE_STATUSES = new Set([
@@ -52,12 +54,15 @@ const ESTIMATE_STATUSES = new Set([
   'converted',
 ]);
 
-export default function StatusBadge({ status, t }) {
+export default function StatusBadge({ status, t, docType = 'invoice' }) {
   const display = status;
   const Icon = STATUS_ICONS[display] || Clock;
-  const labelKey = ESTIMATE_STATUSES.has(display)
-    ? `estimates:status:${display}`
-    : `invoices:status:${display}`;
+  let labelKey = `invoices:status:${display}`;
+  if (ESTIMATE_STATUSES.has(display)) {
+    labelKey = `estimates:status:${display}`;
+  } else if (docType === 'creditNote') {
+    labelKey = `invoices:creditNotes:status:${display}`;
+  }
   return (
     <Badge
       variant="outline"

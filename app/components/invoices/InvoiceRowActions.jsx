@@ -1,4 +1,4 @@
-import { MoreHorizontal, HandCoins } from 'lucide-react';
+import { MoreHorizontal, HandCoins, FileMinus } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -18,11 +18,15 @@ import {
   deleteInvoice,
   duplicateInvoice,
   editInvoice,
+  createCreditNote,
   recordFullPayment,
   setInvoiceStatus,
 } from '../../actions/invoices';
 import { getStoredStatus } from '../../helpers/invoice';
+import { canCreateCreditNote } from '../../helpers/creditNotes';
 import { canRecordPayment } from '../../helpers/payments';
+import { getAllSalesDocs } from '../../reducers/InvoicesReducer';
+import { useSelector } from 'react-redux';
 
 const SETTABLE = INVOICE_STATUSES.filter(s => s !== 'paid');
 
@@ -33,8 +37,13 @@ export default function InvoiceRowActions({
   onRecordPayment,
 }) {
   const stored = getStoredStatus(invoice);
+  const allDocs = useSelector(getAllSalesDocs);
+  const linked = allDocs.filter(
+    cn => cn.docType === 'creditNote' && cn.creditedInvoiceId === invoice._id
+  );
   const ipc = window.manta.ipc;
-  const showPayment = canRecordPayment(invoice);
+  const showPayment = canRecordPayment(invoice, linked);
+  const showCredit = canCreateCreditNote(invoice, linked);
 
   return (
     <DropdownMenu>
@@ -59,6 +68,12 @@ export default function InvoiceRowActions({
         <DropdownMenuItem onClick={() => dispatch(duplicateInvoice(invoice))}>
           {t('invoices:actions:duplicate')}
         </DropdownMenuItem>
+        {showCredit ? (
+          <DropdownMenuItem onClick={() => dispatch(createCreditNote(invoice))}>
+            <FileMinus />
+            {t('invoices:actions:createCreditNote')}
+          </DropdownMenuItem>
+        ) : null}
         {showPayment ? (
           <>
             <DropdownMenuItem onClick={() => onRecordPayment(invoice._id)}>

@@ -12,7 +12,12 @@ import {
 } from '@/components/ui/empty';
 import * as UIActions from '../../actions/ui';
 
-export default function InvoicesEmpty({ variant, t, onClearFilters }) {
+export default function InvoicesEmpty({
+  variant,
+  t,
+  onClearFilters,
+  creditNotesTab,
+}) {
   const dispatch = useDispatch();
 
   if (variant === 'noResults') {
@@ -39,8 +44,20 @@ export default function InvoicesEmpty({ variant, t, onClearFilters }) {
         <EmptyMedia variant="icon">
           <FileText />
         </EmptyMedia>
-        <EmptyTitle>{t('invoices:empty:title')}</EmptyTitle>
-        <EmptyDescription>{t('invoices:empty:description')}</EmptyDescription>
+        <EmptyTitle>
+          {t(
+            creditNotesTab
+              ? 'invoices:creditNotes:empty:title'
+              : 'invoices:empty:title'
+          )}
+        </EmptyTitle>
+        <EmptyDescription>
+          {t(
+            creditNotesTab
+              ? 'invoices:creditNotes:empty:description'
+              : 'invoices:empty:description'
+          )}
+        </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
         <Button type="button" onClick={() => dispatch(UIActions.newInvoice())}>
