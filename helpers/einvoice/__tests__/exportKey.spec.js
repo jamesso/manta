@@ -43,6 +43,22 @@ describe('exportKey', () => {
     ).not.toBe(exportKey({ ...shared, grandTotal: 999 }, profile, configs));
   });
 
+  it('changes when profile logo differs', () => {
+    const configs = base.configs;
+    const seller = { fullname: 'Co' };
+    const a = exportKey(
+      base,
+      { ...seller, logo: 'data:image/png;base64,OLD' },
+      configs
+    );
+    const b = exportKey(
+      base,
+      { ...seller, logo: 'data:image/png;base64,NEW' },
+      configs
+    );
+    expect(a).not.toBe(b);
+  });
+
   it('changes when live preview configs differ from invoice.configs', () => {
     const profile = { fullname: 'Co' };
     const invoice = {

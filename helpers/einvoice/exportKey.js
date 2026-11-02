@@ -60,6 +60,7 @@ export function exportKey(invoice, profile, previewConfigs) {
       bank: resolved.bank,
       taxId: resolved.taxId,
       vatId: resolved.vatId,
+      logo: profile?.logo ?? null,
     },
   });
   return sha256Hex(JSON.stringify(material));
