@@ -300,3 +300,94 @@ test('draft save advances invoice numbering on cleared form', async () => {
     timeout: 15_000,
   });
 });
+
+test('preview renders an invoice and exports a PDF', async () => {
+  const preview = await pageByTitle(PREVIEW_TITLE);
+  const issuedAt = Date.UTC(2026, 0, 15, 12);
+  const invoice = {
+    _id: 'pdf-snapshot-0001',
+    invoiceID: 'INV-0042',
+    created_at: issuedAt,
+    issuedAt,
+    status: 'pending',
+    recipient: {
+      fullname: 'Ada Lovelace',
+      company: 'Analytical Engines Ltd',
+      email: 'ada@example.com',
+      phone: '+44 20 7946 0000',
+    },
+    rows: [
+      {
+        id: 'r1',
+        description: 'Design work',
+        quantity: 10,
+        price: 120,
+        subtotal: 1200,
+      },
+      {
+        id: 'r2',
+        description: 'Development',
+        quantity: 24.5,
+        price: 95,
+        subtotal: 2327.5,
+      },
+      {
+        id: 'r3',
+        description: 'Hosting (annual)',
+        quantity: 1,
+        price: 240,
+        subtotal: 240,
+      },
+    ],
+    currency: {
+      code: 'USD',
+      placement: 'before',
+      separator: 'commaDot',
+      fraction: 2,
+    },
+    tax: { tin: '123-456-789', method: 'default', amount: 10 },
+    discount: { type: 'percentage', amount: 5 },
+    dueDate: { useCustom: false, paymentTerm: 'net30' },
+    note: 'Thank you for your business. Payment by bank transfer within 30 days.',
+    subtotal: 3767.5,
+    grandTotal: 3937.0375,
+    configs: {
+      dateFormat: 'MM/DD/YYYY',
+      language: 'en',
+      accentColor: '#2CCCE4',
+      logoSize: '20',
+      fontSize: '200',
+      alignItems: 'middle',
+      showLogo: true,
+      useSymbol: true,
+      customAccentColor: true,
+      showRecipient: true,
+      template: 'minimal',
+    },
+  };
+  await app.evaluate(({ BrowserWindow }, inv) => {
+    BrowserWindow.getAllWindows()
+      .find(w => w.getTitle() === 'Previewer')
+      .webContents.send('update-preview', inv);
+  }, invoice);
+  await preview.waitForFunction(
+    id => document.querySelector('.print-area')?.dataset.invoiceId === id,
+    invoice._id,
+    { timeout: 10_000 }
+  );
+  await expect(preview.locator('.paper')).toHaveCount(1);
+  const header = await app.evaluate(async ({ BrowserWindow }) => {
+    const w = BrowserWindow.getAllWindows().find(
+      x => x.getTitle() === 'Previewer'
+    );
+    const buf = await w.webContents.printToPDF({
+      landscape: false,
+      printBackground: true,
+      margins: { marginType: 'default' },
+      preferCSSPageSize: true,
+    });
+    return buf.subarray(0, 4).toString('utf8');
+  });
+  expect(header).toBe('%PDF');
+  expect(errors).toEqual([]);
+});
