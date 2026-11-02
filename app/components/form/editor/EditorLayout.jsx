@@ -24,7 +24,7 @@ export default function EditorLayout() {
   const { t } = useTranslation();
   const { settings, errors, savePending } = useSelector(state => state.form);
   return (
-    <div className="@container flex h-full min-h-0 flex-col">
+    <div className="@container flex h-full min-h-0 flex-col text-foreground">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b p-4">
         <h1 className="text-xl font-semibold">
           {t(settings.editMode.active ? 'form:header:edit' : 'form:header:new')}
@@ -47,7 +47,7 @@ export default function EditorLayout() {
             </SheetTrigger>
             <SheetContent
               side="right"
-              className="w-full overflow-y-auto sm:max-w-xl"
+              className="w-full overflow-y-auto bg-background text-foreground sm:max-w-xl"
             >
               <SheetHeader>
                 <SheetTitle>{t('form:preview:toggle')}</SheetTitle>
