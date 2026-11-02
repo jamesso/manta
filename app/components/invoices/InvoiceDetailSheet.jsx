@@ -73,7 +73,10 @@ export default function InvoiceDetailSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto">
+      <SheetContent
+        side="right"
+        className="overflow-y-auto bg-background text-foreground sm:max-w-lg w-full"
+      >
         <SheetHeader className="flex-row flex-wrap items-center gap-2">
           <SheetTitle>{t('invoices:sheet:title', { number })}</SheetTitle>
           <StatusBadge status={displayStatus} t={t} />

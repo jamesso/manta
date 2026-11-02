@@ -15,15 +15,18 @@ export default function InvoicesTable({ table, onOpen }) {
           <TableRow key={headerGroup.id}>
             {headerGroup.headers.map(header => {
               const sorted = header.column.getIsSorted();
+              const canSort = header.column.getCanSort();
               return (
                 <TableHead
                   key={header.id}
                   aria-sort={
-                    sorted === 'asc'
-                      ? 'ascending'
-                      : sorted === 'desc'
-                        ? 'descending'
-                        : 'none'
+                    canSort
+                      ? sorted === 'asc'
+                        ? 'ascending'
+                        : sorted === 'desc'
+                          ? 'descending'
+                          : 'none'
+                      : undefined
                   }
                   className={
                     header.column.id === 'amount' ? 'text-end' : undefined

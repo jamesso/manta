@@ -117,7 +117,7 @@ export default function Invoices() {
   const showEmptyResults = !showEmptyNone && visible.length === 0;
 
   return (
-    <div className="flex h-full flex-col gap-4 p-4">
+    <div className="flex h-full flex-col gap-4 p-4 text-foreground">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">

@@ -15,24 +15,28 @@ export function getColumns({ t, dateFormat, onOpen, dispatch }) {
     columnHelper.display({
       id: 'select',
       header: ({ table }) => (
-        <Checkbox
-          aria-label={t('invoices:columns:selectAll')}
-          checked={table.getIsAllRowsSelected()}
-          indeterminate={
-            table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()
-          }
-          onCheckedChange={value => table.toggleAllRowsSelected(!!value)}
-        />
+        <span className="inline-flex size-6 items-center justify-center">
+          <Checkbox
+            aria-label={t('invoices:columns:selectAll')}
+            checked={table.getIsAllRowsSelected()}
+            indeterminate={
+              table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()
+            }
+            onCheckedChange={value => table.toggleAllRowsSelected(!!value)}
+          />
+        </span>
       ),
       cell: ({ row }) => (
         <div onClick={event => event.stopPropagation()} role="presentation">
-          <Checkbox
-            aria-label={t('invoices:columns:select', {
-              number: row.original.number,
-            })}
-            checked={row.getIsSelected()}
-            onCheckedChange={value => row.toggleSelected(!!value)}
-          />
+          <span className="inline-flex size-6 items-center justify-center">
+            <Checkbox
+              aria-label={t('invoices:columns:select', {
+                number: row.original.number,
+              })}
+              checked={row.getIsSelected()}
+              onCheckedChange={value => row.toggleSelected(!!value)}
+            />
+          </span>
         </div>
       ),
     }),
