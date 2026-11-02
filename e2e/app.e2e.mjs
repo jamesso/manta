@@ -232,3 +232,23 @@ test('theme setting reaches every window', async () => {
 test('no window reports a CSP violation', async () => {
   expect(cspErrors).toEqual([]);
 });
+
+test('sidebar shows labels and Ctrl/Cmd+K opens the command palette', async () => {
+  await app.evaluate(({ BrowserWindow }) => {
+    const w = BrowserWindow.getAllWindows().find(x => x.getTitle() === 'Manta');
+    w.show();
+    w.focus();
+  });
+  let page;
+  for (const p of app.windows()) if ((await p.title()) === MAIN_TITLE) page = p;
+  for (const name of ['New invoice', 'Invoices', 'Clients', 'Settings']) {
+    await expect(page.getByRole('button', { name, exact: true })).toBeVisible();
+  }
+  await page.keyboard.press('ControlOrMeta+K');
+  const palette = page.getByRole('dialog');
+  await expect(palette).toBeVisible();
+  await page.keyboard.type('clients');
+  await palette.getByRole('option', { name: 'Clients' }).click();
+  await expect(palette).toBeHidden();
+  await expect(page.getByText('All Contacts')).toBeVisible();
+});
