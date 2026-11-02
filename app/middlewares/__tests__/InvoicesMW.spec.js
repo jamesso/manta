@@ -697,6 +697,14 @@ describe('Invoices Middleware', () => {
     it('get the doc, merge with status object and dispatch a new action', async () => {
       const invoiceID = 'id-string';
       const status = 'paid';
+      mockData.invoicesRecords = [
+        {
+          _id: invoiceID,
+          status: 'pending',
+          grandTotal: 100,
+          currency: { fraction: 2 },
+        },
+      ];
       getSingleDoc.mockResolvedValueOnce({
         _id: invoiceID,
         status: 'pending',
@@ -724,6 +732,10 @@ describe('Invoices Middleware', () => {
     });
 
     it('bulk update calls updateDocs', async () => {
+      mockData.invoicesRecords = [
+        { _id: 'a', status: 'pending', grandTotal: 10, currency: { fraction: 2 } },
+        { _id: 'b', status: 'pending', grandTotal: 10, currency: { fraction: 2 } },
+      ];
       getSingleDoc.mockResolvedValueOnce({ _id: 'a', status: 'pending' });
       getSingleDoc.mockResolvedValueOnce({ _id: 'b', status: 'pending' });
       await middleware(Actions.setInvoiceStatus(['a', 'b'], 'paid'));
@@ -732,6 +744,22 @@ describe('Invoices Middleware', () => {
         type: ACTION_TYPES.INVOICE_UPDATE,
         payload: mockData.invoicesRecords,
       });
+    });
+
+    it('estimate status change does not enter runInvoiceNumberingWrite', async () => {
+      const numberingWrites = await import('../../helpers/invoiceNumberingWrites');
+      const spy = vi.spyOn(numberingWrites, 'runInvoiceNumberingWrite');
+      mockData.invoicesRecords = [
+        { _id: 'est-1', docType: 'estimate', status: 'draft' },
+      ];
+      getSingleDoc.mockResolvedValue({
+        _id: 'est-1',
+        docType: 'estimate',
+        status: 'draft',
+      });
+      await middleware(Actions.setInvoiceStatus('est-1', 'sent'));
+      expect(spy).not.toHaveBeenCalled();
+      spy.mockRestore();
     });
 
     it('assigns distinct numbers when two drafts leave draft in parallel', async () => {

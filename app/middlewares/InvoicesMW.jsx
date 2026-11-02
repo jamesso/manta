@@ -1005,73 +1005,99 @@ const InvoicesMW =
         const ids = [...new Set([].concat(invoiceID))];
         const now = Date.now();
 
-        return runInvoiceNumberingWrite(async () => {
-          const initialNumbering = await resolveInvoiceNumberingForAllocation(
-            appConfig,
-            getState().form.reconciledNumbering
-          );
-          let numbering = initialNumbering;
-          const results = [];
-          for (const id of ids) {
-            let numberingAfterAssign = numbering;
-            const result = await queuedInvoiceWrite(id, (doc, creditNotes) => {
-              if (!isSettableStatus(doc, status)) {
-                return { ok: false, error: 'invalidStatus' };
-              }
-              if (isEstimate(doc)) {
+        return getAllDocs('invoices')
+          .then(async allDocs => {
+            const byId = new Map(allDocs.map(d => [d._id, d]));
+            const estimateIds = ids.filter(id => isEstimate(byId.get(id)));
+            const invoiceIds = ids.filter(
+              id => byId.get(id) && !isEstimate(byId.get(id))
+            );
+            let results = [];
+
+            for (const id of estimateIds) {
+              const result = await queuedInvoiceWrite(id, doc => {
+                if (!isSettableStatus(doc, status)) {
+                  return { ok: false, error: 'invalidStatus' };
+                }
                 return { ok: true, doc: { ...doc, status } };
-              }
-              const statusResult = applySettableInvoiceStatus(
-                doc,
-                status,
-                now,
-                creditNotes,
-                numberingAfterAssign
-              );
-              numberingAfterAssign =
-                statusResult.numbering ?? numberingAfterAssign;
-              if (!statusResult.ok) {
-                return statusResult;
-              }
-              let docOut = statusResult.doc;
-              if (
-                isInvoice(doc) &&
-                !isCreditNote(doc) &&
-                getStoredStatus(doc) === 'draft' &&
-                status !== 'draft'
-              ) {
-                docOut = {
-                  ...docOut,
-                  seller: buildSellerSnapshot(
-                    appConfig.get('profile'),
-                    appConfig.get('invoice')
-                  ),
-                };
-              }
-              return {
-                ok: true,
-                doc: docOut,
-                stillPaid: statusResult.stillPaid,
-                numbering: numberingAfterAssign,
-              };
-            });
-            if (result.ok && result.committed) {
-              numbering = numberingAfterAssign;
+              });
+              results.push(result);
             }
-            results.push(result);
-          }
-          if (
-            results.some(r => r.ok && r.committed) &&
-            !numberingCountersEqual(numbering, initialNumbering)
-          ) {
-            await persistInvoiceNumberingCounter(appConfig, numbering, {
-              dispatch,
-              actionTypes: ACTION_TYPES,
-              i18n,
-            });
-          }
-          return results;
-        })
+
+            if (invoiceIds.length) {
+              const invoiceResults = await runInvoiceNumberingWrite(async () => {
+                const initialNumbering =
+                  await resolveInvoiceNumberingForAllocation(
+                    appConfig,
+                    getState().form.reconciledNumbering
+                  );
+                let numbering = initialNumbering;
+                const invoiceWriteResults = [];
+                for (const id of invoiceIds) {
+                  let numberingAfterAssign = numbering;
+                  const result = await queuedInvoiceWrite(
+                    id,
+                    (doc, creditNotes) => {
+                      if (!isSettableStatus(doc, status)) {
+                        return { ok: false, error: 'invalidStatus' };
+                      }
+                      const statusResult = applySettableInvoiceStatus(
+                        doc,
+                        status,
+                        now,
+                        creditNotes,
+                        numberingAfterAssign
+                      );
+                      numberingAfterAssign =
+                        statusResult.numbering ?? numberingAfterAssign;
+                      if (!statusResult.ok) {
+                        return statusResult;
+                      }
+                      let docOut = statusResult.doc;
+                      if (
+                        isInvoice(doc) &&
+                        !isCreditNote(doc) &&
+                        getStoredStatus(doc) === 'draft' &&
+                        status !== 'draft'
+                      ) {
+                        docOut = {
+                          ...docOut,
+                          seller: buildSellerSnapshot(
+                            appConfig.get('profile'),
+                            appConfig.get('invoice')
+                          ),
+                        };
+                      }
+                      return {
+                        ok: true,
+                        doc: docOut,
+                        stillPaid: statusResult.stillPaid,
+                        numbering: numberingAfterAssign,
+                      };
+                    }
+                  );
+                  if (result.ok && result.committed) {
+                    numbering = numberingAfterAssign;
+                  }
+                  invoiceWriteResults.push(result);
+                }
+                if (
+                  invoiceWriteResults.some(r => r.ok && r.committed) &&
+                  !numberingCountersEqual(numbering, initialNumbering)
+                ) {
+                  await persistInvoiceNumberingCounter(appConfig, numbering, {
+                    dispatch,
+                    actionTypes: ACTION_TYPES,
+                    i18n,
+                  });
+                }
+                return invoiceWriteResults;
+              });
+              results = results.concat(invoiceResults);
+            }
+
+            return results;
+          })
           .then(results =>
             finalizeQueuedWrites({
               results,
