@@ -17,3 +17,5 @@ export const saveSettings = createAction(
   ACTION_TYPES.SETTINGS_SAVE,
   data => data
 );
+
+export const setTheme = createAction(ACTION_TYPES.SETTINGS_THEME_SET, theme => theme);

@@ -3,8 +3,10 @@ import { handleActions } from 'redux-actions';
 
 const initialState = {
   activeTab: 'form',
-  notifications: [],
   checkUpdatesMessage: {},
+  sidebarCollapsed: window.manta.settings.get('ui.sidebarCollapsed') === true,
+  commandPaletteOpen: false,
+  shortcutsOpen: false,
 };
 
 const UIReducer = handleActions(
@@ -19,16 +21,21 @@ const UIReducer = handleActions(
         activeTab: action.payload,
       }),
 
-    [ACTION_TYPES.UI_NOTIFICATION_NEW]: (state, action) =>
+    [ACTION_TYPES.UI_SIDEBAR_COLLAPSED_SET]: (state, action) =>
       Object.assign({}, state, {
-        notifications: [action.payload, ...state.notifications],
+        sidebarCollapsed: Boolean(action.payload),
       }),
 
-    [ACTION_TYPES.UI_NOTIFICATION_REMOVE]: (state, action) =>
+    [ACTION_TYPES.UI_COMMAND_PALETTE_SET]: (state, action) =>
       Object.assign({}, state, {
-        notifications: state.notifications.filter(
-          item => item.id !== action.payload
-        ),
+        commandPaletteOpen: Boolean(action.payload),
+        shortcutsOpen: action.payload ? false : state.shortcutsOpen,
+      }),
+
+    [ACTION_TYPES.UI_SHORTCUTS_SET]: (state, action) =>
+      Object.assign({}, state, {
+        shortcutsOpen: Boolean(action.payload),
+        commandPaletteOpen: action.payload ? false : state.commandPaletteOpen,
       }),
   },
   initialState

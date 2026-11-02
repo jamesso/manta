@@ -31,6 +31,11 @@ const SettingsMW =
         );
       }
 
+      case ACTION_TYPES.SETTINGS_THEME_SET: {
+        ipc.send('set-theme', action.payload);
+        return next(action);
+      }
+
       case ACTION_TYPES.SETTINGS_SAVE: {
         // Validation
         if (!validateTax(true, action.payload.invoice.tax)) break;

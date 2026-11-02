@@ -15,6 +15,18 @@ const SettingsReducer = handleActions(
       Object.assign({}, state, {
         saved: action.payload,
       }),
+    [ACTION_TYPES.SETTINGS_THEME_SET]: (state, action) => {
+      if (!state.current || !state.saved) return state;
+      const theme = action.payload;
+      return Object.assign({}, state, {
+        current: Object.assign({}, state.current, {
+          general: Object.assign({}, state.current.general, { theme }),
+        }),
+        saved: Object.assign({}, state.saved, {
+          general: Object.assign({}, state.saved.general, { theme }),
+        }),
+      });
+    },
   },
   {}
 );

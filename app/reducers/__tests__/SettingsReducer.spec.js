@@ -74,6 +74,20 @@ describe('Settings Reducer', () => {
     });
     expect(newState.saved).toEqual(data);
   });
+
+  it('SETTINGS_THEME_SET updates current and saved theme', () => {
+    const currentState = {
+      current: { ...sampleSettings, general: { ...sampleSettings.general, theme: 'system' } },
+      saved: { ...sampleSettings, general: { ...sampleSettings.general, theme: 'system' } },
+    };
+    const newState = SettingsReducer(currentState, {
+      type: ACTION_TYPES.SETTINGS_THEME_SET,
+      payload: 'dark',
+    });
+    expect(newState.current.general.theme).toBe('dark');
+    expect(newState.saved.general.theme).toBe('dark');
+    expect(newState.current.general.language).toBe('en');
+  });
 });
 
 describe('Settings Reducer should handle update', () => {

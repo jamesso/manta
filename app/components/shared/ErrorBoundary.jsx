@@ -1,61 +1,39 @@
-// Libs
 import React, { Component } from 'react';
-import openDialog from '../../renderers/dialog';
-import Message from './Message';
-import styled from 'styled-components';
-const ErrorContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  width: 100%;
-  justify-content: center;
-  align-items: center;
-  background: #2c323a;
-  h1 {
-    font-size: 500%;
-    color: #cbc189;
-  }
-  h2 {
-    font-weight: 400;
-    color: white;
-  }
-  p {
-    margin: 0;
-    font-weight: 100;
-    color: #c4c8cc;
-    line-height: 1.75;
-    text-align: center;
-  }
-`;
 import i18n from '../../../i18n/i18n';
+import { Bug } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 class ErrorBoundary extends Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false };
+    this.state = { hasError: false, error: null, info: null };
   }
+
   componentDidCatch(error, info) {
-    this.setState({ hasError: true });
-    openDialog({
-      type: 'warning',
-      title: i18n.t('dialog:errorBoundary'),
-      message: info.componentStack,
-    });
+    this.setState({ hasError: true, error, info });
   }
+
   render() {
     if (this.state.hasError) {
       return (
-        <ErrorContainer>
-          <h1>
-            <i className="ion-bug" />
-          </h1>
-          <h2>You have found a bug!</h2>
-          <p>
-            Please report this as an issue on GitHub:
-            <br />
-            https://github.com/jamesso/manta/issues
+        <div className="flex h-svh flex-col items-center justify-center gap-4 bg-background p-8 text-center">
+          <Bug className="size-12 text-destructive" aria-hidden />
+          <h1 className="text-lg font-semibold">{i18n.t('app:error:title')}</h1>
+          <p className="max-w-md text-sm text-muted-foreground">
+            {i18n.t('app:error:message')}
           </p>
-        </ErrorContainer>
+          {this.state.info?.componentStack && (
+            <details className="max-w-xl text-start text-xs text-muted-foreground">
+              <summary>{i18n.t('app:error:details')}</summary>
+              <pre className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap">
+                {this.state.info.componentStack}
+              </pre>
+            </details>
+          )}
+          <Button type="button" onClick={() => window.location.reload()}>
+            {i18n.t('app:error:reload')}
+          </Button>
+        </div>
       );
     }
     return this.props.children;

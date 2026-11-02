@@ -1,3 +1,4 @@
+import app from './app.json';
 import common from './common.json';
 import contacts from './contacts.json';
 import dialog from './dialog.json';
@@ -9,6 +10,7 @@ import settings from './settings.json';
 import tour from './tour.json';
 
 export default {
+  app,
   common,
   contacts,
   dialog,

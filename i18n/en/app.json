@@ -1,0 +1,82 @@
+{
+  "nav": {
+    "newInvoice": "New invoice",
+    "search": "Search",
+    "invoices": "Invoices",
+    "clients": "Clients",
+    "settings": "Settings",
+    "help": "Help",
+    "businessProfile": "Business profile",
+    "shortcuts": "Keyboard shortcuts",
+    "tutorial": "Show tutorial",
+    "learnMore": "Learn more"
+  },
+  "titles": {
+    "newInvoice": "New invoice",
+    "editInvoice": "Edit invoice"
+  },
+  "update": {
+    "check": "Check for updates",
+    "checking": "Checking for updates…",
+    "downloading": "Downloading update {{percent}}%"
+  },
+  "palette": {
+    "title": "Command palette",
+    "description": "Search pages, invoices, clients, and actions",
+    "placeholder": "Type a command or search…",
+    "empty": "No results found.",
+    "goTo": "Go to",
+    "actions": "Actions",
+    "invoices": "Invoices",
+    "clients": "Clients",
+    "toggleTheme": "Toggle theme",
+    "themeChanged": "Theme set to {{theme}}"
+  },
+  "theme": {
+    "system": "System",
+    "light": "Light",
+    "dark": "Dark"
+  },
+  "shortcuts": {
+    "title": "Keyboard shortcuts",
+    "groups": {
+      "general": "General",
+      "invoice": "Invoice",
+      "go": "Go",
+      "help": "Help"
+    },
+    "items": {
+      "palette": "Command palette",
+      "sidebar": "Toggle sidebar",
+      "settings": "Settings",
+      "shortcuts": "Keyboard shortcuts",
+      "checkUpdates": "Check for updates",
+      "quit": "Quit",
+      "newInvoice": "New invoice",
+      "save": "Save invoice",
+      "reset": "Reset form",
+      "addItem": "Add line item",
+      "toggleSettings": "Toggle form settings",
+      "dueDate": "Toggle due date",
+      "currency": "Toggle currency",
+      "vat": "Toggle VAT",
+      "discount": "Toggle discount",
+      "note": "Toggle note",
+      "invoices": "Invoices",
+      "clients": "Clients",
+      "tutorial": "Show tutorial"
+    }
+  },
+  "newInvoice": {
+    "confirmTitle": "Stop editing this invoice?",
+    "confirmMessage": "Unsaved changes to this invoice will be lost. The saved invoice does not change.",
+    "confirm": "Start new invoice",
+    "cancel": "Keep editing"
+  },
+  "error": {
+    "title": "Something went wrong",
+    "message": "Please report this on GitHub: https://github.com/jamesso/manta/issues",
+    "reload": "Reload",
+    "details": "Details"
+  }
+}
