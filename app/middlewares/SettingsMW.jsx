@@ -32,7 +32,12 @@ const SettingsMW =
           profile: appConfig.get('profile'),
           invoice: appConfig.get('invoice'),
           general: appConfig.get('general'),
+          onboarding: appConfig.get('onboarding') ?? {
+            dismissed: false,
+            exportedPdf: false,
+          },
         };
+        dispatch({ type: ACTION_TYPES.BOOTSTRAP_SETTINGS_READY });
         return next(
           Object.assign({}, action, {
             payload: {
@@ -41,6 +46,14 @@ const SettingsMW =
             },
           })
         );
+      }
+
+      case ACTION_TYPES.SETTINGS_ONBOARDING_UPDATE: {
+        const patch = action.payload || {};
+        Object.keys(patch).forEach(key => {
+          appConfig.set(`onboarding.${key}`, patch[key]);
+        });
+        return next(action);
       }
 
       case ACTION_TYPES.SETTINGS_UPDATE: {

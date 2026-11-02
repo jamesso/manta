@@ -192,6 +192,10 @@ function setInitialValues() {
       isMainWinVisible: true,
       isPreviewWinVisible: false,
     },
+    onboarding: {
+      dismissed: false,
+      exportedPdf: false,
+    },
     profile: {
       logo: logoBase64String,
       fullname: 'Manta Ray',

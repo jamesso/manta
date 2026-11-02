@@ -56,6 +56,7 @@ const ContactsMW =
                 payload: allDocs,
               })
             );
+            dispatch({ type: ACTION_TYPES.BOOTSTRAP_CONTACTS_READY });
           })
           .catch(err => {
             next({

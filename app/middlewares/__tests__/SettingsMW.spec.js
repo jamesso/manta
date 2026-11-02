@@ -61,6 +61,41 @@ describe('Settings Middleware', () => {
     );
   });
 
+  it('handles SETTINGS_GET_INITIAL with onboarding defaults', () => {
+    window.manta.settings.get.mockImplementation(key => {
+      if (key === 'onboarding') {
+        return undefined;
+      }
+      if (key === 'invoice' || key === 'invoice.numbering') {
+        return invoiceBase;
+      }
+      if (key === 'general') {
+        return { language: 'en', theme: 'system', sound: 'default' };
+      }
+      return 'someSettings';
+    });
+    middleware(Actions.getInitalSettings());
+    expect(next).toHaveBeenCalledWith(
+      expect.objectContaining({
+        payload: expect.objectContaining({
+          current: expect.objectContaining({
+            onboarding: { dismissed: false, exportedPdf: false },
+          }),
+        }),
+      })
+    );
+  });
+
+  it('persists onboarding patch to the settings store', () => {
+    const store = new Map();
+    window.manta.settings.set.mockImplementation((key, value) => {
+      store.set(key, value);
+    });
+    middleware(Actions.updateOnboarding({ dismissed: true }));
+    expect(store.get('onboarding.dismissed')).toBe(true);
+    expect(next).toHaveBeenCalled();
+  });
+
   it('rejects invalid raw numbering before mergeNumbering', async () => {
     const result = await middleware(
       Actions.updateSettings('invoice', {

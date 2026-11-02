@@ -16,6 +16,18 @@ const SettingsReducer = handleActions(
         }),
       });
     },
+
+    [ACTION_TYPES.SETTINGS_ONBOARDING_UPDATE]: (state, action) => {
+      const patch = action.payload || {};
+      const withPatch = section =>
+        Object.assign({}, section, {
+          onboarding: Object.assign({}, section?.onboarding, patch),
+        });
+      return Object.assign({}, state, {
+        current: withPatch(state.current),
+        saved: withPatch(state.saved),
+      });
+    },
   },
   {}
 );

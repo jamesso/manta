@@ -133,6 +133,7 @@ const InvoicesMW =
                 payload: allDocs,
               })
             );
+            dispatch({ type: ACTION_TYPES.BOOTSTRAP_INVOICES_READY });
           })
           .catch(err => {
             next({

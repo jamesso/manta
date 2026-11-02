@@ -79,6 +79,26 @@ describe('Settings Reducer', () => {
     expect(newState.current.general.sound).toEqual('cs');
     expect(newState.saved.general.sound).toEqual('cs');
   });
+
+  it('should handle SETTINGS_ONBOARDING_UPDATE for current and saved', () => {
+    const currentState = {
+      current: {
+        ...sampleSettings,
+        onboarding: { dismissed: false, exportedPdf: false },
+      },
+      saved: {
+        ...sampleSettings,
+        onboarding: { dismissed: false, exportedPdf: false },
+      },
+    };
+    const newState = SettingsReducer(currentState, {
+      type: ACTION_TYPES.SETTINGS_ONBOARDING_UPDATE,
+      payload: { dismissed: true },
+    });
+    expect(newState.current.onboarding.dismissed).toBe(true);
+    expect(newState.saved.onboarding.dismissed).toBe(true);
+    expect(newState.current.profile).toEqual(sampleSettings.profile);
+  });
 });
 
 describe('Settings Reducer should handle update', () => {

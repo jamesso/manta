@@ -11,3 +11,8 @@ export const updateSettings = createAction(
   ACTION_TYPES.SETTINGS_UPDATE,
   (setting, data, imported = false) => ({ setting, data, imported })
 );
+
+export const updateOnboarding = createAction(
+  ACTION_TYPES.SETTINGS_ONBOARDING_UPDATE,
+  patch => patch
+);
