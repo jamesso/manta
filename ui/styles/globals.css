@@ -1,4 +1,4 @@
-/* Manta global stylesheet. Imported first by app/, preview/, modal/ and tour/ index.jsx. */
+/* Manta global stylesheet. Imported first by app/, preview/, and modal/ index.jsx. */
 
 /* Layer order: later wins. Unlayered CSS (styled-components, ionicons,
    layout/form/items/contact/date-picker/preview CSS) beats every layer. */
@@ -19,7 +19,6 @@
 @source "../../app";
 @source "../../preview";
 @source "../../modal";
-@source "../../tour";
 @source "..";
 
 /* Dark mode follows the OS or nativeTheme.themeSource. No .dark class, no JS. */

@@ -9,7 +9,11 @@ const omit = require('lodash').omit;
 // Electron Libs
 const { app, BrowserWindow, ipcMain, nativeTheme } = require('electron');
 const { autoUpdater } = require('electron-updater');
-const { SECURE_WEB_PREFERENCES, loadPage } = require('./helpers/windows');
+const {
+  SECURE_WEB_PREFERENCES,
+  loadPage,
+  showWhenReady,
+} = require('./helpers/windows');
 // Only the dev server (`npm run dev`) opens DevTools by default. Built
 // runs (`npm start`, e2e) behave like the packaged app.
 const isDev = !app.isPackaged && Boolean(process.env.ELECTRON_RENDERER_URL);
@@ -22,7 +26,6 @@ if (process.env.MANTA_USER_DATA) {
 }
 
 // Place a BrowserWindow in center of primary display
-const centerOnPrimaryDisplay = require('./helpers/center-on-primary-display');
 
 // commmandline arguments
 const forceDevtools = process.argv.includes('--force-devtools');
@@ -40,46 +43,8 @@ const {
   titleBarOverlayFor,
 } = require('./main/theme');
 
-let tourWindow = null;
 let mainWindow = null;
 let previewWindow = null;
-
-function createTourWindow() {
-  const width = 700;
-  const height = 600;
-
-  // Get X and Y coordinations on primary display
-  const winPOS = centerOnPrimaryDisplay(width, height);
-
-  // Creating a New Window
-  tourWindow = new BrowserWindow({
-    x: winPOS.x,
-    y: winPOS.y,
-    width,
-    height,
-    show: false,
-    frame: false,
-    resizable: false,
-    movable: false,
-    title: 'Tour Window',
-    backgroundColor: getBackgroundColor(nativeTheme),
-    webPreferences: SECURE_WEB_PREFERENCES,
-  });
-  // Register WindowID with appConfig
-  appConfig.set('tourWindowID', parseInt(tourWindow.id));
-  // Load Content
-  loadPage(tourWindow, 'tour');
-  // Add Event Listeners
-  tourWindow.on('show', event => {
-    if (isDev || forceDevtools)
-      tourWindow.webContents.openDevTools({ mode: 'detach' });
-  });
-  tourWindow.on('close', event => {
-    event.preventDefault();
-    if (isDev || forceDevtools) tourWindow.webContents.closeDevTools();
-    tourWindow.hide();
-  });
-}
 
 function createMainWindow() {
   // Get window state
@@ -181,20 +146,12 @@ function setInitialValues() {
     'data:image/svg+xml;base64,' + logoData.toString('base64');
   // Default Options
   const defaultOptions = {
-    tour: {
-      isActive: false,
-      hasBeenTaken: false,
-    },
-    ui: {
-      sidebarCollapsed: false,
-    },
-    winsLastVisibleState: {
-      isMainWinVisible: true,
-      isPreviewWinVisible: false,
-    },
     onboarding: {
       dismissed: false,
       exportedPdf: false,
+    },
+    ui: {
+      sidebarCollapsed: false,
     },
     profile: {
       logo: logoBase64String,
@@ -362,6 +319,12 @@ function migrateData() {
   appConfig.set('version', newMigrations[newMigrations.length - 1]);
 }
 
+function removeObsoleteKeys() {
+  ['tour', 'tourWindowID', 'winsLastVisibleState'].forEach(k =>
+    appConfig.delete(k)
+  );
+}
+
 function addEventListeners() {
   ipcMain.on('quit-app', () => {
     app.quit();
@@ -373,7 +336,6 @@ function addEventListeners() {
       // Remove this listener
       app.removeAllListeners('window-all-closed');
       // Force close all windows
-      tourWindow.destroy();
       mainWindow.destroy();
       previewWindow.destroy();
       // Start the quit and update sequence
@@ -390,7 +352,6 @@ function loadMainProcessFiles() {
   require('./main/select-logo-file');
   require('./main/logo');
   require('./main/backup');
-  require('./main/tour');
   require('./main/updater');
 }
 
@@ -449,28 +410,34 @@ function initialize() {
   });
   app.on('ready', () => {
     setupTheme({ nativeTheme, ipcMain, BrowserWindow, store: appConfig });
-    createTourWindow();
     createMainWindow();
     createPreviewWindow();
+    showWhenReady(mainWindow);
     setInitialValues();
     migrateData();
+    removeObsoleteKeys();
     addEventListeners();
     loadMainProcessFiles();
     require('./main/menu').buildMenu();
-    // Show Window
-    const { showWindow } = require('./main/tour');
-    showWindow('startup');
   });
   // Reactivate the app
   app.on('activate', () => {
-    const { showWindow } = require('./main/tour');
-    showWindow('activate');
+    if (
+      mainWindow &&
+      !mainWindow.isDestroyed() &&
+      previewWindow &&
+      !previewWindow.isDestroyed() &&
+      !mainWindow.isVisible() &&
+      !previewWindow.isVisible()
+    ) {
+      mainWindow.show();
+      mainWindow.focus();
+    }
   });
   // Close all windows before quit the app
   app.on('before-quit', () => {
     // Use condition in case quit sequence is initiated by autoUpdater
     // which will destroy all there windows already before emitting this event
-    if (tourWindow !== null) tourWindow.destroy();
     if (mainWindow !== null) mainWindow.destroy();
     if (previewWindow !== null) previewWindow.destroy();
   });

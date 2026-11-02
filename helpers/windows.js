@@ -20,4 +20,17 @@ function loadPage(win, name) {
   return win.loadFile(path.join(__dirname, `../renderer/${name}/index.html`));
 }
 
-module.exports = { SECURE_WEB_PREFERENCES, loadPage };
+function showWhenReady(win) {
+  const show = () => {
+    if (win.isDestroyed()) return;
+    win.show();
+    win.focus();
+  };
+  if (win.webContents.isLoading()) {
+    win.once('ready-to-show', show);
+  } else {
+    show();
+  }
+}
+
+module.exports = { SECURE_WEB_PREFERENCES, loadPage, showWhenReady };

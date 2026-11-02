@@ -51,10 +51,4 @@ export const SHORTCUT_GROUPS = [
       },
     ],
   },
-  {
-    group: 'app:shortcuts:groups:help',
-    items: [
-      { label: 'app:shortcuts:items:tutorial', mac: '⌘T', other: 'Ctrl+T' },
-    ],
-  },
 ];

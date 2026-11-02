@@ -56,17 +56,19 @@ describe('preload IPC allow-list', () => {
 
   it('passes an empty event to listeners', () => {
     const listener = vi.fn();
-    api.ipc.on('end-tour', listener);
+    api.ipc.on('menu-change-tab', listener);
     const ipcListener = ipcRenderer.on.mock.calls[0][1];
     const realEvent = { sender: { id: 1 } };
-    ipcListener(realEvent, 'done');
-    expect(listener).toHaveBeenCalledWith({}, 'done');
+    ipcListener(realEvent, 'dashboard');
+    expect(listener).toHaveBeenCalledWith({}, 'dashboard');
     expect(listener.mock.calls[0][0]).not.toBe(realEvent);
   });
 
   it('removes every allowed channel in an array', () => {
-    api.ipc.removeAllListeners(['quit-app', 'end-tour']);
+    api.ipc.removeAllListeners(['quit-app', 'menu-change-tab']);
     expect(ipcRenderer.removeAllListeners).toHaveBeenCalledWith('quit-app');
-    expect(ipcRenderer.removeAllListeners).toHaveBeenCalledWith('end-tour');
+    expect(ipcRenderer.removeAllListeners).toHaveBeenCalledWith(
+      'menu-change-tab'
+    );
   });
 });

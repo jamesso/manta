@@ -181,9 +181,6 @@ export default function AppSidebar({ activeTab }) {
                 >
                   {t('app:nav:shortcuts')}
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => ipc.send('start-tour')}>
-                  {t('app:nav:tutorial')}
-                </DropdownMenuItem>
                 <DropdownMenuItem
                   render={
                     <a

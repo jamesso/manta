@@ -6,7 +6,6 @@ import invoices from './invoices.json';
 import messages from './messages.json';
 import preview from './preview.json';
 import settings from './settings.json';
-import tour from './tour.json';
 
 export default {
   common,
@@ -17,5 +16,4 @@ export default {
   messages,
   preview,
   settings,
-  tour,
 };

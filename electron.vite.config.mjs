@@ -51,7 +51,6 @@ export default defineConfig({
           app: root('./app/index.html'),
           preview: root('./preview/index.html'),
           modal: root('./modal/index.html'),
-          tour: root('./tour/index.html'),
         },
       },
     },

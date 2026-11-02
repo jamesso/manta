@@ -41,7 +41,7 @@ Development runs use a separate `Manta-dev` data folder, so they do not touch yo
 ### Code guidelines
 
 - Add unit tests with [Vitest](https://vitest.dev/) and [Testing Library](https://testing-library.com/) for new logic, components and helpers.
-- Add or update a [Playwright](https://playwright.dev/) test in `e2e/` when you change an app-level flow (windows, startup, tour).
+- Add or update a [Playwright](https://playwright.dev/) test in `e2e/` when you change an app-level flow (windows, startup, dashboard).
 - Renderer code has no Node access. To call the main process, add a channel to the preload bridge in `preload/` and its allow-list.
 - Do not include code that is not related to your issue.
 

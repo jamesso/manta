@@ -201,13 +201,6 @@ function buildMenu() {
         },
       },
       {
-        label: 'Show Tutorial',
-        accelerator: 'CmdOrCtrl+T',
-        click() {
-          ipcMain.emit('start-tour');
-        },
-      },
-      {
         label: 'Learn More',
         click() {
           shell.openExternal('https://github.com/jamesso/manta');
