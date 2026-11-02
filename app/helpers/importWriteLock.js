@@ -39,9 +39,9 @@ export function trackImportWriteStart() {
 }
 
 export async function withImportWriteLock(fn) {
-  await waitForActiveWrites();
   lockCount += 1;
   try {
+    await waitForActiveWrites();
     return await fn();
   } finally {
     lockCount -= 1;

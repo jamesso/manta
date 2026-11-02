@@ -90,6 +90,36 @@ describe('importWriteLock', () => {
     expect(isImportWriteLocked()).toBe(false);
   });
 
+  it('blocks new writes once import lock is requested while older writes finish', async () => {
+    const { withImportWriteLock, trackImportWriteStart, isImportWriteLocked } =
+      await import('../importWriteLock');
+
+    const endOldWrite = trackImportWriteStart();
+    expect(endOldWrite).toBeTypeOf('function');
+
+    let releaseImport;
+    const importBlocked = new Promise(resolve => {
+      releaseImport = resolve;
+    });
+
+    const importPromise = withImportWriteLock(async () => {
+      await importBlocked;
+      return 'imported';
+    });
+
+    await new Promise(resolve => setTimeout(resolve, 0));
+    expect(isImportWriteLocked()).toBe(true);
+    expect(trackImportWriteStart()).toBeNull();
+
+    endOldWrite();
+    await new Promise(resolve => setTimeout(resolve, 0));
+    expect(isImportWriteLocked()).toBe(true);
+
+    releaseImport();
+    await expect(importPromise).resolves.toBe('imported');
+    expect(isImportWriteLocked()).toBe(false);
+  });
+
   it('keeps the lock until applySettings finishes', async () => {
     const { bulkSaveDocs, getAllDocs } = await import('../pouchDB');
     bulkSaveDocs.mockResolvedValue({ succeeded: [], failed: [], allDocs: [] });

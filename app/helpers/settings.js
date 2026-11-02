@@ -140,7 +140,7 @@ export function getSettingsErrors(section, data) {
         fraction == null ||
         !Number.isInteger(fraction) ||
         fraction < 0 ||
-        fraction > 8
+        fraction > 20
       ) {
         errors['currency.fraction'] = 'settings:errors:fraction';
       }

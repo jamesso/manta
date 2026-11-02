@@ -69,6 +69,18 @@ describe('getSettingsErrors', () => {
       getSettingsErrors('invoice', {
         ...baseInvoice,
         currency: { ...baseInvoice.currency, fraction: 9 },
+      })
+    ).toEqual({});
+    expect(
+      getSettingsErrors('invoice', {
+        ...baseInvoice,
+        currency: { ...baseInvoice.currency, fraction: 20 },
+      })
+    ).toEqual({});
+    expect(
+      getSettingsErrors('invoice', {
+        ...baseInvoice,
+        currency: { ...baseInvoice.currency, fraction: 21 },
       })['currency.fraction']
     ).toBeDefined();
   });
