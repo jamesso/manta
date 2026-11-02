@@ -252,3 +252,40 @@ test('sidebar shows labels and Ctrl/Cmd+K opens the command palette', async () =
   await expect(palette).toBeHidden();
   await expect(page.getByText('All Contacts')).toBeVisible();
 });
+
+async function reactInput(locator, value) {
+  await locator.evaluate((el, v) => {
+    const setter = Object.getOwnPropertyDescriptor(
+      window.HTMLInputElement.prototype,
+      'value'
+    ).set;
+    setter.call(el, v);
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  }, value);
+}
+
+test('draft save advances invoice numbering on cleared form', async () => {
+  await app.evaluate(({ BrowserWindow }) => {
+    const w = BrowserWindow.getAllWindows().find(x => x.getTitle() === 'Manta');
+    if (w) {
+      w.setBounds({ x: 50, y: 50, width: 1280, height: 800 });
+      w.show();
+      w.focus();
+    }
+  });
+  let page;
+  for (const p of app.windows()) if ((await p.title()) === MAIN_TITLE) page = p;
+  await page.getByRole('button', { name: 'New invoice', exact: true }).click();
+  await expect(page.locator('#client-fullname')).toBeVisible({ timeout: 30_000 });
+
+  await reactInput(page.locator('#client-fullname'), 'E2E Client');
+  await reactInput(page.locator('#client-email'), 'e2e@example.com');
+  await reactInput(page.getByLabel('Description for item 1'), 'Line item');
+  await reactInput(page.getByLabel('Price for item 1'), '10');
+  await reactInput(page.getByLabel('Quantity for item 1'), '1');
+  await page.getByRole('button', { name: 'Save draft', exact: true }).click();
+  await expect(page.getByText('Draft saved')).toBeVisible({ timeout: 15_000 });
+  await expect(page.locator('#invoice-number')).toHaveValue('INV-0002', {
+    timeout: 15_000,
+  });
+});
