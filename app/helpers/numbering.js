@@ -1,4 +1,19 @@
 export const DEFAULT_NUMBERING = { prefix: 'INV-', next: 1, padding: 4 };
+export const DEFAULT_ESTIMATE_NUMBERING = {
+  prefix: 'EST-',
+  next: 1,
+  padding: 4,
+};
+
+export function numberingKeyFor(docType) {
+  return docType === 'estimate' ? 'estimateNumbering' : 'numbering';
+}
+
+export function defaultNumberingFor(docType) {
+  return docType === 'estimate'
+    ? DEFAULT_ESTIMATE_NUMBERING
+    : DEFAULT_NUMBERING;
+}
 
 function clampInt(value, min, max, fallback) {
   const n = Number(value);
@@ -10,14 +25,14 @@ function clampInt(value, min, max, fallback) {
   return n;
 }
 
-export function normalizeNumbering(value) {
+export function normalizeNumbering(value, defaults = DEFAULT_NUMBERING) {
   if (value == null || typeof value !== 'object') {
-    return { ...DEFAULT_NUMBERING };
+    return { ...defaults };
   }
   return {
-    prefix: typeof value.prefix === 'string' ? value.prefix : DEFAULT_NUMBERING.prefix,
-    next: clampInt(value.next, 1, Number.MAX_SAFE_INTEGER, DEFAULT_NUMBERING.next),
-    padding: clampInt(value.padding, 0, 12, DEFAULT_NUMBERING.padding),
+    prefix: typeof value.prefix === 'string' ? value.prefix : defaults.prefix,
+    next: clampInt(value.next, 1, Number.MAX_SAFE_INTEGER, defaults.next),
+    padding: clampInt(value.padding, 0, 12, defaults.padding),
   };
 }
 
@@ -70,7 +85,10 @@ export function mergeNumbering(stored, saved, edited) {
   const prefix =
     editedNorm.prefix !== savedNorm.prefix ? editedNorm.prefix : base.prefix;
   let next = base.next;
-  if (editedNorm.prefix === savedNorm.prefix && editedNorm.next !== savedNorm.next) {
+  if (
+    editedNorm.prefix === savedNorm.prefix &&
+    editedNorm.next !== savedNorm.next
+  ) {
     next = editedNorm.next;
   }
   let padding = base.padding;

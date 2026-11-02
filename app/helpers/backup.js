@@ -1,7 +1,7 @@
 import { getSettingsErrors, getRawNumberingErrors } from './settings';
 
 export const BACKUP_APP = 'Manta';
-export const BACKUP_VERSION = 3;
+export const BACKUP_VERSION = 4;
 
 const DANGEROUS_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
 
@@ -261,6 +261,26 @@ function mergeInvoiceNumbering(currentInvoice, incomingInvoice) {
     merged.numbering = { ...curNum, ...incNum, next };
   } else if (isPlainObject(incNum)) {
     merged.numbering = { ...incNum };
+  }
+  const curEst = currentInvoice?.estimateNumbering;
+  const incEst = incomingInvoice?.estimateNumbering;
+  if (incEst != null) {
+    const rawEstErrors = getRawNumberingErrors(incEst);
+    if (Object.keys(rawEstErrors).length) {
+      return { error: 'estimateNumbering', merged: null };
+    }
+  }
+  if (isPlainObject(curEst) && isPlainObject(incEst)) {
+    const estNext =
+      Number.isInteger(curEst.next) &&
+      curEst.next >= 1 &&
+      Number.isInteger(incEst.next) &&
+      incEst.next >= 1
+        ? Math.max(curEst.next, incEst.next)
+        : incEst.next;
+    merged.estimateNumbering = { ...curEst, ...incEst, next: estNext };
+  } else if (isPlainObject(incEst)) {
+    merged.estimateNumbering = { ...incEst };
   }
   return { merged };
 }

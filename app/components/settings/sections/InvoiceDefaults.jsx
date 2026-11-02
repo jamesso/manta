@@ -14,6 +14,8 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import {
+  DEFAULT_ESTIMATE_NUMBERING,
+  DEFAULT_NUMBERING,
   formatInvoiceNumber,
   normalizeNumbering,
 } from '../../../helpers/numbering';
@@ -55,6 +57,10 @@ export default function InvoiceDefaults({
   }, [flush, registerFlush]);
 
   const numbering = normalizeNumbering(draft.numbering);
+  const estimateNumbering = normalizeNumbering(
+    draft.estimateNumbering,
+    DEFAULT_ESTIMATE_NUMBERING
+  );
 
   const patch = partial => setDraft(prev => ({ ...prev, ...partial }));
 
@@ -91,6 +97,16 @@ export default function InvoiceDefaults({
       next[name] = raw.trim() === '' ? '' : Number(raw);
     }
     saveNow(current => ({ ...current, numbering: next }));
+  };
+
+  const patchEstimateNumbering = (name, raw) => {
+    const next = { ...estimateNumbering };
+    if (name === 'prefix') {
+      next.prefix = raw;
+    } else {
+      next[name] = raw.trim() === '' ? '' : Number(raw);
+    }
+    saveNow(current => ({ ...current, estimateNumbering: next }));
   };
 
   const toggleRequired = (name, checked) => {
@@ -142,6 +158,59 @@ export default function InvoiceDefaults({
             number: formatInvoiceNumber(numbering),
           })}
         </p>
+      </div>
+
+      <div className="space-y-3">
+        <h3 className="font-medium">
+          {t('settings:sections:estimates:title')}
+        </h3>
+        <div className="grid gap-4 md:grid-cols-3">
+          {['prefix', 'next', 'padding'].map(name => (
+            <Field key={`est-${name}`}>
+              <FieldLabel htmlFor={`est-num-${name}`}>
+                {t(`form:numbering:${name}`)}
+              </FieldLabel>
+              <Input
+                id={`est-num-${name}`}
+                type={name === 'prefix' ? 'text' : 'number'}
+                value={estimateNumbering[name] ?? ''}
+                aria-invalid={Boolean(errors?.[`estimateNumbering.${name}`])}
+                onChange={e => patchEstimateNumbering(name, e.target.value)}
+              />
+              {errors?.[`estimateNumbering.${name}`] ? (
+                <FieldError>
+                  {t(errors[`estimateNumbering.${name}`])}
+                </FieldError>
+              ) : null}
+            </Field>
+          ))}
+        </div>
+        <p className="text-sm text-muted-foreground">
+          {t('form:numbering:sample', {
+            number: formatInvoiceNumber(estimateNumbering),
+          })}
+        </p>
+        <Field>
+          <FieldLabel htmlFor="estimate-valid-days">
+            {t('settings:fields:estimateValidDays')}
+          </FieldLabel>
+          <Input
+            id="estimate-valid-days"
+            type="number"
+            value={draft.estimateValidDays ?? ''}
+            aria-invalid={Boolean(errors?.estimateValidDays)}
+            onChange={e =>
+              saveNow(current => ({
+                ...current,
+                estimateValidDays:
+                  e.target.value.trim() === '' ? '' : Number(e.target.value),
+              }))
+            }
+          />
+          {errors?.estimateValidDays ? (
+            <FieldError>{t(errors.estimateValidDays)}</FieldError>
+          ) : null}
+        </Field>
       </div>
 
       <Field>

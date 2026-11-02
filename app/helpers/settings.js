@@ -68,11 +68,18 @@ export function getRawNumberingErrors(numbering) {
   return errors;
 }
 
-function validateNumbering(numbering, errors) {
+function validateNumbering(numbering, errors, fieldKey = 'numbering') {
   if (numbering == null) {
     return;
   }
-  Object.assign(errors, getRawNumberingErrors(numbering));
+  const raw = getRawNumberingErrors(numbering);
+  for (const [key, val] of Object.entries(raw)) {
+    if (key === 'numbering') {
+      errors[fieldKey] = val;
+    } else {
+      errors[key.replace(/^numbering\./, `${fieldKey}.`)] = val;
+    }
+  }
 }
 
 export function getSettingsErrors(section, data) {
@@ -192,6 +199,20 @@ export function getSettingsErrors(section, data) {
     errors.numbering = 'settings:errors:numberingNext';
   } else if (data.numbering != null) {
     validateNumbering(data.numbering, errors);
+  }
+  if (
+    'estimateNumbering' in data &&
+    (data.estimateNumbering == null || !isPlainObject(data.estimateNumbering))
+  ) {
+    errors.estimateNumbering = 'settings:errors:numberingNext';
+  } else if (data.estimateNumbering != null) {
+    validateNumbering(data.estimateNumbering, errors, 'estimateNumbering');
+  }
+  if ('estimateValidDays' in data) {
+    const days = Number(data.estimateValidDays);
+    if (!Number.isInteger(days) || days < 1 || days > 365) {
+      errors.estimateValidDays = 'settings:errors:validDays';
+    }
   }
   if (Array.isArray(data.taxRates)) {
     Object.assign(errors, getTaxRatesErrors(data.taxRates));
