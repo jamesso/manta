@@ -1,145 +1,206 @@
-// Libs
-import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
-import { compose } from 'redux';
-import { connect } from 'react-redux';
-import * as dialog from '@/lib/dialog';
-import { withTranslation } from 'react-i18next';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+import { useTable } from '@tanstack/react-table';
+import { Plus, Search } from 'lucide-react';
 
-// Actions
-import * as Actions from '../actions/invoices';
-
-// Selectors
-import { getInvoices } from '../reducers/InvoicesReducer';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import * as UIActions from '../actions/ui';
 import { getDateFormat } from '../reducers/SettingsReducer';
-
-// Components
-import Invoice from '../components/invoices/Invoice';
-import Message from '../components/shared/Message';
-import Button, { ButtonsGroup } from '../components/shared/Button';
-import _withFadeInAnimation from '../components/shared/hoc/_withFadeInAnimation';
+import { getInvoices } from '../reducers/InvoicesReducer';
 import {
-  PageWrapper,
-  PageHeader,
-  PageHeaderTitle,
-  PageHeaderActions,
-  PageContent,
-} from '../components/shared/Layout';
+  INVOICE_TABS,
+  countByTab,
+  matchesSearch,
+  matchesTab,
+  toInvoiceRow,
+} from '../helpers/invoiceList';
+import BulkActionsBar from '../components/invoices/BulkActionsBar';
+import { getColumns } from '../components/invoices/columns';
+import InvoiceDetailSheet from '../components/invoices/InvoiceDetailSheet';
+import InvoicesEmpty from '../components/invoices/InvoicesEmpty';
+import InvoicesTable from '../components/invoices/InvoicesTable';
+import { features } from '../components/invoices/invoiceTableFeatures';
+import { useNow } from '../components/invoices/useNow';
 
-export class Invoices extends PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = { filter: null };
-    this.editInvoice = this.editInvoice.bind(this);
-    this.deleteInvoice = this.deleteInvoice.bind(this);
-    this.duplicateInvoice = this.duplicateInvoice.bind(this);
-    this.setInvoiceStatus = this.setInvoiceStatus.bind(this);
-    this.setFilter = this.setFilter.bind(this);
-  }
+export default function Invoices() {
+  const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const invoices = useSelector(getInvoices);
+  const dateFormat = useSelector(getDateFormat);
+  const now = useNow();
 
-  async deleteInvoice(invoiceId) {
-    const { t, dispatch } = this.props;
-    const ok = await dialog.confirm({
-      title: t('dialog:deleteInvoice:title'),
-      message: t('dialog:deleteInvoice:message'),
-      confirmLabel: t('common:delete'),
-      cancelLabel: t('common:cancel'),
-      destructive: true,
+  const [tab, setTab] = useState('all');
+  const [query, setQuery] = useState('');
+  const [sorting, setSorting] = useState([{ id: 'issuedAt', desc: true }]);
+  const [rowSelection, setRowSelection] = useState({});
+  const [openId, setOpenId] = useState(null);
+  const searchRef = useRef(null);
+
+  const rows = useMemo(
+    () => invoices.map(i => toInvoiceRow(i, now)),
+    [invoices, now]
+  );
+  const counts = useMemo(() => countByTab(rows), [rows]);
+
+  const visible = useMemo(
+    () =>
+      rows.filter(
+        row => matchesTab(row.displayStatus, tab) && matchesSearch(row, query)
+      ),
+    [rows, tab, query]
+  );
+
+  const onOpen = useCallback(id => setOpenId(id), []);
+
+  const columns = useMemo(
+    () => getColumns({ t, dateFormat, onOpen, dispatch }),
+    [t, dateFormat, onOpen, dispatch]
+  );
+
+  const table = useTable({
+    features,
+    data: visible,
+    columns,
+    getRowId: row => row.id,
+    state: { sorting, rowSelection },
+    onSortingChange: setSorting,
+    onRowSelectionChange: setRowSelection,
+  });
+
+  const selectedIds = useMemo(
+    () => Object.keys(rowSelection).filter(id => rowSelection[id]),
+    [rowSelection]
+  );
+
+  useEffect(() => {
+    setRowSelection({});
+  }, [tab, query]);
+
+  useEffect(() => {
+    setRowSelection(prev => {
+      const ids = new Set(rows.map(r => r.id));
+      const next = {};
+      let changed = false;
+      for (const id of Object.keys(prev)) {
+        if (ids.has(id) && prev[id]) {
+          next[id] = true;
+        } else if (prev[id]) {
+          changed = true;
+        }
+      }
+      if (!changed && Object.keys(next).length === Object.keys(prev).length) {
+        return prev;
+      }
+      return next;
     });
-    if (ok) dispatch(Actions.deleteInvoice(invoiceId));
-  }
+  }, [rows]);
 
-  // set the invoice status
-  setInvoiceStatus(invoiceId, status) {
-    const { dispatch } = this.props;
-    dispatch(Actions.setInvoiceStatus(invoiceId, status));
-  }
+  useEffect(() => {
+    if (openId && !rows.some(r => r.id === openId)) {
+      setOpenId(null);
+    }
+  }, [rows, openId]);
 
-  editInvoice(invoice) {
-    const { dispatch } = this.props;
-    dispatch(Actions.editInvoice(invoice));
-  }
+  const openInvoice = openId
+    ? invoices.find(inv => inv._id === openId) || null
+    : null;
 
-  duplicateInvoice(invoice) {
-    const { dispatch } = this.props;
-    dispatch(Actions.duplicateInvoice(invoice));
-  }
+  const clearFilters = () => {
+    setTab('all');
+    setQuery('');
+  };
 
-  setFilter(event) {
-    const currentFilter = this.state.filter;
-    const newFilter = event.target.dataset.filter;
-    this.setState({ filter: currentFilter === newFilter ? null : newFilter });
-  }
+  const showEmptyNone = invoices.length === 0;
+  const showEmptyResults = !showEmptyNone && visible.length === 0;
 
-  // Render
-  render() {
-    const { dateFormat, invoices, t } = this.props;
-    const { filter } = this.state;
-    const filteredInvoices = filter
-      ? invoices.filter(invoice => invoice.status === filter)
-      : invoices;
-    const invoicesComponent = filteredInvoices.map((invoice, index) => (
-      <Invoice
-        key={invoice._id}
-        dateFormat={dateFormat}
-        deleteInvoice={this.deleteInvoice}
-        duplicateInvoice={this.duplicateInvoice}
-        editInvoice={this.editInvoice}
-        setInvoiceStatus={this.setInvoiceStatus}
-        index={index}
-        invoice={invoice}
+  return (
+    <div className="flex h-full flex-col gap-4 p-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {t('invoices:header:name')}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {t('invoices:header:count', { count: invoices.length })}
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="relative min-w-[12rem] flex-1 sm:w-64">
+            <Search className="pointer-events-none absolute start-2 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              ref={searchRef}
+              type="search"
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Escape') {
+                  setQuery('');
+                  e.preventDefault();
+                }
+              }}
+              className="ps-8"
+              aria-label={t('invoices:search:label')}
+              placeholder={t('invoices:search:placeholder')}
+            />
+          </div>
+          <Button
+            type="button"
+            onClick={() => dispatch(UIActions.newInvoice())}
+          >
+            <Plus />
+            {t('invoices:newInvoice')}
+          </Button>
+        </div>
+      </div>
+
+      <Tabs value={tab} onValueChange={setTab}>
+        <TabsList
+          variant="line"
+          className="h-auto w-full flex-wrap justify-start"
+        >
+          {INVOICE_TABS.map(key => (
+            <TabsTrigger key={key} value={key}>
+              {t(`invoices:tabs:${key}`)}
+              <span className="ms-1 text-muted-foreground">
+                ({counts[key]})
+              </span>
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
+
+      <BulkActionsBar
+        selectedIds={selectedIds}
         t={t}
+        dispatch={dispatch}
+        onClearSelection={() => setRowSelection({})}
       />
-    ));
-    // Filter Buttons
-    const statuses = ['paid', 'pending', 'refunded', 'cancelled'];
-    const filterButtons = statuses.map(status => (
-      <Button
-        key={`${status}-button`}
-        active={filter === status}
-        data-filter={status}
-        onClick={this.setFilter}
-      >
-        {t(`invoices:status:${status}`)}
-      </Button>
-    ));
 
-    return (
-      <PageWrapper>
-        <PageHeader>
-          <PageHeaderTitle>{t('invoices:header:name')}</PageHeaderTitle>
-          <PageHeaderActions>
-            <i className="ion-funnel" />
-            <ButtonsGroup>{filterButtons}</ButtonsGroup>
-          </PageHeaderActions>
-        </PageHeader>
-        <PageContent bare>
-          {invoices.length === 0 ? (
-            <Message info text={t('messages:noInvoice')} />
-          ) : (
-            <div className="row">{invoicesComponent}</div>
-          )}
-        </PageContent>
-      </PageWrapper>
-    );
-  }
+      {showEmptyNone ? (
+        <InvoicesEmpty variant="none" t={t} />
+      ) : showEmptyResults ? (
+        <InvoicesEmpty
+          variant="noResults"
+          t={t}
+          onClearFilters={clearFilters}
+        />
+      ) : (
+        <InvoicesTable table={table} onOpen={onOpen} />
+      )}
+
+      <InvoiceDetailSheet
+        invoice={openInvoice}
+        open={Boolean(openId)}
+        onOpenChange={open => {
+          if (!open) setOpenId(null);
+        }}
+        dateFormat={dateFormat}
+        t={t}
+        now={now}
+      />
+    </div>
+  );
 }
-
-// PropTypes Validation
-Invoices.propTypes = {
-  dispatch: PropTypes.func.isRequired,
-  invoices: PropTypes.arrayOf(PropTypes.object).isRequired,
-  t: PropTypes.func.isRequired,
-};
-
-// Map state to props & Export
-const mapStateToProps = state => ({
-  invoices: getInvoices(state),
-  dateFormat: getDateFormat(state),
-});
-
-export default compose(
-  connect(mapStateToProps),
-  withTranslation(),
-  _withFadeInAnimation
-)(Invoices);

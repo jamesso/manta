@@ -39,6 +39,7 @@
     "@base-ui/react": "^1.9.0",
     "@emotion/is-prop-valid": "^1.4.0",
     "@hello-pangea/dnd": "^18.0.1",
+    "@tanstack/react-table": "^9.3.1",
     "class-variance-authority": "^0.7.1",
     "cmdk": "^1.1.1",
     "cn": "^0.5.1",
