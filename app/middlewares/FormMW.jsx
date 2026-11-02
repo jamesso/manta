@@ -28,7 +28,10 @@ import {
   matchLegacyTaxRate,
 } from '../helpers/tax';
 import { getPaymentEditErrors } from '../helpers/payments';
-import { listTabFor } from '../helpers/docType';
+import { isCreditNote, listTabFor } from '../helpers/docType';
+import { validateCreditTotal } from '../helpers/creditNotes';
+import { getStoredStatus } from '../helpers/invoice';
+import { runInvoiceMutationQueued } from '../helpers/invoiceMutations';
 import {
   buildLinkIndex,
   canConvert,
@@ -148,6 +151,61 @@ async function handleSave({ dispatch, getState }, mode) {
 
       const data = getInvoiceData(formSnapshot, invoiceDataOptions(mode));
       const { editMode } = formSnapshot.settings;
+      const docType = formSnapshot.docType || 'invoice';
+
+      if (docType === 'creditNote') {
+        const creditCheck = await runInvoiceMutationQueued(
+          formSnapshot.creditedInvoiceId,
+          async () => {
+            const salesDocs = await getAllDocs('invoices');
+            if (editMode.active) {
+              const saved = salesDocs.find(d => d._id === editMode.data?._id);
+              if (saved && getStoredStatus(saved) !== 'draft') {
+                return { ok: false, code: 'issuedCreditNote' };
+              }
+            }
+            const original = salesDocs.find(
+              d => d._id === formSnapshot.creditedInvoiceId
+            );
+            const linked = salesDocs.filter(
+              cn =>
+                cn.docType === 'creditNote' &&
+                cn.creditedInvoiceId === formSnapshot.creditedInvoiceId
+            );
+            const draftPayload = {
+              ...data,
+              _id: editMode.active ? editMode.data._id : undefined,
+            };
+            const code = validateCreditTotal(draftPayload, original, linked);
+            if (code) {
+              return { ok: false, code };
+            }
+            return { ok: true };
+          }
+        );
+        if (!creditCheck.ok) {
+          if (creditCheck.code === 'issuedCreditNote') {
+            toast.add({
+              title: i18n.t('invoices:creditNotes:toast:issuedCreditNote', {
+                count: 1,
+              }),
+              type: 'warning',
+            });
+          } else {
+            dispatch(
+              FormActions.setFormErrors(
+                { creditTotal: `form:errors:${creditCheck.code}` },
+                mode
+              )
+            );
+            toast.add({
+              title: i18n.t(`form:errors:${creditCheck.code}`),
+              type: 'warning',
+            });
+          }
+          return false;
+        }
+      }
 
       if (!editMode.active && data.sourceEstimateId) {
         const allowed = await runConversionQueued(
@@ -171,7 +229,17 @@ async function handleSave({ dispatch, getState }, mode) {
       }
 
       if (editMode.active) {
-        const paymentErrors = getPaymentEditErrors(data, editMode.data);
+        const salesDocs = await getAllDocs('invoices');
+        const linkedCredits = salesDocs.filter(
+          cn =>
+            cn.docType === 'creditNote' &&
+            cn.creditedInvoiceId === editMode.data._id
+        );
+        const paymentErrors = getPaymentEditErrors(
+          data,
+          editMode.data,
+          linkedCredits
+        );
         if (paymentErrors.length) {
           for (const err of paymentErrors) {
             const currency = data.currency ?? appConfig.get('invoice.currency');
@@ -212,15 +280,24 @@ async function handleSave({ dispatch, getState }, mode) {
         typeof ok === 'object' && ok !== null && ok._id ? ok : null;
       const savedBase = persisted ?? data;
 
+      if (docType === 'creditNote' && savedBase.status === 'issued') {
+        await dispatch(
+          InvoicesActions.syncCreditedInvoice(savedBase.creditedInvoiceId)
+        );
+      }
+
       if (!editMode.active) {
-        const docType = formSnapshot.docType || 'invoice';
-        const key = numberingKeyFor(docType);
+        const docTypeForNumbering = formSnapshot.docType || 'invoice';
+        const key = numberingKeyFor(docTypeForNumbering);
         const numberingBase = resolveStoredNumbering(
           getState().form.reconciledNumbering,
           appConfig.get(`invoice.${key}`)
         );
         const advancedNumbering = advanceNumbering(
-          normalizeNumbering(numberingBase, defaultNumberingFor(docType)),
+          normalizeNumbering(
+            numberingBase,
+            defaultNumberingFor(docTypeForNumbering)
+          ),
           data.invoiceID
         );
         try {
@@ -287,6 +364,12 @@ async function handleSave({ dispatch, getState }, mode) {
       ) {
         ipc.send('preview-invoice', savedBase);
       } else if (mode === 'final' && formSnapshot.docType === 'estimate') {
+        ipc.send('preview-invoice', savedBase);
+      } else if (
+        mode === 'final' &&
+        formSnapshot.docType === 'creditNote' &&
+        savedBase.status === 'issued'
+      ) {
         ipc.send('preview-invoice', savedBase);
       }
 

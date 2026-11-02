@@ -27,9 +27,14 @@ export default function EditorLayout() {
   const allDocs = useSelector(getAllSalesDocs);
   const { settings, errors, savePending, docType, sourceEstimateId } = form;
   const isEstimate = docType === 'estimate';
+  const isCreditNote = docType === 'creditNote';
   const editActive = settings.editMode.active;
   let heading = t(isEstimate ? 'form:header:newEstimate' : 'form:header:new');
-  if (editActive) {
+  if (isCreditNote) {
+    heading = t(
+      editActive ? 'form:header:editCreditNote' : 'form:header:newCreditNote'
+    );
+  } else if (editActive) {
     heading = t(isEstimate ? 'form:header:editEstimate' : 'form:header:edit');
   }
   const sourceEstimate =

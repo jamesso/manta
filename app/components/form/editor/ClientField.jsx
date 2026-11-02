@@ -20,9 +20,32 @@ export default function ClientField() {
   const dispatch = useDispatch();
   const { t } = useTranslation();
   const contacts = useSelector(state => state.contacts);
-  const { recipient, errors } = useSelector(state => state.form);
+  const { recipient, errors, docType } = useSelector(state => state.form);
   const update = changes =>
     dispatch(updateRecipient({ ...recipient, ...changes }));
+
+  if (docType === 'creditNote') {
+    const name =
+      recipient?.select?.fullname ||
+      recipient?.select?.company ||
+      recipient?.new?.fullname ||
+      recipient?.new?.company ||
+      '';
+    const email = recipient?.select?.email || recipient?.new?.email || '';
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('form:cards:client')}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-1 text-sm">
+          <p className="font-medium">{name || '—'}</p>
+          {email ? <p className="text-muted-foreground">{email}</p> : null}
+          {errors.recipient && <FieldError>{t(errors.recipient)}</FieldError>}
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>

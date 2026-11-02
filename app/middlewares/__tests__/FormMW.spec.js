@@ -9,7 +9,12 @@ vi.mock('@/lib/dialog', () => ({
   confirm: vi.fn(() => Promise.resolve(true)),
   alert: vi.fn(),
 }));
-import { saveDoc, updateDoc, getAllDocs } from '../../helpers/pouchDB';
+import {
+  saveDoc,
+  updateDoc,
+  getAllDocs,
+  getSingleDoc,
+} from '../../helpers/pouchDB';
 import * as dialog from '@/lib/dialog';
 import * as InvoiceActions from '../../actions/invoices';
 const currency = { code: 'USD', fraction: 2 };
@@ -40,6 +45,12 @@ describe('Form middleware', () => {
     form = makeForm();
     next = vi.fn();
     dispatch = vi.fn(() => Promise.resolve(true));
+    getAllDocs.mockResolvedValue([]);
+    getSingleDoc.mockImplementation(async (_db, id) => ({
+      _id: id,
+      _rev: '1-x',
+      status: 'draft',
+    }));
     window.manta.settings.set.mockClear();
     middleware = FormMW({ dispatch, getState: () => ({ form }) })(next);
   });
@@ -306,6 +317,12 @@ describe('Form middleware', () => {
   });
 
   function stackWithForm(initialForm) {
+    getAllDocs.mockResolvedValue([]);
+    getSingleDoc.mockImplementation(async (_db, id) => ({
+      _id: id,
+      _rev: '1-old',
+      status: 'draft',
+    }));
     let form = initialForm;
     const chain = action => {
       form = FormReducer(form, action);
@@ -424,6 +441,9 @@ describe('Form middleware', () => {
       },
     });
     expect(stack.form.settings.editMode.active).toBe(false);
+    await vi.waitFor(() => {
+      expect(typeof finishUpdate).toBe('function');
+    });
     finishUpdate();
     await pending;
     expect(stack.form.settings.editMode.active).toBe(false);

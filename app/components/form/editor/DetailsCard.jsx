@@ -56,8 +56,10 @@ export default function DetailsCard() {
     savedSettings,
     errors,
     docType,
+    creditedInvoice,
   } = form;
   const isEstimate = docType === 'estimate';
+  const isCreditNote = docType === 'creditNote';
   const estimateValidDays =
     window.manta.settings.get('invoice.estimateValidDays') ?? 30;
   const defaultValidUntil = getDefaultValidUntil(
@@ -102,6 +104,19 @@ export default function DetailsCard() {
           onChange={date => date && update('issuedAt', date.getTime())}
           error={errors.issuedAt}
         />
+        {isCreditNote && creditedInvoice?.invoiceID ? (
+          <p className="text-sm text-muted-foreground">
+            {t('form:creditNote:credits', {
+              number: creditedInvoice.invoiceID,
+              date: creditedInvoice.issuedAt
+                ? moment(creditedInvoice.issuedAt).format(
+                    window.manta.settings.get('general.dateFormat') ??
+                      'MM/DD/YYYY'
+                  )
+                : '',
+            })}
+          </p>
+        ) : null}
         {isEstimate ? (
           <DatePickerField
             id="valid-until"
@@ -114,7 +129,7 @@ export default function DetailsCard() {
             error={errors.validUntil}
           />
         ) : null}
-        {!isEstimate && settings.required_fields.dueDate && (
+        {!isEstimate && !isCreditNote && settings.required_fields.dueDate && (
           <div className="space-y-2">
             <FieldLabel>{t('form:fields:dueDate:name')}</FieldLabel>
             <ToggleGroup
@@ -191,87 +206,97 @@ export default function DetailsCard() {
         {settings.required_fields.currency && (
           <div className="space-y-3">
             <FieldLabel>{t('form:fields:currency')}</FieldLabel>
-            <Combobox
-              items={codes}
-              value={codes.find(c => c.code === currency.code) || null}
-              onValueChange={c => c && currencyChange('code', c.code)}
-              itemToStringLabel={c => (c ? `${c.name} (${c.code})` : '')}
-              isItemEqualToValue={(a, b) => a?.code === b?.code}
-            >
-              <ComboboxInput aria-label={t('form:fields:currency')} />
-              <ComboboxContent>
-                <ComboboxEmpty>
-                  {t('form:fields:recipient:noMatch')}
-                </ComboboxEmpty>
-                <ComboboxList>
-                  {c => (
-                    <ComboboxItem key={c.code} value={c}>
-                      {c.name} ({c.code})
-                    </ComboboxItem>
-                  )}
-                </ComboboxList>
-              </ComboboxContent>
-            </Combobox>
-            <div className="grid gap-3 sm:grid-cols-3">
-              {[
-                ['separator', ['commaDot', 'dotComma', 'spaceDot']],
-                ['placement', ['before', 'after']],
-              ].map(([name, values]) => (
-                <Field key={name}>
-                  <FieldLabel htmlFor={`currency-${name}`}>
-                    {t(`settings:fields:currency:${name}`)}
-                  </FieldLabel>
-                  <Select
-                    value={currency[name] || values[0]}
-                    onValueChange={value =>
-                      value && currencyChange(name, value)
+            {isCreditNote ? (
+              <p className="text-sm">
+                {codes.find(c => c.code === currency.code)?.name ??
+                  currency.code}{' '}
+                ({currency.code})
+              </p>
+            ) : (
+              <>
+                <Combobox
+                  items={codes}
+                  value={codes.find(c => c.code === currency.code) || null}
+                  onValueChange={c => c && currencyChange('code', c.code)}
+                  itemToStringLabel={c => (c ? `${c.name} (${c.code})` : '')}
+                  isItemEqualToValue={(a, b) => a?.code === b?.code}
+                >
+                  <ComboboxInput aria-label={t('form:fields:currency')} />
+                  <ComboboxContent>
+                    <ComboboxEmpty>
+                      {t('form:fields:recipient:noMatch')}
+                    </ComboboxEmpty>
+                    <ComboboxList>
+                      {c => (
+                        <ComboboxItem key={c.code} value={c}>
+                          {c.name} ({c.code})
+                        </ComboboxItem>
+                      )}
+                    </ComboboxList>
+                  </ComboboxContent>
+                </Combobox>
+                <div className="grid gap-3 sm:grid-cols-3">
+                  {[
+                    ['separator', ['commaDot', 'dotComma', 'spaceDot']],
+                    ['placement', ['before', 'after']],
+                  ].map(([name, values]) => (
+                    <Field key={name}>
+                      <FieldLabel htmlFor={`currency-${name}`}>
+                        {t(`settings:fields:currency:${name}`)}
+                      </FieldLabel>
+                      <Select
+                        value={currency[name] || values[0]}
+                        onValueChange={value =>
+                          value && currencyChange(name, value)
+                        }
+                      >
+                        <SelectTrigger id={`currency-${name}`}>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {values.map(v => (
+                            <SelectItem key={v} value={v}>
+                              {t(
+                                `settings:fields:currency:${v === 'before' ? 'beforeAmount' : v === 'after' ? 'afterAmount' : v}`
+                              )}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                  ))}
+                  <Field>
+                    <FieldLabel htmlFor="currency-fraction">
+                      {t('settings:fields:currency:fraction')}
+                    </FieldLabel>
+                    <Input
+                      id="currency-fraction"
+                      type="number"
+                      value={currency.fraction ?? ''}
+                      aria-invalid={Boolean(errors['currency.fraction'])}
+                      onChange={e =>
+                        currencyChange(
+                          'fraction',
+                          parseNumberInput(e.target.value, { integer: true })
+                        )
+                      }
+                    />
+                    {errors['currency.fraction'] && (
+                      <FieldError>{t(errors['currency.fraction'])}</FieldError>
+                    )}
+                  </Field>
+                </div>
+                {!isEqual(currency, savedSettings.currency) && (
+                  <Button
+                    variant="ghost"
+                    onClick={() =>
+                      dispatch(updateSavedFormSettings('currency', currency))
                     }
                   >
-                    <SelectTrigger id={`currency-${name}`}>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {values.map(v => (
-                        <SelectItem key={v} value={v}>
-                          {t(
-                            `settings:fields:currency:${v === 'before' ? 'beforeAmount' : v === 'after' ? 'afterAmount' : v}`
-                          )}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </Field>
-              ))}
-              <Field>
-                <FieldLabel htmlFor="currency-fraction">
-                  {t('settings:fields:currency:fraction')}
-                </FieldLabel>
-                <Input
-                  id="currency-fraction"
-                  type="number"
-                  value={currency.fraction ?? ''}
-                  aria-invalid={Boolean(errors['currency.fraction'])}
-                  onChange={e =>
-                    currencyChange(
-                      'fraction',
-                      parseNumberInput(e.target.value, { integer: true })
-                    )
-                  }
-                />
-                {errors['currency.fraction'] && (
-                  <FieldError>{t(errors['currency.fraction'])}</FieldError>
+                    {t('common:saveAsDefault')}
+                  </Button>
                 )}
-              </Field>
-            </div>
-            {!isEqual(currency, savedSettings.currency) && (
-              <Button
-                variant="ghost"
-                onClick={() =>
-                  dispatch(updateSavedFormSettings('currency', currency))
-                }
-              >
-                {t('common:saveAsDefault')}
-              </Button>
+              </>
             )}
           </div>
         )}

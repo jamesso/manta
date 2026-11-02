@@ -9,11 +9,11 @@ import {
   getIssuedAt,
   isLineTaxInvoice,
 } from './invoice';
-import { roundMoney } from './money';
 import { clearRowTax, getSellerTaxIds, getTaxRateErrors } from './tax';
 import { reconcilePaymentStatus } from './payments';
 import { getDocType } from './docType';
 import { getDefaultValidUntil, normalizeValidDays } from './estimate';
+import { getCreditedTotal, getInvoiceTotal, roundMoney } from './invoice';
 
 const EMAIL_RE =
   /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
@@ -473,6 +473,36 @@ function getDraftNumericErrors(form) {
 export function getFormErrors(form, mode) {
   const { required_fields } = form.settings;
   const docType = form.docType || 'invoice';
+  if (docType === 'creditNote') {
+    if (mode === 'draft') {
+      if (!hasDraftContent(form)) {
+        return { draftEmpty: 'form:errors:draftEmpty' };
+      }
+      return stripUndefined({
+        ...getIssuedAtErrors(form),
+        ...getDraftNumericErrors(form),
+        ...getRowErrors(form.rows, mode),
+        ...getCalculatedTotalsErrors(form),
+      });
+    }
+    const recipient = form.recipient?.select || form.recipient?.new;
+    const recipientErrors = {};
+    if (!recipient?.fullname && !recipient?.company) {
+      recipientErrors.recipient = 'form:errors:recipientRequired';
+    }
+    return stripUndefined({
+      ...recipientErrors,
+      ...getInvoiceIDErrors(form, mode),
+      ...getRowErrors(form.rows, mode),
+      ...getCurrencyErrors(form, mode),
+      ...(form.taxMode === 'line'
+        ? getLineTaxFormErrors(form, mode)
+        : getTaxErrors(required_fields.tax, form.tax, mode)),
+      ...getNoteErrors(required_fields.note, form.note, mode),
+      ...getIssuedAtErrors(form),
+      ...getCalculatedTotalsErrors(form),
+    });
+  }
   if (mode === 'draft') {
     if (!hasDraftContent(form)) {
       return { draftEmpty: 'form:errors:draftEmpty' };
@@ -579,7 +609,11 @@ export function pickInvoiceFields(form, defaultCurrency) {
     invoiceData.note = note.content;
   }
   invoiceData.docType = form.docType || 'invoice';
-  if (invoiceData.docType === 'estimate') {
+  if (invoiceData.docType === 'creditNote') {
+    invoiceData.creditedInvoiceId = form.creditedInvoiceId;
+    invoiceData.creditedInvoice = form.creditedInvoice;
+    delete invoiceData.dueDate;
+  } else if (invoiceData.docType === 'estimate') {
     if (form.validUntil != null) {
       invoiceData.validUntil = form.validUntil;
     }
@@ -591,6 +625,9 @@ export function pickInvoiceFields(form, defaultCurrency) {
 }
 
 export function resolveSaveStatus(mode, editData, docType = 'invoice') {
+  if (docType === 'creditNote') {
+    return mode === 'draft' ? 'draft' : 'issued';
+  }
   if (docType === 'estimate') {
     if (mode === 'draft') {
       return 'draft';
@@ -661,6 +698,12 @@ export function getInvoiceData(
     if (docType === 'invoice') {
       base.paidAt = editMode.data.paidAt;
       base.payments = editMode.data.payments;
+    } else if (docType === 'creditNote') {
+      delete base.payments;
+      delete base.paidAt;
+      delete base.dueDate;
+      base.creditedInvoiceId = editMode.data.creditedInvoiceId;
+      base.creditedInvoice = editMode.data.creditedInvoice;
     } else {
       delete base.payments;
       delete base.paidAt;
@@ -693,6 +736,11 @@ export function getInvoiceData(
     created.validUntil =
       formData.validUntil ??
       getDefaultValidUntil(issuedAt, estimateValidDaysNorm);
+  }
+  if (docType === 'creditNote') {
+    created.creditedInvoiceId = formData.creditedInvoiceId;
+    created.creditedInvoice = formData.creditedInvoice;
+    delete created.dueDate;
   }
   if (docType === 'invoice') {
     return reconcilePaymentStatus(created, now);

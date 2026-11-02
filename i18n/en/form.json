@@ -4,11 +4,14 @@
     "edit": "Edit Invoice",
     "newEstimate": "New estimate",
     "editEstimate": "Edit estimate",
+    "newCreditNote": "New credit note",
+    "editCreditNote": "Edit credit note",
     "btns": {
       "clear": "Clear",
       "update": "Update",
       "saveAndPreview": "Save & Preview",
-      "saveDraft": "Save draft"
+      "saveDraft": "Save draft",
+      "issueCreditNote": "Issue credit note"
     }
   },
   "settings": {
@@ -144,9 +147,18 @@
     "discountTooLarge": "Discount is too large for this invoice.",
     "exemptionReasonRequired": "Enter an exemption reason.",
     "conflictingExemptionReasons": "Tax lines in the same group need the same exemption reason.",
-    "validUntilBeforeIssue": "The valid-until date must be on or after the issue date"
+    "validUntilBeforeIssue": "The valid-until date must be on or after the issue date",
+    "creditedMissing": "The credited invoice is missing.",
+    "creditZero": "The credit amount must be more than 0.",
+    "creditCurrency": "The credit note currency must match the invoice.",
+    "creditExceeds": "The credit is more than the amount you can still credit.",
+    "belowCredited": "The total cannot be less than payments plus issued credit notes."
   },
   "convertedFrom": "Created from estimate {{number}}",
+  "creditNote": {
+    "credits": "Credits invoice {{number}} of {{date}}",
+    "remaining": "Remaining"
+  },
   "numbering": {
     "title": "Invoice numbering",
     "prefix": "Prefix",

@@ -4,6 +4,7 @@ import { PAYMENT_METHODS } from '../constants/invoices';
 import {
   getAmountPaid,
   getBalanceDue,
+  getCreditedTotal,
   getCurrencyFraction,
   getInvoiceTotal,
   getPaidDate,
@@ -13,7 +14,7 @@ import {
   withStatus,
 } from './invoice';
 import { isInvoice } from './docType';
-import { resolveStatusAfterCredit } from './creditNotes';
+import { resolveStatusAfterCredit, getEffectivePaid } from './creditNotes';
 
 function startOfDay(ms) {
   return moment(ms).startOf('day').valueOf();
@@ -330,23 +331,47 @@ function setDocStatus(doc, status, now, creditNotes = []) {
 }
 
 function getPaymentEditErrors(newDoc, editData, creditNotes = []) {
-  const hasPaymentArray = Array.isArray(editData.payments);
-  const legacyPaid = !hasPaymentArray && getStoredStatus(editData) === 'paid';
-  if (!hasPaymentArray && !legacyPaid) {
-    return [];
-  }
+  const linked = creditNotes.filter(
+    cn => cn.creditedInvoiceId === editData._id
+  );
+  const hasLinkedCredits = linked.length > 0;
   const f = getCurrencyFraction(editData);
   const origCode = editData.currency?.code;
   const origFraction = getCurrencyFraction(editData);
   const newCode = newDoc.currency?.code;
   const newFraction = getCurrencyFraction(newDoc);
   const errors = [];
-  if (origCode !== newCode || origFraction !== newFraction) {
+
+  if (
+    hasLinkedCredits &&
+    (origCode !== newCode || origFraction !== newFraction)
+  ) {
+    errors.push({ key: 'form:errors:currencyLocked' });
+  }
+
+  const issuedCredit = getCreditedTotal(editData, linked);
+  const paidEffective = getEffectivePaid(editData);
+  const newTotal = roundMoney(getInvoiceTotal(newDoc), f);
+  if (
+    hasLinkedCredits &&
+    newTotal < roundMoney(paidEffective + issuedCredit, f)
+  ) {
+    errors.push({ key: 'form:errors:belowCredited' });
+  }
+
+  const hasPaymentArray = Array.isArray(editData.payments);
+  const legacyPaid = !hasPaymentArray && getStoredStatus(editData) === 'paid';
+  if (!hasPaymentArray && !legacyPaid) {
+    return errors;
+  }
+  if (
+    !hasLinkedCredits &&
+    (origCode !== newCode || origFraction !== newFraction)
+  ) {
     errors.push({ key: 'form:errors:currencyLocked' });
   }
   if (legacyPaid && !hasPaymentArray) {
     const settled = roundMoney(getInvoiceTotal(editData), f);
-    const newTotal = roundMoney(getInvoiceTotal(newDoc), f);
     if (newTotal !== settled) {
       errors.push({
         key: 'form:errors:totalBelowPaid',
@@ -359,11 +384,11 @@ function getPaymentEditErrors(newDoc, editData, creditNotes = []) {
     ...newDoc,
     payments: editData.payments,
   });
-  if (roundMoney(getInvoiceTotal(newDoc), f) < paidFromEdit) {
+  if (newTotal < paidFromEdit) {
     errors.push({
       key: 'form:errors:totalBelowPaid',
       values: {
-        total: roundMoney(getInvoiceTotal(newDoc), f),
+        total: newTotal,
         paid: paidFromEdit,
       },
     });

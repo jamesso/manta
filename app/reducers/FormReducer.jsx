@@ -81,6 +81,8 @@ const initialState = {
   docType: 'invoice',
   validUntil: null,
   sourceEstimateId: null,
+  creditedInvoiceId: null,
+  creditedInvoice: null,
 };
 
 function populateFromDuplicate(state, payload) {
@@ -103,7 +105,7 @@ function populateFromDuplicate(state, payload) {
     discount: discount !== undefined,
     note: note !== undefined,
   };
-  return Object.assign({}, state, {
+  let next = Object.assign({}, state, {
     recipient: Object.assign(
       {},
       state.recipient,
@@ -129,7 +131,25 @@ function populateFromDuplicate(state, payload) {
     docType: getDocType(payload),
     validUntil: payload.validUntil ?? null,
     sourceEstimateId: payload.sourceEstimateId ?? null,
+    creditedInvoiceId: payload.creditedInvoiceId ?? null,
+    creditedInvoice: payload.creditedInvoice ?? null,
   });
+  if (getDocType(payload) === 'creditNote' && payload.recipient) {
+    next = Object.assign({}, next, {
+      recipient: {
+        newRecipient: false,
+        select: payload.recipient,
+        new: {},
+      },
+      dueDate: initialState.dueDate,
+      settings: Object.assign({}, next.settings, {
+        required_fields: Object.assign({}, next.settings.required_fields, {
+          dueDate: false,
+        }),
+      }),
+    });
+  }
+  return next;
 }
 
 function populateFromInvoice(state, payload) {
@@ -179,6 +199,8 @@ function populateFromInvoice(state, payload) {
     docType: getDocType(payload),
     validUntil: payload.validUntil ?? null,
     sourceEstimateId: payload.sourceEstimateId ?? null,
+    creditedInvoiceId: payload.creditedInvoiceId ?? null,
+    creditedInvoice: payload.creditedInvoice ?? null,
   });
 }
 
@@ -387,6 +409,8 @@ const FormReducer = handleActions(
         taxMode: 'line',
         validUntil: null,
         sourceEstimateId: null,
+        creditedInvoiceId: null,
+        creditedInvoice: null,
         settings: Object.assign({}, state.settings, {
           open: false,
           editMode: {
