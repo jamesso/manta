@@ -233,6 +233,7 @@ function setInitialValues() {
         tax: false,
         note: false,
       },
+      numbering: { prefix: 'INV-', next: 1, padding: 4 },
     },
   };
 
