@@ -113,9 +113,8 @@ test('captures e-invoice UI screenshots', async () => {
     await sw.click({ force: true });
     const dialog = main.getByRole('alertdialog');
     await expect(dialog).toBeVisible({ timeout: 15_000 });
-    await main.screenshot({
-      path: path.join(outDir, `settings-einvoice-disclaimer-${theme}.png`),
-      fullPage: true,
+    await dialog.screenshot({
+      path: path.join(outDir, `settings-einvoice-disclaimer-dialog-${theme}.png`),
     });
     await main.getByRole('button', { name: 'Cancel', exact: true }).click();
     await expect(dialog).toBeHidden({ timeout: 15_000 });
@@ -184,6 +183,14 @@ test('captures e-invoice UI screenshots', async () => {
     await expect(
       preview.getByText(/\d+ problems to fix/)
     ).toBeVisible({ timeout: 10_000 });
+    const einvoiceBlock = preview.locator('[data-einvoice-export]');
+    await einvoiceBlock.scrollIntoViewIfNeeded();
+    await expect(
+      einvoiceBlock.getByRole('button', { name: 'Export XRechnung (XML)', exact: true })
+    ).toBeDisabled();
+    await expect(
+      einvoiceBlock.getByRole('button', { name: 'Export Factur-X (PDF)', exact: true })
+    ).toBeDisabled();
     await preview.screenshot({
       path: path.join(outDir, `preview-einvoice-blocked-${theme}.png`),
       fullPage: true,

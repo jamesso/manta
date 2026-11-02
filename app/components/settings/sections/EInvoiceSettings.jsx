@@ -20,6 +20,11 @@ export default function EInvoiceSettings({ profile, value, onSave, saveNow }) {
   const { t } = useTranslation();
   const eInvoice = value?.eInvoice ?? { enabled: false, format: 'xrechnung-ubl' };
   const [busy, setBusy] = useState(false);
+  const formatValue = eInvoice.format ?? 'xrechnung-ubl';
+  const formatLabel =
+    formatValue === 'facturx-en16931'
+      ? t('settings:sections:eInvoice.formats.facturx')
+      : t('settings:sections:eInvoice.formats.xrechnung');
 
   const profileIssues = useMemo(() => {
     const sampleInvoice = {
@@ -109,7 +114,7 @@ export default function EInvoiceSettings({ profile, value, onSave, saveNow }) {
       <Field>
         <FieldLabel>{t('settings:sections:eInvoice.defaultFormat')}</FieldLabel>
         <Select
-          value={eInvoice.format ?? 'xrechnung-ubl'}
+          value={formatValue}
           onValueChange={format =>
             saveNow(current => ({
               ...current,
@@ -118,7 +123,7 @@ export default function EInvoiceSettings({ profile, value, onSave, saveNow }) {
           }
         >
           <SelectTrigger className="bg-background text-foreground">
-            <SelectValue />
+            <SelectValue>{formatLabel}</SelectValue>
           </SelectTrigger>
           <SelectContent className="bg-popover text-popover-foreground">
             <SelectItem value="xrechnung-ubl">

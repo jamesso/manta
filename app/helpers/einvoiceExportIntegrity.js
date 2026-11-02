@@ -1,6 +1,11 @@
 import { UNIT_CODES } from '../constants/units';
 import { getDocType } from './docType';
-import { getAmountPaid, getInvoiceTotals, getIssuedAt } from './invoice';
+import {
+  getAmountPaid,
+  getDueDate,
+  getInvoiceTotals,
+  getIssuedAt,
+} from './invoice';
 import { cents } from '../../helpers/einvoice/money.js';
 
 const MAX_ROWS = 500;
@@ -56,10 +61,13 @@ function totalsMatch(recomputed, derivedTotals) {
       return false;
     }
   }
-  const rGroups = new Map(
-    (recomputed.taxBreakdown ?? []).map(g => [taxGroupKey(g), g])
-  );
-  for (const g of derivedTotals.taxBreakdown ?? []) {
+  const rBreakdown = recomputed.taxBreakdown ?? [];
+  const dBreakdown = derivedTotals.taxBreakdown ?? [];
+  if (rBreakdown.length !== dBreakdown.length) {
+    return false;
+  }
+  const rGroups = new Map(rBreakdown.map(g => [taxGroupKey(g), g]));
+  for (const g of dBreakdown) {
     const r = rGroups.get(taxGroupKey(g));
     if (!r) {
       return false;
@@ -69,6 +77,18 @@ function totalsMatch(recomputed, derivedTotals) {
     }
   }
   return true;
+}
+
+function sameOptionalMs(a, b) {
+  const left = a == null ? null : Number(a);
+  const right = b == null ? null : Number(b);
+  if (left === null && right === null) {
+    return true;
+  }
+  if (left === null || right === null) {
+    return false;
+  }
+  return Number.isFinite(left) && Number.isFinite(right) && left === right;
 }
 
 /**
@@ -108,13 +128,25 @@ export function validateEInvoiceExportPayload(invoice, derived) {
   }
 
   const currencyCode = String(invoice.currency?.code ?? '').trim();
-  if (!/^[A-Za-z]{3}$/.test(currencyCode)) {
+  if (!/^[A-Z]{3}$/.test(currencyCode)) {
     return 'invalid-currency';
   }
 
-  const issuedAt = derived.issuedAt ?? getIssuedAt(invoice);
-  if (!Number.isFinite(issuedAt)) {
+  const expectedIssued = getIssuedAt(invoice);
+  if (!Number.isFinite(expectedIssued)) {
     return 'invalid-issue-date';
+  }
+  if (
+    !Number.isFinite(derived.issuedAt) ||
+    derived.issuedAt !== expectedIssued
+  ) {
+    return 'derived-issue-date-mismatch';
+  }
+
+  if (getDocType(invoice) === 'invoice') {
+    if (!sameOptionalMs(derived.dueAt, getDueDate(invoice))) {
+      return 'derived-due-date-mismatch';
+    }
   }
 
   const recomputed = getInvoiceTotals(invoice);

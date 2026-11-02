@@ -93,7 +93,58 @@ describe('validateEInvoiceExportPayload', () => {
     const derived = derivedFor(invoice);
     derived.issuedAt = Number.NaN;
     expect(validateEInvoiceExportPayload(invoice, derived)).toBe(
-      'invalid-issue-date'
+      'derived-issue-date-mismatch'
+    );
+  });
+
+  it('rejects derived issue date that differs from invoice', () => {
+    const invoice = { ...lineInvoice };
+    const derived = derivedFor(invoice);
+    derived.issuedAt = Date.UTC(2026, 0, 1);
+    expect(validateEInvoiceExportPayload(invoice, derived)).toBe(
+      'derived-issue-date-mismatch'
+    );
+  });
+
+  it('rejects lowercase currency code', () => {
+    const invoice = {
+      ...lineInvoice,
+      currency: { code: 'eur', fraction: 2 },
+    };
+    expect(validateEInvoiceExportPayload(invoice, derivedFor(invoice))).toBe(
+      'invalid-currency'
+    );
+  });
+
+  it('rejects derived tax breakdown missing a group', () => {
+    const invoice = {
+      ...lineInvoice,
+      rows: [
+        {
+          description: 'Standard',
+          quantity: 1,
+          price: 100,
+          subtotal: 100,
+          taxRate: 19,
+          taxCategory: 'S',
+        },
+        {
+          description: 'Reduced',
+          quantity: 1,
+          price: 50,
+          subtotal: 50,
+          taxRate: 7,
+          taxCategory: 'S',
+        },
+      ],
+    };
+    const derived = derivedFor(invoice);
+    derived.totals = {
+      ...derived.totals,
+      taxBreakdown: derived.totals.taxBreakdown.slice(0, 1),
+    };
+    expect(validateEInvoiceExportPayload(invoice, derived)).toBe(
+      'derived-total-mismatch'
     );
   });
 

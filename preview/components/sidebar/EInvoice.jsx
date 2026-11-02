@@ -49,6 +49,7 @@ export default function EInvoiceSidebar({ t, UILang, invoice, profile }) {
 
   const errors = issues.filter(i => i.severity === 'error');
   const defaultFormat = invoiceSettings?.eInvoice?.format ?? 'xrechnung-ubl';
+  const exportBlocked = errors.length > 0;
 
   const exportKind = async kind => {
     if (!derived) {
@@ -71,7 +72,10 @@ export default function EInvoiceSidebar({ t, UILang, invoice, profile }) {
   };
 
   return (
-    <section className="space-y-3 border-t pt-4">
+    <section
+      className="space-y-3 border-t pt-4"
+      data-einvoice-export=""
+    >
       <h3 className="text-sm font-medium text-foreground">
         {t('preview:sidebar:einvoice:title', { lng: UILang })}
       </h3>
@@ -89,7 +93,7 @@ export default function EInvoiceSidebar({ t, UILang, invoice, profile }) {
           type="button"
           className="w-full"
           variant={defaultFormat === 'xrechnung-ubl' ? 'default' : 'outline'}
-          disabled={!invoice._id || exporting}
+          disabled={!invoice._id || exporting || exportBlocked}
           onClick={() => exportKind('xrechnung')}
         >
           {exporting ? <Loader2 className="animate-spin" /> : null}
@@ -99,7 +103,7 @@ export default function EInvoiceSidebar({ t, UILang, invoice, profile }) {
           type="button"
           className="w-full bg-background text-foreground"
           variant={defaultFormat === 'facturx-en16931' ? 'default' : 'outline'}
-          disabled={!invoice._id || exporting}
+          disabled={!invoice._id || exporting || exportBlocked}
           onClick={() => exportKind('facturx')}
         >
           {exporting ? <Loader2 className="animate-spin" /> : null}
