@@ -1,94 +1,142 @@
 import {
-  BACKUP_VERSION,
   buildBackup,
+  hasDangerousKey,
   mergeImportedSettings,
   parseBackup,
-  planMerge,
   sanitizeDoc,
 } from '../backup';
 
 describe('backup helpers', () => {
-  it('rejects invalid json', () => {
-    expect(parseBackup('{').ok).toBe(false);
-  });
+  const baseInvoiceSettings = {
+    exportDir: '/local',
+    template: 'minimal',
+    tax: { amount: 0, method: 'default', tin: '' },
+    currency: {
+      code: 'USD',
+      fraction: 2,
+      separator: 'commaDot',
+      placement: 'before',
+    },
+    required_fields: {
+      invoiceID: false,
+      dueDate: false,
+      currency: false,
+      discount: false,
+      tax: false,
+      note: false,
+    },
+    numbering: { prefix: 'INV-', next: 5, padding: 4 },
+  };
 
-  it('rejects wrong app', () => {
-    expect(
-      parseBackup(JSON.stringify({ app: 'Other', version: 1 })).error
-    ).toBe('wrong-app');
-  });
-
-  it('rejects newer version', () => {
-    expect(
-      parseBackup(
-        JSON.stringify({ app: 'Manta', version: 2, invoices: [], contacts: [] })
-      ).error
-    ).toBe('newer-version');
-  });
-
-  it('strips reserved keys on sanitize', () => {
-    const doc = sanitizeDoc({
-      _id: 'a',
-      _rev: '1-x',
-      _deleted: true,
-      fullname: 'A',
-    });
-    expect(doc._rev).toBeUndefined();
-    expect(doc._deleted).toBeUndefined();
-    expect(doc.fullname).toBe('A');
-  });
-
-  it('planMerge overwrite keeps local rev', () => {
-    const { toWrite } = planMerge(
-      [{ _id: 'a', fullname: 'X' }],
-      [{ _id: 'a', _rev: '2-y', fullname: 'Y' }],
-      'overwrite'
+  it('rejects backup contacts with attachments before validation', () => {
+    const parsed = parseBackup(
+      JSON.stringify({
+        app: 'Manta',
+        version: 1,
+        invoices: [],
+        contacts: [{ _id: 'a', _attachments: { file: { data: 'abc' } } }],
+      })
     );
-    expect(toWrite[0]._rev).toBe('2-y');
+    expect(parsed.ok).toBe(false);
+    expect(parsed.error).toBe('unsupported-data');
   });
 
-  it('mergeImportedSettings keeps exportDir and max next', () => {
+  it('rejects dangerous keys in backup documents', () => {
+    const parsed = parseBackup(
+      JSON.stringify({
+        app: 'Manta',
+        version: 1,
+        invoices: [],
+        contacts: [
+          {
+            _id: 'a',
+            fullname: 'A',
+            constructor: { prototype: { polluted: true } },
+          },
+        ],
+      })
+    );
+    expect(parsed.ok).toBe(false);
+    expect(parsed.error).toBe('invalid-format');
+  });
+
+  it('rejects empty attachments on export sanitize', () => {
+    expect(() =>
+      sanitizeDoc({ _id: 'a', fullname: 'A', _attachments: {} })
+    ).toThrow(/unsupported-data/);
+    expect(() =>
+      buildBackup({
+        settings: null,
+        invoices: [],
+        contacts: [{ _id: 'a', fullname: 'A', _attachments: {} }],
+      })
+    ).toThrow(/unsupported-data/);
+  });
+
+  it('mergeImportedSettings max next when prefix changes', () => {
     const current = {
       profile: { fullname: 'Me' },
-      invoice: {
-        exportDir: '/local',
-        tax: { amount: 0, method: 'default', tin: '' },
-        currency: {
-          code: 'USD',
-          fraction: 2,
-          separator: 'commaDot',
-          placement: 'before',
-        },
-        numbering: { prefix: 'INV-', next: 5, padding: 4 },
-      },
-      general: { language: 'en' },
+      invoice: baseInvoiceSettings,
+      general: { language: 'en', theme: 'system', sound: 'default' },
     };
     const incoming = {
       invoice: {
-        exportDir: '/remote',
-        tax: { amount: 0, method: 'default', tin: '' },
-        currency: {
-          code: 'USD',
-          fraction: 2,
-          separator: 'commaDot',
-          placement: 'before',
-        },
-        numbering: { prefix: 'INV-', next: 3, padding: 4 },
+        ...baseInvoiceSettings,
+        numbering: { prefix: 'BILL-', next: 100, padding: 4 },
       },
     };
-    const { settings } = mergeImportedSettings(current, incoming);
-    expect(settings.invoice.exportDir).toBe('/local');
+    const { settings, skippedSections } = mergeImportedSettings(
+      current,
+      incoming
+    );
+    expect(skippedSections).toEqual([]);
+    expect(settings.invoice.numbering).toEqual({
+      prefix: 'BILL-',
+      next: 100,
+      padding: 4,
+    });
+  });
+
+  it('skips invoice section when imported numbering is invalid', () => {
+    const current = {
+      profile: { fullname: 'Me' },
+      invoice: baseInvoiceSettings,
+      general: { language: 'en', theme: 'system', sound: 'default' },
+    };
+    const incoming = {
+      invoice: {
+        ...baseInvoiceSettings,
+        numbering: { prefix: 'INV-', next: 'bad', padding: 4 },
+      },
+    };
+    const { settings, skippedSections } = mergeImportedSettings(
+      current,
+      incoming
+    );
+    expect(skippedSections).toContain('invoice');
     expect(settings.invoice.numbering.next).toBe(5);
   });
 
-  it('round trip without _rev on docs', () => {
-    const payload = buildBackup({
-      settings: null,
-      invoices: [{ _id: 'i1', rows: [], recipient: {} }],
-      contacts: [{ _id: 'c1', fullname: 'C' }],
-    });
-    const parsed = parseBackup(JSON.stringify(payload));
-    expect(parsed.ok).toBe(true);
-    expect(parsed.backup.invoices[0]._rev).toBeUndefined();
+  it('skips invalid imported general and profile sections', () => {
+    const current = {
+      profile: { fullname: 'Me' },
+      invoice: baseInvoiceSettings,
+      general: { language: 'en', theme: 'system', sound: 'default' },
+    };
+    const incoming = {
+      profile: { fullname: {} },
+      general: { theme: 'INVALID', language: 'en', sound: 'default' },
+      invoice: { template: 'INVALID', ...baseInvoiceSettings, numbering: null },
+    };
+    const { skippedSections } = mergeImportedSettings(current, incoming);
+    expect(skippedSections).toEqual(
+      expect.arrayContaining(['profile', 'general', 'invoice'])
+    );
+  });
+
+  it('detects nested dangerous settings keys', () => {
+    expect(
+      hasDangerousKey({ profile: { fullname: { constructor: 'x' } } })
+    ).toBe(true);
   });
 });

@@ -19,6 +19,7 @@ it('updateSettings should create SETTINGS_UPDATE action', () => {
     payload: {
       setting: settingType,
       data: settingsData,
+      imported: false,
     },
   });
 });

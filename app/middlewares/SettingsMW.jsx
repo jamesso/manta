@@ -9,7 +9,15 @@ import { isEqual } from 'lodash';
 import * as ACTION_TYPES from '../constants/actions.jsx';
 
 // Helper
-import { getSettingsErrors, SETTINGS_SECTIONS } from '../helpers/settings';
+import {
+  getRawNumberingErrors,
+  getSettingsErrors,
+  SETTINGS_SECTIONS,
+} from '../helpers/settings';
+import {
+  isImportWriteLocked,
+  importWriteLockReason,
+} from '../helpers/importWriteLock';
 import { mergeNumbering, normalizeNumbering } from '../helpers/numbering';
 import { toast } from '@/components/ui/toast';
 
@@ -35,12 +43,25 @@ const SettingsMW =
       }
 
       case ACTION_TYPES.SETTINGS_UPDATE: {
-        const { setting, data } = action.payload;
+        const { setting, data, imported } = action.payload;
         if (!SETTINGS_SECTIONS.includes(setting)) {
           return next(action);
         }
+        if (isImportWriteLocked() && !imported) {
+          return {
+            ok: false,
+            message: i18n.t(importWriteLockReason()),
+          };
+        }
         let nextData = data;
-        if (setting === 'invoice') {
+        if (setting === 'invoice' && !imported) {
+          const rawNumberingErrors = getRawNumberingErrors(data.numbering);
+          if (
+            data.numbering != null &&
+            Object.keys(rawNumberingErrors).length
+          ) {
+            return { ok: false, errors: rawNumberingErrors };
+          }
           nextData = {
             ...data,
             numbering: mergeNumbering(
@@ -78,7 +99,7 @@ const SettingsMW =
         }
         next({
           ...action,
-          payload: { setting, data: nextData },
+          payload: { setting, data: nextData, imported: Boolean(imported) },
         });
         toast.add({
           id: 'settings-saved',

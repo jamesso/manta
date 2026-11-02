@@ -14,6 +14,24 @@ import {
 import i18n from '../../i18n/i18n';
 import { UNDO_TIMEOUT_MS } from '../constants/invoices';
 import { toast } from '@/components/ui/toast';
+import {
+  isImportWriteLocked,
+  importWriteLockReason,
+} from '../helpers/importWriteLock';
+
+function warnImportBlocked(dispatch) {
+  if (!isImportWriteLocked()) {
+    return false;
+  }
+  dispatch({
+    type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+    payload: {
+      type: 'warning',
+      message: i18n.t(importWriteLockReason()),
+    },
+  });
+  return true;
+}
 
 const ContactsMW =
   ({ dispatch }) =>
@@ -41,6 +59,9 @@ const ContactsMW =
       }
 
       case ACTION_TYPES.CONTACT_SAVE: {
+        if (warnImportBlocked(dispatch)) {
+          return false;
+        }
         return saveDoc('contacts', action.payload)
           .then(newDocs => {
             next({
@@ -69,6 +90,9 @@ const ContactsMW =
       }
 
       case ACTION_TYPES.CONTACT_UPDATE: {
+        if (warnImportBlocked(dispatch)) {
+          return false;
+        }
         return updateDoc('contacts', action.payload)
           .then(newDocs => {
             next({
@@ -97,6 +121,9 @@ const ContactsMW =
       }
 
       case ACTION_TYPES.CONTACT_DELETE: {
+        if (warnImportBlocked(dispatch)) {
+          return undefined;
+        }
         const ids = [...new Set([].concat(action.payload))];
         return removeDocs('contacts', ids)
           .then(({ removed, failed, docs }) => {
@@ -143,6 +170,9 @@ const ContactsMW =
       }
 
       case ACTION_TYPES.CONTACT_RESTORE: {
+        if (warnImportBlocked(dispatch)) {
+          return undefined;
+        }
         return restoreDocs('contacts', action.payload)
           .then(docs => {
             next({

@@ -25,6 +25,24 @@ import {
   updateDocs,
 } from '../helpers/pouchDB';
 import { toast } from '@/components/ui/toast';
+import {
+  isImportWriteLocked,
+  importWriteLockReason,
+} from '../helpers/importWriteLock';
+
+function warnImportBlocked(dispatch) {
+  if (!isImportWriteLocked()) {
+    return false;
+  }
+  dispatch({
+    type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+    payload: {
+      type: 'warning',
+      message: i18n.t(importWriteLockReason()),
+    },
+  });
+  return true;
+}
 
 function persistedInvoice(docs, payload) {
   if (!Array.isArray(docs) || !docs.length) {
@@ -45,6 +63,9 @@ const InvoicesMW =
   action => {
     switch (action.type) {
       case ACTION_TYPES.INVOICE_NEW_FROM_CONTACT: {
+        if (warnImportBlocked(dispatch)) {
+          break;
+        }
         const apply = () => {
           if (getState().form.settings.editMode.active) {
             dispatch(FormActions.clearForm(null, true));
@@ -115,6 +136,9 @@ const InvoicesMW =
       }
 
       case ACTION_TYPES.INVOICE_SAVE: {
+        if (warnImportBlocked(dispatch)) {
+          return false;
+        }
         return saveDoc('invoices', action.payload)
           .then(newDocs => {
             next({
@@ -177,6 +201,9 @@ const InvoicesMW =
       }
 
       case ACTION_TYPES.INVOICE_DELETE: {
+        if (warnImportBlocked(dispatch)) {
+          return undefined;
+        }
         const ids = [...new Set([].concat(action.payload))];
         return removeDocs('invoices', ids)
           .then(({ removed, failed, docs }) => {
@@ -230,6 +257,9 @@ const InvoicesMW =
       }
 
       case ACTION_TYPES.INVOICE_RESTORE: {
+        if (warnImportBlocked(dispatch)) {
+          return undefined;
+        }
         return restoreDocs('invoices', action.payload)
           .then(docs => {
             next({
@@ -260,6 +290,9 @@ const InvoicesMW =
       }
 
       case ACTION_TYPES.INVOICE_DUPLICATE: {
+        if (warnImportBlocked(dispatch)) {
+          return undefined;
+        }
         const proceed = () =>
           getAllDocs('contacts').then(allDocs => {
             dispatch({
@@ -314,6 +347,9 @@ const InvoicesMW =
       }
 
       case ACTION_TYPES.INVOICE_UPDATE: {
+        if (warnImportBlocked(dispatch)) {
+          return false;
+        }
         return updateDoc('invoices', action.payload)
           .then(docs => {
             next({
@@ -342,6 +378,9 @@ const InvoicesMW =
       }
 
       case ACTION_TYPES.INVOICE_CONFIGS_SAVE: {
+        if (warnImportBlocked(dispatch)) {
+          return undefined;
+        }
         const { invoiceID, configs } = action.payload;
         return getSingleDoc('invoices', invoiceID)
           .then(doc => {
@@ -362,6 +401,9 @@ const InvoicesMW =
       }
 
       case ACTION_TYPES.INVOICE_SET_STATUS: {
+        if (warnImportBlocked(dispatch)) {
+          return undefined;
+        }
         const { invoiceID, status } = action.payload;
         if (!INVOICE_STATUSES.includes(status)) {
           next({

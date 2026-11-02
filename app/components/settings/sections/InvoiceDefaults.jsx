@@ -39,6 +39,7 @@ export default function InvoiceDefaults({
   value,
   onSave,
   errors,
+  saveMessage,
   registerFlush,
 }) {
   const { t } = useTranslation();
@@ -106,6 +107,11 @@ export default function InvoiceDefaults({
         <p className="text-sm text-muted-foreground">
           {t('settings:sections:invoice:description')}
         </p>
+        {saveMessage ? (
+          <p className="mt-2 text-sm text-destructive" role="alert">
+            {saveMessage}
+          </p>
+        ) : null}
       </div>
 
       <div className="space-y-3">

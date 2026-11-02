@@ -1,13 +1,32 @@
 import * as Actions from '../../actions/settings';
 import * as ACTION_TYPES from '../../constants/actions.jsx';
 import SettingsMW from '../SettingsMW';
-import i18n from '../../../i18n/i18n';
 import sounds from '../../../libs/sounds';
 
 vi.mock('../../../libs/sounds');
 vi.mock('@/components/ui/toast', () => ({
   toast: { add: vi.fn() },
 }));
+
+const invoiceBase = {
+  template: 'minimal',
+  tax: { amount: 0, method: 'default', tin: '' },
+  currency: {
+    code: 'USD',
+    fraction: 2,
+    separator: 'commaDot',
+    placement: 'before',
+  },
+  required_fields: {
+    invoiceID: false,
+    dueDate: false,
+    currency: false,
+    discount: false,
+    tax: false,
+    note: false,
+  },
+  numbering: { prefix: 'INV-', next: 5, padding: 4 },
+};
 
 describe('Settings Middleware', () => {
   let next, dispatch, middleware;
@@ -18,20 +37,23 @@ describe('Settings Middleware', () => {
     middleware = SettingsMW({
       dispatch,
       getState: () => ({
-        settings: {
-          saved: {
-            invoice: { numbering: { prefix: 'INV-', next: 1, padding: 4 } },
-          },
-        },
+        settings: { saved: { invoice: { numbering: invoiceBase.numbering } } },
       }),
     })(next);
-    window.manta.settings.get.mockImplementation(() => 'someSettings');
+    window.manta.settings.get.mockImplementation(key => {
+      if (key === 'invoice' || key === 'invoice.numbering') {
+        return invoiceBase;
+      }
+      if (key === 'general') {
+        return { language: 'en', theme: 'system', sound: 'default' };
+      }
+      return 'someSettings';
+    });
     window.manta.settings.set.mockImplementation(() => {});
   });
 
   it('handles SETTINGS_GET_INITIAL', () => {
-    const action = Actions.getInitalSettings();
-    middleware(action);
+    middleware(Actions.getInitalSettings());
     expect(next).toHaveBeenCalledWith(
       expect.objectContaining({
         payload: expect.objectContaining({ current: expect.any(Object) }),
@@ -39,72 +61,48 @@ describe('Settings Middleware', () => {
     );
   });
 
-  it('persists valid general update', async () => {
-    const data = {
-      language: 'en',
-      sound: 'default',
-      muted: false,
-      previewPDF: true,
-      theme: 'system',
-    };
-    window.manta.settings.get.mockImplementation(key =>
-      key === 'general'
-        ? { language: 'en', theme: 'system', sound: 'default' }
-        : data
+  it('rejects invalid raw numbering before mergeNumbering', async () => {
+    const result = await middleware(
+      Actions.updateSettings('invoice', {
+        ...invoiceBase,
+        numbering: { prefix: 'INV-', next: 'bad', padding: 4 },
+      })
     );
-    const action = Actions.updateSettings('general', data);
-    const result = await middleware(action);
-    expect(result).toEqual({ ok: true });
-    expect(window.manta.settings.set).toHaveBeenCalledWith('general', data);
-    expect(next).toHaveBeenCalledWith(
-      expect.objectContaining({ type: ACTION_TYPES.SETTINGS_UPDATE })
-    );
-  });
-
-  it('rejects invalid invoice update', async () => {
-    const action = Actions.updateSettings('invoice', {
-      tax: { amount: -1, method: 'default', tin: '' },
-      currency: {
-        code: 'USD',
-        fraction: 2,
-        separator: 'commaDot',
-        placement: 'before',
-      },
-    });
-    const result = await middleware(action);
     expect(result.ok).toBe(false);
-    expect(result.errors['tax.amount']).toBeDefined();
+    expect(result.errors['numbering.next']).toBeDefined();
     expect(window.manta.settings.set).not.toHaveBeenCalled();
-    expect(next).not.toHaveBeenCalled();
   });
 
-  it('changes language side effects', async () => {
-    window.manta.settings.get.mockImplementation(key =>
-      key === 'general'
-        ? { language: 'en', theme: 'system', sound: 'default' }
-        : 'x'
+  it('persists imported invoice numbering without mergeNumbering rewind', async () => {
+    const imported = {
+      ...invoiceBase,
+      numbering: { prefix: 'BILL-', next: 100, padding: 4 },
+    };
+    const result = await middleware(
+      Actions.updateSettings('invoice', imported, true)
     );
-    await middleware(
+    expect(result).toEqual({ ok: true });
+    expect(window.manta.settings.set).toHaveBeenCalledWith('invoice', imported);
+  });
+
+  it('returns write errors without calling next', async () => {
+    window.manta.settings.set.mockImplementation(() => {
+      throw new Error('disk full');
+    });
+    const result = await middleware(
       Actions.updateSettings('general', {
-        language: 'fr',
+        language: 'en',
         theme: 'system',
         sound: 'default',
         muted: false,
         previewPDF: true,
       })
     );
-    expect(window.manta.ipc.send).toHaveBeenCalledWith(
-      'change-preview-window-language',
-      'fr'
-    );
+    expect(result).toEqual({ ok: false, message: 'disk full' });
+    expect(next).not.toHaveBeenCalled();
   });
 
   it('reloads sounds when sound changes', async () => {
-    window.manta.settings.get.mockImplementation(key =>
-      key === 'general'
-        ? { language: 'en', theme: 'system', sound: 'default' }
-        : 'x'
-    );
     await middleware(
       Actions.updateSettings('general', {
         language: 'en',

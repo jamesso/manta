@@ -1,4 +1,4 @@
-import { getSettingsErrors } from './settings';
+import { getSettingsErrors, getRawNumberingErrors } from './settings';
 
 export const BACKUP_APP = 'Manta';
 export const BACKUP_VERSION = 1;
@@ -27,16 +27,30 @@ export function hasDangerousKey(value, seen = new WeakSet()) {
   return false;
 }
 
+function docHasAttachments(doc) {
+  return (
+    doc != null &&
+    typeof doc === 'object' &&
+    '_attachments' in doc &&
+    doc._attachments != null
+  );
+}
+
 export function sanitizeDoc(doc) {
   if (!doc || typeof doc !== 'object') {
     return doc;
   }
-  if (doc._attachments && Object.keys(doc._attachments).length) {
+  if (docHasAttachments(doc)) {
     throw Object.assign(new Error('unsupported-data'), {
       code: 'unsupported-data',
     });
   }
-  const next = {};
+  if (hasDangerousKey(doc)) {
+    throw Object.assign(new Error('invalid-format'), {
+      code: 'invalid-format',
+    });
+  }
+  const next = Object.create(null);
   for (const key of Object.keys(doc)) {
     if (key === '_id' || !key.startsWith('_')) {
       next[key] = doc[key];
@@ -46,6 +60,11 @@ export function sanitizeDoc(doc) {
 }
 
 export function buildBackup({ settings, invoices, contacts }) {
+  if (hasDangerousKey(settings)) {
+    throw Object.assign(new Error('unsupported-data'), {
+      code: 'unsupported-data',
+    });
+  }
   return {
     app: BACKUP_APP,
     version: BACKUP_VERSION,
@@ -86,19 +105,26 @@ function parseDocList(list, validate) {
   let duplicates = 0;
   const seen = new Set();
   for (const raw of list) {
-    if (!validate(raw)) {
+    if (!isPlainObject(raw)) {
       invalid += 1;
       continue;
     }
-    if (raw._attachments && Object.keys(raw._attachments).length) {
+    if (hasDangerousKey(raw)) {
+      return { error: 'invalid-format' };
+    }
+    if (docHasAttachments(raw)) {
       return { error: 'unsupported-data' };
+    }
+    if (!validate(raw)) {
+      invalid += 1;
+      continue;
     }
     let doc;
     try {
       doc = sanitizeDoc(raw);
     } catch (err) {
-      if (err.code === 'unsupported-data') {
-        return { error: 'unsupported-data' };
+      if (err.code === 'unsupported-data' || err.code === 'invalid-format') {
+        return { error: err.code };
       }
       throw err;
     }
@@ -122,6 +148,9 @@ export function parseBackup(text) {
   if (!isPlainObject(parsed)) {
     return { ok: false, error: 'invalid-format' };
   }
+  if (hasDangerousKey(parsed)) {
+    return { ok: false, error: 'invalid-format' };
+  }
   if (parsed.app !== BACKUP_APP) {
     return { ok: false, error: 'wrong-app' };
   }
@@ -136,8 +165,12 @@ export function parseBackup(text) {
     return { ok: false, error: 'invalid-format' };
   }
   let settings = parsed.settings;
-  if (settings != null && !isPlainObject(settings)) {
-    settings = null;
+  if (settings != null) {
+    if (!isPlainObject(settings)) {
+      settings = null;
+    } else if (hasDangerousKey(settings)) {
+      return { ok: false, error: 'invalid-format' };
+    }
   }
   const invoicesResult = parseDocList(parsed.invoices, validateInvoice);
   if (invoicesResult.error) {
@@ -186,6 +219,32 @@ export function planMerge(incomingDocs, existingDocs, mode) {
   return { toWrite, counts };
 }
 
+function mergeInvoiceNumbering(currentInvoice, incomingInvoice) {
+  const merged = { ...currentInvoice, ...incomingInvoice };
+  merged.exportDir = currentInvoice?.exportDir ?? merged.exportDir;
+  const curNum = currentInvoice?.numbering;
+  const incNum = incomingInvoice?.numbering;
+  if (incNum != null) {
+    const rawErrors = getRawNumberingErrors(incNum);
+    if (Object.keys(rawErrors).length) {
+      return { error: 'numbering', merged: null };
+    }
+  }
+  if (isPlainObject(curNum) && isPlainObject(incNum)) {
+    const next =
+      Number.isInteger(curNum.next) &&
+      curNum.next >= 1 &&
+      Number.isInteger(incNum.next) &&
+      incNum.next >= 1
+        ? Math.max(curNum.next, incNum.next)
+        : incNum.next;
+    merged.numbering = { ...curNum, ...incNum, next };
+  } else if (isPlainObject(incNum)) {
+    merged.numbering = { ...incNum };
+  }
+  return { merged };
+}
+
 export function mergeImportedSettings(current, incoming) {
   if (hasDangerousKey(incoming)) {
     return {
@@ -201,41 +260,21 @@ export function mergeImportedSettings(current, incoming) {
     if (!isPlainObject(inc)) {
       continue;
     }
-    let merged = { ...current[section], ...inc };
+    let merged = section === 'invoice' ? null : { ...current[section], ...inc };
     if (section === 'invoice') {
-      merged.exportDir = current.invoice?.exportDir ?? merged.exportDir;
-      const curNum = current.invoice?.numbering;
-      const incNum = inc.numbering;
-      if (isPlainObject(curNum) && isPlainObject(incNum)) {
-        const curNext = Number(curNum.next);
-        const incNext = Number(incNum.next);
-        let next = curNum.next;
-        if (
-          Number.isFinite(curNext) &&
-          Number.isInteger(curNext) &&
-          curNext >= 1
-        ) {
-          if (
-            Number.isFinite(incNext) &&
-            Number.isInteger(incNext) &&
-            incNext >= 1
-          ) {
-            next = Math.max(curNext, incNext);
-          }
-        } else if (
-          Number.isFinite(incNext) &&
-          Number.isInteger(incNext) &&
-          incNext >= 1
-        ) {
-          next = incNext;
-        }
-        merged.numbering = { ...merged.numbering, next };
+      const invoiceMerge = mergeInvoiceNumbering(current.invoice, inc);
+      if (invoiceMerge.error) {
+        skippedSections.push(section);
+        settings[section] = current[section];
+        continue;
       }
+      merged = invoiceMerge.merged;
     }
     const errors = getSettingsErrors(section, merged);
     if (Object.keys(errors).length) {
       skippedSections.push(section);
-      merged = current[section];
+      settings[section] = current[section];
+      continue;
     }
     settings[section] = merged;
   }

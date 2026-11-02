@@ -1,3 +1,7 @@
+const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
+
 const MAX_IMPORT_BYTES = 100 * 1024 * 1024;
 
 function backupFileName(date) {
@@ -42,10 +46,31 @@ function serializeBackup(payload, appVersion, date) {
   );
 }
 
+async function writeFileAtomic(filePath, text, fsPromises = fs.promises) {
+  const dir = path.dirname(filePath);
+  await fsPromises.mkdir(dir, { recursive: true });
+  const tmp = path.join(
+    dir,
+    `.${path.basename(filePath)}.${crypto.randomUUID()}.tmp`
+  );
+  const handle = await fsPromises.open(tmp, 'wx', 0o600);
+  try {
+    await handle.writeFile(text, 'utf8');
+    await handle.sync();
+    await handle.close();
+    await fsPromises.rename(tmp, filePath);
+  } catch (err) {
+    await handle.close().catch(() => {});
+    await fsPromises.unlink(tmp).catch(() => {});
+    throw err;
+  }
+}
+
 module.exports = {
   MAX_IMPORT_BYTES,
   backupFileName,
   autoBackupFileName,
   autoBackupsToPrune,
   serializeBackup,
+  writeFileAtomic,
 };

@@ -9,5 +9,5 @@ export const getInitalSettings = createAction(
 // Update Settings
 export const updateSettings = createAction(
   ACTION_TYPES.SETTINGS_UPDATE,
-  (setting, data) => ({ setting, data })
+  (setting, data, imported = false) => ({ setting, data, imported })
 );

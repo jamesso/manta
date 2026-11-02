@@ -1,13 +1,26 @@
-import { getSettingsErrors, SETTINGS_SECTIONS } from '../settings';
+import {
+  getRawNumberingErrors,
+  getSettingsErrors,
+  SETTINGS_SECTIONS,
+} from '../settings';
 
 describe('getSettingsErrors', () => {
   const baseInvoice = {
+    template: 'minimal',
     tax: { amount: 10, method: 'default', tin: '' },
     currency: {
       code: 'USD',
       fraction: 2,
       separator: 'commaDot',
       placement: 'before',
+    },
+    required_fields: {
+      invoiceID: false,
+      dueDate: false,
+      currency: false,
+      discount: false,
+      tax: false,
+      note: false,
     },
     numbering: { prefix: 'INV-', next: 1, padding: 4 },
   };
@@ -60,17 +73,48 @@ describe('getSettingsErrors', () => {
     ).toBeDefined();
   });
 
-  it('validates numbering when present', () => {
+  it('validates raw numbering without coercion', () => {
+    expect(
+      getRawNumberingErrors({ prefix: 'INV-', next: 'bad', padding: 4 })[
+        'numbering.next'
+      ]
+    ).toBeDefined();
     expect(
       getSettingsErrors('invoice', {
         ...baseInvoice,
-        numbering: { prefix: 'INV-', next: 0, padding: 4 },
+        numbering: { prefix: 'INV-', next: -10, padding: 4 },
       })['numbering.next']
+    ).toBeDefined();
+    expect(
+      getSettingsErrors('invoice', {
+        ...baseInvoice,
+        numbering: null,
+      }).numbering
     ).toBeDefined();
   });
 
-  it('returns empty for profile', () => {
-    expect(getSettingsErrors('profile', {})).toEqual({});
+  it('rejects invalid general theme and profile strings', () => {
+    expect(
+      getSettingsErrors('general', {
+        language: 'en',
+        theme: 'INVALID',
+        sound: 'default',
+      }).theme
+    ).toBeDefined();
+    expect(
+      getSettingsErrors('profile', { fullname: {} }).fullname
+    ).toBeDefined();
+  });
+
+  it('rejects invalid invoice template', () => {
+    expect(
+      getSettingsErrors('invoice', { ...baseInvoice, template: 'INVALID' })
+        .template
+    ).toBeDefined();
+  });
+
+  it('returns empty for valid profile', () => {
+    expect(getSettingsErrors('profile', { fullname: 'Me' })).toEqual({});
   });
 
   it('lists settings sections', () => {

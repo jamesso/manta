@@ -9,6 +9,7 @@ const {
   autoBackupFileName,
   autoBackupsToPrune,
   serializeBackup,
+  writeFileAtomic,
 } = require('./backup-files');
 
 function trustedSender(event) {
@@ -20,22 +21,6 @@ function trustedSender(event) {
   return BrowserWindow.fromWebContents(event.sender) === mainWindow
     ? mainWindow
     : null;
-}
-
-function writeAtomic(filePath, text) {
-  const dir = path.dirname(filePath);
-  const tmp = path.join(dir, `.${path.basename(filePath)}.${process.pid}.tmp`);
-  return fs.promises
-    .writeFile(tmp, text, { mode: 0o600 })
-    .then(() => fs.promises.rename(tmp, filePath))
-    .catch(err =>
-      fs.promises
-        .unlink(tmp)
-        .catch(() => {})
-        .then(() => {
-          throw err;
-        })
-    );
 }
 
 ipcMain.handle('backup-export', async (event, payload) => {
@@ -54,7 +39,7 @@ ipcMain.handle('backup-export', async (event, payload) => {
     return { canceled: true };
   }
   const text = serializeBackup(payload, app.getVersion(), new Date());
-  await writeAtomic(filePath, text);
+  await writeFileAtomic(filePath, text);
   return { canceled: false, filePath };
 });
 
@@ -85,16 +70,20 @@ ipcMain.handle('backup-snapshot', async (event, payload) => {
     throw new Error('invalid request');
   }
   const dir = path.join(app.getPath('userData'), 'backups');
-  await fs.promises.mkdir(dir, { recursive: true });
   const filePath = path.join(dir, autoBackupFileName(new Date()));
   const text = serializeBackup(payload, app.getVersion(), new Date());
-  await writeAtomic(filePath, text);
-  const names = await fs.promises.readdir(dir);
-  const prune = autoBackupsToPrune(names);
-  await Promise.all(
-    prune.map(name => fs.promises.unlink(path.join(dir, name)))
-  );
-  return { filePath };
+  await writeFileAtomic(filePath, text);
+  let snapshotWarning = null;
+  try {
+    const names = await fs.promises.readdir(dir);
+    const prune = autoBackupsToPrune(names);
+    await Promise.all(
+      prune.map(name => fs.promises.unlink(path.join(dir, name)))
+    );
+  } catch (err) {
+    snapshotWarning = err.message;
+  }
+  return { filePath, snapshotWarning };
 });
 
 ipcMain.handle('csv-export', async (event, { text, defaultName }) => {
@@ -112,6 +101,6 @@ ipcMain.handle('csv-export', async (event, { text, defaultName }) => {
   if (canceled || !filePath) {
     return { canceled: true };
   }
-  await writeAtomic(filePath, text);
+  await writeFileAtomic(filePath, text);
   return { canceled: false, filePath };
 });

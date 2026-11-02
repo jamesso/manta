@@ -19,6 +19,7 @@ export default function BusinessProfile({
   value,
   onSave,
   errors,
+  saveMessage,
   registerFlush,
 }) {
   const { t } = useTranslation();
@@ -42,6 +43,11 @@ export default function BusinessProfile({
         <p className="text-sm text-muted-foreground">
           {t('settings:sections:profile:description')}
         </p>
+        {saveMessage ? (
+          <p className="mt-2 text-sm text-destructive" role="alert">
+            {saveMessage}
+          </p>
+        ) : null}
       </div>
       <Field>
         <FieldLabel>{t('settings:fields:logo:name')}</FieldLabel>

@@ -19,6 +19,7 @@ export default function Settings() {
   const currentSettings = useSelector(getCurrentSettings);
   const [section, setSection] = useState('profile');
   const [errors, setErrors] = useState({});
+  const [saveMessage, setSaveMessage] = useState('');
   const flushRef = useRef(async () => {});
 
   const registerFlush = useCallback(flush => {
@@ -28,7 +29,6 @@ export default function Settings() {
   const changeSection = useCallback(async id => {
     await flushRef.current?.();
     setSection(id);
-    setErrors({});
   }, []);
 
   const saveSection = useCallback(
@@ -38,9 +38,13 @@ export default function Settings() {
         if (result.errors) {
           setErrors(result.errors);
         }
+        if (result.message) {
+          setSaveMessage(result.message);
+        }
         return result;
       }
       setErrors({});
+      setSaveMessage('');
       return result;
     },
     [dispatch]
@@ -59,6 +63,7 @@ export default function Settings() {
         value={profile}
         onSave={data => saveSection('profile', data)}
         errors={errors}
+        saveMessage={saveMessage}
         registerFlush={registerFlush}
       />
     );
@@ -68,6 +73,7 @@ export default function Settings() {
         value={invoice}
         onSave={data => saveSection('invoice', data)}
         errors={errors}
+        saveMessage={saveMessage}
         registerFlush={registerFlush}
       />
     );

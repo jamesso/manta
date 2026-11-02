@@ -149,32 +149,71 @@ export default function ExportBackup({
       });
       dispatch(ContactsActions.getAllContacts());
       dispatch(InvoicesActions.getInvoices());
+
+      const settingsFailures = [];
       if (result.settings) {
         for (const section of ['profile', 'invoice', 'general']) {
           if (result.settings[section]) {
-            dispatch(
-              SettingsActions.updateSettings(section, result.settings[section])
+            const applyResult = await dispatch(
+              SettingsActions.updateSettings(
+                section,
+                result.settings[section],
+                true
+              )
             );
+            if (applyResult?.ok === false) {
+              settingsFailures.push({
+                section,
+                message: applyResult.message,
+                errors: applyResult.errors,
+              });
+            }
           }
         }
       }
+
+      const failedCount =
+        result.failed.contacts.length + result.failed.invoices.length;
+      const partial =
+        Boolean(result.batchError) ||
+        failedCount > 0 ||
+        settingsFailures.length > 0;
+
       let message = t('settings:backup:importSuccess', {
         added: result.counts.added,
         overwritten: result.counts.overwritten,
         skipped: result.counts.skipped,
       });
-      const failedCount =
-        result.failed.contacts.length + result.failed.invoices.length;
+      if (result.batchError) {
+        message += ` ${t('settings:backup:batchFailed', {
+          batch: result.batchError.batch,
+          detail: result.batchError.message,
+        })}`;
+      }
       if (failedCount) {
-        message += ` ${t('settings:backup:importFailedDocs', { count: failedCount })}`;
+        message += ` ${t('settings:backup:importFailedDocs', {
+          count: failedCount,
+        })}`;
       }
       if (result.skippedSections.length) {
         message += ` ${t('settings:backup:skippedSettings', {
           sections: result.skippedSections.join(', '),
         })}`;
       }
+      if (settingsFailures.length) {
+        message += ` ${t('settings:backup:settingsApplyFailed', {
+          sections: settingsFailures.map(item => item.section).join(', '),
+        })}`;
+      }
+      if (result.snapshotWarning) {
+        message += ` ${t('settings:backup:snapshotWarning', {
+          detail: result.snapshotWarning,
+        })}`;
+      }
+
       toast.add({
         title: message,
+        variant: partial ? 'destructive' : undefined,
         actionProps: result.snapshotPath
           ? {
               children: t('settings:backup:showSafety'),

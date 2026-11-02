@@ -46,7 +46,15 @@
     "fraction": "Enter a whole number from 0 to 8",
     "numberingNext": "Enter a whole number of 1 or more",
     "numberingPadding": "Enter a whole number from 0 to 12",
-    "numberingPrefix": "Use 20 characters or fewer"
+    "numberingPrefix": "Use 20 characters or fewer",
+    "importInProgress": "Import in progress. Try again when it finishes.",
+    "profileInvalid": "Business profile values are invalid",
+    "generalInvalid": "General settings values are invalid",
+    "invoiceInvalid": "Invoice settings values are invalid",
+    "themeInvalid": "Choose System, Light, or Dark",
+    "languageInvalid": "Choose a supported language",
+    "soundInvalid": "Choose a supported sound",
+    "templateInvalid": "Choose a supported invoice template"
   },
   "backup": {
     "export": "Export backup…",
@@ -68,6 +76,9 @@
     "duplicateCounts": "{{invoices}} duplicate invoices and {{contacts}} duplicate clients were skipped.",
     "importSuccess": "Imported {{added}} new and replaced {{overwritten}} items. Skipped {{skipped}}.",
     "importFailedDocs": "{{count}} could not be written.",
+    "batchFailed": "{{batch}} import stopped: {{detail}}",
+    "settingsApplyFailed": "Settings failed for: {{sections}}.",
+    "snapshotWarning": "Safety backup kept, but cleanup failed: {{detail}}",
     "skippedSettings": "Settings not imported for: {{sections}}.",
     "errors": {
       "invalidJson": "This file is not a valid backup.",
