@@ -24,9 +24,13 @@ export default function Viewer() {
     i18n.changeLanguage(UILang);
   }, [UILang]);
 
+  const exportBlocked = () =>
+    exportFrozenRef.current ||
+    window.__mantaExportFrozen === true ||
+    (window.__mantaExportFrozenCount || 0) > 0;
+
   useEffect(() => {
-    const blocked = () =>
-      exportFrozenRef.current || window.__mantaExportFrozen === true;
+    const blocked = exportBlocked;
 
     const onPreview = (_event, invoiceData) => {
       if (blocked()) {
@@ -44,8 +48,13 @@ export default function Viewer() {
       dispatch(ActionsCreator.updateProfile(newProfile));
     };
     const onFreeze = (_event, frozen) => {
-      exportFrozenRef.current = Boolean(frozen);
-      window.__mantaExportFrozen = Boolean(frozen);
+      if (frozen) {
+        exportFrozenRef.current = true;
+        window.__mantaExportFrozen = true;
+      } else {
+        exportFrozenRef.current = (window.__mantaExportFrozenCount || 0) > 0;
+        window.__mantaExportFrozen = exportFrozenRef.current;
+      }
     };
     const onExported = (_event, options) => {
       const noti = Notify(options);
@@ -70,6 +79,9 @@ export default function Viewer() {
   }, [dispatch]);
 
   const updateConfigs = config => {
+    if (exportBlocked()) {
+      return;
+    }
     dispatch(
       ActionsCreator.updateConfigs({ name: config.name, value: config.value })
     );

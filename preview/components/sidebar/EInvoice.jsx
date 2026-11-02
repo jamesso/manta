@@ -11,7 +11,7 @@ import { exportKey } from '../../../helpers/einvoice/exportKey.js';
 const ipc = window.manta.ipc;
 const settings = window.manta.settings;
 
-export default function EInvoiceSidebar({ t, UILang, invoice, profile }) {
+export default function EInvoiceSidebar({ t, UILang, invoice, profile, configs }) {
   const invoiceSettings = settings.get('invoice');
   const enabled = Boolean(invoiceSettings?.eInvoice?.enabled);
   const [exporting, setExporting] = useState(false);
@@ -63,7 +63,8 @@ export default function EInvoiceSidebar({ t, UILang, invoice, profile }) {
         kind,
         invoice,
         derived,
-        exportKey: exportKey(invoice, profile),
+        previewConfigs: configs,
+        exportKey: exportKey(invoice, profile, configs),
       });
       setResult(res);
     } catch (err) {

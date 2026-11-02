@@ -145,6 +145,20 @@ describe('validateEInvoiceExportPayload', () => {
     expect(validateEInvoiceExportPayload(invoice, derivedFor(invoice), ctx)).toBe(
       'invalid-price-precision'
     );
+    const fuzzy = {
+      ...lineInvoice,
+      rows: [
+        {
+          ...lineInvoice.rows[0],
+          price: 1.00000000009,
+          quantity: 1_000_000_000,
+          subtotal: 1_000_000_000,
+        },
+      ],
+    };
+    expect(validateEInvoiceExportPayload(fuzzy, derivedFor(fuzzy), ctx)).toBe(
+      'invalid-price-precision'
+    );
     expect(
       validateEInvoiceExportPayload(
         { ...lineInvoice, rows: [{ ...lineInvoice.rows[0], price: 19.99 }] },
@@ -192,6 +206,30 @@ describe('validateEInvoiceExportPayload', () => {
       derived,
     });
     expect(issues.some(i => i.code === 'TAX_PER_LINE_REQUIRED')).toBe(true);
+  });
+
+  it('rejects legacy invoice when derived totals claim line mode', () => {
+    const legacy = {
+      ...lineInvoice,
+      taxMode: undefined,
+      tax: { amount: 19, method: 'default' },
+      rows: [{ description: 'W', quantity: 1, price: 100, subtotal: 100 }],
+    };
+    const derived = derivedFor(legacy);
+    derived.totals = {
+      mode: 'line',
+      subtotal: 100,
+      discount: 0,
+      taxTotal: 19,
+      grandTotal: 119,
+      lines: [{ net: 100 }],
+      taxBreakdown: [
+        { category: 'S', rate: 19, base: 100, amount: 19, key: 'S-19' },
+      ],
+    };
+    expect(validateEInvoiceExportPayload(legacy, derived, ctx)).toBe(
+      'derived-total-mismatch'
+    );
   });
 
   it('rejects tampered grand total', () => {

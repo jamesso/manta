@@ -141,7 +141,8 @@ ipcMain.handle('einvoice-export', async (event, payload) => {
     return { ok: false, error: 'untrusted-sender' };
   }
 
-  const { kind, invoice, derived, exportKey: payloadExportKey } = payload ?? {};
+  const { kind, invoice, derived, exportKey: payloadExportKey, previewConfigs } =
+    payload ?? {};
   if (kind !== 'xrechnung' && kind !== 'facturx') {
     return { ok: false, error: 'unknown-kind' };
   }
@@ -175,7 +176,11 @@ ipcMain.handle('einvoice-export', async (event, payload) => {
   const exportDir = settings.invoice.exportDir;
   const win = BrowserWindow.fromWebContents(event.sender);
   const base = safeInvoiceFileName(model.number);
-  const expectedExportKey = exportKey(invoice, settings.profile);
+  const expectedExportKey = exportKey(
+    invoice,
+    settings.profile,
+    previewConfigs
+  );
 
   if (kind === 'facturx') {
     if (payloadExportKey !== expectedExportKey) {

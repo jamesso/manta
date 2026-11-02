@@ -1,5 +1,7 @@
 import { getDocType } from '../../app/helpers/docType.js';
+import { getIssuedAt } from '../../app/helpers/invoice.js';
 import { resolveProfile } from './toEn16931.js';
+import { sha256Hex } from './sha256.js';
 
 function stableValue(value) {
   if (value == null || typeof value !== 'object') {
@@ -16,19 +18,10 @@ function stableValue(value) {
     }, {});
 }
 
-function hashString(str) {
-  let h = 2166136261;
-  for (let i = 0; i < str.length; i += 1) {
-    h ^= str.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return (h >>> 0).toString(16).padStart(8, '0');
-}
-
 /**
- * Fingerprint of invoice + resolved seller profile fields that affect the print preview.
+ * Fingerprint of invoice + live preview configs + resolved seller profile for print.
  */
-export function exportKey(invoice, profile) {
+export function exportKey(invoice, profile, previewConfigs) {
   if (!invoice?._id) {
     return '';
   }
@@ -38,6 +31,8 @@ export function exportKey(invoice, profile) {
     docType: getDocType(invoice),
     invoiceID: invoice.invoiceID,
     status: invoice.status,
+    issuedAt: getIssuedAt(invoice),
+    created_at: invoice.created_at ?? null,
     rows: invoice.rows,
     discount: invoice.discount,
     tax: invoice.tax,
@@ -45,7 +40,7 @@ export function exportKey(invoice, profile) {
     taxCalc: invoice.taxCalc,
     currency: invoice.currency,
     recipient: invoice.recipient,
-    configs: invoice.configs,
+    configs: previewConfigs ?? invoice.configs,
     note: invoice.note,
     seller: invoice.seller,
     creditedInvoice: invoice.creditedInvoice,
@@ -65,7 +60,7 @@ export function exportKey(invoice, profile) {
       vatId: resolved.vatId,
     },
   });
-  return hashString(JSON.stringify(material));
+  return sha256Hex(JSON.stringify(material));
 }
 
 export const EINVOICE_PREVIEW_READY_SCRIPT = `(() => {
@@ -75,9 +70,18 @@ export const EINVOICE_PREVIEW_READY_SCRIPT = `(() => {
   const key = el.getAttribute('data-export-key');
   if (!id || !key) return null;
   if (document.fonts && document.fonts.status !== 'loaded') return null;
+  const imgs = el.querySelectorAll('img');
+  for (let i = 0; i < imgs.length; i += 1) {
+    if (!imgs[i].complete) return null;
+  }
+  window.__mantaExportFrozenCount = (window.__mantaExportFrozenCount || 0) + 1;
   window.__mantaExportFrozen = true;
   return { id, key };
 })()`;
 
-export const EINVOICE_PREVIEW_UNFREEZE_SCRIPT =
-  'window.__mantaExportFrozen = false';
+export const EINVOICE_PREVIEW_UNFREEZE_SCRIPT = `(() => {
+  window.__mantaExportFrozenCount = Math.max(0, (window.__mantaExportFrozenCount || 0) - 1);
+  if (window.__mantaExportFrozenCount === 0) {
+    window.__mantaExportFrozen = false;
+  }
+})()`;

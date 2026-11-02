@@ -567,6 +567,7 @@ test('exports a Factur-X PDF', async () => {
       kind: 'facturx',
       invoice: inv,
       derived: d,
+      previewConfigs: inv.configs,
       exportKey: exportKeyAttr,
     });
   }, { invoice, derived: fixture.derived });

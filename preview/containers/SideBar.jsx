@@ -95,6 +95,7 @@ export default function SideBar({
           UILang={UILang}
           invoice={invoice}
           profile={profile}
+          configs={configs}
         />
       </div>
       <Actions

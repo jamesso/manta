@@ -52,8 +52,17 @@ function priceWithinFourDecimals(price) {
   if (!Number.isFinite(n)) {
     return false;
   }
-  const scaled = n * PRICE_SCALE;
-  return Math.abs(scaled - Math.round(scaled)) < 1e-6;
+  return Math.abs(n * PRICE_SCALE - Math.round(n * PRICE_SCALE)) < 1e-8;
+}
+
+function linePriceQuantityCentsMatch(price, quantity) {
+  const p = Number(price);
+  const q = Number(quantity);
+  if (!Number.isFinite(p) || !Number.isFinite(q)) {
+    return false;
+  }
+  const roundedPrice = Math.round(p * PRICE_SCALE) / PRICE_SCALE;
+  return cents(p * q) === cents(roundedPrice * q);
 }
 
 function totalsMatch(recomputed, derivedTotals) {
@@ -185,6 +194,9 @@ export function validateEInvoiceExportPayload(
     if (!priceWithinFourDecimals(p)) {
       return 'invalid-price-precision';
     }
+    if (!linePriceQuantityCentsMatch(p, q)) {
+      return 'invalid-price-precision';
+    }
     const unit = row.unitCode;
     if (unit != null && String(unit).trim() !== '') {
       if (!UNIT_CODES.includes(String(unit).trim())) {
@@ -241,6 +253,9 @@ export function validateEInvoiceExportPayload(
     return 'stored-total-mismatch';
   }
 
+  if (recomputed.mode !== 'line' && derived.totals?.mode === 'line') {
+    return 'derived-total-mismatch';
+  }
   if (recomputed.mode === 'line') {
     if (!totalsMatch(recomputed, derived.totals)) {
       return 'derived-total-mismatch';
@@ -257,4 +272,4 @@ export function validateEInvoiceExportPayload(
   return null;
 }
 
-export { taxGroupMultisetSignature, priceWithinFourDecimals };
+export { taxGroupMultisetSignature, priceWithinFourDecimals, linePriceQuantityCentsMatch };
