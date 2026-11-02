@@ -1,6 +1,6 @@
 import { createColumnHelper, useTable } from '@tanstack/react-table';
 import { MoreHorizontal, Plus } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 
@@ -47,53 +47,68 @@ export default function TaxRates({ value, onChange }) {
 
   const activeCount = getActiveTaxRates(rates).length;
 
-  const upsertList = nextRate => {
-    let list = rates.map(r => ({ ...r }));
-    const idx = list.findIndex(r => r.id === nextRate.id);
-    if (idx === -1) {
-      list = [...list, nextRate];
-    } else {
-      list[idx] = nextRate;
-    }
-    if (nextRate.isDefault) {
-      list = list.map(r => ({
-        ...r,
-        isDefault: r.id === nextRate.id,
-      }));
-    }
-    onChange(list);
-  };
+  const upsertList = useCallback(
+    nextRate => {
+      let list = rates.map(r => ({ ...r }));
+      const idx = list.findIndex(r => r.id === nextRate.id);
+      if (idx === -1) {
+        list = [...list, nextRate];
+      } else {
+        list[idx] = nextRate;
+      }
+      if (nextRate.isDefault) {
+        list = list.map(r => ({
+          ...r,
+          isDefault: r.id === nextRate.id,
+        }));
+      }
+      onChange(list);
+    },
+    [rates, onChange]
+  );
 
-  const setDefault = id => {
-    onChange(
-      rates.map(r => ({
-        ...r,
-        isDefault: r.id === id,
-      }))
-    );
-  };
+  const setDefault = useCallback(
+    id => {
+      onChange(
+        rates.map(r => ({
+          ...r,
+          isDefault: r.id === id,
+        }))
+      );
+    },
+    [rates, onChange]
+  );
 
-  const toggleInactive = id => {
-    onChange(
-      rates.map(r =>
-        r.id === id ? { ...r, active: r.active === false ? true : false } : r
-      )
-    );
-  };
+  const toggleInactive = useCallback(
+    id => {
+      onChange(
+        rates.map(r =>
+          r.id === id ? { ...r, active: r.active === false ? true : false } : r
+        )
+      );
+    },
+    [rates, onChange]
+  );
 
-  const removeRate = id => {
-    onChange(rates.filter(r => r.id !== id));
-  };
+  const removeRate = useCallback(
+    id => {
+      onChange(rates.filter(r => r.id !== id));
+    },
+    [rates, onChange]
+  );
 
-  const tryDelete = rate => {
-    const count = items.filter(it => it.taxRateId === rate.id).length;
-    if (count > 0) {
-      setUsedCount(count);
-      setDeleteTarget(rate);
-      return;
-    }
-    removeRate(rate.id);
-  };
+  const tryDelete = useCallback(
+    rate => {
+      const count = items.filter(it => it.taxRateId === rate.id).length;
+      if (count > 0) {
+        setUsedCount(count);
+        setDeleteTarget(rate);
+        return;
+      }
+      removeRate(rate.id);
+    },
+    [items, removeRate]
+  );
 
   const columns = useMemo(
     () => [
@@ -184,7 +199,7 @@ export default function TaxRates({ value, onChange }) {
         },
       }),
     ],
-    [t, activeCount, items]
+    [t, activeCount, setDefault, toggleInactive, tryDelete]
   );
 
   const table = useTable({ data: rates, columns });
