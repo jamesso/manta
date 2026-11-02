@@ -7,6 +7,8 @@ import {
   resolveSaveStatus,
   validateCurrency,
   validateTax,
+  pickInvoiceFields,
+  isBlankRow,
 } from '../form';
 vi.mock('@/lib/dialog', () => ({ alert: vi.fn() }));
 const currency = { code: 'USD', fraction: 2, separator: 'commaDot' };
@@ -41,6 +43,24 @@ describe('form helpers', () => {
     expect(parseNumberInput('2.5')).toBe(2.5);
     expect(parseNumberInput('2.5', { integer: true })).toBe('');
     expect(parseNumberInput('Infinity')).toBe('');
+  });
+  it('keeps unitCode when saving invoice rows', () => {
+    const f = form();
+    f.rows[0].unitCode = 'HUR';
+    const data = pickInvoiceFields(f, currency);
+    expect(data.rows[0].unitCode).toBe('HUR');
+  });
+  it('treats unit-only rows as blank', () => {
+    expect(isBlankRow({ id: 'x', unitCode: 'HUR' })).toBe(true);
+    expect(
+      pickInvoiceFields(
+        {
+          ...form(),
+          rows: [{ id: 'x', unitCode: 'HUR' }],
+        },
+        currency
+      ).rows
+    ).toEqual([]);
   });
   it('validates final invoices and ignores blank rows', () => {
     const f = form();

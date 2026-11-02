@@ -2,15 +2,41 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { Draggable } from '@hello-pangea/dnd';
-import { GripVertical, Trash2 } from 'lucide-react';
+import { BookmarkPlus, GripVertical, Trash2 } from 'lucide-react';
 import { addItem, removeItem, updateItem } from '../../../actions/form';
+import {
+  applyItemToRow,
+  getUnitCode,
+  isKnownUnit,
+} from '../../../helpers/items';
 import { updateRowField } from '../../../helpers/form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FieldError } from '@/components/ui/field';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { UNIT_CODES } from '../../../constants/units';
+import ItemAutocomplete from './ItemAutocomplete';
 import { formatAmount } from './formatAmount';
 
-export default function LineItemRow({ item, index, count, registerInput }) {
+export default function LineItemRow({
+  item,
+  index,
+  count,
+  registerInput,
+  catalogItems,
+  onSaveAsItem,
+}) {
   const dispatch = useDispatch();
   const { t } = useTranslation();
   const { errors, currency, settings } = useSelector(state => state.form);
@@ -20,13 +46,22 @@ export default function LineItemRow({ item, index, count, registerInput }) {
   const displayCurrency = settings.required_fields.currency
     ? currency
     : savedCurrency;
+
+  const unitCode = getUnitCode(item.unitCode);
+  const unitOptions = [...UNIT_CODES];
+  if (!isKnownUnit(unitCode) && !unitOptions.includes(unitCode)) {
+    unitOptions.push(unitCode);
+  }
+
+  const showSaveAsItem = Boolean(item.description?.trim());
+
   return (
     <Draggable draggableId={String(item.id)} index={index}>
       {provided => (
         <div
           ref={provided.innerRef}
           {...provided.draggableProps}
-          className="grid grid-cols-[1.5rem_minmax(8rem,1fr)_7rem_6rem_7rem_2rem] items-start gap-2"
+          className="grid grid-cols-[1.5rem_minmax(8rem,1fr)_7rem_6rem_6rem_7rem_4.5rem] items-start gap-2"
         >
           {count > 1 ? (
             <button
@@ -40,19 +75,39 @@ export default function LineItemRow({ item, index, count, registerInput }) {
           ) : (
             <span />
           )}
-          {['description', 'price', 'quantity'].map(name => (
+          <div>
+            <ItemAutocomplete
+              id={`line-desc-${item.id}`}
+              value={item.description ?? ''}
+              items={catalogItems}
+              currency={displayCurrency}
+              onTextChange={text =>
+                dispatch(updateItem(updateRowField(item, 'description', text)))
+              }
+              onPick={picked =>
+                dispatch(updateItem(applyItemToRow(item, picked)))
+              }
+              onEnterWithoutPick={() => dispatch(addItem())}
+              inputProps={{
+                ref: node => registerInput(item.id, node),
+                'aria-label': t('form:fields:items:descriptionRow', {
+                  number: index + 1,
+                }),
+                'aria-invalid': Boolean(errors[`rows.${item.id}.description`]),
+              }}
+            />
+            {errors[`rows.${item.id}.description`] && (
+              <FieldError>
+                {t(errors[`rows.${item.id}.description`])}
+              </FieldError>
+            )}
+          </div>
+          {['price', 'quantity'].map(name => (
             <div key={name}>
               <Input
-                ref={
-                  name === 'description'
-                    ? node => registerInput(item.id, node)
-                    : undefined
-                }
-                type={name === 'description' ? 'text' : 'number'}
-                step={name === 'description' ? undefined : '0.01'}
-                className={
-                  name === 'description' ? '' : 'text-end tabular-nums'
-                }
+                type="number"
+                step="0.01"
+                className="text-end tabular-nums"
                 value={item[name] ?? ''}
                 aria-label={t(`form:fields:items:${name}Row`, {
                   number: index + 1,
@@ -64,6 +119,9 @@ export default function LineItemRow({ item, index, count, registerInput }) {
                   )
                 }
                 onKeyDown={e => {
+                  if (e.nativeEvent.isComposing) {
+                    return;
+                  }
                   if (e.key === 'Enter') {
                     e.preventDefault();
                     dispatch(addItem());
@@ -75,22 +133,71 @@ export default function LineItemRow({ item, index, count, registerInput }) {
               )}
             </div>
           ))}
+          <div>
+            <Select
+              value={unitCode}
+              onValueChange={v =>
+                dispatch(updateItem({ ...item, unitCode: v }))
+              }
+            >
+              <SelectTrigger
+                className="w-full"
+                aria-label={t('form:fields:items:unit', { n: index + 1 })}
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {unitOptions.map(code => (
+                  <SelectItem key={code} value={code}>
+                    {isKnownUnit(code) ? t(`items:units:${code}`) : code}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <div className="pt-2 text-end tabular-nums">
             {item.subtotal === '' || item.subtotal == null
               ? '—'
               : formatAmount(item.subtotal, displayCurrency)}
           </div>
-          {count > 1 && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-8"
-              aria-label={t('form:fields:items:remove', { number: index + 1 })}
-              onClick={() => dispatch(removeItem(item.id))}
-            >
-              <Trash2 />
-            </Button>
-          )}
+          <div className="flex items-start gap-0.5">
+            {showSaveAsItem ? (
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="size-8"
+                      aria-label={t('form:fields:items:saveAsItem', {
+                        n: index + 1,
+                      })}
+                      onClick={() => onSaveAsItem(item)}
+                    />
+                  }
+                >
+                  <BookmarkPlus className="size-4" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  {t('form:fields:items:saveAsItem', { n: index + 1 })}
+                </TooltipContent>
+              </Tooltip>
+            ) : null}
+            {count > 1 ? (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8"
+                aria-label={t('form:fields:items:remove', {
+                  number: index + 1,
+                })}
+                onClick={() => dispatch(removeItem(item.id))}
+              >
+                <Trash2 />
+              </Button>
+            ) : null}
+          </div>
         </div>
       )}
     </Draggable>
