@@ -82,22 +82,25 @@ export default function LivePreview() {
         }}
       >
         <div
-          ref={paperRef}
-          className="flex w-[21cm] h-[29.7cm] origin-top-left bg-white text-neutral-900 [color-scheme:light]"
+          className="origin-top-left"
           style={{ transform: `scale(${scale})` }}
         >
-          <ErrorBoundary
-            resetKey={debouncedForm}
-            fallback={<p className="p-4 text-sm">{t('form:preview:error')}</p>}
-          >
-            <InvoiceTemplate
-              invoice={displayInvoice}
-              profile={profile}
-              configs={configs}
-              t={i18n.t.bind(i18n)}
-              UILang={UILang}
-            />
-          </ErrorBoundary>
+          <div ref={paperRef} className="paper [color-scheme:light]" dir="ltr">
+            <ErrorBoundary
+              resetKey={debouncedForm}
+              fallback={
+                <p className="p-4 text-sm">{t('form:preview:error')}</p>
+              }
+            >
+              <InvoiceTemplate
+                invoice={displayInvoice}
+                profile={profile}
+                configs={configs}
+                t={i18n.t.bind(i18n)}
+                UILang={UILang}
+              />
+            </ErrorBoundary>
+          </div>
         </div>
       </div>
       {overflow ? (

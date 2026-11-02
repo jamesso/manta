@@ -2,11 +2,13 @@
 
 /* Layer order: later wins. Unlayered CSS (styled-components, ionicons,
    layout/form/items/contact/date-picker/preview CSS) beats every layer. */
-@layer theme, base, legacy, components, utilities;
+@layer theme, base, legacy, paper, components, utilities;
 
-/* Tailwind, split so that Preflight is one line (decision in Step 12). */
+/* Tailwind, split so that Preflight is one line (decision in Step 12).
+   Preflight stays off. */
 @import 'tailwindcss/theme.css' layer(theme);
 @import 'tailwindcss/utilities.css' layer(utilities) source(none);
+@import './paper.css' layer(paper);
 
 /* Old styles. Plan 018 removes them. */
 @import '../../static/css/bootstrap.min.css' layer(legacy);

@@ -1,0 +1,105 @@
+/* Invoice paper. Reproduces the Bootstrap 4 reboot rules the templates relied on.
+   Layer `paper` beats Tailwind base; unlayered styled-components still beat it.
+   Preflight stays off, so this file does not revert Preflight rules. */
+.paper {
+  position: relative;
+  display: flex;
+  width: 21cm;
+  min-width: 21cm;
+  height: 29.7cm;
+  min-height: 29.7cm;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 4px;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  color-scheme: light;
+  direction: ltr;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #212529;
+  -webkit-text-size-adjust: 100%;
+}
+.paper,
+.paper::before,
+.paper::after,
+.paper *,
+.paper *::before,
+.paper *::after {
+  box-sizing: border-box;
+}
+.paper :is(h1, h2, h3, h4, h5, h6) {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-family: inherit;
+  font-weight: 500;
+  line-height: 1.1;
+  color: inherit;
+}
+.paper h1 {
+  font-size: 2.5rem;
+}
+.paper h2 {
+  font-size: 2rem;
+}
+.paper h3 {
+  font-size: 1.75rem;
+}
+.paper h4 {
+  font-size: 1.5rem;
+}
+.paper h5 {
+  font-size: 1.25rem;
+}
+.paper h6 {
+  font-size: 1rem;
+}
+.paper p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+.paper img {
+  vertical-align: middle;
+  border-style: none;
+}
+.paper table {
+  border-collapse: collapse;
+}
+.paper th {
+  text-align: left;
+}
+@media screen and (prefers-color-scheme: dark) {
+  .paper {
+    box-shadow:
+      0 0 0 1px rgb(255 255 255 / 0.06),
+      0 8px 24px rgb(0 0 0 / 0.5);
+  }
+}
+@media print {
+  html,
+  body {
+    background: #fff !important;
+  }
+  .print-area,
+  .print-area *,
+  .print-area *::before,
+  .print-area *::after {
+    text-shadow: none !important;
+    box-shadow: none !important;
+  }
+  .paper thead {
+    display: table-header-group;
+  }
+  .paper img,
+  .paper tr {
+    page-break-inside: avoid;
+  }
+  .paper :is(h2, h3, p) {
+    orphans: 3;
+    widows: 3;
+  }
+}

@@ -25,20 +25,6 @@ const Message = styled.p`
   margin: 0;
 `;
 
-const Page = styled.div`
-  position: relative;
-  width: 21cm;
-  height: 29.7cm;
-  min-height: 29.7cm;
-  min-width: 21cm;
-  margin-left: auto;
-  margin-right: auto;
-  background: #ffffff;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  display: flex;
-  border-radius: 4px;
-`;
-
 // Components
 import { InvoiceTemplate } from '../templates';
 
@@ -49,9 +35,9 @@ class MainContent extends Component {
       <Wrapper>
         {invoice._id ? (
           <div className="print-area" data-invoice-id={invoice._id}>
-            <Page>
+            <div className="paper" dir="ltr">
               <InvoiceTemplate {...this.props} />
-            </Page>
+            </div>
           </div>
         ) : (
           <Message>{t('preview:common:chooseInvoiceToPreview')}</Message>
