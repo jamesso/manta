@@ -4,6 +4,11 @@ import { calTermDate } from '../../helpers/date';
 import { formatNumber } from '../../helpers/formatNumber';
 import { INVOICE_STATUSES } from '../constants/invoices';
 import { normalizeFraction, roundMoney } from './money';
+import {
+  compareTaxGroups,
+  roundMoney as roundMoneyFromTax,
+  taxGroupKey,
+} from './tax';
 
 function getCurrencyFraction(invoice) {
   const n = Number(invoice?.currency?.fraction);
@@ -18,7 +23,7 @@ function getInvoiceTotal(invoice) {
     return invoice.grandTotal;
   }
   if (Array.isArray(invoice.rows)) {
-    return Number(getInvoiceValue(invoice).grandTotal) || 0;
+    return Number(getGrandTotal(invoice)) || 0;
   }
   return 0;
 }
@@ -158,6 +163,184 @@ function getInvoiceValue(data) {
   };
 }
 
+function isLineTaxInvoice(invoice) {
+  if (invoice?.taxMode === 'line') {
+    return true;
+  }
+  if (invoice?.taxMode === 'invoice') {
+    return false;
+  }
+  if (invoice?.taxCalc === 1) {
+    return true;
+  }
+  if (Array.isArray(invoice?.rows)) {
+    return invoice.rows.some(row => Number.isFinite(Number(row.taxRate)));
+  }
+  return false;
+}
+
+function lineNetForRow(row, f) {
+  const price = Number(row.price);
+  const qty = Number(row.quantity);
+  if (Number.isFinite(price) && Number.isFinite(qty)) {
+    return roundMoneyFromTax(price * qty, f);
+  }
+  return roundMoneyFromTax(row.subtotal, f);
+}
+
+function allocateDiscountToGroups(groups, discount, subtotal, f) {
+  if (!Number.isFinite(discount) || discount === 0 || subtotal === 0) {
+    return groups.map(g => ({ ...g, discountShare: 0 }));
+  }
+  const sorted = [...groups].sort(compareTaxGroups);
+  let roundedSum = 0;
+  const withShares = sorted.map(g => {
+    const raw = (g.net / subtotal) * discount;
+    const share = roundMoneyFromTax(raw, f);
+    roundedSum += share;
+    return { ...g, discountShare: share };
+  });
+  let remainder = roundMoneyFromTax(discount - roundedSum, f);
+  if (remainder !== 0) {
+    let target = withShares[0];
+    for (const g of withShares) {
+      if (g.net > target.net) {
+        target = g;
+      } else if (g.net === target.net) {
+        if (compareTaxGroups(g, target) < 0) {
+          target = g;
+        }
+      }
+    }
+    const idx = withShares.indexOf(target);
+    withShares[idx] = {
+      ...withShares[idx],
+      discountShare: roundMoneyFromTax(
+        withShares[idx].discountShare + remainder,
+        f
+      ),
+    };
+  }
+  return withShares;
+}
+
+function getInvoiceTotals(invoice) {
+  if (!isLineTaxInvoice(invoice)) {
+    const v = getInvoiceValue(invoice);
+    const tax = invoice.tax;
+    let taxBreakdown = [];
+    if (tax) {
+      const base = v.subtotal - (v.discount ?? 0);
+      taxBreakdown = [
+        {
+          key: 'legacy',
+          category: tax.method === 'reverse' ? 'AE' : 'S',
+          rate: tax.amount,
+          base,
+          amount: v.taxAmount,
+          exemptionReason: '',
+          addedToTotal: tax.method === 'default',
+        },
+      ];
+    }
+    return {
+      mode: 'invoice',
+      lines: (invoice.rows ?? []).map(r => ({ net: r.subtotal })),
+      subtotal: v.subtotal,
+      discount: v.discount ?? 0,
+      taxTotal: v.taxAmount ?? 0,
+      grandTotal: v.grandTotal,
+      taxBreakdown,
+    };
+  }
+
+  const f = getCurrencyFraction(invoice);
+  const rows = invoice.rows ?? [];
+  const lines = rows.map(row => ({ net: lineNetForRow(row, f) }));
+  const subtotal = roundMoneyFromTax(
+    lines.reduce((acc, line) => acc + line.net, 0),
+    f
+  );
+
+  let discount = 0;
+  if (invoice.discount) {
+    if (invoice.discount.type === 'percentage') {
+      discount = roundMoneyFromTax(
+        (subtotal * Number(invoice.discount.amount)) / 100,
+        f
+      );
+    } else {
+      discount = roundMoneyFromTax(Number(invoice.discount.amount), f);
+    }
+  }
+
+  const groupMap = new Map();
+  rows.forEach((row, i) => {
+    const net = lines[i].net;
+    const category = row.taxCategory ?? 'S';
+    const rate = row.taxRate ?? 0;
+    const key = taxGroupKey(category, rate);
+    const prev = groupMap.get(key);
+    if (prev) {
+      prev.net = roundMoneyFromTax(prev.net + net, f);
+      const reason = String(row.taxExemptionReason ?? '').trim();
+      if (reason && prev.exemptionReason && prev.exemptionReason !== reason) {
+        prev.conflict = true;
+      } else if (reason && !prev.exemptionReason) {
+        prev.exemptionReason = reason;
+      }
+    } else {
+      groupMap.set(key, {
+        key,
+        category,
+        rate: Number(rate) || 0,
+        net,
+        exemptionReason: String(row.taxExemptionReason ?? '').trim(),
+        conflict: false,
+      });
+    }
+  });
+
+  const groups = [...groupMap.values()];
+  const allocated = allocateDiscountToGroups(groups, discount, subtotal, f);
+  allocated.sort(compareTaxGroups);
+
+  const taxBreakdown = allocated.map(g => {
+    const base = roundMoneyFromTax(g.net - g.discountShare, f);
+    const amount = roundMoneyFromTax((base * g.rate) / 100, f);
+    return {
+      key: g.key,
+      category: g.category,
+      rate: g.rate,
+      base,
+      amount,
+      exemptionReason: g.exemptionReason ?? '',
+      addedToTotal: true,
+      conflict: g.conflict,
+    };
+  });
+
+  const taxTotal = roundMoneyFromTax(
+    taxBreakdown.reduce((acc, g) => acc + g.amount, 0),
+    f
+  );
+  const grandTotal = roundMoneyFromTax(subtotal - discount + taxTotal, f);
+
+  return {
+    mode: 'line',
+    lines,
+    subtotal,
+    discount,
+    taxTotal,
+    grandTotal,
+    taxBreakdown,
+  };
+}
+
+function getGrandTotal(invoice) {
+  return getInvoiceTotals(invoice).grandTotal;
+}
+
 function getIssuedAt(invoice) {
   const raw = invoice.issuedAt ?? invoice.created_at ?? null;
   if (raw == null || raw === '') {
@@ -281,13 +464,16 @@ export {
   getDisplayStatus,
   getDueDate,
   getDueInDays,
+  getGrandTotal,
   getInvoiceNumber,
   getInvoiceTotal,
+  getInvoiceTotals,
   getInvoiceValue,
   getIssuedAt,
   getPaidDate,
   getPayments,
   getStoredStatus,
+  isLineTaxInvoice,
   roundMoney,
   withStatus,
 };
