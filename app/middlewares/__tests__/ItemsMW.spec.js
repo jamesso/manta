@@ -10,6 +10,7 @@ import {
   removeDocs,
   restoreDocs,
   mockData,
+  resetMockPouchData,
 } from '../../helpers/pouchDB';
 
 vi.mock('../../helpers/pouchDB');
@@ -26,6 +27,7 @@ describe('ItemsMW', () => {
   let middleware;
 
   beforeEach(() => {
+    resetMockPouchData();
     vi.clearAllMocks();
     next = vi.fn();
     dispatch = vi.fn();

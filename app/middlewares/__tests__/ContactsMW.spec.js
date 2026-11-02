@@ -13,6 +13,7 @@ import {
   removeDocs,
   restoreDocs,
   mockData,
+  resetMockPouchData,
 } from '../../helpers/pouchDB';
 vi.mock('../../helpers/pouchDB');
 vi.mock('@/components/ui/toast', () => ({
@@ -26,6 +27,7 @@ Date.now = vi.fn(() => 'now');
 describe('Contacts Middleware', () => {
   let next, dispatch, middleware;
   beforeEach(() => {
+    resetMockPouchData();
     next = vi.fn();
     dispatch = vi.fn();
     middleware = ContactsMW({ dispatch })(next);

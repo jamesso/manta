@@ -24,6 +24,7 @@ import {
   restoreDocs,
   updateDocs,
   mockData,
+  resetMockPouchData,
 } from '../../helpers/pouchDB';
 import { toast } from '@/components/ui/toast';
 import * as dialog from '@/lib/dialog';
@@ -33,6 +34,7 @@ describe('Invoices Middleware', () => {
   let next, dispatch, middleware, getState;
 
   beforeEach(() => {
+    resetMockPouchData();
     next = vi.fn();
     dispatch = vi.fn();
     getState = vi.fn(() => ({

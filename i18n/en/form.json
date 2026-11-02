@@ -25,7 +25,10 @@
       "remove": "Remove item {{number}}",
       "descriptionRow": "Description for item {{number}}",
       "priceRow": "Price for item {{number}}",
-      "quantityRow": "Quantity for item {{number}}"
+      "quantityRow": "Quantity for item {{number}}",
+      "unit": "Unit",
+      "saveAsItem": "Save line {{n}} as item",
+      "noMatch": "No saved items match"
     },
     "recipient": {
       "name": "Recipient",

@@ -12,6 +12,17 @@
     "updated": "Client updated",
     "deleted": "Client deleted"
   },
+  "item": {
+    "saved": "Item saved",
+    "updated": "Item updated",
+    "archived": "Item archived",
+    "unarchived": "Item restored to active",
+    "deleted_one": "Item deleted",
+    "deleted_other": "{{count}} items deleted",
+    "deleteFailed": "The item could not be deleted",
+    "undo": "Undo",
+    "restored": "Item restored"
+  },
   "settings": {
     "saved": "Saved"
   }

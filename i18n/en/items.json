@@ -1,0 +1,61 @@
+{
+  "header": "Items",
+  "count": "{{count}} total",
+  "new": "New item",
+  "search": {
+    "label": "Search items",
+    "placeholder": "Search by name, description, or unit…"
+  },
+  "views": {
+    "active": "Active",
+    "archived": "Archived"
+  },
+  "columns": {
+    "name": "Name",
+    "unit": "Unit",
+    "unitPrice": "Unit price",
+    "actions": "Actions"
+  },
+  "actions": {
+    "open": "Actions for {{name}}",
+    "edit": "Edit",
+    "archive": "Archive",
+    "unarchive": "Restore to active",
+    "delete": "Delete"
+  },
+  "dialog": {
+    "newTitle": "New item",
+    "editTitle": "Edit item",
+    "name": "Name",
+    "description": "Description",
+    "descriptionHint": "This text prints on the invoice. If empty, the name prints.",
+    "unitPrice": "Unit price",
+    "priceHint": "Uses the currency of the invoice.",
+    "unit": "Unit",
+    "save": "Save",
+    "cancel": "Cancel"
+  },
+  "errors": {
+    "nameRequired": "Enter a name.",
+    "nameTooLong": "Name must be 120 characters or fewer.",
+    "nameTaken": "An active item already uses this name.",
+    "price": "Enter a valid unit price.",
+    "unit": "Choose a valid unit code."
+  },
+  "empty": {
+    "title": "No items yet",
+    "description": "Save products and services you sell often. Then pick them when you add invoice lines.",
+    "noResults": "No items match “{{query}}”",
+    "clearSearch": "Clear search",
+    "noArchived": "No archived items"
+  },
+  "units": {
+    "C62": "Unit",
+    "HUR": "Hour",
+    "DAY": "Day",
+    "MON": "Month",
+    "KGM": "Kilogram",
+    "MTR": "Metre",
+    "LS": "Lump sum"
+  }
+}

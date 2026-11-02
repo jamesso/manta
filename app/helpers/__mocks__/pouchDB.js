@@ -14,7 +14,7 @@ const invoiceDoc = {
   },
   rows: [
     {
-      id: crypto.randomUUID(),
+      id: 'row-dragons',
       description: 'Dragons',
       price: '100',
       quantity: '3',
@@ -38,6 +38,17 @@ const mockData = {
   invoicesRecords: [invoiceDoc],
   itemsRecords: [itemDoc],
 };
+
+function resetMockPouchData() {
+  mockData.contactsRecords = [{ ...contactDoc }];
+  mockData.invoicesRecords = [
+    {
+      ...invoiceDoc,
+      rows: invoiceDoc.rows.map(row => ({ ...row })),
+    },
+  ];
+  mockData.itemsRecords = [{ ...itemDoc }];
+}
 
 const getAllDocs = vi.fn(
   dbName =>
@@ -108,17 +119,41 @@ const deleteDoc = vi.fn(
     })
 );
 
-const removeDocs = vi.fn((dbName, ids) =>
-  Promise.resolve({
-    removed: ids.map(id => ({ _id: id })),
+const removeDocs = vi.fn((dbName, ids) => {
+  const key = `${dbName}Records`;
+  const idSet = new Set(ids);
+  const removed = [];
+  if (mockData[key]) {
+    const kept = [];
+    for (const doc of mockData[key]) {
+      const docId = doc._id ?? doc.id;
+      if (idSet.has(docId)) {
+        const { _rev, ...snapshot } = doc;
+        removed.push({ ...snapshot, _id: docId });
+      } else {
+        kept.push(doc);
+      }
+    }
+    mockData[key] = kept;
+  }
+  return Promise.resolve({
+    removed,
     failed: [],
-    docs: mockData[`${dbName}Records`] ?? [],
-  })
-);
+    docs: mockData[key] ?? [],
+  });
+});
 
-const restoreDocs = vi.fn(dbName =>
-  Promise.resolve(mockData[`${dbName}Records`] ?? [])
-);
+const restoreDocs = vi.fn((dbName, docs) => {
+  const key = `${dbName}Records`;
+  if (mockData[key]) {
+    const byId = new Map(mockData[key].map(doc => [doc._id ?? doc.id, doc]));
+    for (const doc of docs) {
+      byId.set(doc._id, { ...doc });
+    }
+    mockData[key] = [...byId.values()];
+  }
+  return Promise.resolve(mockData[key] ?? []);
+});
 
 const updateDocs = vi.fn(() => Promise.resolve(mockData.invoicesRecords));
 
@@ -137,4 +172,5 @@ export {
   updateDocs,
   bulkSaveDocs,
   mockData,
+  resetMockPouchData,
 };
