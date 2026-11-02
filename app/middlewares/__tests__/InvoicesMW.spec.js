@@ -75,8 +75,26 @@ describe('Invoices Middleware', () => {
     resetMockPouchData();
     getSingleDoc.mockReset();
     getAllDocs.mockReset();
-    getAllDocs.mockImplementation(() =>
-      Promise.resolve(mockData.invoicesRecords)
+    getAllDocs.mockImplementation(
+      dbName =>
+        new Promise((resolve, reject) => {
+          switch (dbName) {
+            case 'contacts':
+              resolve(mockData.contactsRecords);
+              break;
+            case 'invoices':
+              resolve(mockData.invoicesRecords);
+              break;
+            case 'items':
+              resolve(mockData.itemsRecords);
+              break;
+            case 'recurring':
+              resolve(mockData.recurringRecords);
+              break;
+            default:
+              reject(new Error('Incorrect database!'));
+          }
+        })
     );
     updateDocs.mockReset();
     updateDocs.mockImplementation(() =>
