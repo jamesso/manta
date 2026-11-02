@@ -1,4 +1,5 @@
 import { buildBackup, mergeImportedSettings, planMerge } from './backup';
+import { normalizeImportedRecurring } from './recurring';
 import { buildInvoicesCsv } from './csv';
 import { withImportWriteLock } from './importWriteLock';
 import { bulkSaveDocs, getAllDocs } from './pouchDB';
@@ -13,6 +14,7 @@ export async function collectBackup(settingsStore = window.manta.settings) {
     invoices: await getAllDocs('invoices'),
     contacts: await getAllDocs('contacts'),
     items: await getAllDocs('items'),
+    recurring: await getAllDocs('recurring'),
   });
 }
 
@@ -53,9 +55,15 @@ export async function previewImport(backup) {
   const contacts = await getAllDocs('contacts');
   const invoices = await getAllDocs('invoices');
   const items = await getAllDocs('items');
+  const recurring = await getAllDocs('recurring');
   const skipContacts = planMerge(backup.contacts, contacts, 'skip').counts;
   const skipInvoices = planMerge(backup.invoices, invoices, 'skip').counts;
   const skipItems = planMerge(backup.items ?? [], items, 'skip').counts;
+  const skipRecurring = planMerge(
+    backup.recurring ?? [],
+    recurring,
+    'skip'
+  ).counts;
   const overwriteContacts = planMerge(
     backup.contacts,
     contacts,
@@ -71,16 +79,23 @@ export async function previewImport(backup) {
     items,
     'overwrite'
   ).counts;
+  const overwriteRecurring = planMerge(
+    backup.recurring ?? [],
+    recurring,
+    'overwrite'
+  ).counts;
   return {
     skip: {
       contacts: skipContacts,
       invoices: skipInvoices,
       items: skipItems,
+      recurring: skipRecurring,
     },
     overwrite: {
       contacts: overwriteContacts,
       invoices: overwriteInvoices,
       items: overwriteItems,
+      recurring: overwriteRecurring,
     },
   };
 }
@@ -103,7 +118,7 @@ export async function runImport(
     const snapshotWarning = snapshot.snapshotWarning ?? null;
 
     const counts = { added: 0, overwritten: 0, skipped: 0 };
-    const failed = { contacts: [], invoices: [], items: [] };
+    const failed = { contacts: [], invoices: [], items: [], recurring: [] };
     let batchError = null;
     let settingsResult = null;
     let settingsFailures = [];
@@ -115,9 +130,18 @@ export async function runImport(
       const existingContacts = await getAllDocs('contacts');
       const existingInvoices = await getAllDocs('invoices');
       const existingItems = await getAllDocs('items');
+      const existingRecurring = await getAllDocs('recurring');
       const contactPlan = planMerge(backup.contacts, existingContacts, mode);
       const invoicePlan = planMerge(backup.invoices, existingInvoices, mode);
       const itemPlan = planMerge(backup.items ?? [], existingItems, mode);
+      const recurringIncoming = (backup.recurring ?? []).map(doc =>
+        normalizeImportedRecurring(doc, Date.now())
+      );
+      const recurringPlan = planMerge(
+        recurringIncoming,
+        existingRecurring,
+        mode
+      );
 
       if (contactPlan.toWrite.length) {
         try {
@@ -177,6 +201,27 @@ export async function runImport(
         counts.skipped += itemPlan.counts.skipped;
       }
 
+      if (!batchError && recurringPlan.toWrite.length) {
+        try {
+          const recurringBatch = await bulkSaveDocs(
+            'recurring',
+            recurringPlan.toWrite
+          );
+          failed.recurring = recurringBatch.failed;
+          const tallies = countSucceeded(
+            recurringBatch.succeeded,
+            existingRecurring.map(doc => doc._id)
+          );
+          counts.added += tallies.added;
+          counts.overwritten += tallies.overwritten;
+        } catch (err) {
+          batchError = { batch: 'recurring', message: err.message };
+        }
+      }
+      if (!batchError) {
+        counts.skipped += recurringPlan.counts.skipped;
+      }
+
       if (includeSettings && backup.settings) {
         settingsResult = mergeImportedSettings(
           {
@@ -194,6 +239,7 @@ export async function runImport(
       contacts = await getAllDocs('contacts');
       invoices = await getAllDocs('invoices');
       items = await getAllDocs('items');
+      await getAllDocs('recurring');
     }
 
     return {
@@ -205,6 +251,7 @@ export async function runImport(
       contacts,
       invoices,
       items,
+      recurring: await getAllDocs('recurring'),
       settings: settingsResult?.settings,
       settingsFailures,
       skippedSections: settingsResult?.skippedSections ?? [],

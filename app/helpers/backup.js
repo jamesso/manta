@@ -1,8 +1,10 @@
 import { getSettingsErrors, getRawNumberingErrors } from './settings';
 import { collectCreditNoteImportWarnings } from './creditNotes';
+import { getRecurringErrors } from './recurring';
+import { INTERVALS, isDateKey } from './recurringSchedule';
 
 export const BACKUP_APP = 'Manta';
-export const BACKUP_VERSION = 5;
+export const BACKUP_VERSION = 6;
 
 const DANGEROUS_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
 
@@ -55,7 +57,13 @@ export function sanitizeDoc(doc) {
   return next;
 }
 
-export function buildBackup({ settings, invoices, contacts, items = [] }) {
+export function buildBackup({
+  settings,
+  invoices,
+  contacts,
+  items = [],
+  recurring = [],
+}) {
   if (hasDangerousKey(settings)) {
     throw Object.assign(new Error('unsupported-data'), {
       code: 'unsupported-data',
@@ -68,6 +76,7 @@ export function buildBackup({ settings, invoices, contacts, items = [] }) {
     invoices: invoices.map(sanitizeDoc),
     contacts: contacts.map(sanitizeDoc),
     items: items.map(sanitizeDoc),
+    recurring: recurring.map(sanitizeDoc),
   };
 }
 
@@ -103,6 +112,24 @@ function validateItem(doc) {
     typeof doc.name === 'string' &&
     doc.name.length > 0
   );
+}
+
+function validateRecurring(doc) {
+  if (
+    !isPlainObject(doc) ||
+    !validDocId(doc._id) ||
+    !INTERVALS.includes(doc.interval) ||
+    !Number.isInteger(doc.every) ||
+    doc.every < 1 ||
+    doc.every > 99 ||
+    !isDateKey(doc.startDate) ||
+    !Number.isInteger(doc.anchorDay) ||
+    doc.anchorDay < 1 ||
+    doc.anchorDay > 31
+  ) {
+    return false;
+  }
+  return Object.keys(getRecurringErrors(doc)).length === 0;
 }
 
 function parseDocList(list, validate) {
@@ -178,6 +205,14 @@ export function parseBackup(text) {
   } else {
     itemsList = parsed.items;
   }
+  let recurringList = [];
+  if (parsed.recurring === undefined) {
+    recurringList = [];
+  } else if (!Array.isArray(parsed.recurring)) {
+    return { ok: false, error: 'invalid-format' };
+  } else {
+    recurringList = parsed.recurring;
+  }
   let settings = parsed.settings;
   if (settings != null) {
     if (!isPlainObject(settings)) {
@@ -198,6 +233,10 @@ export function parseBackup(text) {
   if (itemsResult.error) {
     return { ok: false, error: itemsResult.error };
   }
+  const recurringResult = parseDocList(recurringList, validateRecurring);
+  if (recurringResult.error) {
+    return { ok: false, error: recurringResult.error };
+  }
   const creditWarnings = collectCreditNoteImportWarnings(invoicesResult.valid);
   return {
     ok: true,
@@ -208,16 +247,19 @@ export function parseBackup(text) {
       invoices: invoicesResult.valid,
       contacts: contactsResult.valid,
       items: itemsResult.valid,
+      recurring: recurringResult.valid,
     },
     invalid: {
       invoices: invoicesResult.invalid,
       contacts: contactsResult.invalid,
       items: itemsResult.invalid,
+      recurring: recurringResult.invalid,
     },
     duplicates: {
       invoices: invoicesResult.duplicates,
       contacts: contactsResult.duplicates,
       items: itemsResult.duplicates,
+      recurring: recurringResult.duplicates,
     },
     creditWarnings,
   };

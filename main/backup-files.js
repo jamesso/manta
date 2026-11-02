@@ -34,6 +34,9 @@ function serializeBackup(payload, appVersion, date) {
   if (!Array.isArray(payload.items)) {
     throw new Error('bad payload');
   }
+  if (payload.recurring != null && !Array.isArray(payload.recurring)) {
+    throw new Error('bad payload');
+  }
   return JSON.stringify(
     {
       app: 'Manta',
@@ -44,6 +47,7 @@ function serializeBackup(payload, appVersion, date) {
       invoices: payload.invoices,
       contacts: payload.contacts,
       items: payload.items,
+      recurring: payload.recurring ?? [],
     },
     null,
     2

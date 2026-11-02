@@ -222,7 +222,7 @@ describe('backup helpers', () => {
     const parsed = parseBackup(
       JSON.stringify({
         app: 'Manta',
-        version: 6,
+        version: 7,
         invoices: [],
         contacts: [],
       })
