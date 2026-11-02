@@ -12,6 +12,8 @@ import {
 import { roundMoney } from './money';
 import { clearRowTax, getSellerTaxIds, getTaxRateErrors } from './tax';
 import { reconcilePaymentStatus } from './payments';
+import { getDocType } from './docType';
+import { getDefaultValidUntil, normalizeValidDays } from './estimate';
 
 const EMAIL_RE =
   /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
@@ -201,6 +203,20 @@ export function getIssuedAtErrors(form) {
   const m = moment(issuedAt);
   if (!m.isValid()) {
     return { issuedAt: 'dialog:validation:dueDate:message' };
+  }
+  return {};
+}
+
+function getValidUntilErrors(form) {
+  const { validUntil, issuedAt } = form;
+  if (validUntil == null) {
+    return {};
+  }
+  const issueDay = moment(issuedAt ?? Date.now())
+    .startOf('day')
+    .valueOf();
+  if (validUntil < issueDay) {
+    return { validUntil: 'form:errors:validUntilBeforeIssue' };
   }
   return {};
 }
@@ -456,6 +472,7 @@ function getDraftNumericErrors(form) {
 
 export function getFormErrors(form, mode) {
   const { required_fields } = form.settings;
+  const docType = form.docType || 'invoice';
   if (mode === 'draft') {
     if (!hasDraftContent(form)) {
       return { draftEmpty: 'form:errors:draftEmpty' };
@@ -472,7 +489,12 @@ export function getFormErrors(form, mode) {
     ...getInvoiceIDErrors(form, mode),
     ...getRecipientErrors(form.recipient, mode),
     ...getRowErrors(form.rows, mode),
-    ...getDueDateErrors(required_fields.dueDate, form.dueDate, mode),
+    ...(docType === 'estimate'
+      ? {}
+      : getDueDateErrors(required_fields.dueDate, form.dueDate, mode)),
+    ...(docType === 'estimate' && mode === 'final'
+      ? getValidUntilErrors(form)
+      : {}),
     ...getCurrencyErrors(form, mode),
     ...getDiscountErrors(required_fields.discount, form.discount, mode),
     ...(form.taxMode === 'line'
@@ -556,10 +578,31 @@ export function pickInvoiceFields(form, defaultCurrency) {
   if (required_fields.note) {
     invoiceData.note = note.content;
   }
+  invoiceData.docType = form.docType || 'invoice';
+  if (invoiceData.docType === 'estimate') {
+    if (form.validUntil != null) {
+      invoiceData.validUntil = form.validUntil;
+    }
+    delete invoiceData.dueDate;
+  } else if (form.sourceEstimateId) {
+    invoiceData.sourceEstimateId = form.sourceEstimateId;
+  }
   return invoiceData;
 }
 
-export function resolveSaveStatus(mode, editData) {
+export function resolveSaveStatus(mode, editData, docType = 'invoice') {
+  if (docType === 'estimate') {
+    if (mode === 'draft') {
+      return 'draft';
+    }
+    if (!editData) {
+      return 'sent';
+    }
+    if (editData.status === 'draft') {
+      return 'sent';
+    }
+    return editData.status ?? 'draft';
+  }
   if (mode === 'draft') {
     return 'draft';
   }
@@ -580,10 +623,12 @@ export function getInvoiceData(
     now = Date.now(),
     profile = {},
     invoiceSettings = {},
+    estimateValidDays,
   } = {}
 ) {
   const { settings } = formData;
   const { editMode } = settings;
+  const docType = formData.docType || 'invoice';
   const fields = pickInvoiceFields(formData, defaultCurrency);
   const seller = resolveSellerForSave(formData, profile, invoiceSettings);
   if (seller) {
@@ -603,31 +648,56 @@ export function getInvoiceData(
   const issuedAt =
     formData.issuedAt ?? (editMode.active ? getIssuedAt(editMode.data) : now);
 
+  const estimateValidDaysNorm = normalizeValidDays(estimateValidDays);
+
   if (editMode.active) {
     const base = { ...editMode.data };
     Object.assign(base, fields, {
       issuedAt,
-      status: resolveSaveStatus(mode, editMode.data),
-      paidAt: editMode.data.paidAt,
-      payments: editMode.data.payments,
+      status: resolveSaveStatus(mode, editMode.data, docType),
       subtotal: getInvoiceTotals(fields).subtotal,
       grandTotal: getInvoiceTotals(fields).grandTotal,
     });
+    if (docType === 'invoice') {
+      base.paidAt = editMode.data.paidAt;
+      base.payments = editMode.data.payments;
+    } else {
+      delete base.payments;
+      delete base.paidAt;
+      delete base.dueDate;
+    }
+    if (docType === 'estimate') {
+      base.validUntil =
+        formData.validUntil ??
+        getDefaultValidUntil(issuedAt, estimateValidDaysNorm);
+    }
     if (!settings.required_fields.dueDate) delete base.dueDate;
     if (!('discount' in fields)) delete base.discount;
     if (!('tax' in fields)) delete base.tax;
     if (!('note' in fields)) delete base.note;
-    return reconcilePaymentStatus(base, now);
+    if (docType === 'invoice') {
+      return reconcilePaymentStatus(base, now);
+    }
+    return base;
   }
 
-  return Object.assign({}, fields, {
+  const created = Object.assign({}, fields, {
     _id: crypto.randomUUID(),
     created_at: now,
     issuedAt,
-    status: resolveSaveStatus(mode, null),
+    status: resolveSaveStatus(mode, null, docType),
     subtotal: getInvoiceTotals(fields).subtotal,
     grandTotal: getInvoiceTotals(fields).grandTotal,
   });
+  if (docType === 'estimate') {
+    created.validUntil =
+      formData.validUntil ??
+      getDefaultValidUntil(issuedAt, estimateValidDaysNorm);
+  }
+  if (docType === 'invoice') {
+    return reconcilePaymentStatus(created, now);
+  }
+  return created;
 }
 
 export function validateTax(isRequired, tax) {

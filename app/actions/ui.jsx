@@ -24,6 +24,8 @@ export const newNoti = createAction(
 
 export const newInvoice = createAction(ACTION_TYPES.UI_NEW_INVOICE);
 
+export const newEstimate = createAction(ACTION_TYPES.UI_NEW_ESTIMATE);
+
 export const setSidebarCollapsed = createAction(
   ACTION_TYPES.UI_SIDEBAR_COLLAPSED_SET,
   v => v

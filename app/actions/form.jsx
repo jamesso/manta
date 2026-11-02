@@ -73,3 +73,8 @@ export const setTaxMode = createAction(
   ACTION_TYPES.FORM_TAX_MODE_SET,
   mode => mode
 );
+
+export const setFormDocType = createAction(
+  ACTION_TYPES.FORM_SET_DOC_TYPE,
+  docType => docType
+);

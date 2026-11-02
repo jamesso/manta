@@ -12,6 +12,7 @@ import * as InvoicesActions from '../actions/invoices';
 import * as ContactsActions from '../actions/contacts';
 import * as SettingsActions from '../actions/settings';
 import * as UIActions from '../actions/ui';
+import * as EstimateActions from '../actions/estimates';
 
 // Helper
 import {
@@ -27,6 +28,13 @@ import {
   matchLegacyTaxRate,
 } from '../helpers/tax';
 import { getPaymentEditErrors } from '../helpers/payments';
+import { listTabFor } from '../helpers/docType';
+import {
+  buildLinkIndex,
+  canConvert,
+  normalizeValidDays,
+} from '../helpers/estimate';
+import { getAllDocs } from '../helpers/pouchDB';
 import { formatNumber } from '../../helpers/formatNumber';
 import { toast } from '@/components/ui/toast';
 import {
@@ -36,14 +44,19 @@ import {
 } from '../helpers/importWriteLock';
 import {
   advanceNumbering,
+  defaultNumberingFor,
+  normalizeNumbering,
+  numberingKeyFor,
   resolveStoredNumbering,
   suggestedInvoiceNumberFromReconciled,
 } from '../helpers/numbering';
 
 function suggestedInvoiceNumberForForm(form) {
+  const docType = form.docType || 'invoice';
+  const key = numberingKeyFor(docType);
   return suggestedInvoiceNumberFromReconciled(
     form.reconciledNumbering,
-    appConfig.get('invoice.numbering')
+    appConfig.get(`invoice.${key}`)
   );
 }
 
@@ -77,10 +90,25 @@ function invoiceDataOptions(mode) {
     defaultCurrency: appConfig.get('invoice.currency'),
     profile: appConfig.get('profile') ?? {},
     invoiceSettings: appConfig.get('invoice') ?? {},
+    estimateValidDays: normalizeValidDays(
+      appConfig.get('invoice.estimateValidDays')
+    ),
   };
 }
 
 let saveInFlight = null;
+const conversionSaveQueues = new Map();
+
+function runConversionQueued(estimateId, fn) {
+  const prev = conversionSaveQueues.get(estimateId) || Promise.resolve();
+  const next = prev.then(fn, fn).finally(() => {
+    if (conversionSaveQueues.get(estimateId) === next) {
+      conversionSaveQueues.delete(estimateId);
+    }
+  });
+  conversionSaveQueues.set(estimateId, next);
+  return next;
+}
 
 async function handleSave({ dispatch, getState }, mode) {
   if (saveInFlight) {
@@ -120,6 +148,28 @@ async function handleSave({ dispatch, getState }, mode) {
 
       const data = getInvoiceData(formSnapshot, invoiceDataOptions(mode));
       const { editMode } = formSnapshot.settings;
+
+      if (!editMode.active && data.sourceEstimateId) {
+        const allowed = await runConversionQueued(
+          data.sourceEstimateId,
+          async () => {
+            const docs = await getAllDocs('invoices');
+            const est = docs.find(d => d._id === data.sourceEstimateId);
+            if (est && !canConvert(est, buildLinkIndex(docs))) {
+              toast.add({
+                title: i18n.t('estimates:toast:alreadyConverted'),
+                type: 'warning',
+              });
+              return false;
+            }
+            return true;
+          }
+        );
+        if (allowed === false) {
+          return false;
+        }
+      }
+
       if (editMode.active) {
         const paymentErrors = getPaymentEditErrors(data, editMode.data);
         if (paymentErrors.length) {
@@ -163,16 +213,18 @@ async function handleSave({ dispatch, getState }, mode) {
       const savedBase = persisted ?? data;
 
       if (!editMode.active) {
+        const docType = formSnapshot.docType || 'invoice';
+        const key = numberingKeyFor(docType);
         const numberingBase = resolveStoredNumbering(
           getState().form.reconciledNumbering,
-          appConfig.get('invoice.numbering')
+          appConfig.get(`invoice.${key}`)
         );
         const advancedNumbering = advanceNumbering(
-          numberingBase,
+          normalizeNumbering(numberingBase, defaultNumberingFor(docType)),
           data.invoiceID
         );
         try {
-          appConfig.set('invoice.numbering', advancedNumbering);
+          appConfig.set(`invoice.${key}`, advancedNumbering);
           dispatch({ type: ACTION_TYPES.FORM_CLEAR_RECONCILED_NUMBERING });
         } catch (err) {
           dispatch({
@@ -186,6 +238,20 @@ async function handleSave({ dispatch, getState }, mode) {
               message: i18n.t('form:errors:partialNumberingSave'),
             },
           });
+        }
+      }
+
+      if (!editMode.active && data.sourceEstimateId) {
+        const docs = await getAllDocs('invoices');
+        const est = docs.find(d => d._id === data.sourceEstimateId);
+        if (est) {
+          const invoiceId = persisted?._id ?? data._id;
+          await dispatch(
+            EstimateActions.markEstimateConverted({
+              estimateId: data.sourceEstimateId,
+              invoiceId,
+            })
+          );
         }
       }
 
@@ -219,14 +285,18 @@ async function handleSave({ dispatch, getState }, mode) {
         editMode.data.status === 'draft' &&
         mode === 'final'
       ) {
-        ipc.send('preview-invoice', data);
+        ipc.send('preview-invoice', savedBase);
+      } else if (mode === 'final' && formSnapshot.docType === 'estimate') {
+        ipc.send('preview-invoice', savedBase);
       }
 
       const afterSave = getState().form;
       const sameForm = (afterSave.formGeneration ?? 0) === startGeneration;
 
       if (editMode.active && sameForm) {
-        dispatch(UIActions.changeActiveTab('invoices'));
+        dispatch(
+          UIActions.changeActiveTab(listTabFor(data.docType || 'invoice'))
+        );
       }
 
       if (!sameForm) {
@@ -379,12 +449,27 @@ const FormMW =
 
       case ACTION_TYPES.FORM_LOAD_DUPLICATE: {
         const result = next(action);
-        dispatch(
-          FormActions.updateFieldData(
-            'invoiceID',
-            suggestedInvoiceNumberForForm(getState().form)
-          )
-        );
+        if (!getState().form.settings.editMode.active) {
+          dispatch(
+            FormActions.updateFieldData(
+              'invoiceID',
+              suggestedInvoiceNumberForForm(getState().form)
+            )
+          );
+        }
+        return result;
+      }
+
+      case ACTION_TYPES.FORM_SET_DOC_TYPE: {
+        const result = next(action);
+        if (!getState().form.settings.editMode.active) {
+          dispatch(
+            FormActions.updateFieldData(
+              'invoiceID',
+              suggestedInvoiceNumberForForm(getState().form)
+            )
+          );
+        }
         return result;
       }
 

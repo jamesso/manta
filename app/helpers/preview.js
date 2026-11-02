@@ -1,6 +1,7 @@
 import { getDefaultPreviewConfigs } from '../../preview/constants/defaultConfigs';
 import { getInvoiceTotals, getIssuedAt } from './invoice';
 import { pickInvoiceFields, resolveSellerForSave } from './form';
+import { getDefaultValidUntil, normalizeValidDays } from './estimate';
 
 export function formToPreviewInvoice(
   form,
@@ -8,11 +9,13 @@ export function formToPreviewInvoice(
 ) {
   const { settings } = form;
   const { editMode } = settings;
+  const docType = form.docType || 'invoice';
   const editIssued = editMode.active ? getIssuedAt(editMode.data) : null;
   const issuedAt = form.issuedAt ?? editIssued ?? now;
   const fields = pickInvoiceFields(form, invoiceSettings.currency);
   const invoice = {
     ...fields,
+    docType,
     _id: editMode.data?._id ?? 'preview',
     recipient: form.recipient.newRecipient
       ? { ...form.recipient.new }
@@ -21,8 +24,19 @@ export function formToPreviewInvoice(
     created_at: issuedAt,
     subtotal: getInvoiceTotals(fields).subtotal,
     grandTotal: getInvoiceTotals(fields).grandTotal,
-    payments: editMode.active ? editMode.data.payments : undefined,
   };
+  if (docType === 'estimate') {
+    invoice.validUntil =
+      form.validUntil ??
+      getDefaultValidUntil(
+        issuedAt,
+        normalizeValidDays(invoiceSettings.estimateValidDays)
+      );
+    delete invoice.dueDate;
+    delete invoice.payments;
+  } else if (editMode.active) {
+    invoice.payments = editMode.data.payments;
+  }
   const seller = resolveSellerForSave(form, profile, invoiceSettings);
   if (seller) {
     invoice.seller = seller;

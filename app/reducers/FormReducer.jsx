@@ -15,18 +15,23 @@ import {
   editorTaxModeFromDoc,
   requiredTaxFieldFromDoc,
 } from '../helpers/form';
-import { getIssuedAt } from '../helpers/invoice';
 import {
   formatInvoiceNumber,
   normalizeNumbering,
+  numberingKeyFor,
+  defaultNumberingFor,
   resolveStoredNumbering,
   suggestedInvoiceNumberFromReconciled,
 } from '../helpers/numbering';
+import { getDocType } from '../helpers/docType';
+import { getIssuedAt } from '../helpers/invoice';
 
 function invoiceNumberForState(state) {
+  const docType = state.docType || 'invoice';
+  const key = numberingKeyFor(docType);
   return suggestedInvoiceNumberFromReconciled(
     state.reconciledNumbering,
-    appConfig.get('invoice.numbering')
+    appConfig.get(`invoice.${key}`)
   );
 }
 
@@ -73,6 +78,9 @@ const initialState = {
     required_fields: invoiceSettings.required_fields,
   },
   taxMode: 'line',
+  docType: 'invoice',
+  validUntil: null,
+  sourceEstimateId: null,
 };
 
 function populateFromDuplicate(state, payload) {
@@ -118,6 +126,9 @@ function populateFromDuplicate(state, payload) {
       required_fields,
     }),
     taxMode: editorTaxModeFromDoc(payload),
+    docType: getDocType(payload),
+    validUntil: payload.validUntil ?? null,
+    sourceEstimateId: payload.sourceEstimateId ?? null,
   });
 }
 
@@ -165,6 +176,9 @@ function populateFromInvoice(state, payload) {
       }),
     }),
     taxMode: editorTaxModeFromDoc(payload),
+    docType: getDocType(payload),
+    validUntil: payload.validUntil ?? null,
+    sourceEstimateId: payload.sourceEstimateId ?? null,
   });
 }
 
@@ -321,6 +335,24 @@ const FormReducer = handleActions(
         errorMode: action.payload.mode,
       }),
 
+    [ACTION_TYPES.FORM_SET_DOC_TYPE]: (state, action) => {
+      if (state.settings.editMode.active) {
+        return state;
+      }
+      const nextType = action.payload;
+      if (nextType === state.docType) {
+        return state;
+      }
+      return Object.assign({}, state, {
+        docType: nextType,
+        validUntil: null,
+        sourceEstimateId: null,
+        errors: {},
+        errorMode: null,
+        invoiceID: invoiceNumberForState({ ...state, docType: nextType }),
+      });
+    },
+
     [ACTION_TYPES.FORM_SAVE_PENDING]: (state, action) =>
       Object.assign({}, state, {
         savePending: Boolean(action.payload),
@@ -346,12 +378,15 @@ const FormReducer = handleActions(
 
     [ACTION_TYPES.FORM_CLEAR]: state =>
       Object.assign({}, initialState, {
+        docType: state.docType,
         currency: state.savedSettings.currency,
         tax: state.savedSettings.tax,
         invoiceID: invoiceNumberForState(state),
         reconciledNumbering: state.reconciledNumbering,
         formGeneration: (state.formGeneration || 0) + 1,
         taxMode: 'line',
+        validUntil: null,
+        sourceEstimateId: null,
         settings: Object.assign({}, state.settings, {
           open: false,
           editMode: {
