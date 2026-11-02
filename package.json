@@ -37,6 +37,7 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
+    "@e-invoice-eu/core": "3.4.2",
     "@emotion/is-prop-valid": "^1.4.0",
     "@hello-pangea/dnd": "^18.0.1",
     "@tanstack/react-table": "^9.3.1",
