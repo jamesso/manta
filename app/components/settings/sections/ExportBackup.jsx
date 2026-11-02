@@ -155,6 +155,7 @@ export default function ExportBackup({
       preview,
       invalid: parsed.invalid,
       duplicates: parsed.duplicates,
+      creditWarnings: parsed.creditWarnings ?? [],
     });
     setMode('skip');
     setIncludeSettings(false);
@@ -351,6 +352,7 @@ export default function ExportBackup({
           }}
           invalid={importState.invalid}
           duplicates={importState.duplicates}
+          creditWarnings={importState.creditWarnings}
           hasSettings={Boolean(importState.backup.settings)}
           mode={mode}
           onModeChange={setMode}

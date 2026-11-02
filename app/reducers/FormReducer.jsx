@@ -83,6 +83,7 @@ const initialState = {
   sourceEstimateId: null,
   creditedInvoiceId: null,
   creditedInvoice: null,
+  seller: null,
 };
 
 function populateFromDuplicate(state, payload) {
@@ -133,6 +134,7 @@ function populateFromDuplicate(state, payload) {
     sourceEstimateId: payload.sourceEstimateId ?? null,
     creditedInvoiceId: payload.creditedInvoiceId ?? null,
     creditedInvoice: payload.creditedInvoice ?? null,
+    seller: payload.seller ?? null,
   });
   if (getDocType(payload) === 'creditNote' && payload.recipient) {
     next = Object.assign({}, next, {
@@ -201,6 +203,7 @@ function populateFromInvoice(state, payload) {
     sourceEstimateId: payload.sourceEstimateId ?? null,
     creditedInvoiceId: payload.creditedInvoiceId ?? null,
     creditedInvoice: payload.creditedInvoice ?? null,
+    seller: payload.seller ?? null,
   });
 }
 
@@ -411,6 +414,7 @@ const FormReducer = handleActions(
         sourceEstimateId: null,
         creditedInvoiceId: null,
         creditedInvoice: null,
+        seller: null,
         settings: Object.assign({}, state.settings, {
           open: false,
           editMode: {

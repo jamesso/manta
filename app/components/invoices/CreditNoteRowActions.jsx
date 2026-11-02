@@ -39,11 +39,13 @@ export default function CreditNoteRowActions({ creditNote, dispatch, t }) {
         <MoreHorizontal />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-52">
-        <DropdownMenuItem
-          onClick={() => ipc.send('preview-invoice', creditNote)}
-        >
-          {t('invoices:creditNotes:actions:preview')}
-        </DropdownMenuItem>
+        {stored !== 'draft' ? (
+          <DropdownMenuItem
+            onClick={() => ipc.send('preview-invoice', creditNote)}
+          >
+            {t('invoices:creditNotes:actions:preview')}
+          </DropdownMenuItem>
+        ) : null}
         {stored === 'draft' ? (
           <>
             <DropdownMenuItem onClick={() => dispatch(editInvoice(creditNote))}>

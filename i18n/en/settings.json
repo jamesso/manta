@@ -82,6 +82,7 @@
     "summaryWithItems": "{{invoices}} invoices, {{clients}} clients and {{items}} items in this file. {{added}} are new. {{existing}} already exist.",
     "invalidCounts": "{{invoices}} invalid invoices, {{contacts}} invalid clients and {{items}} invalid items were skipped.",
     "duplicateCounts": "{{invoices}} duplicate invoices, {{contacts}} duplicate clients and {{items}} duplicate items were skipped.",
+    "creditWarnings": "{{count}} issued credit notes have data warnings (missing invoice, currency mismatch, or invalid amount). They will still import.",
     "importSuccess": "Imported {{added}} new and replaced {{overwritten}} items. Skipped {{skipped}}.",
     "importFailedDocs": "{{count}} could not be written.",
     "batchFailed": "{{batch}} import stopped: {{detail}}",

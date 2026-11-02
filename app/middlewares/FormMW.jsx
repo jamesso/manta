@@ -37,7 +37,8 @@ import {
   canConvert,
   normalizeValidDays,
 } from '../helpers/estimate';
-import { getAllDocs } from '../helpers/pouchDB';
+import { getAllDocs, saveDoc, updateDoc } from '../helpers/pouchDB';
+import { settleCreditedInvoiceInDb } from '../helpers/creditNoteSettlement';
 import { formatNumber } from '../../helpers/formatNumber';
 import { toast } from '@/components/ui/toast';
 import {
@@ -113,6 +114,19 @@ function runConversionQueued(estimateId, fn) {
   return next;
 }
 
+function persistedFromDocs(docs, payload) {
+  if (!Array.isArray(docs) || !docs.length) {
+    return payload;
+  }
+  if (payload?._id) {
+    const match = docs.find(doc => doc._id === payload._id);
+    if (match) {
+      return match;
+    }
+  }
+  return payload;
+}
+
 async function handleSave({ dispatch, getState }, mode) {
   if (saveInFlight) {
     return saveInFlight;
@@ -149,12 +163,15 @@ async function handleSave({ dispatch, getState }, mode) {
         return;
       }
 
-      const data = getInvoiceData(formSnapshot, invoiceDataOptions(mode));
       const { editMode } = formSnapshot.settings;
       const docType = formSnapshot.docType || 'invoice';
+      let ok;
+      let savedBase;
+      let data;
+      let creditSyncFailed = false;
 
       if (docType === 'creditNote') {
-        const creditCheck = await runInvoiceMutationQueued(
+        const writeResult = await runInvoiceMutationQueued(
           formSnapshot.creditedInvoiceId,
           async () => {
             const salesDocs = await getAllDocs('invoices');
@@ -172,19 +189,47 @@ async function handleSave({ dispatch, getState }, mode) {
                 cn.docType === 'creditNote' &&
                 cn.creditedInvoiceId === formSnapshot.creditedInvoiceId
             );
+            const payload = getInvoiceData(
+              formSnapshot,
+              invoiceDataOptions(mode)
+            );
             const draftPayload = {
-              ...data,
-              _id: editMode.active ? editMode.data._id : undefined,
+              ...payload,
+              _id: editMode.active ? editMode.data._id : payload._id,
+              _rev: editMode.active ? editMode.data._rev : undefined,
             };
             const code = validateCreditTotal(draftPayload, original, linked);
             if (code) {
               return { ok: false, code };
             }
-            return { ok: true };
+            const newDocs = editMode.active
+              ? await updateDoc('invoices', draftPayload)
+              : await saveDoc('invoices', draftPayload);
+            let fresh = await getAllDocs('invoices');
+            dispatch({ type: ACTION_TYPES.INVOICE_UPDATE, payload: fresh });
+            let persisted = persistedFromDocs(newDocs, draftPayload);
+            if (draftPayload.status === 'issued') {
+              try {
+                fresh = await settleCreditedInvoiceInDb(
+                  formSnapshot.creditedInvoiceId
+                );
+                dispatch({ type: ACTION_TYPES.INVOICE_UPDATE, payload: fresh });
+                persisted =
+                  fresh.find(d => d._id === persisted._id) ?? persisted;
+              } catch {
+                return {
+                  ok: 'partial',
+                  persisted,
+                  payload: draftPayload,
+                  syncFailed: true,
+                };
+              }
+            }
+            return { ok: true, persisted, payload: draftPayload };
           }
         );
-        if (!creditCheck.ok) {
-          if (creditCheck.code === 'issuedCreditNote') {
+        if (writeResult?.ok === false) {
+          if (writeResult.code === 'issuedCreditNote') {
             toast.add({
               title: i18n.t('invoices:creditNotes:toast:issuedCreditNote', {
                 count: 1,
@@ -194,96 +239,119 @@ async function handleSave({ dispatch, getState }, mode) {
           } else {
             dispatch(
               FormActions.setFormErrors(
-                { creditTotal: `form:errors:${creditCheck.code}` },
+                { creditTotal: `form:errors:${writeResult.code}` },
                 mode
               )
             );
             toast.add({
-              title: i18n.t(`form:errors:${creditCheck.code}`),
+              title: i18n.t(`form:errors:${writeResult.code}`),
               type: 'warning',
             });
           }
           return false;
         }
-      }
+        if (!writeResult?.persisted) {
+          return false;
+        }
+        ok = writeResult.persisted;
+        savedBase = writeResult.persisted;
+        data = writeResult.payload;
+        creditSyncFailed = writeResult.syncFailed === true;
+        if (creditSyncFailed) {
+          toast.add({
+            title: i18n.t('invoices:creditNotes:errors:syncFailed', {
+              defaultValue:
+                'Credit note saved, but the invoice could not be updated.',
+            }),
+            type: 'warning',
+          });
+        }
+      } else {
+        let linkedCreditNotes = [];
+        if (editMode.active && docType === 'invoice') {
+          const salesDocs = await getAllDocs('invoices');
+          linkedCreditNotes = salesDocs.filter(
+            cn =>
+              cn.docType === 'creditNote' &&
+              cn.creditedInvoiceId === editMode.data._id
+          );
+        }
+        data = getInvoiceData(formSnapshot, {
+          ...invoiceDataOptions(mode),
+          linkedCreditNotes,
+        });
 
-      if (!editMode.active && data.sourceEstimateId) {
-        const allowed = await runConversionQueued(
-          data.sourceEstimateId,
-          async () => {
-            const docs = await getAllDocs('invoices');
-            const est = docs.find(d => d._id === data.sourceEstimateId);
-            if (est && !canConvert(est, buildLinkIndex(docs))) {
+        if (!editMode.active && data.sourceEstimateId) {
+          const allowed = await runConversionQueued(
+            data.sourceEstimateId,
+            async () => {
+              const docs = await getAllDocs('invoices');
+              const est = docs.find(d => d._id === data.sourceEstimateId);
+              if (est && !canConvert(est, buildLinkIndex(docs))) {
+                toast.add({
+                  title: i18n.t('estimates:toast:alreadyConverted'),
+                  type: 'warning',
+                });
+                return false;
+              }
+              return true;
+            }
+          );
+          if (allowed === false) {
+            return false;
+          }
+        }
+
+        if (editMode.active) {
+          const salesDocs = await getAllDocs('invoices');
+          const linkedCredits = salesDocs.filter(
+            cn =>
+              cn.docType === 'creditNote' &&
+              cn.creditedInvoiceId === editMode.data._id
+          );
+          const paymentErrors = getPaymentEditErrors(
+            data,
+            editMode.data,
+            linkedCredits
+          );
+          if (paymentErrors.length) {
+            for (const err of paymentErrors) {
+              const currency =
+                data.currency ?? appConfig.get('invoice.currency');
+              const values = err.values
+                ? {
+                    ...err.values,
+                    total: formatNumber(
+                      err.values.total,
+                      currency.fraction ?? 2,
+                      currency.separator
+                    ),
+                    paid: formatNumber(
+                      err.values.paid,
+                      currency.fraction ?? 2,
+                      currency.separator
+                    ),
+                  }
+                : undefined;
               toast.add({
-                title: i18n.t('estimates:toast:alreadyConverted'),
+                title: i18n.t(err.key, values),
                 type: 'warning',
               });
-              return false;
             }
-            return true;
+            return false;
           }
-        );
-        if (allowed === false) {
-          return false;
         }
+        ok = editMode.active
+          ? await dispatch(InvoicesActions.updateInvoice(data))
+          : await dispatch(InvoicesActions.saveInvoice(data));
+        if (ok === false) {
+          return;
+        }
+        savedBase = typeof ok === 'object' && ok !== null && ok._id ? ok : data;
       }
 
-      if (editMode.active) {
-        const salesDocs = await getAllDocs('invoices');
-        const linkedCredits = salesDocs.filter(
-          cn =>
-            cn.docType === 'creditNote' &&
-            cn.creditedInvoiceId === editMode.data._id
-        );
-        const paymentErrors = getPaymentEditErrors(
-          data,
-          editMode.data,
-          linkedCredits
-        );
-        if (paymentErrors.length) {
-          for (const err of paymentErrors) {
-            const currency = data.currency ?? appConfig.get('invoice.currency');
-            const values = err.values
-              ? {
-                  ...err.values,
-                  total: formatNumber(
-                    err.values.total,
-                    currency.fraction ?? 2,
-                    currency.separator
-                  ),
-                  paid: formatNumber(
-                    err.values.paid,
-                    currency.fraction ?? 2,
-                    currency.separator
-                  ),
-                }
-              : undefined;
-            toast.add({
-              title: i18n.t(err.key, values),
-              type: 'warning',
-            });
-          }
-          return false;
-        }
-      }
-      let ok;
-      if (editMode.active) {
-        ok = await dispatch(InvoicesActions.updateInvoice(data));
-      } else {
-        ok = await dispatch(InvoicesActions.saveInvoice(data));
-      }
-      if (ok === false) {
+      if (savedBase === undefined) {
         return;
-      }
-
-      const persisted =
-        typeof ok === 'object' && ok !== null && ok._id ? ok : null;
-      const savedBase = persisted ?? data;
-
-      if (docType === 'creditNote' && savedBase.status === 'issued') {
-        await dispatch(
-          InvoicesActions.syncCreditedInvoice(savedBase.creditedInvoiceId)
-        );
       }
 
       if (!editMode.active) {
@@ -322,7 +390,7 @@ async function handleSave({ dispatch, getState }, mode) {
         const docs = await getAllDocs('invoices');
         const est = docs.find(d => d._id === data.sourceEstimateId);
         if (est) {
-          const invoiceId = persisted?._id ?? data._id;
+          const invoiceId = savedBase?._id ?? data._id;
           await dispatch(
             EstimateActions.markEstimateConverted({
               estimateId: data.sourceEstimateId,
@@ -332,7 +400,7 @@ async function handleSave({ dispatch, getState }, mode) {
         }
       }
 
-      if (formSnapshot.recipient.newRecipient) {
+      if (formSnapshot.recipient.newRecipient && docType !== 'creditNote') {
         const contactAlreadyOnInvoice =
           editMode.active && editMode.data?.recipient?._id;
         if (!contactAlreadyOnInvoice) {
@@ -368,7 +436,8 @@ async function handleSave({ dispatch, getState }, mode) {
       } else if (
         mode === 'final' &&
         formSnapshot.docType === 'creditNote' &&
-        savedBase.status === 'issued'
+        savedBase.status === 'issued' &&
+        !creditSyncFailed
       ) {
         ipc.send('preview-invoice', savedBase);
       }
@@ -420,7 +489,7 @@ async function handleSave({ dispatch, getState }, mode) {
       if (
         editMode.active &&
         afterSave.settings.editMode.active &&
-        persisted &&
+        savedBase &&
         afterSave.formRevision === startRevision
       ) {
         dispatch({
@@ -430,7 +499,7 @@ async function handleSave({ dispatch, getState }, mode) {
               ...afterSave,
               settings: {
                 ...afterSave.settings,
-                editMode: { active: true, data: persisted },
+                editMode: { active: true, data: savedBase },
               },
             },
             { mode, ...invoiceDataOptions(mode) }

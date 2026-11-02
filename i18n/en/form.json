@@ -152,7 +152,8 @@
     "creditZero": "The credit amount must be more than 0.",
     "creditCurrency": "The credit note currency must match the invoice.",
     "creditExceeds": "The credit is more than the amount you can still credit.",
-    "belowCredited": "The total cannot be less than payments plus issued credit notes."
+    "belowCredited": "The total cannot be less than payments plus issued credit notes.",
+    "creditOriginalNotCreditable": "This invoice cannot receive a credit note in its current status."
   },
   "convertedFrom": "Created from estimate {{number}}",
   "creditNote": {

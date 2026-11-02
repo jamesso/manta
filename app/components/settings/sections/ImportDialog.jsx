@@ -22,6 +22,7 @@ export default function ImportDialog({
   preview,
   invalid,
   duplicates,
+  creditWarnings,
   hasSettings,
   mode,
   onModeChange,
@@ -75,6 +76,13 @@ export default function ImportDialog({
                     invoices: duplicates.invoices,
                     contacts: duplicates.contacts,
                     items: duplicates.items,
+                  })}
+                </p>
+              ) : null}
+              {creditWarnings?.length ? (
+                <p>
+                  {t('settings:backup:creditWarnings', {
+                    count: creditWarnings.length,
                   })}
                 </p>
               ) : null}

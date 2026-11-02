@@ -3,11 +3,14 @@ import { describe, expect, it } from 'vitest';
 import {
   buildCreditNoteDraft,
   canCreateCreditNote,
+  collectCreditNoteImportWarnings,
   getCreditableAmount,
   partitionDeletable,
   resolveStatusAfterCredit,
   validateCreditTotal,
+  validateCreditableOriginal,
 } from '../creditNotes';
+import { getAmountPaid } from '../invoice';
 
 const currency = {
   code: 'USD',
@@ -259,6 +262,8 @@ describe('resolveStatusAfterCredit', () => {
       now
     );
     expect(next.status).toBe('cancelled');
+    expect(next.payments).toEqual([]);
+    expect(getAmountPaid(next)).toBe(0);
   });
 
   it('5c pending zero cash credit-only paid transition uses payments []', () => {
@@ -304,6 +309,43 @@ describe('resolveStatusAfterCredit', () => {
     });
     const next = resolveStatusAfterCredit(invoice, [], now);
     expect(next.status).toBe('pending');
+  });
+});
+
+describe('validateCreditableOriginal', () => {
+  it('allows pending paid and refunded invoices only', () => {
+    expect(validateCreditableOriginal(inv({ status: 'pending' }))).toBeNull();
+    expect(validateCreditableOriginal(inv({ status: 'paid' }))).toBeNull();
+    expect(validateCreditableOriginal(inv({ status: 'refunded' }))).toBeNull();
+    expect(validateCreditableOriginal(inv({ status: 'cancelled' }))).toBe(
+      'creditOriginalNotCreditable'
+    );
+    expect(validateCreditableOriginal(inv({ docType: 'estimate' }))).toBe(
+      'creditedMissing'
+    );
+  });
+});
+
+describe('collectCreditNoteImportWarnings', () => {
+  it('flags missing original and currency mismatch', () => {
+    const warnings = collectCreditNoteImportWarnings([
+      inv({ _id: 'i1', currency: { code: 'USD', fraction: 2 } }),
+      cn({
+        _id: 'cn1',
+        status: 'issued',
+        creditedInvoiceId: 'missing',
+        grandTotal: 5,
+      }),
+      cn({
+        _id: 'cn2',
+        status: 'issued',
+        creditedInvoiceId: 'i1',
+        grandTotal: 5,
+        currency: { code: 'EUR', fraction: 2 },
+      }),
+    ]);
+    expect(warnings.some(w => w.code === 'creditedMissing')).toBe(true);
+    expect(warnings.some(w => w.code === 'creditCurrency')).toBe(true);
   });
 });
 

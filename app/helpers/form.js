@@ -337,6 +337,15 @@ export function requiredTaxFieldFromDoc(doc) {
 }
 
 export function resolveSellerForSave(form, profile, invoiceSettings) {
+  if (form.docType === 'creditNote') {
+    if (form.seller) {
+      return form.seller;
+    }
+    if (form.settings.editMode.active && form.settings.editMode.data?.seller) {
+      return form.settings.editMode.data.seller;
+    }
+    return undefined;
+  }
   const ids = getSellerTaxIds(profile, invoiceSettings);
   const { editMode } = form.settings;
   if (!editMode.active) {
@@ -661,6 +670,7 @@ export function getInvoiceData(
     profile = {},
     invoiceSettings = {},
     estimateValidDays,
+    linkedCreditNotes = [],
   } = {}
 ) {
   const { settings } = formData;
@@ -671,7 +681,7 @@ export function getInvoiceData(
   if (seller) {
     fields.seller = seller;
   }
-  if (formData.recipient.newRecipient) {
+  if (formData.recipient.newRecipient && docType !== 'creditNote') {
     const savedRecipient =
       editMode.active && editMode.data?.recipient
         ? editMode.data.recipient
@@ -719,7 +729,7 @@ export function getInvoiceData(
     if (!('tax' in fields)) delete base.tax;
     if (!('note' in fields)) delete base.note;
     if (docType === 'invoice') {
-      return reconcilePaymentStatus(base, now);
+      return reconcilePaymentStatus(base, now, linkedCreditNotes);
     }
     return base;
   }
@@ -743,7 +753,7 @@ export function getInvoiceData(
     delete created.dueDate;
   }
   if (docType === 'invoice') {
-    return reconcilePaymentStatus(created, now);
+    return reconcilePaymentStatus(created, now, linkedCreditNotes);
   }
   return created;
 }

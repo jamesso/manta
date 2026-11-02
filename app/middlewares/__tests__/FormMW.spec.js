@@ -12,12 +12,15 @@ vi.mock('@/lib/dialog', () => ({
 import {
   saveDoc,
   updateDoc,
+  updateDocs,
   getAllDocs,
   getSingleDoc,
 } from '../../helpers/pouchDB';
+import { clearInvoiceMutationQueuesForTests } from '../../helpers/invoiceMutations';
 import * as dialog from '@/lib/dialog';
 import * as InvoiceActions from '../../actions/invoices';
 const currency = { code: 'USD', fraction: 2 };
+const fixedNow = Date.UTC(2026, 0, 15, 12);
 const makeForm = () => ({
   invoiceID: 'INV-0001',
   issuedAt: null,
@@ -42,6 +45,7 @@ const makeForm = () => ({
 describe('Form middleware', () => {
   let form, dispatch, next, middleware;
   beforeEach(() => {
+    clearInvoiceMutationQueuesForTests();
     form = makeForm();
     next = vi.fn();
     dispatch = vi.fn(() => Promise.resolve(true));
@@ -386,6 +390,9 @@ describe('Form middleware', () => {
         subtotal: 5,
       })
     );
+    await vi.waitFor(() => {
+      expect(typeof finishUpdate).toBe('function');
+    });
     finishUpdate();
     await pending;
     expect(stack.form.settings.editMode.active).toBe(false);
@@ -559,6 +566,95 @@ describe('Form middleware', () => {
         ([action]) => action.type === TYPES.INVOICE_UPDATE
       )
     ).toBe(false);
+  });
+
+  it('credit note save then sync retry keeps the same note id', async () => {
+    const currencyLocal = { code: 'USD', fraction: 2 };
+    let inv = {
+      _id: 'inv-src',
+      _rev: '1-a',
+      docType: 'invoice',
+      status: 'pending',
+      grandTotal: 100,
+      currency: currencyLocal,
+    };
+    let note = {
+      _id: 'cn-1',
+      _rev: '1-b',
+      docType: 'creditNote',
+      status: 'draft',
+      creditedInvoiceId: 'inv-src',
+      grandTotal: 100,
+      currency: currencyLocal,
+      invoiceID: 'CN-0001',
+      rows: [
+        {
+          id: 'r1',
+          description: 'Adj',
+          price: 100,
+          quantity: 1,
+          subtotal: 100,
+        },
+      ],
+      recipient: { fullname: 'A', email: 'a@example.com' },
+      issuedAt: fixedNow,
+    };
+    let settleAttempts = 0;
+
+    let form = makeForm();
+    form.docType = 'creditNote';
+    form.creditedInvoiceId = 'inv-src';
+    form.creditedInvoice = { invoiceID: 'INV-SRC', issuedAt: fixedNow };
+    form.issuedAt = fixedNow;
+    form.currency = currencyLocal;
+    form.invoiceID = 'CN-0001';
+    form.rows = note.rows;
+    form.recipient = {
+      newRecipient: false,
+      select: { fullname: 'A', email: 'a@example.com' },
+      new: {},
+    };
+    form.settings.editMode = {
+      active: true,
+      data: { ...note },
+    };
+    form.savedSettings = {
+      currency: currencyLocal,
+      tax: {},
+      required_fields: {},
+    };
+
+    const { dispatch } = stackWithForm(form);
+
+    getAllDocs.mockImplementation(() =>
+      Promise.resolve([{ ...inv }, { ...note }])
+    );
+    updateDoc.mockImplementation(async (_db, doc) => {
+      note = { ...doc, _rev: '2-b', status: doc.status ?? note.status };
+      return [{ ...note }];
+    });
+    updateDocs.mockImplementation(async (_db, docs) => {
+      if (docs.some(d => d._id === 'inv-src')) {
+        settleAttempts += 1;
+        if (settleAttempts === 1) {
+          throw new Error('sync failed');
+        }
+        inv = { ...docs[0], _rev: '2-a' };
+      }
+      return [{ ...inv }, { ...note }];
+    });
+    saveDoc.mockClear();
+    updateDoc.mockClear();
+
+    await dispatch(Actions.saveFormData('final'));
+    expect(note.status).toBe('issued');
+    expect(updateDoc.mock.calls.every(c => c[1]._id === 'cn-1')).toBe(true);
+    expect(saveDoc).not.toHaveBeenCalled();
+    expect(settleAttempts).toBe(1);
+
+    await dispatch(InvoiceActions.syncCreditedInvoice('inv-src'));
+    expect(settleAttempts).toBe(2);
+    expect(saveDoc).not.toHaveBeenCalled();
   });
 
   it('blocks SAVED_FORM_SETTING_UPDATE while import lock is held', async () => {

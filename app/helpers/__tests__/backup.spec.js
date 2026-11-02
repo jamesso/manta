@@ -243,6 +243,41 @@ describe('backup helpers', () => {
     expect(parsed.ok).toBe(true);
   });
 
+  it('reports issued credit note data warnings without dropping docs', () => {
+    const parsed = parseBackup(
+      JSON.stringify({
+        app: 'Manta',
+        version: 5,
+        invoices: [
+          {
+            _id: 'i1',
+            docType: 'invoice',
+            status: 'pending',
+            grandTotal: 100,
+            currency: { code: 'USD', fraction: 2 },
+            recipient: { fullname: 'A', email: 'a@b.c' },
+            rows: [{ subtotal: 100 }],
+          },
+          {
+            _id: 'cn1',
+            docType: 'creditNote',
+            status: 'issued',
+            creditedInvoiceId: 'i1',
+            grandTotal: 10,
+            currency: { code: 'EUR', fraction: 2 },
+            recipient: { fullname: 'A', email: 'a@b.c' },
+            rows: [{ subtotal: 10 }],
+          },
+        ],
+        contacts: [],
+        items: [],
+      })
+    );
+    expect(parsed.ok).toBe(true);
+    expect(parsed.backup.invoices).toHaveLength(2);
+    expect(parsed.creditWarnings.length).toBeGreaterThan(0);
+  });
+
   it('accepts version 4 backups with estimates', () => {
     const parsed = parseBackup(
       JSON.stringify({

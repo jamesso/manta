@@ -1,4 +1,5 @@
 import { getSettingsErrors, getRawNumberingErrors } from './settings';
+import { collectCreditNoteImportWarnings } from './creditNotes';
 
 export const BACKUP_APP = 'Manta';
 export const BACKUP_VERSION = 5;
@@ -197,6 +198,7 @@ export function parseBackup(text) {
   if (itemsResult.error) {
     return { ok: false, error: itemsResult.error };
   }
+  const creditWarnings = collectCreditNoteImportWarnings(invoicesResult.valid);
   return {
     ok: true,
     backup: {
@@ -217,6 +219,7 @@ export function parseBackup(text) {
       contacts: contactsResult.duplicates,
       items: itemsResult.duplicates,
     },
+    creditWarnings,
   };
 }
 

@@ -135,12 +135,14 @@ export default function CreditNoteDetailSheet({
         ) : null}
 
         <SheetFooter className="flex-row flex-wrap gap-2">
-          <Button
-            type="button"
-            onClick={() => ipc.send('preview-invoice', creditNote)}
-          >
-            {t('invoices:creditNotes:actions:preview')}
-          </Button>
+          {stored !== 'draft' ? (
+            <Button
+              type="button"
+              onClick={() => ipc.send('preview-invoice', creditNote)}
+            >
+              {t('invoices:creditNotes:actions:preview')}
+            </Button>
+          ) : null}
           {stored === 'draft' ? (
             <>
               <Button

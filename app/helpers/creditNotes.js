@@ -165,9 +165,51 @@ export function buildCreditNoteDraft(invoice, { idFn }) {
   };
 }
 
+export function validateCreditableOriginal(invoice) {
+  if (!invoice) {
+    return 'creditedMissing';
+  }
+  if (!isInvoice(invoice)) {
+    return 'creditedMissing';
+  }
+  const stored = storedInvoiceStatus(invoice);
+  if (!CREDITABLE_STATUSES.includes(stored)) {
+    return 'creditOriginalNotCreditable';
+  }
+  return null;
+}
+
+export function collectCreditNoteImportWarnings(invoices = []) {
+  const byId = new Map(invoices.map(doc => [doc._id, doc]));
+  const warnings = [];
+  for (const note of invoices) {
+    if (!isCreditNote(note) || getInvoiceStoredStatus(note) !== 'issued') {
+      continue;
+    }
+    const original = byId.get(note.creditedInvoiceId);
+    if (!original) {
+      warnings.push({ code: 'creditedMissing', creditNoteId: note._id });
+      continue;
+    }
+    if (!isInvoice(original)) {
+      warnings.push({
+        code: 'creditOriginalNotInvoice',
+        creditNoteId: note._id,
+      });
+      continue;
+    }
+    warnings.push(...collectCreditDataWarnings(original, [note]));
+  }
+  return warnings;
+}
+
 export function validateCreditTotal(creditNote, invoice, creditNotes) {
   if (!invoice) {
     return 'creditedMissing';
+  }
+  const originalCode = validateCreditableOriginal(invoice);
+  if (originalCode) {
+    return originalCode;
   }
   const f = getCurrencyFraction(invoice);
   const noteTotal = roundMoney(getInvoiceTotal(creditNote), f);
@@ -237,7 +279,11 @@ export function resolveStatusAfterCredit(
       return invoice;
     }
     const next = withStatus(
-      { ...invoice, cancelledByCredit: true },
+      {
+        ...invoice,
+        cancelledByCredit: true,
+        ...(!Array.isArray(invoice.payments) ? { payments: [] } : {}),
+      },
       'cancelled',
       now
     );

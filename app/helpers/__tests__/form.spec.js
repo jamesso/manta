@@ -8,9 +8,10 @@ import {
   validateCurrency,
   validateTax,
   pickInvoiceFields,
+  resolveSellerForSave,
   isBlankRow,
 } from '../form';
-import { getInvoiceTotals } from '../invoice';
+import { getAmountPaid, getInvoiceTotals } from '../invoice';
 vi.mock('@/lib/dialog', () => ({ alert: vi.fn() }));
 const currency = { code: 'USD', fraction: 2, separator: 'commaDot' };
 const form = () => ({
@@ -126,6 +127,50 @@ describe('form helpers', () => {
     expect(picked.creditedInvoiceId).toBe('inv-1');
     expect(picked.creditedInvoice).toEqual(f.creditedInvoice);
     expect(picked.dueDate).toBeUndefined();
+  });
+  it('unchanged invoice edit stays paid when issued credits cover balance', () => {
+    const linked = [
+      {
+        _id: 'cn-1',
+        docType: 'creditNote',
+        status: 'issued',
+        creditedInvoiceId: 'inv-paid',
+        grandTotal: 60,
+        currency,
+      },
+    ];
+    const f = form();
+    f.settings.editMode = {
+      active: true,
+      data: {
+        _id: 'inv-paid',
+        status: 'paid',
+        grandTotal: 100,
+        currency,
+        payments: [{ id: 'p1', date: 1, amount: 40, method: 'cash', note: '' }],
+        rows: f.rows,
+        recipient: { fullname: 'Jane', email: 'jane@example.com' },
+      },
+    };
+    const doc = getInvoiceData(f, {
+      defaultCurrency: currency,
+      linkedCreditNotes: linked,
+    });
+    expect(doc.status).toBe('paid');
+    expect(getAmountPaid(doc)).toBe(40);
+  });
+  it('resolveSellerForSave keeps credit note seller snapshot on draft edit', () => {
+    const seller = { taxId: 'SNAP-1', vatId: 'VAT-1' };
+    const f = form();
+    f.docType = 'creditNote';
+    f.seller = seller;
+    f.settings.editMode = {
+      active: true,
+      data: { status: 'draft', seller },
+    };
+    expect(resolveSellerForSave(f, { taxId: 'NEW' }, { taxRates: [] })).toEqual(
+      seller
+    );
   });
   it('keeps settings validators boolean', () => {
     expect(validateTax(false, {})).toBe(true);
