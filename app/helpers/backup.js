@@ -88,7 +88,23 @@ function validDocId(id) {
   return typeof id === 'string' && id.length > 0 && !id.startsWith('_');
 }
 
+function validateRecurringTombstone(doc) {
+  if (!isPlainObject(doc) || doc.recurringTombstone !== true) {
+    return false;
+  }
+  if (typeof doc.recurringId !== 'string' || !doc.recurringId) {
+    return false;
+  }
+  if (typeof doc.periodKey !== 'string' || !doc.periodKey) {
+    return false;
+  }
+  return doc._id === `rec-${doc.recurringId}-${doc.periodKey}`;
+}
+
 function validateInvoice(doc) {
+  if (validateRecurringTombstone(doc)) {
+    return true;
+  }
   return (
     isPlainObject(doc) &&
     validDocId(doc._id) &&

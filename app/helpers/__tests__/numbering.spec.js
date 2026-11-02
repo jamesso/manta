@@ -5,6 +5,7 @@ import {
   advanceNumbering,
   mergeNumbering,
   assignNumberIfMissing,
+  reconcileNumberingWithPersistedInvoices,
 } from '../numbering';
 
 describe('normalizeNumbering', () => {
@@ -138,5 +139,26 @@ describe('assignNumberIfMissing', () => {
     const { doc: next, numbering } = assignNumberIfMissing(doc, 'draft', base);
     expect(next.invoiceID).toBeUndefined();
     expect(numbering.next).toBe(1);
+  });
+});
+
+describe('reconcileNumberingWithPersistedInvoices', () => {
+  const base = { prefix: 'INV-', next: 1, padding: 4 };
+
+  it('bumps next past highest matching invoice id', () => {
+    const next = reconcileNumberingWithPersistedInvoices(base, [
+      { docType: 'invoice', invoiceID: 'INV-0007' },
+      { docType: 'invoice', invoiceID: 'INV-0002' },
+    ]);
+    expect(next.next).toBe(8);
+  });
+
+  it('skips tombstones and non-invoice doc types', () => {
+    const next = reconcileNumberingWithPersistedInvoices(base, [
+      { recurringTombstone: true, invoiceID: 'INV-9999' },
+      { docType: 'estimate', invoiceID: 'INV-0004' },
+      { docType: 'creditNote', invoiceID: 'INV-0003' },
+    ]);
+    expect(next.next).toBe(1);
   });
 });

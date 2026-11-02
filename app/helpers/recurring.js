@@ -134,7 +134,7 @@ export function buildInvoiceFromProfile(
 
 export function getRecurringErrors(profile) {
   const errors = {};
-  if (!profile.name?.trim()) {
+  if (typeof profile?.name !== 'string' || !profile.name.trim()) {
     errors.name = 'recurring:errors:name';
   }
   const every = profile.every;
@@ -160,12 +160,69 @@ export function getRecurringErrors(profile) {
     }
   }
   const template = profile.template;
-  if (!template?.recipient?.fullname && !template?.recipient?.company) {
+  const recipient = template?.recipient;
+  const fullname =
+    typeof recipient?.fullname === 'string' ? recipient.fullname.trim() : '';
+  const company =
+    typeof recipient?.company === 'string' ? recipient.company.trim() : '';
+  if (!fullname && !company) {
     errors.template = 'recurring:errors:template';
-  } else if (!Array.isArray(template?.rows) || template.rows.length === 0) {
+  } else if (!templateRowsValid(template?.rows)) {
     errors.template = 'recurring:errors:template';
   }
   return errors;
+}
+
+export function previewRecurringDates(existingProfile, draft, nowMs) {
+  if (!draft?.startDate) {
+    return { nextPreview: [], scheduledNextDate: draft?.nextDate ?? null };
+  }
+  const scheduleErrors = getRecurringErrors(draft);
+  if (
+    scheduleErrors.every ||
+    scheduleErrors.interval ||
+    scheduleErrors.startDate
+  ) {
+    return { nextPreview: [], scheduledNextDate: draft?.nextDate ?? null };
+  }
+  const schedule = applyScheduleOnSave(existingProfile, draft, nowMs);
+  const profileForSeries = { ...draft, ...schedule };
+  const keys = [];
+  let d = firstPeriodOnOrAfter(profileForSeries, schedule.nextDate);
+  for (let i = 0; i < 3; i += 1) {
+    if (draft.endDate && d > draft.endDate) {
+      break;
+    }
+    keys.push(d);
+    d = nextDateAfter(d, draft.interval, draft.every, schedule.anchorDay);
+  }
+  return { nextPreview: keys, scheduledNextDate: schedule.nextDate };
+}
+
+function finiteRowNumber(value) {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : null;
+  }
+  if (typeof value === 'string' && value.trim() !== '') {
+    const n = Number(value);
+    return Number.isFinite(n) ? n : null;
+  }
+  return null;
+}
+
+function templateRowsValid(rows) {
+  if (!Array.isArray(rows) || rows.length === 0) {
+    return false;
+  }
+  return rows.every(row => {
+    if (row == null || typeof row !== 'object' || Array.isArray(row)) {
+      return false;
+    }
+    return (
+      finiteRowNumber(row.price) != null &&
+      finiteRowNumber(row.quantity) != null
+    );
+  });
 }
 
 export function getRecurringStatus(profile, _now) {

@@ -1,7 +1,7 @@
 // Actions Verbs
 import * as ACTION_TYPES from '../constants/actions.jsx';
 // Libs
-import { handleActions } from 'redux-actions';
+import { handleActions, combineActions } from 'redux-actions';
 import { createSelector } from 'reselect';
 const appConfig = window.manta.settings;
 const rawInvoiceSettings = appConfig.get('invoice');
@@ -31,8 +31,17 @@ function invoiceNumberForState(state) {
   const key = numberingKeyFor(docType);
   return suggestedInvoiceNumberFromReconciled(
     state.reconciledNumbering,
-    appConfig.get(`invoice.${key}`)
+    appConfig.get(`invoice.${key}`),
+    state.numberingInvoices
   );
+}
+
+function syncNumberingInvoices(state, invoices) {
+  const next = Object.assign({}, state, { numberingInvoices: invoices });
+  if (!state.settings.editMode.active) {
+    next.invoiceID = invoiceNumberForState(next);
+  }
+  return next;
 }
 
 const initialState = {
@@ -51,7 +60,8 @@ const initialState = {
   note: {},
   invoiceID: suggestedInvoiceNumberFromReconciled(
     null,
-    invoiceSettings.numbering
+    invoiceSettings.numbering,
+    null
   ),
   issuedAt: null,
   errors: {},
@@ -60,6 +70,7 @@ const initialState = {
   formRevision: 0,
   formGeneration: 0,
   reconciledNumbering: null,
+  numberingInvoices: null,
   // Set default values for currency and tax
   currency: invoiceSettings.currency,
   tax: invoiceSettings.tax,
@@ -365,11 +376,23 @@ const FormReducer = handleActions(
     [ACTION_TYPES.FORM_RECONCILE_NUMBERING]: (state, action) =>
       Object.assign({}, state, {
         reconciledNumbering: action.payload,
+        invoiceID: state.settings.editMode.active
+          ? state.invoiceID
+          : invoiceNumberForState({
+              ...state,
+              reconciledNumbering: action.payload,
+            }),
       }),
+
+    [combineActions(ACTION_TYPES.INVOICE_GET_ALL, ACTION_TYPES.INVOICE_UPDATE)]:
+      (state, action) => syncNumberingInvoices(state, action.payload),
 
     [ACTION_TYPES.FORM_CLEAR_RECONCILED_NUMBERING]: state =>
       Object.assign({}, state, {
         reconciledNumbering: null,
+        invoiceID: state.settings.editMode.active
+          ? state.invoiceID
+          : invoiceNumberForState({ ...state, reconciledNumbering: null }),
       }),
 
     [ACTION_TYPES.FORM_ATTACH_SAVED_INVOICE]: (state, action) =>

@@ -24,15 +24,10 @@ import DatePickerField from '../form/editor/DatePickerField';
 import * as UIActions from '../../actions/ui';
 import * as Actions from '../../actions/recurring';
 import {
-  applyScheduleOnSave,
   getRecurringErrors,
+  previewRecurringDates,
 } from '../../helpers/recurring';
-import {
-  DATE_KEY,
-  firstPeriodOnOrAfter,
-  nextDateAfter,
-  toDateKey,
-} from '../../helpers/recurringSchedule';
+import { DATE_KEY, toDateKey } from '../../helpers/recurringSchedule';
 import { INTERVALS } from '../../helpers/recurringSchedule';
 import { formatInvoiceAmount } from '../../helpers/invoice';
 
@@ -86,23 +81,10 @@ export default function RecurringSheet() {
   const errors = draft ? getRecurringErrors(draft) : {};
   const today = toDateKey(Date.now());
 
-  const { nextPreview, scheduledNextDate } = useMemo(() => {
-    if (!draft?.startDate) {
-      return { nextPreview: [], scheduledNextDate: draft?.nextDate ?? null };
-    }
-    const schedule = applyScheduleOnSave(existingProfile, draft, Date.now());
-    const profileForSeries = { ...draft, ...schedule };
-    const keys = [];
-    let d = firstPeriodOnOrAfter(profileForSeries, schedule.nextDate);
-    for (let i = 0; i < 3; i += 1) {
-      if (draft.endDate && d > draft.endDate) {
-        break;
-      }
-      keys.push(d);
-      d = nextDateAfter(d, draft.interval, draft.every, schedule.anchorDay);
-    }
-    return { nextPreview: keys, scheduledNextDate: schedule.nextDate };
-  }, [draft, existingProfile]);
+  const { nextPreview, scheduledNextDate } = useMemo(
+    () => previewRecurringDates(existingProfile, draft, Date.now()),
+    [draft, existingProfile]
+  );
 
   if (!sheet || !draft) {
     return null;
@@ -149,9 +131,13 @@ export default function RecurringSheet() {
                 min={1}
                 max={99}
                 value={draft.every}
-                onChange={e =>
-                  setDraft({ ...draft, every: Number(e.target.value) })
-                }
+                onChange={e => {
+                  const raw = e.target.value;
+                  setDraft({
+                    ...draft,
+                    every: raw === '' ? '' : Number(raw),
+                  });
+                }}
               />
             </Field>
             <Field>

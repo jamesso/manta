@@ -1,4 +1,5 @@
 import { buildInvoicesCsv, escapeCsvField } from '../csv';
+import { buildRecurringTombstone } from '../recurring';
 
 describe('csv', () => {
   it('escapes commas and quotes', () => {
@@ -86,5 +87,14 @@ describe('csv', () => {
     );
     expect(csv.split('\r\n').filter(Boolean).length).toBe(2);
     expect(csv).not.toContain(',E,');
+  });
+
+  it('skips recurring tombstones without throwing', () => {
+    const now = Date.UTC(2026, 10, 2);
+    const csv = buildInvoicesCsv(
+      [buildRecurringTombstone('p', '2026-11-02')],
+      now
+    );
+    expect(csv.split('\r\n').filter(Boolean).length).toBe(1);
   });
 });

@@ -36,7 +36,12 @@ function formatDateLocal(ms) {
 }
 
 function salesDocRows(allSalesDocs) {
-  return allSalesDocs.filter(d => isInvoice(d) || isCreditNote(d));
+  return allSalesDocs.filter(d => {
+    if (d?.recurringTombstone) {
+      return false;
+    }
+    return isInvoice(d) || isCreditNote(d);
+  });
 }
 
 export function buildInvoicesCsv(allSalesDocs, now) {

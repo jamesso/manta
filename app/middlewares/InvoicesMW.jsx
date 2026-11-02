@@ -35,7 +35,7 @@ import {
 import {
   numberingCountersEqual,
   persistInvoiceNumberingCounter,
-  readInvoiceNumberingCounter,
+  resolveInvoiceNumberingForAllocation,
   runInvoiceNumberingWrite,
 } from '../helpers/invoiceNumberingWrites';
 import { buildRecurringTombstone } from '../helpers/recurring';
@@ -1003,13 +1003,13 @@ const InvoicesMW =
         }
         const ids = [...new Set([].concat(invoiceID))];
         const now = Date.now();
-        const initialNumbering = readInvoiceNumberingCounter(
-          appConfig,
-          getState().form.reconciledNumbering
-        );
-        let numbering = initialNumbering;
 
         return runInvoiceNumberingWrite(async () => {
+          const initialNumbering = await resolveInvoiceNumberingForAllocation(
+            appConfig,
+            getState().form.reconciledNumbering
+          );
+          let numbering = initialNumbering;
           const results = [];
           for (const id of ids) {
             let numberingAfterAssign = numbering;
@@ -1044,6 +1044,16 @@ const InvoicesMW =
             }
             results.push(result);
           }
+          if (
+            results.some(r => r.ok && r.committed) &&
+            !numberingCountersEqual(numbering, initialNumbering)
+          ) {
+            await persistInvoiceNumberingCounter(appConfig, numbering, {
+              dispatch,
+              actionTypes: ACTION_TYPES,
+              i18n,
+            });
+          }
           return results;
         })
           .then(results =>
@@ -1053,16 +1063,6 @@ const InvoicesMW =
               dispatch,
               getState,
             }).then(async ({ committed }) => {
-              if (
-                committed.length &&
-                !numberingCountersEqual(numbering, initialNumbering)
-              ) {
-                await persistInvoiceNumberingCounter(appConfig, numbering, {
-                  dispatch,
-                  actionTypes: ACTION_TYPES,
-                  i18n,
-                });
-              }
               const okResults = results.filter(r => r.ok);
               const failed = results.filter(r => !r.ok);
               if (!committed.length) {

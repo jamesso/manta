@@ -28,6 +28,7 @@ import {
 } from '../../helpers/pouchDB';
 import { getAmountPaid, getStoredStatus } from '../../helpers/invoice';
 import { clearInvoiceMutationQueuesForTests } from '../../helpers/invoiceMutations';
+import { clearInvoiceNumberingWriteChainForTests } from '../../helpers/invoiceNumberingWrites';
 import { toast } from '@/components/ui/toast';
 import * as dialog from '@/lib/dialog';
 import * as UIActions from '../../actions/ui';
@@ -70,8 +71,13 @@ describe('Invoices Middleware', () => {
 
   beforeEach(() => {
     clearInvoiceMutationQueuesForTests();
+    clearInvoiceNumberingWriteChainForTests();
     resetMockPouchData();
     getSingleDoc.mockReset();
+    getAllDocs.mockReset();
+    getAllDocs.mockImplementation(() =>
+      Promise.resolve(mockData.invoicesRecords)
+    );
     updateDocs.mockReset();
     updateDocs.mockImplementation(() =>
       Promise.resolve(mockData.invoicesRecords)
@@ -708,6 +714,72 @@ describe('Invoices Middleware', () => {
         type: ACTION_TYPES.INVOICE_UPDATE,
         payload: mockData.invoicesRecords,
       });
+    });
+
+    it('assigns distinct numbers when two drafts leave draft in parallel', async () => {
+      let numbering = { prefix: 'INV-', next: 1, padding: 4 };
+      window.manta.settings.get.mockImplementation(key => {
+        if (key === 'invoice.numbering') {
+          return numbering;
+        }
+        if (key === 'invoice') {
+          return { numbering, currency: { fraction: 2 } };
+        }
+        return undefined;
+      });
+      window.manta.settings.set.mockImplementation((key, value) => {
+        if (key === 'invoice.numbering') {
+          numbering = value;
+        }
+      });
+      const docs = [
+        {
+          _id: 'a',
+          status: 'draft',
+          docType: 'invoice',
+          rows: [{ subtotal: 1 }],
+          recipient: { fullname: 'A' },
+          grandTotal: 1,
+          currency: { fraction: 2 },
+          _rev: '1-a',
+        },
+        {
+          _id: 'b',
+          status: 'draft',
+          docType: 'invoice',
+          rows: [{ subtotal: 1 }],
+          recipient: { fullname: 'B' },
+          grandTotal: 1,
+          currency: { fraction: 2 },
+          _rev: '1-b',
+        },
+      ];
+      mockData.invoicesRecords = structuredClone(docs);
+      getAllDocs.mockImplementation(async () => structuredClone(docs));
+      getSingleDoc.mockImplementation(async (_name, id) =>
+        structuredClone(docs.find(d => d._id === id))
+      );
+      updateDocs.mockImplementation(async (_name, updates) => {
+        for (const patch of updates) {
+          const target = docs.find(d => d._id === patch._id);
+          Object.assign(target, patch, {
+            _rev: `${Number.parseInt(String(target._rev).split('-')[0], 10) + 1}-x`,
+          });
+        }
+        mockData.invoicesRecords = structuredClone(docs);
+        return structuredClone(docs);
+      });
+      getState.mockReturnValue({
+        form: {
+          settings: { editMode: { active: false } },
+          reconciledNumbering: null,
+        },
+      });
+      await Promise.all([
+        middleware(Actions.setInvoiceStatus('a', 'pending')),
+        middleware(Actions.setInvoiceStatus('b', 'pending')),
+      ]);
+      expect(docs.map(d => d.invoiceID)).toEqual(['INV-0001', 'INV-0002']);
     });
 
     it('handle error correctly', async () => {

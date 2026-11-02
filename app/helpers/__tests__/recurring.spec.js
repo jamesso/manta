@@ -7,6 +7,7 @@ import {
   applyScheduleOnSave,
   getRecurringErrors,
   getRecurringStatus,
+  previewRecurringDates,
   normalizeImportedRecurring,
   materializeDueDate,
 } from '../recurring';
@@ -202,6 +203,51 @@ describe('getRecurringErrors', () => {
 
   it('flags bad every', () => {
     expect(getRecurringErrors({ ...valid, every: 0 }).every).toBeDefined();
+  });
+
+  it('does not throw when name is not a string', () => {
+    expect(() => getRecurringErrors({ ...valid, name: 123 })).not.toThrow();
+    expect(getRecurringErrors({ ...valid, name: 123 }).name).toBeDefined();
+  });
+
+  it('rejects null template rows and non-string recipient names', () => {
+    const errors = getRecurringErrors({
+      ...valid,
+      template: { recipient: { fullname: 123 }, rows: [null] },
+    });
+    expect(errors.template).toBeDefined();
+  });
+});
+
+describe('previewRecurringDates', () => {
+  const profile = {
+    name: 'P',
+    every: 1,
+    interval: 'monthly',
+    startDate: '2026-11-02',
+    nextDate: '2026-11-02',
+    anchorDay: 2,
+    endDate: null,
+    active: true,
+    template: {
+      recipient: { fullname: 'Client' },
+      rows: [{ quantity: 1, price: 1, subtotal: 1 }],
+    },
+  };
+
+  it('returns empty preview when every is cleared or invalid', () => {
+    expect(
+      previewRecurringDates(null, { ...profile, every: '' }, Date.now())
+        .nextPreview
+    ).toEqual([]);
+    expect(
+      previewRecurringDates(null, { ...profile, every: 0 }, Date.now())
+        .nextPreview
+    ).toEqual([]);
+    expect(
+      previewRecurringDates(null, { ...profile, every: 1.5 }, Date.now())
+        .nextPreview
+    ).toEqual([]);
   });
 });
 

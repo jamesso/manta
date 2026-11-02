@@ -58,14 +58,46 @@ import {
   resolveStoredNumbering,
   suggestedInvoiceNumberFromReconciled,
 } from '../helpers/numbering';
+import {
+  persistInvoiceNumberingCounter,
+  resolveInvoiceNumberingForAllocation,
+  runInvoiceNumberingWrite,
+} from '../helpers/invoiceNumberingWrites';
 
 function suggestedInvoiceNumberForForm(form) {
   const docType = form.docType || 'invoice';
   const key = numberingKeyFor(docType);
   return suggestedInvoiceNumberFromReconciled(
     form.reconciledNumbering,
-    appConfig.get(`invoice.${key}`)
+    appConfig.get(`invoice.${key}`),
+    form.numberingInvoices
   );
+}
+
+async function advanceStoredNumberingAfterSave(
+  dispatch,
+  getState,
+  docTypeForNumbering,
+  savedInvoiceId
+) {
+  if (docTypeForNumbering !== 'invoice' || !savedInvoiceId) {
+    return;
+  }
+  await runInvoiceNumberingWrite(async () => {
+    const numberingBase = await resolveInvoiceNumberingForAllocation(
+      appConfig,
+      getState().form.reconciledNumbering
+    );
+    const advancedNumbering = advanceNumbering(
+      normalizeNumbering(numberingBase, defaultNumberingFor('invoice')),
+      savedInvoiceId
+    );
+    await persistInvoiceNumberingCounter(appConfig, advancedNumbering, {
+      dispatch,
+      actionTypes: ACTION_TYPES,
+      i18n,
+    });
+  });
 }
 
 function syncLineTaxRows(dispatch, getState, { overwriteAll = false } = {}) {
@@ -456,33 +488,42 @@ async function handleSave({ dispatch, getState }, mode) {
 
       if (!editMode.active) {
         const docTypeForNumbering = formSnapshot.docType || 'invoice';
-        const key = numberingKeyFor(docTypeForNumbering);
-        const numberingBase = resolveStoredNumbering(
-          getState().form.reconciledNumbering,
-          appConfig.get(`invoice.${key}`)
-        );
-        const advancedNumbering = advanceNumbering(
-          normalizeNumbering(
-            numberingBase,
-            defaultNumberingFor(docTypeForNumbering)
-          ),
-          data.invoiceID
-        );
-        try {
-          appConfig.set(`invoice.${key}`, advancedNumbering);
-          dispatch({ type: ACTION_TYPES.FORM_CLEAR_RECONCILED_NUMBERING });
-        } catch (err) {
-          dispatch({
-            type: ACTION_TYPES.FORM_RECONCILE_NUMBERING,
-            payload: advancedNumbering,
-          });
-          dispatch({
-            type: ACTION_TYPES.UI_NOTIFICATION_NEW,
-            payload: {
-              type: 'warning',
-              message: i18n.t('form:errors:partialNumberingSave'),
-            },
-          });
+        if (docTypeForNumbering === 'invoice' && data.invoiceID) {
+          await advanceStoredNumberingAfterSave(
+            dispatch,
+            getState,
+            docTypeForNumbering,
+            data.invoiceID
+          );
+        } else if (docTypeForNumbering !== 'invoice') {
+          const key = numberingKeyFor(docTypeForNumbering);
+          const numberingBase = resolveStoredNumbering(
+            getState().form.reconciledNumbering,
+            appConfig.get(`invoice.${key}`)
+          );
+          const advancedNumbering = advanceNumbering(
+            normalizeNumbering(
+              numberingBase,
+              defaultNumberingFor(docTypeForNumbering)
+            ),
+            data.invoiceID
+          );
+          try {
+            appConfig.set(`invoice.${key}`, advancedNumbering);
+            dispatch({ type: ACTION_TYPES.FORM_CLEAR_RECONCILED_NUMBERING });
+          } catch (err) {
+            dispatch({
+              type: ACTION_TYPES.FORM_RECONCILE_NUMBERING,
+              payload: advancedNumbering,
+            });
+            dispatch({
+              type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+              payload: {
+                type: 'warning',
+                message: i18n.t('form:errors:partialNumberingSave'),
+              },
+            });
+          }
         }
       } else if (
         docType === 'invoice' &&
@@ -490,31 +531,12 @@ async function handleSave({ dispatch, getState }, mode) {
         !editMode.data?.invoiceID &&
         data.invoiceID
       ) {
-        const key = numberingKeyFor('invoice');
-        const numberingBase = resolveStoredNumbering(
-          getState().form.reconciledNumbering,
-          appConfig.get(`invoice.${key}`)
-        );
-        const advancedNumbering = advanceNumbering(
-          normalizeNumbering(numberingBase, defaultNumberingFor('invoice')),
+        await advanceStoredNumberingAfterSave(
+          dispatch,
+          getState,
+          'invoice',
           data.invoiceID
         );
-        try {
-          appConfig.set(`invoice.${key}`, advancedNumbering);
-          dispatch({ type: ACTION_TYPES.FORM_CLEAR_RECONCILED_NUMBERING });
-        } catch (err) {
-          dispatch({
-            type: ACTION_TYPES.FORM_RECONCILE_NUMBERING,
-            payload: advancedNumbering,
-          });
-          dispatch({
-            type: ACTION_TYPES.UI_NOTIFICATION_NEW,
-            payload: {
-              type: 'warning',
-              message: i18n.t('form:errors:partialNumberingSave'),
-            },
-          });
-        }
       }
 
       if (!editMode.active && data.sourceEstimateId) {

@@ -5,6 +5,7 @@ import {
   parseBackup,
   sanitizeDoc,
 } from '../backup';
+import { buildRecurringTombstone } from '../recurring';
 
 describe('backup helpers', () => {
   const baseInvoiceSettings = {
@@ -422,6 +423,25 @@ describe('backup helpers', () => {
     expect(parsed.invalid.recurring).toBe(1);
   });
 
+  it('drops recurring profiles with invalid template rows on import', () => {
+    const parsed = parseBackup(
+      JSON.stringify({
+        app: 'Manta',
+        version: 6,
+        invoices: [],
+        contacts: [],
+        recurring: [
+          {
+            ...validRecurring,
+            template: { recipient: { fullname: 123 }, rows: [null] },
+          },
+        ],
+      })
+    );
+    expect(parsed.invalid.recurring).toBe(1);
+    expect(parsed.backup.recurring).toEqual([]);
+  });
+
   it('round-trips recurring without _rev', () => {
     const payload = buildBackup({
       settings: null,
@@ -433,5 +453,51 @@ describe('backup helpers', () => {
     expect(parsed.ok).toBe(true);
     expect(parsed.backup.recurring[0]._rev).toBeUndefined();
     expect(parsed.backup.recurring[0].name).toBe('Plan');
+  });
+
+  it('round-trips recurring tombstones and still rejects invoices without rows', () => {
+    const tombstone = buildRecurringTombstone('p', '2026-11-02');
+    const payload = buildBackup({
+      settings: null,
+      invoices: [tombstone],
+      contacts: [],
+      recurring: [],
+    });
+    const parsed = parseBackup(JSON.stringify(payload));
+    expect(parsed.invalid.invoices).toBe(0);
+    expect(parsed.backup.invoices).toEqual([tombstone]);
+
+    const bad = parseBackup(
+      JSON.stringify({
+        app: 'Manta',
+        version: 6,
+        invoices: [{ _id: 'x', recipient: { fullname: 'A' } }],
+        contacts: [],
+        recurring: [],
+      })
+    );
+    expect(bad.invalid.invoices).toBe(1);
+    expect(bad.backup.invoices).toEqual([]);
+  });
+
+  it('rejects tombstones with mismatched _id', () => {
+    const parsed = parseBackup(
+      JSON.stringify({
+        app: 'Manta',
+        version: 6,
+        invoices: [
+          {
+            _id: 'rec-p-2026-11-03',
+            recurringTombstone: true,
+            recurringId: 'p',
+            periodKey: '2026-11-02',
+            status: 'draft',
+          },
+        ],
+        contacts: [],
+        recurring: [],
+      })
+    );
+    expect(parsed.invalid.invoices).toBe(1);
   });
 });

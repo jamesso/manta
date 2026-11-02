@@ -1,6 +1,8 @@
+import { getAllDocs } from './pouchDB';
 import {
   DEFAULT_NUMBERING,
   normalizeNumbering,
+  reconcileNumberingWithPersistedInvoices,
   resolveStoredNumbering,
 } from './numbering';
 
@@ -12,17 +14,34 @@ export function runInvoiceNumberingWrite(task) {
   return next;
 }
 
+export function clearInvoiceNumberingWriteChainForTests() {
+  writeChain = Promise.resolve();
+}
+
+const reconciledOverlay = new WeakMap();
+
 export function readInvoiceNumberingCounter(
   settingsStore,
   reconciledNumbering
 ) {
+  const overlay = reconciledOverlay.get(settingsStore);
   return normalizeNumbering(
     resolveStoredNumbering(
-      reconciledNumbering,
+      reconciledNumbering ?? overlay,
       settingsStore.get('invoice.numbering')
     ),
     DEFAULT_NUMBERING
   );
+}
+
+export async function resolveInvoiceNumberingForAllocation(
+  settingsStore,
+  reconciledNumbering,
+  invoices = null
+) {
+  const docs = invoices ?? (await getAllDocs('invoices'));
+  const base = readInvoiceNumberingCounter(settingsStore, reconciledNumbering);
+  return reconcileNumberingWithPersistedInvoices(base, docs);
 }
 
 export function numberingCountersEqual(a, b) {
@@ -43,11 +62,13 @@ export async function persistInvoiceNumberingCounter(
   const normalized = normalizeNumbering(numbering, DEFAULT_NUMBERING);
   try {
     settingsStore.set('invoice.numbering', normalized);
+    reconciledOverlay.delete(settingsStore);
     if (dispatch && actionTypes?.FORM_CLEAR_RECONCILED_NUMBERING) {
       dispatch({ type: actionTypes.FORM_CLEAR_RECONCILED_NUMBERING });
     }
     return { ok: true };
   } catch {
+    reconciledOverlay.set(settingsStore, normalized);
     if (dispatch && actionTypes?.FORM_RECONCILE_NUMBERING) {
       dispatch({
         type: actionTypes.FORM_RECONCILE_NUMBERING,
