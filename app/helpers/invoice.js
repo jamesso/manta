@@ -137,6 +137,14 @@ function withStatus(doc, status, now = Date.now()) {
   return next;
 }
 
+/**
+ * Invoices marked paid before plan 014 have no `paidAt`. They fall back to the
+ * issue date, then the creation date. No backfill is done.
+ */
+function getPaidDate(invoice) {
+  return invoice.paidAt ?? getIssuedAt(invoice) ?? invoice.created_at ?? null;
+}
+
 function getInvoiceNumber(invoice) {
   return invoice.invoiceID || invoice._id.slice(0, 8);
 }
@@ -166,6 +174,7 @@ export {
   getInvoiceNumber,
   getInvoiceValue,
   getIssuedAt,
+  getPaidDate,
   getStoredStatus,
   withStatus,
 };

@@ -294,7 +294,6 @@ function getCalculatedTotalsErrors(form, defaultCurrency) {
   return {};
 }
 
-
 function getDraftNumericErrors(form) {
   const errors = {};
   for (const row of form.rows) {
@@ -447,6 +446,7 @@ export function getInvoiceData(
     Object.assign(base, fields, {
       issuedAt,
       status: resolveSaveStatus(mode, editMode.data),
+      paidAt: editMode.data.paidAt,
       subtotal: getInvoiceValue(fields).subtotal,
       grandTotal: getInvoiceValue(fields).grandTotal,
     });
@@ -483,7 +483,11 @@ export function validateTax(isRequired, tax) {
 
 export function validateCurrency(isRequired, currency) {
   const errors = getCurrencyErrors(
-    { settings: { required_fields: { currency: isRequired } }, currency, savedSettings: { currency } },
+    {
+      settings: { required_fields: { currency: isRequired } },
+      currency,
+      savedSettings: { currency },
+    },
     'final'
   );
   const key = errors['currency.fraction'];

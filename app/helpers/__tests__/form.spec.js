@@ -151,6 +151,21 @@ describe('form helpers', () => {
     expect(second.recipient._id).toBe(recipientId);
     expect(first.recipient.created_at).toBe(99);
   });
+  it('keeps paidAt from edit data when editing', () => {
+    const f = form();
+    f.settings.editMode = {
+      active: true,
+      data: {
+        _id: 'old',
+        _rev: '1-x',
+        status: 'paid',
+        paidAt: 12345,
+        rows: [{ description: 'x', price: 1, quantity: 1, subtotal: 1 }],
+      },
+    };
+    const doc = getInvoiceData(f, { defaultCurrency: currency });
+    expect(doc.paidAt).toBe(12345);
+  });
   it('omits cleared draft adjustments when editing', () => {
     const f = form();
     f.settings.required_fields = { currency: true, discount: true, tax: true };

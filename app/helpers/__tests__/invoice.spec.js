@@ -9,6 +9,7 @@ import {
   getIssuedAt,
   getInvoiceNumber,
   getInvoiceValue,
+  getPaidDate,
   withStatus,
 } from '../invoice';
 
@@ -278,6 +279,15 @@ describe('withStatus', () => {
     const doc = { status: 'pending', x: 1 };
     withStatus(doc, 'paid', 1);
     expect(doc.status).toBe('pending');
+  });
+});
+
+describe('getPaidDate', () => {
+  it('prefers paidAt, then issuedAt, then created_at, then null', () => {
+    expect(getPaidDate({ paidAt: 1, issuedAt: 2, created_at: 3 })).toBe(1);
+    expect(getPaidDate({ issuedAt: 2, created_at: 3 })).toBe(2);
+    expect(getPaidDate({ created_at: 3 })).toBe(3);
+    expect(getPaidDate({})).toBe(null);
   });
 });
 
