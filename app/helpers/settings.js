@@ -208,6 +208,15 @@ export function getSettingsErrors(section, data) {
   } else if (data.estimateNumbering != null) {
     validateNumbering(data.estimateNumbering, errors, 'estimateNumbering');
   }
+  if (
+    'creditNoteNumbering' in data &&
+    (data.creditNoteNumbering == null ||
+      !isPlainObject(data.creditNoteNumbering))
+  ) {
+    errors.creditNoteNumbering = 'settings:errors:numberingNext';
+  } else if (data.creditNoteNumbering != null) {
+    validateNumbering(data.creditNoteNumbering, errors, 'creditNoteNumbering');
+  }
   if ('estimateValidDays' in data) {
     const days = Number(data.estimateValidDays);
     if (!Number.isInteger(days) || days < 1 || days > 365) {

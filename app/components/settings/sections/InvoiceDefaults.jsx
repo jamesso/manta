@@ -16,6 +16,7 @@ import { Switch } from '@/components/ui/switch';
 import {
   DEFAULT_ESTIMATE_NUMBERING,
   DEFAULT_NUMBERING,
+  DEFAULT_CREDIT_NOTE_NUMBERING,
   formatInvoiceNumber,
   normalizeNumbering,
 } from '../../../helpers/numbering';
@@ -60,6 +61,10 @@ export default function InvoiceDefaults({
   const estimateNumbering = normalizeNumbering(
     draft.estimateNumbering,
     DEFAULT_ESTIMATE_NUMBERING
+  );
+  const creditNoteNumbering = normalizeNumbering(
+    draft.creditNoteNumbering,
+    DEFAULT_CREDIT_NOTE_NUMBERING
   );
 
   const patch = partial => setDraft(prev => ({ ...prev, ...partial }));
@@ -107,6 +112,16 @@ export default function InvoiceDefaults({
       next[name] = raw.trim() === '' ? '' : Number(raw);
     }
     saveNow(current => ({ ...current, estimateNumbering: next }));
+  };
+
+  const patchCreditNoteNumbering = (name, raw) => {
+    const next = { ...creditNoteNumbering };
+    if (name === 'prefix') {
+      next.prefix = raw;
+    } else {
+      next[name] = raw.trim() === '' ? '' : Number(raw);
+    }
+    saveNow(current => ({ ...current, creditNoteNumbering: next }));
   };
 
   const toggleRequired = (name, checked) => {
@@ -211,6 +226,38 @@ export default function InvoiceDefaults({
             <FieldError>{t(errors.estimateValidDays)}</FieldError>
           ) : null}
         </Field>
+      </div>
+
+      <div className="space-y-3">
+        <h3 className="font-medium">
+          {t('settings:sections:creditNotes:title')}
+        </h3>
+        <div className="grid gap-4 md:grid-cols-3">
+          {['prefix', 'next', 'padding'].map(name => (
+            <Field key={`cn-${name}`}>
+              <FieldLabel htmlFor={`cn-num-${name}`}>
+                {t(`form:numbering:${name}`)}
+              </FieldLabel>
+              <Input
+                id={`cn-num-${name}`}
+                type={name === 'prefix' ? 'text' : 'number'}
+                value={creditNoteNumbering[name] ?? ''}
+                aria-invalid={Boolean(errors?.[`creditNoteNumbering.${name}`])}
+                onChange={e => patchCreditNoteNumbering(name, e.target.value)}
+              />
+              {errors?.[`creditNoteNumbering.${name}`] ? (
+                <FieldError>
+                  {t(errors[`creditNoteNumbering.${name}`])}
+                </FieldError>
+              ) : null}
+            </Field>
+          ))}
+        </div>
+        <p className="text-sm text-muted-foreground">
+          {t('form:numbering:sample', {
+            number: formatInvoiceNumber(creditNoteNumbering),
+          })}
+        </p>
       </div>
 
       <Field>

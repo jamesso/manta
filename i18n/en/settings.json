@@ -21,6 +21,9 @@
     "estimates": {
       "title": "Estimates"
     },
+    "creditNotes": {
+      "title": "Credit notes"
+    },
     "appearance": {
       "title": "Appearance",
       "description": "Choose light, dark, or match the system."

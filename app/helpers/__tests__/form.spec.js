@@ -113,6 +113,19 @@ describe('form helpers', () => {
     expect(resolveSaveStatus('final')).toBe('pending');
     expect(resolveSaveStatus('final', { status: 'draft' })).toBe('pending');
     expect(resolveSaveStatus('final', { status: 'paid' })).toBe('paid');
+    expect(resolveSaveStatus('draft', null, 'creditNote')).toBe('draft');
+    expect(resolveSaveStatus('final', null, 'creditNote')).toBe('issued');
+  });
+  it('pickInvoiceFields keeps credit link and drops due date', () => {
+    const f = form();
+    f.docType = 'creditNote';
+    f.creditedInvoiceId = 'inv-1';
+    f.creditedInvoice = { invoiceID: 'INV-1', issuedAt: 1 };
+    f.settings.required_fields.dueDate = true;
+    const picked = pickInvoiceFields(f, currency);
+    expect(picked.creditedInvoiceId).toBe('inv-1');
+    expect(picked.creditedInvoice).toEqual(f.creditedInvoice);
+    expect(picked.dueDate).toBeUndefined();
   });
   it('keeps settings validators boolean', () => {
     expect(validateTax(false, {})).toBe(true);
