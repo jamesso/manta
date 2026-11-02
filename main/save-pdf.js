@@ -2,9 +2,11 @@
 const { BrowserWindow, ipcMain, shell } = require('electron');
 const appConfig = require('./settings');
 const path = require('path');
-const fs = require('fs');
-const { getPrintOptions } = require('./print-options');
 const { pdfFileName } = require('./pdf-file-name');
+const { writeInvoicePdf } = require('./print-invoice-pdf');
+const { runDirectPreviewPdfJob } = require('./preview-pdf-coordinator');
+
+module.exports = { writeInvoicePdf };
 
 ipcMain.on('save-pdf', async (event, docId, meta) => {
   const exportDir = appConfig.get('invoice.exportDir');
@@ -14,10 +16,7 @@ ipcMain.on('save-pdf', async (event, docId, meta) => {
   );
   const win = BrowserWindow.fromWebContents(event.sender);
   try {
-    const data = await win.webContents.printToPDF(
-      getPrintOptions(appConfig.get('general.printOptions'))
-    );
-    await fs.promises.writeFile(pdfPath, data);
+    await runDirectPreviewPdfJob(win, pdfPath, writeInvoicePdf);
     if (!appConfig.get('onboarding.exportedPdf')) {
       appConfig.set('onboarding.exportedPdf', true);
       const main = BrowserWindow.fromId(appConfig.get('mainWindowID'));
@@ -26,7 +25,6 @@ ipcMain.on('save-pdf', async (event, docId, meta) => {
       }
     }
     if (appConfig.get('general.previewPDF')) {
-      // Open the PDF with the default reader
       await shell.openPath(pdfPath);
     }
     win.webContents.send('pfd-exported', {

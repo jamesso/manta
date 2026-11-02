@@ -1,0 +1,53 @@
+{
+  "defaults": {
+    "invoice": {
+      "subject": "Invoice {number} from {company}",
+      "body": "Hello {client},\n\nPlease find attached invoice {number} for {total}. Due date: {dueDate}.\n\nThank you for your business.\n\n{company}"
+    },
+    "reminder": {
+      "subject": "Payment reminder: invoice {number}",
+      "body": "Hello {client},\n\nThis is a friendly reminder that invoice {number} for {total} was due on {dueDate}. The open balance is {balance}.\n\nIf you have already paid, please ignore this message.\n\nKind regards,\n{company}"
+    }
+  },
+  "vars": {
+    "noDueDate": "on receipt"
+  },
+  "placeholders": {
+    "number": "Invoice number",
+    "client": "Client name",
+    "total": "Invoice total",
+    "balance": "Open balance",
+    "dueDate": "Due date",
+    "company": "Your company name"
+  },
+  "actions": {
+    "email": "Email invoice",
+    "reminder": "Send reminder",
+    "share": "Share PDF…",
+    "markSent": "Mark as sent",
+    "markReminded": "Mark reminder as sent",
+    "copyFullMessage": "Copy full message"
+  },
+  "toast": {
+    "opened": "Mail opened — attach the PDF from the folder",
+    "openedHint": "{{fileName}} is selected in the folder that opened.",
+    "truncated": "The message was too long for a mail link. Use Copy full message to copy the complete text.",
+    "failed": "Could not prepare the email: {{reason}}",
+    "noMailApp": "Could not open your mail app. The PDF is saved.",
+    "markedSent": "Marked as sent",
+    "notSaved": "Save the invoice first.",
+    "copied": "Message copied"
+  },
+  "ask": {
+    "title": "Email address for {{client}}",
+    "description": "Enter an email address to open your mail app with a draft message.",
+    "label": "Email",
+    "save": "Save this address to the client",
+    "confirm": "Continue",
+    "invalid": "Enter a valid email address"
+  },
+  "sheet": {
+    "sentOn": "Sent on {{date}}",
+    "remindedOn": "Reminder sent on {{date}}"
+  }
+}

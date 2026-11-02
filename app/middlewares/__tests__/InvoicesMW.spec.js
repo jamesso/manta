@@ -628,6 +628,43 @@ describe('Invoices Middleware', () => {
     });
   });
 
+  describe('INVOICE_MARK_SENT', () => {
+    it('writes sentAt on the stored invoice', async () => {
+      let stored = {
+        _id: 'inv-email',
+        _rev: '1-x',
+        docType: 'invoice',
+        invoiceID: 'INV-1',
+        status: 'pending',
+      };
+      mockData.invoicesRecords = [stored];
+      getSingleDoc.mockImplementation((_db, id) => {
+        if (id !== stored._id) {
+          return Promise.reject(new Error('No invoice found!'));
+        }
+        return Promise.resolve({ ...stored });
+      });
+      updateDoc.mockImplementation((_db, doc) => {
+        stored = { ...doc, _rev: '2-x' };
+        mockData.invoicesRecords = [{ ...stored }];
+        return Promise.resolve([{ ...stored }]);
+      });
+      await middleware(Actions.markInvoiceSent('inv-email', 'invoice'));
+      expect(stored.sentAt).toBe(fixedNow);
+      expect(stored.status).toBe('pending');
+    });
+
+    it('warns when the invoice is missing', async () => {
+      getSingleDoc.mockRejectedValueOnce(new Error('No invoice found!'));
+      await middleware(Actions.markInvoiceSent('missing', 'invoice'));
+      expect(next).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+        })
+      );
+    });
+  });
+
   describe('INVOICE_DUPLICATE', () => {
     it('opens a copy in the editor without saving it', async () => {
       const data = {
@@ -655,6 +692,8 @@ describe('Invoices Middleware', () => {
       expect(payload).not.toHaveProperty('status');
       expect(payload).not.toHaveProperty('issuedAt');
       expect(payload).not.toHaveProperty('payments');
+      expect(payload).not.toHaveProperty('sentAt');
+      expect(payload).not.toHaveProperty('remindedAt');
       expect(dispatch).toHaveBeenCalledWith({
         type: ACTION_TYPES.UI_TAB_CHANGE,
         payload: 'form',
@@ -733,8 +772,18 @@ describe('Invoices Middleware', () => {
 
     it('bulk update calls updateDocs', async () => {
       mockData.invoicesRecords = [
-        { _id: 'a', status: 'pending', grandTotal: 10, currency: { fraction: 2 } },
-        { _id: 'b', status: 'pending', grandTotal: 10, currency: { fraction: 2 } },
+        {
+          _id: 'a',
+          status: 'pending',
+          grandTotal: 10,
+          currency: { fraction: 2 },
+        },
+        {
+          _id: 'b',
+          status: 'pending',
+          grandTotal: 10,
+          currency: { fraction: 2 },
+        },
       ];
       getSingleDoc.mockResolvedValueOnce({ _id: 'a', status: 'pending' });
       getSingleDoc.mockResolvedValueOnce({ _id: 'b', status: 'pending' });
@@ -747,7 +796,8 @@ describe('Invoices Middleware', () => {
     });
 
     it('estimate status change does not enter runInvoiceNumberingWrite', async () => {
-      const numberingWrites = await import('../../helpers/invoiceNumberingWrites');
+      const numberingWrites =
+        await import('../../helpers/invoiceNumberingWrites');
       const spy = vi.spyOn(numberingWrites, 'runInvoiceNumberingWrite');
       mockData.invoicesRecords = [
         { _id: 'est-1', docType: 'estimate', status: 'draft' },

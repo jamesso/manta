@@ -176,6 +176,7 @@ export default function Dashboard() {
       <div className="grid gap-6 lg:grid-cols-2">
         <NeedsAttention
           invoices={needs}
+          allSalesDocs={allSalesDocs}
           now={now}
           dateFormat={dateFormat}
           onOpen={setOpenId}

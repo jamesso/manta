@@ -39,6 +39,11 @@ export const setInvoiceStatus = createAction(
   (invoiceID, status) => ({ invoiceID, status })
 );
 
+export const markInvoiceSent = createAction(
+  ACTION_TYPES.INVOICE_MARK_SENT,
+  (invoiceID, kind) => ({ invoiceID, kind })
+);
+
 export const saveInvoiceConfigs = createAction(
   ACTION_TYPES.INVOICE_CONFIGS_SAVE,
   (invoiceID, configs) => ({ invoiceID, configs })

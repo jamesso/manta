@@ -130,6 +130,15 @@ async function saveInvoiceWithNumberingQueue({
       invoices,
     });
     const payload = { ...data, invoiceID };
+    if (editMode.active) {
+      const existing = invoices.find(doc => doc._id === editMode.data._id);
+      if (existing?.sentAt != null) {
+        payload.sentAt = existing.sentAt;
+      }
+      if (existing?.remindedAt != null) {
+        payload.remindedAt = existing.remindedAt;
+      }
+    }
     const form = getState().form;
     const freshProfile = appConfig.get('profile') ?? {};
     const freshInvoiceSettings = appConfig.get('invoice') ?? {};

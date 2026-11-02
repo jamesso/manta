@@ -23,6 +23,7 @@ import {
 import { useDebouncedSave } from '../useDebouncedSave';
 import TaxRates from './TaxRates';
 import EInvoiceSettings from './EInvoiceSettings.jsx';
+import EmailTemplates from './EmailTemplates.jsx';
 import { getTaxRates } from '../../../helpers/tax';
 
 const REQUIRED_KEYS = [
@@ -416,6 +417,14 @@ export default function InvoiceDefaults({
         value={draft}
         saveNow={saveNow}
         onSave={onSave}
+      />
+
+      <EmailTemplates
+        value={draft}
+        profile={profile}
+        onSave={onSave}
+        errors={errors}
+        registerFlush={registerFlush}
       />
     </div>
   );

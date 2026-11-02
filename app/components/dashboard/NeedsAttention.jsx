@@ -1,6 +1,13 @@
 import moment from 'moment';
 import { useTranslation } from 'react-i18next';
+import { BellRing } from 'lucide-react';
 
+import { Button } from '@/components/ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import {
   Empty,
   EmptyDescription,
@@ -13,6 +20,8 @@ import {
   getDueDate,
   getInvoiceNumber,
 } from '../../helpers/invoice';
+import { canSendReminder } from '../../helpers/emailDraft';
+import { useEmailInvoice } from '../email/EmailHost';
 import StatusBadge from '../invoices/StatusBadge';
 
 function clientName(invoice) {
@@ -25,9 +34,11 @@ export default function NeedsAttention({
   now,
   dateFormat,
   onOpen,
+  allSalesDocs = invoices,
   max = 8,
 }) {
   const { t } = useTranslation();
+  const emailInvoice = useEmailInvoice();
   const list = invoices.slice(0, max);
 
   if (list.length === 0) {
@@ -51,30 +62,59 @@ export default function NeedsAttention({
       <ul className="divide-y rounded-lg border">
         {list.map(inv => {
           const due = getDueDate(inv);
-          const display = getDisplayStatus(inv, now);
+          const display = getDisplayStatus(inv, now, allSalesDocs);
+          const number = getInvoiceNumber(inv);
+          const showReminder = canSendReminder(inv, now, allSalesDocs);
           return (
             <li key={inv._id}>
-              <button
-                type="button"
-                className="flex w-full min-h-12 flex-wrap items-center justify-between gap-2 px-3 py-2 text-start text-sm hover:bg-muted/50"
-                onClick={() => onOpen(inv._id)}
-              >
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate font-medium">
-                    {clientName(inv)}
+              <div className="flex items-stretch">
+                <button
+                  type="button"
+                  className="flex min-h-12 flex-1 flex-wrap items-center justify-between gap-2 px-3 py-2 text-start text-sm hover:bg-muted/50"
+                  onClick={() => onOpen(inv._id)}
+                >
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-medium">
+                      {clientName(inv)}
+                    </span>
+                    <span className="text-muted-foreground">
+                      {number}
+                      {due != null
+                        ? ` · ${moment(due).format(dateFormat)}`
+                        : ''}
+                    </span>
                   </span>
-                  <span className="text-muted-foreground">
-                    {getInvoiceNumber(inv)}
-                    {due != null ? ` · ${moment(due).format(dateFormat)}` : ''}
+                  <span className="flex items-center gap-2">
+                    <StatusBadge status={display} t={t} />
+                    <span className="tabular-nums">
+                      {formatInvoiceAmount(inv)}
+                    </span>
                   </span>
-                </span>
-                <span className="flex items-center gap-2">
-                  <StatusBadge status={display} t={t} />
-                  <span className="tabular-nums">
-                    {formatInvoiceAmount(inv)}
-                  </span>
-                </span>
-              </button>
+                </button>
+                {showReminder ? (
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="shrink-0 bg-background text-foreground"
+                          aria-label={t('email:actions:reminder', {
+                            number,
+                          })}
+                          onClick={() => emailInvoice(inv, 'reminder')}
+                        />
+                      }
+                    >
+                      <BellRing />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {t('email:actions:reminder')}
+                    </TooltipContent>
+                  </Tooltip>
+                ) : null}
+              </div>
             </li>
           );
         })}

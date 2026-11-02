@@ -119,7 +119,8 @@ export function getSettingsErrors(section, data) {
         }
         const cc = String(postal.countryCode ?? '').trim();
         if (cc && !COUNTRY_CODES.includes(cc)) {
-          errors['postalAddress.countryCode'] = 'settings:errors:countryInvalid';
+          errors['postalAddress.countryCode'] =
+            'settings:errors:countryInvalid';
         }
       }
     }
@@ -277,6 +278,33 @@ export function getSettingsErrors(section, data) {
         !EINVOICE_FORMATS.has(String(eInvoice.format))
       ) {
         errors['eInvoice.format'] = 'settings:errors:invoiceInvalid';
+      }
+    }
+  }
+  for (const key of ['emailTemplate', 'reminderTemplate']) {
+    if (!(key in data)) {
+      continue;
+    }
+    const block = data[key];
+    if (block == null) {
+      continue;
+    }
+    if (!isPlainObject(block)) {
+      errors[key] = 'settings:errors:invoiceInvalid';
+      continue;
+    }
+    if (block.subject != null) {
+      if (typeof block.subject !== 'string') {
+        errors[`${key}.subject`] = 'settings:errors:emailSubject';
+      } else if (block.subject.length > 200 || /[\r\n]/.test(block.subject)) {
+        errors[`${key}.subject`] = 'settings:errors:emailSubject';
+      }
+    }
+    if (block.body != null) {
+      if (typeof block.body !== 'string') {
+        errors[`${key}.body`] = 'settings:errors:emailBody';
+      } else if (block.body.length > 1500) {
+        errors[`${key}.body`] = 'settings:errors:emailBody';
       }
     }
   }

@@ -521,10 +521,13 @@ test('exports a Factur-X PDF', async () => {
   fs.writeFileSync(settingsPath, JSON.stringify(settings));
 
   const preview = await pageByTitle(PREVIEW_TITLE);
-  await preview.evaluate(data => {
-    window.manta.settings.set('profile', data.profile);
-    window.manta.settings.set('invoice', data.invoice);
-  }, { profile: settings.profile, invoice: settings.invoice });
+  await preview.evaluate(
+    data => {
+      window.manta.settings.set('profile', data.profile);
+      window.manta.settings.set('invoice', data.invoice);
+    },
+    { profile: settings.profile, invoice: settings.invoice }
+  );
   await app.evaluate(({ BrowserWindow }, profile) => {
     const previewWin = BrowserWindow.getAllWindows().find(
       w => w.getTitle() === 'Previewer'
@@ -559,18 +562,21 @@ test('exports a Factur-X PDF', async () => {
     });
   }, outPath);
 
-  const result = await preview.evaluate(async ({ invoice: inv, derived: d }) => {
-    const exportKeyAttr = document
-      .querySelector('.print-area')
-      ?.getAttribute('data-export-key');
-    return window.manta.ipc.invoke('einvoice-export', {
-      kind: 'facturx',
-      invoice: inv,
-      derived: d,
-      previewConfigs: inv.configs,
-      exportKey: exportKeyAttr,
-    });
-  }, { invoice, derived: fixture.derived });
+  const result = await preview.evaluate(
+    async ({ invoice: inv, derived: d }) => {
+      const exportKeyAttr = document
+        .querySelector('.print-area')
+        ?.getAttribute('data-export-key');
+      return window.manta.ipc.invoke('einvoice-export', {
+        kind: 'facturx',
+        invoice: inv,
+        derived: d,
+        previewConfigs: inv.configs,
+        exportKey: exportKeyAttr,
+      });
+    },
+    { invoice, derived: fixture.derived }
+  );
 
   expect(result.ok).toBe(true);
   expect(fs.existsSync(outPath)).toBe(true);
@@ -578,4 +584,102 @@ test('exports a Factur-X PDF', async () => {
   expect(buf.subarray(0, 4).toString('utf8')).toBe('%PDF');
   const text = buf.toString('latin1');
   expect(text.includes('factur-x.xml') || text.includes('Factur-X')).toBe(true);
+});
+
+test('email invoice handoff stubs mail client and writes PDF', async () => {
+  const exportDir = fs.mkdtempSync(path.join(os.tmpdir(), 'manta-email-e2e-'));
+  const settingsPath = path.join(userData, 'Settings');
+  const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+  settings.invoice = { ...settings.invoice, exportDir };
+  fs.writeFileSync(settingsPath, JSON.stringify(settings));
+
+  const page = await pageByTitle(MAIN_TITLE);
+  await page.evaluate(
+    data => {
+      window.manta.settings.set('invoice', data.invoice);
+    },
+    { invoice: settings.invoice }
+  );
+
+  await app.evaluate(({ shell }) => {
+    shell.openExternal = async () => {};
+  });
+
+  const invoice = {
+    _id: 'email-e2e-inv',
+    docType: 'invoice',
+    invoiceID: 'INV-E2E',
+    status: 'pending',
+    issuedAt: Date.now(),
+    created_at: Date.now(),
+    currency: settings.invoice.currency,
+    grandTotal: 100,
+    subtotal: 100,
+    rows: [
+      {
+        id: 'r1',
+        description: 'Item',
+        quantity: 1,
+        price: 100,
+        subtotal: 100,
+      },
+    ],
+    recipient: {
+      fullname: 'E2E Client',
+      email: 'client@example.com',
+    },
+    configs: {
+      template: settings.invoice.template,
+      language: settings.general.language,
+      dateFormat: settings.invoice.dateFormat,
+      accentColor: '#2CCCE4',
+      logoSize: '20',
+      fontSize: '200',
+      alignItems: 'middle',
+      showLogo: true,
+      useSymbol: true,
+      customAccentColor: true,
+      showRecipient: true,
+    },
+  };
+
+  await app.evaluate(({ BrowserWindow }, inv) => {
+    BrowserWindow.getAllWindows()
+      .find(w => w.getTitle() === 'Previewer')
+      .webContents.send('update-preview', inv);
+  }, invoice);
+
+  const preview = await pageByTitle(PREVIEW_TITLE);
+  await preview.waitForFunction(
+    id => document.querySelector('.print-area')?.dataset.invoiceId === id,
+    invoice._id,
+    { timeout: 15_000 }
+  );
+
+  const payload = await page.evaluate(
+    async ({ invoice: inv, profile }) => {
+      const snapshot = {
+        profile,
+        configs: inv.configs,
+        language: inv.configs.language,
+      };
+      return window.manta.ipc.invoke('email-invoice', {
+        invoiceId: inv._id,
+        kind: 'invoice',
+        invoice: inv,
+        draft: {
+          to: 'client@example.com',
+          subject: 'Invoice INV-E2E',
+          body: 'Please pay.',
+        },
+        fileBase: 'INV-E2E',
+        source: 'app',
+        snapshot,
+      });
+    },
+    { invoice, profile: settings.profile }
+  );
+
+  expect(payload.ok, payload.error).toBe(true);
+  expect(fs.existsSync(payload.pdfPath)).toBe(true);
 });

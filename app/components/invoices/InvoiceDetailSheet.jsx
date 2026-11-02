@@ -23,7 +23,12 @@ import {
 import * as UIActions from '../../actions/ui';
 import { getDocType } from '../../helpers/docType';
 import { buildProfileFromInvoice } from '../../helpers/recurring';
-import { FileMinus, Repeat } from 'lucide-react';
+import { FileMinus, Repeat, Mail, BellRing, Share } from 'lucide-react';
+import { toast } from '@/components/ui/toast';
+import { canEmail, canSendReminder } from '../../helpers/emailDraft';
+import { captureAppSnapshot } from '../../helpers/emailFlow';
+import { useEmailInvoice } from '../email/EmailHost';
+import { markInvoiceSent } from '../../actions/invoices';
 import {
   getAmountPaid,
   getBalanceDue,
@@ -66,6 +71,7 @@ export default function InvoiceDetailSheet({
 }) {
   const dispatch = useDispatch();
   const allDocs = useSelector(getAllSalesDocs) || [];
+  const emailInvoice = useEmailInvoice();
   const settings = useSelector(getCurrentSettings);
   const contacts = useSelector(getContacts) || [];
   const ipc = window.manta.ipc;
@@ -110,10 +116,8 @@ export default function InvoiceDetailSheet({
     contacts.find(c => c._id === invoice.recipient._id);
   const copyClientVisible = Boolean(
     contact &&
-      eInvoiceIssues.some(i => i.fix === 'client') &&
-      (contact.postalAddress?.street ||
-        contact.buyerReference ||
-        contact.taxId)
+    eInvoiceIssues.some(i => i.fix === 'client') &&
+    (contact.postalAddress?.street || contact.buyerReference || contact.taxId)
   );
   const issued = getIssuedAt(invoice);
   const due = getDueDate(invoice);
@@ -209,6 +213,30 @@ export default function InvoiceDetailSheet({
                 {t('invoices:sheet:currency')}
               </dt>
               <dd>{currency.code}</dd>
+            </div>
+          ) : null}
+          {invoice.sentAt ? (
+            <div>
+              <dt className="text-muted-foreground">
+                {t('email:sheet:sentOn')}
+              </dt>
+              <dd>
+                {t('email:sheet:sentOn', {
+                  date: moment(invoice.sentAt).format(fmt),
+                })}
+              </dd>
+            </div>
+          ) : null}
+          {invoice.remindedAt ? (
+            <div>
+              <dt className="text-muted-foreground">
+                {t('email:sheet:remindedOn')}
+              </dt>
+              <dd>
+                {t('email:sheet:remindedOn', {
+                  date: moment(invoice.remindedAt).format(fmt),
+                })}
+              </dd>
             </div>
           ) : null}
         </dl>
@@ -442,6 +470,67 @@ export default function InvoiceDetailSheet({
                 {t('invoices:actions:markPaidInFull')}
               </Button>
             </>
+          ) : null}
+          {canEmail(invoice) ? (
+            <Button
+              type="button"
+              variant="outline"
+              className="bg-background text-foreground"
+              onClick={() => emailInvoice(invoice, 'invoice')}
+            >
+              <Mail />
+              {t('email:actions:email')}
+            </Button>
+          ) : null}
+          {canSendReminder(invoice, now, allDocs) ? (
+            <Button
+              type="button"
+              variant="outline"
+              className="bg-background text-foreground"
+              onClick={() => emailInvoice(invoice, 'reminder')}
+            >
+              <BellRing />
+              {t('email:actions:reminder')}
+            </Button>
+          ) : null}
+          {canEmail(invoice) && !invoice.sentAt ? (
+            <Button
+              type="button"
+              variant="outline"
+              className="bg-background text-foreground"
+              onClick={() => dispatch(markInvoiceSent(invoice._id, 'invoice'))}
+            >
+              {t('email:actions:markSent')}
+            </Button>
+          ) : null}
+          {window.manta.platform === 'darwin' && canEmail(invoice) ? (
+            <Button
+              type="button"
+              variant="outline"
+              className="bg-background text-foreground"
+              onClick={async () => {
+                const snapshot = captureAppSnapshot(
+                  invoice,
+                  window.manta.settings
+                );
+                const res = await window.manta.ipc.invoke('share-invoice-pdf', {
+                  invoiceId: invoice._id,
+                  invoice,
+                  fileBase: getInvoiceNumber(invoice),
+                  source: 'app',
+                  snapshot,
+                });
+                if (!res?.ok) {
+                  toast.add({
+                    title: t('email:toast:failed', { reason: res?.error }),
+                    type: 'warning',
+                  });
+                }
+              }}
+            >
+              <Share />
+              {t('email:actions:share')}
+            </Button>
           ) : null}
           <Button
             type="button"

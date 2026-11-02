@@ -217,6 +217,8 @@ function setInitialValues() {
       creditNoteNumbering: { prefix: 'CN-', next: 1, padding: 4 },
       estimateValidDays: 30,
       eInvoice: { enabled: false, format: 'xrechnung-ubl' },
+      emailTemplate: { subject: '', body: '' },
+      reminderTemplate: { subject: '', body: '' },
     },
   };
 
@@ -369,6 +371,11 @@ function addEventListeners() {
 function loadMainProcessFiles() {
   require('./main/preview-window');
   require('./main/save-pdf');
+  require('./main/email-invoice');
+  const {
+    registerPreviewCoordinatorIpc,
+  } = require('./main/preview-pdf-coordinator');
+  registerPreviewCoordinatorIpc();
   require('./main/einvoice');
   require('./main/select-export-directory');
   require('./main/select-logo-file');

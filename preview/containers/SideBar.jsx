@@ -17,6 +17,7 @@ import {
   isEstimate,
 } from '../../app/helpers/docType';
 import { getDefaultValidUntil } from '../../app/helpers/estimate';
+import { canEmail } from '../../app/helpers/emailDraft';
 
 export default function SideBar({
   t,
@@ -38,6 +39,40 @@ export default function SideBar({
     ipc.send('save-pdf', invoice._id, { docType: getDocType(invoice) });
     saveConfigs();
   };
+
+  const emailSnapshot = {
+    profile,
+    configs,
+    language: configs.language,
+  };
+
+  const emailInvoice = () => {
+    ipc.send('request-email-invoice', {
+      invoiceId: invoice._id,
+      invoice,
+      snapshot: emailSnapshot,
+    });
+  };
+
+  const sharePdf = async () => {
+    const captured = await ipc.invoke('capture-preview-snapshot', {
+      invoice,
+      snapshot: emailSnapshot,
+    });
+    if (!captured?.ok) {
+      return;
+    }
+    await ipc.invoke('share-invoice-pdf', {
+      invoiceId: invoice._id,
+      invoice,
+      fileBase: invoice.invoiceID,
+      source: 'preview',
+      snapshot: emailSnapshot,
+      previewToken: captured.previewToken,
+    });
+  };
+
+  const emailable = canEmail(invoice);
 
   return (
     <aside className="flex w-72 shrink-0 flex-col border-e bg-sidebar text-sidebar-foreground">
@@ -104,6 +139,10 @@ export default function SideBar({
         disabled={!invoice._id}
         savePDF={savePDF}
         saveConfigs={saveConfigs}
+        emailInvoice={emailInvoice}
+        sharePdf={sharePdf}
+        showEmail={emailable}
+        showShare={emailable && window.manta.platform === 'darwin'}
       />
     </aside>
   );

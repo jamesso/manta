@@ -23,6 +23,8 @@
     "actions": {
       "name": "Actions",
       "savePDF": "Export PDF",
+      "emailInvoice": "Email invoice",
+      "sharePdf": "Share PDF…",
       "saveConfigs": "Save settings"
     },
     "einvoice": {

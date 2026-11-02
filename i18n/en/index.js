@@ -3,6 +3,7 @@ import common from './common.json';
 import contacts from './contacts.json';
 import items from './items.json';
 import dashboard from './dashboard.json';
+import email from './email.json';
 import dialog from './dialog.json';
 import form from './form.json';
 import invoices from './invoices.json';
@@ -18,6 +19,7 @@ export default {
   contacts,
   items,
   dashboard,
+  email,
   dialog,
   form,
   invoices,

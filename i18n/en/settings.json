@@ -16,7 +16,19 @@
     },
     "invoice": {
       "title": "Invoice defaults",
-      "description": "Defaults for new invoices, tax, and currency."
+      "description": "Defaults for new invoices, tax, and currency.",
+      "email": {
+        "title": "Email templates",
+        "tabInvoice": "Invoice email",
+        "tabReminder": "Payment reminder",
+        "subject": "Subject",
+        "body": "Body",
+        "placeholders": "Placeholders",
+        "preview": "Preview",
+        "lengthWarning": "This message is long. Mail apps may get a shortened text.",
+        "reset": "Reset to default",
+        "defaultBadge": "Default"
+      }
     },
     "estimates": {
       "title": "Estimates"
@@ -77,7 +89,9 @@
     "validDays": "Enter a whole number from 1 to 365",
     "countryInvalid": "Choose a valid country code",
     "ibanInvalid": "Enter a valid IBAN",
-    "bicInvalid": "Enter a valid BIC"
+    "bicInvalid": "Enter a valid BIC",
+    "emailSubject": "Use one line of 200 characters or fewer",
+    "emailBody": "Use 1500 characters or fewer"
   },
   "backup": {
     "export": "Export backup…",

@@ -18,11 +18,52 @@ export default function Viewer() {
   const profile = useSelector(getProfile);
   const UILang = useSelector(getUILang);
   const exportFrozenRef = useRef(false);
+  const pendingRenderRef = useRef(null);
 
   useEffect(() => {
     if (!UILang) return;
     i18n.changeLanguage(UILang);
   }, [UILang]);
+
+  useEffect(() => {
+    const pending = pendingRenderRef.current;
+    if (!pending) {
+      return;
+    }
+    let cancelled = false;
+
+    async function signalReady() {
+      await document.fonts.ready;
+      const imgs = Array.from(document.querySelectorAll('.print-area img'));
+      await Promise.all(
+        imgs.map(img =>
+          img.complete
+            ? Promise.resolve()
+            : new Promise(resolve => {
+                img.addEventListener('load', resolve, { once: true });
+                img.addEventListener('error', resolve, { once: true });
+              })
+        )
+      );
+      if (!cancelled) {
+        ipc.send('preview-rendered', {
+          requestId: pending.requestId,
+          invoiceId: pending.invoiceId,
+        });
+        pendingRenderRef.current = null;
+      }
+    }
+
+    signalReady().catch(() => {
+      if (!cancelled) {
+        pendingRenderRef.current = null;
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [invoice, profile, configs, UILang]);
 
   const exportBlocked = () =>
     exportFrozenRef.current ||
@@ -33,6 +74,18 @@ export default function Viewer() {
     const blocked = exportBlocked;
 
     const onPreview = (_event, invoiceData) => {
+      if (invoiceData?.requestId) {
+        const active = window.manta.getActivePreviewRequestId?.() ?? null;
+        if (!active || invoiceData.requestId !== active) {
+          return;
+        }
+        pendingRenderRef.current = {
+          requestId: invoiceData.requestId,
+          invoiceId: invoiceData.invoice?._id,
+        };
+        dispatch(ActionsCreator.updateCoordinatedPreview(invoiceData));
+        return;
+      }
       if (blocked()) {
         return;
       }

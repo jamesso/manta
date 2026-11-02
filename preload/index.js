@@ -4,13 +4,16 @@ const CHANNELS = new Set([
   'backup-export',
   'backup-import',
   'backup-snapshot',
+  'capture-preview-snapshot',
   'csv-export',
   'einvoice-export',
+  'email-invoice',
   'preview-export-freeze',
   'change-preview-window-language',
   'change-preview-window-profile',
   'check-for-updates',
   'confirmed-export-directory',
+  'copy-email-message',
   'file-selected',
   'menu-change-tab',
   'menu-new-invoice',
@@ -30,13 +33,17 @@ const CHANNELS = new Set([
   'open-file-dialog',
   'pfd-exported',
   'preview-invoice',
+  'preview-rendered',
+  'preview-active-request-id',
   'quit-and-install',
   'quit-app',
   'reveal-file',
+  'request-email-invoice',
   'save-configs-to-invoice',
   'save-pdf',
   'select-export-directory',
   'set-theme',
+  'share-invoice-pdf',
   'system-resumed',
   'update-available',
   'update-checking',
@@ -85,6 +92,10 @@ const api = {
   processLogo: filePath => ipcRenderer.invoke('process-logo', filePath),
   getPathForFile: file => webUtils.getPathForFile(file),
   platform: process.platform,
+  getActivePreviewRequestId: () => {
+    check('preview-active-request-id');
+    return ipcRenderer.sendSync('preview-active-request-id');
+  },
 };
 
 if (process.contextIsolated) contextBridge.exposeInMainWorld('manta', api);

@@ -1,4 +1,11 @@
-import { MoreHorizontal, HandCoins, FileMinus, Repeat } from 'lucide-react';
+import {
+  MoreHorizontal,
+  HandCoins,
+  FileMinus,
+  Repeat,
+  Mail,
+  BellRing,
+} from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -28,6 +35,8 @@ import { buildProfileFromInvoice } from '../../helpers/recurring';
 import * as UIActions from '../../actions/ui';
 import { canCreateCreditNote } from '../../helpers/creditNotes';
 import { canRecordPayment } from '../../helpers/payments';
+import { canEmail, canSendReminder } from '../../helpers/emailDraft';
+import { useEmailInvoice } from '../email/EmailHost';
 import { getAllSalesDocs } from '../../reducers/InvoicesReducer';
 import { useSelector } from 'react-redux';
 
@@ -38,9 +47,11 @@ export default function InvoiceRowActions({
   dispatch,
   t,
   onRecordPayment,
+  now = Date.now(),
 }) {
   const stored = getStoredStatus(invoice);
   const allDocs = useSelector(getAllSalesDocs);
+  const emailInvoice = useEmailInvoice();
   const linked = allDocs.filter(
     cn => cn.docType === 'creditNote' && cn.creditedInvoiceId === invoice._id
   );
@@ -65,6 +76,18 @@ export default function InvoiceRowActions({
         <DropdownMenuItem onClick={() => ipc.send('preview-invoice', invoice)}>
           {t('invoices:actions:preview')}
         </DropdownMenuItem>
+        {canEmail(invoice) ? (
+          <DropdownMenuItem onClick={() => emailInvoice(invoice, 'invoice')}>
+            <Mail />
+            {t('email:actions:email')}
+          </DropdownMenuItem>
+        ) : null}
+        {canSendReminder(invoice, now, allDocs) ? (
+          <DropdownMenuItem onClick={() => emailInvoice(invoice, 'reminder')}>
+            <BellRing />
+            {t('email:actions:reminder')}
+          </DropdownMenuItem>
+        ) : null}
         <DropdownMenuItem onClick={() => dispatch(editInvoice(invoice))}>
           {t('invoices:actions:edit')}
         </DropdownMenuItem>

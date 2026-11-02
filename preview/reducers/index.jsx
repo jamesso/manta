@@ -24,6 +24,21 @@ const RootReducer = handleActions(
           ? action.payload.configs
           : state.configs,
       }),
+    [ACTION_TYPES.PREVIEW_COORDINATED_UPDATE]: (state, action) => {
+      const { invoice, profile, configs, language } = action.payload;
+      const invoiceSettingsNow = appConfig.get('invoice');
+      const generalSettingsNow = appConfig.get('general');
+      return Object.assign({}, state, {
+        invoice,
+        profile: profile ?? state.profile,
+        configs:
+          configs ??
+          getDefaultPreviewConfigs(invoiceSettingsNow, generalSettingsNow),
+        ui: Object.assign({}, state.ui, {
+          language: language ?? state.ui.language,
+        }),
+      });
+    },
     [ACTION_TYPES.UI_CHANGE_LANGUAGE]: (state, action) =>
       Object.assign({}, state, {
         ui: Object.assign({}, state.ui, {

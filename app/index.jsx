@@ -10,6 +10,7 @@ import configureStore from './store';
 import App from './App';
 import ErrorBoundary from './components/shared/ErrorBoundary';
 import DialogHost from './components/layout/DialogHost';
+import EmailHost from './components/email/EmailHost';
 import { UpdateProvider } from './components/layout/UpdateProvider';
 import { Toaster } from '@/components/ui/toast';
 
@@ -25,6 +26,7 @@ createRoot(document.getElementById('root')).render(
       </ErrorBoundary>
     </UpdateProvider>
     <DialogHost />
+    <EmailHost />
     <Toaster />
   </Provider>
 );

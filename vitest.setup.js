@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 
-const mantaHost = typeof globalThis.window !== 'undefined' ? globalThis.window : globalThis;
+const mantaHost =
+  typeof globalThis.window !== 'undefined' ? globalThis.window : globalThis;
 mantaHost.manta = {
   ipc: {
     send: vi.fn(),
@@ -17,6 +18,7 @@ mantaHost.manta = {
   processLogo: vi.fn(async () => ({ dataUrl: 'data:image/png;base64,' })),
   getPathForFile: vi.fn(() => '/tmp/file.png'),
   platform: 'darwin',
+  getActivePreviewRequestId: vi.fn(() => null),
 };
 
 // The old setTimeout(0) shim runs after jsdom teardown.

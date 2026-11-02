@@ -15,6 +15,7 @@ import {
   EINVOICE_PREVIEW_UNFREEZE_SCRIPT,
   exportKey,
 } from '../helpers/einvoice/exportKey.js';
+import { runFacturxPrintJob } from './preview-pdf-coordinator';
 
 const RESERVED = new Set([
   'CON',
@@ -141,8 +142,13 @@ ipcMain.handle('einvoice-export', async (event, payload) => {
     return { ok: false, error: 'untrusted-sender' };
   }
 
-  const { kind, invoice, derived, exportKey: payloadExportKey, previewConfigs } =
-    payload ?? {};
+  const {
+    kind,
+    invoice,
+    derived,
+    exportKey: payloadExportKey,
+    previewConfigs,
+  } = payload ?? {};
   if (kind !== 'xrechnung' && kind !== 'facturx') {
     return { ok: false, error: 'unknown-kind' };
   }
@@ -163,8 +169,7 @@ ipcMain.handle('einvoice-export', async (event, payload) => {
     return { ok: false, error: integrityError };
   }
 
-  const format =
-    kind === 'facturx' ? 'facturx-en16931' : 'xrechnung-ubl';
+  const format = kind === 'facturx' ? 'facturx-en16931' : 'xrechnung-ubl';
   const model = toEn16931(invoice, settings, derived);
   const issues = getEInvoiceIssues(model, { format, invoice, derived });
   if (issues.some(i => i.severity === 'error')) {
@@ -205,50 +210,52 @@ ipcMain.handle('einvoice-export', async (event, payload) => {
       return { ok: true, path: filePath, warnings };
     }
 
-    let previewFrozenByThisCall = false;
-    try {
-      const ready = await waitForPreviewExportReady(win);
-      previewFrozenByThisCall = true;
-      if (
-        ready.id !== String(invoice._id ?? '') ||
-        ready.key !== expectedExportKey
-      ) {
-        return { ok: false, error: 'preview-not-ready' };
+    return runFacturxPrintJob(async () => {
+      let previewFrozenByThisCall = false;
+      try {
+        const ready = await waitForPreviewExportReady(win);
+        previewFrozenByThisCall = true;
+        if (
+          ready.id !== String(invoice._id ?? '') ||
+          ready.key !== expectedExportKey
+        ) {
+          return { ok: false, error: 'preview-not-ready' };
+        }
+        const pdf = await win.webContents.printToPDF(
+          getPrintOptions(appConfig.get('general.printOptions'))
+        );
+        const out = await service.generate(toUblJson(model), {
+          format: 'Factur-X-EN16931',
+          lang: derived.lang ?? 'en',
+          pdf: {
+            buffer: pdf,
+            filename: `${base}.pdf`,
+            mimetype: 'application/pdf',
+          },
+        });
+        const { canceled, filePath } = await dialog.showSaveDialog(win, {
+          defaultPath: path.join(exportDir, `${base}.pdf`),
+          filters: [{ name: 'PDF', extensions: ['pdf'] }],
+        });
+        if (canceled || !filePath) {
+          return { ok: false, canceled: true };
+        }
+        await fs.writeFile(filePath, Buffer.from(out));
+        if (appConfig.get('general.previewPDF')) {
+          await shell.openPath(filePath);
+        }
+        win.webContents.send('pfd-exported', {
+          title: 'PDF Exported',
+          body: 'Click to reveal file.',
+          location: filePath,
+        });
+        return { ok: true, path: filePath, warnings };
+      } finally {
+        if (previewFrozenByThisCall) {
+          await clearPreviewExportFrozen(win);
+        }
       }
-      const pdf = await win.webContents.printToPDF(
-        getPrintOptions(appConfig.get('general.printOptions'))
-      );
-      const out = await service.generate(toUblJson(model), {
-        format: 'Factur-X-EN16931',
-        lang: derived.lang ?? 'en',
-        pdf: {
-          buffer: pdf,
-          filename: `${base}.pdf`,
-          mimetype: 'application/pdf',
-        },
-      });
-      const { canceled, filePath } = await dialog.showSaveDialog(win, {
-        defaultPath: path.join(exportDir, `${base}.pdf`),
-        filters: [{ name: 'PDF', extensions: ['pdf'] }],
-      });
-      if (canceled || !filePath) {
-        return { ok: false, canceled: true };
-      }
-      await fs.writeFile(filePath, Buffer.from(out));
-      if (appConfig.get('general.previewPDF')) {
-        await shell.openPath(filePath);
-      }
-      win.webContents.send('pfd-exported', {
-        title: 'PDF Exported',
-        body: 'Click to reveal file.',
-        location: filePath,
-      });
-      return { ok: true, path: filePath, warnings };
-    } finally {
-      if (previewFrozenByThisCall) {
-        await clearPreviewExportFrozen(win);
-      }
-    }
+    });
   } catch (err) {
     return { ok: false, error: err.message };
   }

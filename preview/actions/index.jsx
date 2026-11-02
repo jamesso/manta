@@ -6,6 +6,11 @@ export const updateInvoice = createAction(
   invoiceData => invoiceData
 );
 
+export const updateCoordinatedPreview = createAction(
+  ACTION_TYPES.PREVIEW_COORDINATED_UPDATE,
+  payload => payload
+);
+
 export const updateConfigs = createAction(
   ACTION_TYPES.SETTINGS_UPDATE_CONFIGS,
   configs => configs

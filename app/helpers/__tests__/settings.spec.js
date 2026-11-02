@@ -134,4 +134,26 @@ describe('getSettingsErrors', () => {
   it('lists settings sections', () => {
     expect(SETTINGS_SECTIONS).toContain('invoice');
   });
+
+  it('validates email template fields', () => {
+    expect(
+      getSettingsErrors('invoice', {
+        ...baseInvoice,
+        emailTemplate: { subject: 'One\nTwo', body: 'ok' },
+      })['emailTemplate.subject']
+    ).toBeDefined();
+    expect(
+      getSettingsErrors('invoice', {
+        ...baseInvoice,
+        emailTemplate: { subject: 'ok', body: 'x'.repeat(1501) },
+      })['emailTemplate.body']
+    ).toBeDefined();
+    expect(
+      getSettingsErrors('invoice', {
+        ...baseInvoice,
+        emailTemplate: { subject: '', body: '' },
+        reminderTemplate: { subject: '', body: '' },
+      })
+    ).toEqual({});
+  });
 });
