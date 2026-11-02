@@ -8,8 +8,9 @@
     "draftSaved": "Draft saved"
   },
   "contact": {
-    "saved": "Contact saved successfully",
-    "deleted": "Contact deleted successfully"
+    "saved": "Client saved",
+    "updated": "Client updated",
+    "deleted": "Client deleted"
   },
   "settings": {
     "saved": "All settings have been saved successfully"

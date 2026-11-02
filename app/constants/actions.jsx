@@ -22,7 +22,8 @@ export const FORM_LOAD_DUPLICATE = 'FORM_LOAD_DUPLICATE';
 export const FORM_SAVE_PENDING = 'FORM_SAVE_PENDING';
 export const FORM_RECONCILE_NUMBERING = 'FORM_RECONCILE_NUMBERING';
 export const FORM_ATTACH_SAVED_INVOICE = 'FORM_ATTACH_SAVED_INVOICE';
-export const FORM_CLEAR_RECONCILED_NUMBERING = 'FORM_CLEAR_RECONCILED_NUMBERING';
+export const FORM_CLEAR_RECONCILED_NUMBERING =
+  'FORM_CLEAR_RECONCILED_NUMBERING';
 
 // INVOICE
 // ===========================================================
@@ -42,6 +43,8 @@ export const INVOICE_RESTORE = 'INVOICE_RESTORE';
 export const CONTACT_GET_ALL = 'CONTACT_GET_ALL';
 export const CONTACT_DELETE = 'CONTACT_DELETE';
 export const CONTACT_SAVE = 'CONTACT_SAVE';
+export const CONTACT_UPDATE = 'CONTACT_UPDATE';
+export const CONTACT_RESTORE = 'CONTACT_RESTORE';
 
 // SETTINGS
 // ===========================================================

@@ -15,3 +15,13 @@ export const deleteContact = createAction(
   ACTION_TYPES.CONTACT_DELETE,
   contactID => contactID
 );
+
+export const updateContact = createAction(
+  ACTION_TYPES.CONTACT_UPDATE,
+  contact => contact
+);
+
+export const restoreContacts = createAction(
+  ACTION_TYPES.CONTACT_RESTORE,
+  docs => docs
+);

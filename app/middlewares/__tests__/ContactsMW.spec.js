@@ -8,10 +8,19 @@ import i18n from '../../../i18n/i18n';
 import {
   saveDoc,
   deleteDoc,
+  updateDoc,
   getAllDocs,
+  removeDocs,
+  restoreDocs,
   mockData,
 } from '../../helpers/pouchDB';
 vi.mock('../../helpers/pouchDB');
+vi.mock('@/components/ui/toast', () => ({
+  toast: {
+    add: vi.fn(() => 'toast-id'),
+    close: vi.fn(),
+  },
+}));
 Date.now = vi.fn(() => 'now');
 
 describe('Contacts Middleware', () => {
@@ -188,61 +197,86 @@ describe('Contacts Middleware', () => {
   });
 
   describe('should handle CONTACT_DELETE action', () => {
-    it('should remove record from DB correctly', () => {
-      // Setup
+    it('should remove record from DB correctly', async () => {
+      const contactID = 'jon-snow';
+      removeDocs.mockResolvedValueOnce({
+        removed: [{ _id: contactID }],
+        failed: [],
+        docs: [],
+      });
+      await middleware(Actions.deleteContact(contactID));
+      expect(removeDocs).toHaveBeenCalledWith('contacts', [contactID]);
+    });
+
+    it('should call next after delete', async () => {
       const contactID = 'jon-snow';
       const action = Actions.deleteContact(contactID);
-      // Execute
-      middleware(action).then(() =>
-        deleteDoc('contacts', contactID).then(data => {
-          expect(data).toEqual([]);
+      removeDocs.mockResolvedValueOnce({
+        removed: [{ _id: contactID }],
+        failed: [],
+        docs: [],
+      });
+      await middleware(action);
+      expect(next).toHaveBeenCalledWith(
+        Object.assign({}, action, {
+          payload: [],
         })
       );
     });
 
-    it('should call next and dispatch notification ', () => {
-      // Setup
-      const contactID = 'jon-snow';
-      const action = Actions.deleteContact(contactID);
-      // Execute
-      middleware(action).then(() =>
-        deleteDoc('contacts', contactID).then(data => {
-          // Call next after the promised is returned
-          expect(next.mock.calls.length).toBe(1);
-          expect(next).toHaveBeenCalledWith(
-            Object.assign({}, action, {
-              payload: [],
-            })
-          );
-          // Dispatch success notification
-          expect(dispatch.mock.calls.length).toBe(1);
-          expect(dispatch).toHaveBeenCalledWith({
-            type: ACTION_TYPES.UI_NOTIFICATION_NEW,
-            payload: {
-              type: 'success',
-              message: i18n.t('messages:contact:deleted'),
-            },
-          });
-        })
-      );
-    });
-
-    it('handle error correctly', () => {
-      // Set up
+    it('handle error correctly', async () => {
       const contactID = 'ned-stark';
       const expectedError = new Error('No contact found!');
+      removeDocs.mockRejectedValueOnce(expectedError);
+      await middleware(Actions.deleteContact(contactID));
+      expect(next).toHaveBeenCalledWith({
+        type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+        payload: {
+          type: 'warning',
+          message: expectedError.message,
+        },
+      });
+    });
+  });
 
-      // Execute
-      middleware(Actions.deleteContact(contactID)).then(() => {
-        // Expect
-        expect(next).toHaveBeenCalled();
-        expect(next).toHaveBeenCalledWith({
-          type: ACTION_TYPES.UI_NOTIFICATION_NEW,
-          payload: {
-            type: 'warning',
-            message: expectedError.message,
-          },
-        });
+  describe('CONTACT_UPDATE', () => {
+    it('calls updateDoc and next with updated list', async () => {
+      const doc = { _id: 'c1', _rev: '1-x', fullname: 'A', email: 'a@b.co' };
+      const list = [doc];
+      updateDoc.mockResolvedValueOnce(list);
+      const action = Actions.updateContact(doc);
+      await middleware(action);
+      expect(updateDoc).toHaveBeenCalledWith('contacts', doc);
+      expect(next).toHaveBeenCalledWith({
+        type: ACTION_TYPES.CONTACT_UPDATE,
+        payload: list,
+      });
+    });
+
+    it('warns on rejected updateDoc', async () => {
+      const doc = { _id: 'c1', fullname: 'A', email: 'a@b.co' };
+      const err = new Error('409 conflict');
+      updateDoc.mockRejectedValueOnce(err);
+      await middleware(Actions.updateContact(doc));
+      expect(next).toHaveBeenCalledWith({
+        type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+        payload: {
+          type: 'warning',
+          message: err.message,
+        },
+      });
+    });
+  });
+
+  describe('CONTACT_RESTORE', () => {
+    it('restores contacts after delete', async () => {
+      const docs = [{ _id: 'x', fullname: 'X', email: 'x@y.z' }];
+      restoreDocs.mockResolvedValueOnce(docs);
+      await middleware(Actions.restoreContacts(docs));
+      expect(restoreDocs).toHaveBeenCalledWith('contacts', docs);
+      expect(next).toHaveBeenCalledWith({
+        type: ACTION_TYPES.CONTACT_RESTORE,
+        payload: docs,
       });
     });
   });

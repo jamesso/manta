@@ -6,7 +6,9 @@ const ContactsReducer = handleActions(
     [combineActions(
       Actions.getAllContacts,
       Actions.saveContact,
-      Actions.deleteContact
+      Actions.updateContact,
+      Actions.deleteContact,
+      Actions.restoreContacts
     )]: (state, action) => action.payload,
   },
   []

@@ -35,9 +35,18 @@ describe('Contacts Reducer', () => {
     expect(newState).toEqual(docs);
   });
 
-  it('should handle get delete contact', () => {
+  it('should handle delete contact', () => {
     const action = {
       type: ACTION_TYPES.CONTACT_DELETE,
+      payload: docs,
+    };
+    const newState = ContactsReducer(initialState, action);
+    expect(newState).toEqual(docs);
+  });
+
+  it('should handle CONTACT_UPDATE', () => {
+    const action = {
+      type: ACTION_TYPES.CONTACT_UPDATE,
       payload: docs,
     };
     const newState = ContactsReducer(initialState, action);

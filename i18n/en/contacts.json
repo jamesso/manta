@@ -1,9 +1,55 @@
 {
-  "header": "All Contacts",
+  "header": "Clients",
   "fields": {
     "contact": "Contact",
     "email": "Email",
     "phone": "Phone",
-    "actions": "Actions"
+    "actions": "Actions",
+    "nameCompany": "Name / Company",
+    "invoices": "Invoices",
+    "outstanding": "Outstanding"
+  },
+  "searchPlaceholder": "Search clients…",
+  "newClient": "New client",
+  "empty": {
+    "title": "No clients yet",
+    "description": "Clients are saved when you create an invoice, or you can add one now.",
+    "noResults": "No clients match \"{{query}}\"",
+    "clearSearch": "Clear search"
+  },
+  "editor": {
+    "createTitle": "New client",
+    "editTitle": "Edit client",
+    "hint": "Changes apply to new invoices. Existing invoices keep the details they were created with.",
+    "fullname": "Full name",
+    "company": "Company",
+    "email": "Email",
+    "phone": "Phone",
+    "save": "Save"
+  },
+  "detail": {
+    "outstanding": "Outstanding",
+    "noInvoices": "No invoices for this client yet.",
+    "newInvoice": "New invoice",
+    "edit": "Edit"
+  },
+  "actions": {
+    "newInvoice": "New invoice",
+    "edit": "Edit",
+    "delete": "Delete",
+    "menuLabel": "Actions for {{name}}"
+  },
+  "toast": {
+    "deleted": "Client deleted",
+    "deleted_other": "{{count}} clients deleted",
+    "undo": "Undo",
+    "restored": "Client restored",
+    "restored_other": "{{count}} clients restored",
+    "deleteFailed": "{{count}} could not be deleted"
+  },
+  "errors": {
+    "fullnameRequired": "Enter a full name",
+    "emailRequired": "Enter an email address",
+    "emailInvalid": "Enter a valid email address"
   }
 }
