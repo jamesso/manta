@@ -45,7 +45,7 @@ export default function TotalsFooter() {
     ...(form.taxMode === 'invoice' && fields.tax
       ? [['tax', totals.taxTotal]]
       : []),
-    ...lineTaxLines.map(([name, value]) => [name, value]),
+    ...lineTaxLines,
     ['total', totals.grandTotal],
   ];
   const editData = form.settings.editMode.active
