@@ -48,3 +48,22 @@ export const restoreInvoices = createAction(
   ACTION_TYPES.INVOICE_RESTORE,
   docs => docs
 );
+
+export const recordPayment = createAction(
+  ACTION_TYPES.INVOICE_PAYMENT_ADD,
+  (invoiceID, payment) => ({ invoiceID, payment, fullBalance: false })
+);
+
+export const recordFullPayment = createAction(
+  ACTION_TYPES.INVOICE_PAYMENT_ADD,
+  (invoiceIDOrIDs, payment = {}) => ({
+    invoiceID: invoiceIDOrIDs,
+    payment,
+    fullBalance: true,
+  })
+);
+
+export const removePayment = createAction(
+  ACTION_TYPES.INVOICE_PAYMENT_REMOVE,
+  (invoiceID, paymentId) => ({ invoiceID, paymentId })
+);

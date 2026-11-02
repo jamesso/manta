@@ -37,6 +37,9 @@ export const INVOICE_SET_STATUS = 'INVOICE_SET_STATUS';
 export const INVOICE_CONFIGS_SAVE = 'INVOICE_CONFIGS_SAVE';
 export const INVOICE_DUPLICATE = 'INVOICE_DUPLICATE';
 export const INVOICE_RESTORE = 'INVOICE_RESTORE';
+export const INVOICE_PAYMENT_ADD = 'INVOICE_PAYMENT_ADD';
+export const INVOICE_PAYMENT_REMOVE = 'INVOICE_PAYMENT_REMOVE';
+export const FORM_EDIT_DATA_SYNC = 'FORM_EDIT_DATA_SYNC';
 
 // CONTACTS
 // ===========================================================

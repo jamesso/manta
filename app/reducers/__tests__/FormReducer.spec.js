@@ -653,7 +653,15 @@ describe('plan 015 form reducer behavior', () => {
       type: ACTION_TYPES.FORM_LOAD_DUPLICATE,
       payload: {
         recipient: { fullname: 'A', email: 'a@b.com', _id: 'c1' },
-        rows: [{ id: '1', description: 'Work', price: 10, quantity: 1, subtotal: 10 }],
+        rows: [
+          {
+            id: '1',
+            description: 'Work',
+            price: 10,
+            quantity: 1,
+            subtotal: 10,
+          },
+        ],
         contacts: [],
         currency,
         discount: { type: 'flat', amount: 5 },
@@ -699,6 +707,26 @@ describe('plan 015 form reducer behavior', () => {
     const cleared = FormReducer(withErrors, { type: ACTION_TYPES.FORM_CLEAR });
     expect(cleared.errors).toEqual({});
     expect(cleared.errorMode).toBeNull();
+  });
+
+  it('FORM_EDIT_DATA_SYNC replaces edit data when ids match', () => {
+    const withEdit = FormReducer(
+      Object.assign({}, baseState, {
+        settings: Object.assign({}, baseState.settings, {
+          editMode: { active: true, data: { _id: 'a', _rev: '1' } },
+        }),
+      }),
+      {
+        type: ACTION_TYPES.FORM_EDIT_DATA_SYNC,
+        payload: { _id: 'a', _rev: '2', status: 'pending' },
+      }
+    );
+    expect(withEdit.settings.editMode.data._rev).toBe('2');
+    const other = FormReducer(withEdit, {
+      type: ACTION_TYPES.FORM_EDIT_DATA_SYNC,
+      payload: { _id: 'b', _rev: '3' },
+    });
+    expect(other.settings.editMode.data._rev).toBe('2');
   });
 });
 

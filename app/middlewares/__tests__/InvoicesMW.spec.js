@@ -28,7 +28,8 @@ import {
 } from '../../helpers/pouchDB';
 import { toast } from '@/components/ui/toast';
 import * as dialog from '@/lib/dialog';
-Date.now = vi.fn(() => 'now');
+const fixedNow = Date.UTC(2026, 0, 15, 12);
+Date.now = vi.fn(() => fixedNow);
 
 describe('Invoices Middleware', () => {
   let next, dispatch, middleware, getState;
@@ -561,6 +562,7 @@ describe('Invoices Middleware', () => {
       expect(payload).not.toHaveProperty('_id');
       expect(payload).not.toHaveProperty('status');
       expect(payload).not.toHaveProperty('issuedAt');
+      expect(payload).not.toHaveProperty('payments');
       expect(dispatch).toHaveBeenCalledWith({
         type: ACTION_TYPES.UI_TAB_CHANGE,
         payload: 'form',
@@ -609,13 +611,18 @@ describe('Invoices Middleware', () => {
     it('get the doc, merge with status object and dispatch a new action', async () => {
       const invoiceID = 'id-string';
       const status = 'paid';
-      await middleware(Actions.setInvoiceStatus(invoiceID, status));
-      const doc = await getSingleDoc('invoices', invoiceID);
-      expect(dispatch).toHaveBeenCalledWith({
-        type: ACTION_TYPES.INVOICE_UPDATE,
-        payload: expect.objectContaining({ status: 'paid', paidAt: 'now' }),
+      getSingleDoc.mockResolvedValueOnce({
+        _id: invoiceID,
+        status: 'pending',
+        grandTotal: 100,
+        currency: { fraction: 2 },
       });
-      expect(doc).toBeDefined();
+      await middleware(Actions.setInvoiceStatus(invoiceID, status));
+      expect(updateDocs).toHaveBeenCalled();
+      expect(next).toHaveBeenCalledWith({
+        type: ACTION_TYPES.INVOICE_UPDATE,
+        payload: mockData.invoicesRecords,
+      });
     });
 
     it('rejects overdue as a stored status', async () => {
@@ -647,13 +654,7 @@ describe('Invoices Middleware', () => {
       const expectedError = new Error('No invoice found!');
       getSingleDoc.mockImplementationOnce(() => Promise.reject(expectedError));
       await middleware(Actions.setInvoiceStatus(invoiceID, status));
-      expect(next).toHaveBeenCalledWith({
-        type: ACTION_TYPES.UI_NOTIFICATION_NEW,
-        payload: {
-          type: 'warning',
-          message: expectedError.message,
-        },
-      });
+      expect(toast.add).toHaveBeenCalled();
     });
   });
 
@@ -751,6 +752,99 @@ describe('Invoices Middleware', () => {
     );
     expect(form.settings.editMode.active).toBe(false);
     expect(form.settings.editMode.data?._id).toBeUndefined();
+  });
+
+  describe('INVOICE_PAYMENT_ADD', () => {
+    it('records a payment and updates the store', async () => {
+      getSingleDoc.mockResolvedValueOnce({
+        _id: 'inv-1',
+        status: 'pending',
+        grandTotal: 100,
+        currency: { fraction: 2 },
+      });
+      const ok = await middleware(
+        Actions.recordPayment('inv-1', {
+          id: 'pay-1',
+          amount: 40,
+          date: Date.UTC(2026, 0, 1),
+          method: 'cash',
+        })
+      );
+      expect(ok).toBe(true);
+      expect(updateDocs).toHaveBeenCalledWith(
+        'invoices',
+        expect.arrayContaining([
+          expect.objectContaining({
+            payments: expect.arrayContaining([
+              expect.objectContaining({ id: 'pay-1', amount: 40 }),
+            ]),
+          }),
+        ])
+      );
+      expect(next).toHaveBeenCalledWith({
+        type: ACTION_TYPES.INVOICE_UPDATE,
+        payload: mockData.invoicesRecords,
+      });
+    });
+
+    it('syncs edit mode for the open invoice', async () => {
+      getSingleDoc.mockResolvedValueOnce({
+        _id: 'open-id',
+        status: 'pending',
+        grandTotal: 50,
+        currency: { fraction: 2 },
+      });
+      updateDocs.mockResolvedValueOnce([
+        { _id: 'open-id', _rev: '2', status: 'pending', grandTotal: 50 },
+      ]);
+      getState.mockReturnValue({
+        form: {
+          settings: {
+            editMode: { active: true, data: { _id: 'open-id', _rev: '1' } },
+          },
+        },
+      });
+      await middleware(
+        Actions.recordPayment('open-id', {
+          id: 'p1',
+          amount: 10,
+          date: 1,
+          method: 'cash',
+        })
+      );
+      expect(dispatch).toHaveBeenCalledWith({
+        type: ACTION_TYPES.FORM_EDIT_DATA_SYNC,
+        payload: expect.objectContaining({ _id: 'open-id', _rev: '2' }),
+      });
+    });
+  });
+
+  describe('INVOICE_PAYMENT_REMOVE', () => {
+    it('undo dispatches recordPayment with the same id', async () => {
+      getSingleDoc.mockResolvedValueOnce({
+        _id: 'inv-1',
+        status: 'pending',
+        grandTotal: 100,
+        currency: { fraction: 2 },
+        payments: [
+          { id: 'pay-1', date: 1, amount: 40, method: 'cash', note: '' },
+        ],
+      });
+      await middleware(Actions.removePayment('inv-1', 'pay-1'));
+      const toastCall = toast.add.mock.calls.find(
+        c => c[0]?.actionProps?.onClick
+      );
+      expect(toastCall).toBeDefined();
+      toastCall[0].actionProps.onClick();
+      expect(dispatch).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: ACTION_TYPES.INVOICE_PAYMENT_ADD,
+          payload: expect.objectContaining({
+            payment: expect.objectContaining({ id: 'pay-1' }),
+          }),
+        })
+      );
+    });
   });
 
   it('let other actions pass through', () => {

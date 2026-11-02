@@ -294,6 +294,20 @@ const FormReducer = handleActions(
         }),
       }),
 
+    [ACTION_TYPES.FORM_EDIT_DATA_SYNC]: (state, action) => {
+      const { editMode } = state.settings;
+      if (!editMode.active || editMode.data._id !== action.payload._id) {
+        return state;
+      }
+      return Object.assign({}, state, {
+        settings: Object.assign({}, state.settings, {
+          editMode: Object.assign({}, editMode, {
+            data: action.payload,
+          }),
+        }),
+      });
+    },
+
     [ACTION_TYPES.FORM_SET_ERRORS]: (state, action) =>
       Object.assign({}, state, {
         errors: action.payload.errors,
