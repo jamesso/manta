@@ -35,7 +35,7 @@ Manta was created by [Hung Q. Le](https://github.com/hql287) at [hql287/Manta](h
 This repository continues Manta. It moves the app to current, supported tools and keeps your saved invoices and contacts. The main changes:
 
 - **Electron 45.** Runs on macOS 13+, Windows 10/11 and 64-bit Linux. One universal macOS build for Apple Silicon and Intel.
-- **Current libraries.** React 19, Redux 5, PouchDB 9, i18next, styled-components 6. The old drag-and-drop, animation, date picker and color picker libraries were replaced.
+- **Current libraries.** React 19, Redux 5, PouchDB 9, i18next, shadcn/ui, Tailwind CSS 4. The old drag-and-drop, animation, date picker and color picker libraries were replaced.
 - **Security.** Every window runs sandboxed with context isolation. Renderers talk to the main process only through a preload bridge. Built pages have a Content Security Policy.
 - **Tooling.** electron-vite for builds and hot reload, Vitest and Testing Library for unit tests, Playwright for end-to-end tests, ESLint 9 and Prettier 3.
 - **Releases.** GitHub Actions builds, tests and publishes the installers. In-app updates come from this repository's [releases](https://github.com/jamesso/manta/releases).
@@ -59,6 +59,7 @@ The issue tracker, discussions and wiki of the original project do not apply to 
 - 🏷 Invoice statuses: Draft, Pending, Overdue (automatic), Paid, Refunded and Cancelled.
 - 📊 Export to PDF to print or email.
 - 🔒 Complete privacy. Your financial data stays on your computer.
+- 🌗 Light and dark mode (follows the system or your choice).
 - 💯 Free and open source (GPL-3.0).
 
 ### Downloads
@@ -126,10 +127,10 @@ The translation files are in [`i18n/`](./i18n), one folder for each language. To
 ### Technologies
 
 - [Electron](https://www.electronjs.org/) and [electron-vite](https://electron-vite.org/)
-- [React](https://react.dev/), [Redux](https://redux.js.org/) and [styled-components](https://styled-components.com/)
+- [React](https://react.dev/), [Redux](https://redux.js.org/), and [shadcn/ui](https://ui.shadcn.com/) on [Base UI](https://base-ui.com/), [Tailwind CSS](https://tailwindcss.com/) and [Lucide](https://lucide.dev/) icons; styled-components only inside the invoice templates
 - [PouchDB](https://pouchdb.com/) for local storage, [electron-store](https://github.com/sindresorhus/electron-store) for settings
 - [i18next](https://www.i18next.com/) for translations
-- [@hello-pangea/dnd](https://github.com/hello-pangea/dnd) for drag and drop, [Motion](https://motion.dev/) for animation
+- [@hello-pangea/dnd](https://github.com/hello-pangea/dnd) for drag and drop
 - [Vitest](https://vitest.dev/), [Testing Library](https://testing-library.com/) and [Playwright](https://playwright.dev/) for tests
 - [electron-builder](https://www.electron.build/) and [electron-updater](https://www.electron.build/auto-update) for packaging and updates
 
@@ -178,11 +179,11 @@ See [CONTRIBUTING.md](./.github/CONTRIBUTING.md) to contribute.
 
 - **What CSS/UI framework does it use?**
 
-  Most styles are in components with [`styled-components`](https://styled-components.com/). Some layout still uses Bootstrap.
+  [shadcn/ui](https://ui.shadcn.com/) and [Tailwind CSS](https://tailwindcss.com/). Invoice templates still use styled-components.
 
 - **Where do the icons come from?**
 
-  [Ionicons](https://ionic.io/ionicons).
+  [Lucide](https://lucide.dev/).
 
 - **Why is it named Manta?**
 
