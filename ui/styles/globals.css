@@ -195,11 +195,6 @@
   body {
     @apply bg-background text-foreground;
   }
-  /* Visible keyboard focus everywhere (WCAG 2.4.7). */
-  :focus-visible {
-    outline: 2px solid var(--ring);
-    outline-offset: 2px;
-  }
 }
 
 @layer legacy {
@@ -208,5 +203,14 @@
   :focus:not(:focus-visible) {
     outline: none;
     box-shadow: none;
+  }
+}
+
+@layer components {
+  /* Visible keyboard focus everywhere (WCAG 2.4.7).
+     This layer beats Bootstrap `.form-control:focus { outline: 0 }` in legacy. */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
   }
 }
