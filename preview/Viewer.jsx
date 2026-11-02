@@ -78,6 +78,7 @@ export default function Viewer() {
           UILang={UILang}
           configs={configs}
           invoice={invoice}
+          profile={profile}
           updateConfigs={updateConfigs}
           t={t}
         />

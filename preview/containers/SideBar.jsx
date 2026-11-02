@@ -8,6 +8,7 @@ import LogoSize from '../components/sidebar/LogoSize';
 import Language from '../components/sidebar/Language';
 import Template from '../components/sidebar/Template';
 import Toggler from '../components/sidebar/Toggler';
+import EInvoiceSidebar from '../components/sidebar/EInvoice.jsx';
 
 const ipc = window.manta.ipc;
 import {
@@ -21,6 +22,7 @@ export default function SideBar({
   t,
   configs,
   invoice,
+  profile,
   UILang,
   updateConfigs,
 }) {
@@ -88,6 +90,12 @@ export default function SideBar({
             update={update}
           />
         ) : null}
+        <EInvoiceSidebar
+          t={t}
+          UILang={UILang}
+          invoice={invoice}
+          profile={profile}
+        />
       </div>
       <Actions
         t={t}

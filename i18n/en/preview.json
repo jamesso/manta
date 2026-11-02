@@ -24,6 +24,16 @@
       "name": "Actions",
       "savePDF": "Export PDF",
       "saveConfigs": "Save settings"
+    },
+    "einvoice": {
+      "title": "E-invoice",
+      "ready": "Ready to export",
+      "problems": "{{count}} problems to fix",
+      "exportXrechnung": "Export XRechnung (XML)",
+      "exportFacturx": "Export Factur-X (PDF)",
+      "disclaimer": "Validate exports before sending.",
+      "reveal": "Show in folder",
+      "exportFailed": "Export failed"
     }
   },
   "common": {
@@ -61,5 +71,9 @@
       "G": "Export",
       "O": "Outside the scope of VAT"
     }
+  },
+  "einvoice": {
+    "bank": "Bank",
+    "buyerReference": "Buyer reference"
   }
 }

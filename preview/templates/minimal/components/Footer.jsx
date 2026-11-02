@@ -3,6 +3,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import styled from 'styled-components';
+import {
+  formatPostalAddress,
+  hasPostalAddress,
+} from '../../../../helpers/einvoice/address.js';
+import { resolveProfile } from '../../../../helpers/einvoice/toEn16931.js';
 const Wrapper = styled.div`
   display: flex;
   align-items: flex-start;
@@ -28,14 +33,33 @@ const Column = styled.div`
 function Footer({ t, invoice, profile, configs }) {
   const currentLanguage = configs.language;
   const { tax, recipient } = invoice;
+  const sellerProfile = resolveProfile(invoice, { profile });
+  const sellerLines = hasPostalAddress(sellerProfile.postalAddress)
+    ? formatPostalAddress(sellerProfile.postalAddress, currentLanguage)
+    : sellerProfile.address
+      ? [sellerProfile.address]
+      : [];
+  const recipientLines = hasPostalAddress(recipient.postalAddress)
+    ? formatPostalAddress(recipient.postalAddress, currentLanguage)
+    : [];
+  const bank = sellerProfile.bank ?? {};
   return (
     <Wrapper>
       <Column left>
-        <h4 className="label">{profile.company}</h4>
-        <p>{profile.fullname}</p>
-        <p>{profile.address}</p>
-        <p>{profile.email}</p>
-        <p>{profile.phone}</p>
+        <h4 className="label">{sellerProfile.company}</h4>
+        <p>{sellerProfile.fullname}</p>
+        {sellerLines.map(line => (
+          <p key={line}>{line}</p>
+        ))}
+        <p>{sellerProfile.email}</p>
+        <p>{sellerProfile.phone}</p>
+        {bank.iban ? (
+          <p>
+            {t('preview:einvoice:bank', { lng: currentLanguage })}: {bank.iban}
+            {bank.bic ? ` / ${bank.bic}` : ''}
+            {bank.accountName ? ` (${bank.accountName})` : ''}
+          </p>
+        ) : null}
         {invoice.seller ? (
           <>
             {invoice.seller.taxId ? (
@@ -62,7 +86,16 @@ function Footer({ t, invoice, profile, configs }) {
           </h4>
           <p>{recipient.company}</p>
           <p>{recipient.fullname}</p>
+          {recipientLines.map(line => (
+            <p key={line}>{line}</p>
+          ))}
           <p>{recipient.email}</p>
+          {recipient.buyerReference ? (
+            <p>
+              {t('preview:einvoice:buyerReference', { lng: currentLanguage })}:{' '}
+              {recipient.buyerReference}
+            </p>
+          ) : null}
           {recipient.taxId ? (
             <p>
               {t('preview:tax:recipientTaxId', { lng: currentLanguage })}:{' '}
