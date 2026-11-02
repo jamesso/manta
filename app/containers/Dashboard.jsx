@@ -22,6 +22,7 @@ import {
   getMonthlyPaid,
   getNeedsAttention,
   getRecentInvoices,
+  resolveDashboardCurrencySelection,
 } from '../helpers/dashboard';
 import { getChecklistState } from '../helpers/onboarding';
 import { getContacts } from '../reducers/ContactsReducer';
@@ -41,7 +42,7 @@ export default function Dashboard() {
   const settings = useSelector(getCurrentSettings);
   const dateFormat = useSelector(getDateFormat);
   const [openId, setOpenId] = useState(null);
-  const [currencyCode, setCurrencyCode] = useState('USD');
+  const [currencyCode, setCurrencyCode] = useState(null);
 
   const fallbackCurrency = useMemo(
     () =>
@@ -87,29 +88,27 @@ export default function Dashboard() {
   }, [ready, settings, invoices, contacts]);
 
   useEffect(() => {
-    const codes = stats.currencies;
-    if (!codes.length) {
-      setCurrencyCode(fallbackCurrency.code);
-      return;
-    }
-    setCurrencyCode(prev => {
-      if (codes.includes(prev)) {
-        return prev;
-      }
-      const preferred = fallbackCurrency.code;
-      if (codes.includes(preferred)) {
-        return preferred;
-      }
-      return codes[0];
-    });
+    setCurrencyCode(prev =>
+      resolveDashboardCurrencySelection(
+        prev,
+        stats.currencies,
+        fallbackCurrency.code
+      )
+    );
   }, [stats.currencies, fallbackCurrency.code]);
+
+  const activeCurrencyCode = resolveDashboardCurrencySelection(
+    currencyCode,
+    stats.currencies,
+    fallbackCurrency.code
+  );
 
   const openInvoice = openId
     ? invoices.find(inv => inv._id === openId) || null
     : null;
 
-  const monthlyRows = monthly[currencyCode] || [];
-  const bucket = stats.byCurrency[currencyCode];
+  const monthlyRows = monthly[activeCurrencyCode] || [];
+  const bucket = stats.byCurrency[activeCurrencyCode];
   const hasInvoices = invoices.length > 0;
 
   if (!ready) {
@@ -144,7 +143,7 @@ export default function Dashboard() {
           >
             {t('dashboard:currency:label')}
           </label>
-          <Select value={currencyCode} onValueChange={setCurrencyCode}>
+          <Select value={activeCurrencyCode} onValueChange={setCurrencyCode}>
             <SelectTrigger id="dash-currency" className="w-full">
               <SelectValue />
             </SelectTrigger>
@@ -161,7 +160,7 @@ export default function Dashboard() {
 
       <KpiCards
         stats={stats}
-        currencyCode={currencyCode}
+        currencyCode={activeCurrencyCode}
         hasInvoices={hasInvoices}
       />
 

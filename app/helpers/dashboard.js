@@ -211,7 +211,7 @@ function getMonthlyPaid(invoices, now, months = 6, fallbackCurrency) {
 
 function getNeedsAttention(invoices, now, days = 7) {
   const startToday = startOfLocalDay(now);
-  const endExclusive = addLocalDays(startToday, days);
+  const endExclusive = addLocalDays(startToday, days + 1);
 
   const overdueList = [];
   const upcoming = [];
@@ -258,6 +258,27 @@ function formatMoney(amount, currency) {
   return formatInvoiceAmount(invoice);
 }
 
+/**
+ * Reconcile dashboard currency selection. `selectedCode` null means no user
+ * choice yet — pick configured code when it has invoices, else first available.
+ */
+function resolveDashboardCurrencySelection(
+  selectedCode,
+  availableCodes,
+  configuredCode
+) {
+  if (!availableCodes.length) {
+    return configuredCode ?? 'USD';
+  }
+  if (selectedCode != null && availableCodes.includes(selectedCode)) {
+    return selectedCode;
+  }
+  if (configuredCode && availableCodes.includes(configuredCode)) {
+    return configuredCode;
+  }
+  return availableCodes[0];
+}
+
 export {
   addLocalDays,
   formatMoney,
@@ -265,6 +286,7 @@ export {
   getMonthlyPaid,
   getNeedsAttention,
   getRecentInvoices,
+  resolveDashboardCurrencySelection,
   startOfLocalDay,
   startOfLocalMonth,
   startOfNextLocalMonth,
