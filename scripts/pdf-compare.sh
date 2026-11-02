@@ -3,19 +3,24 @@
 set -eu
 A="$1"; B="$2"; REF="${3:-}"; W=$(mktemp -d); FAIL=0
 
-# The rendered images must be exactly pages 1..N from pdfinfo.
+# Poppler pads each page to the width of the page count: page 1 of 9 is
+# prefix-1.png, and page 1 of 10 is prefix-01.png. Suffixes are decimal,
+# so page 08 is page 8.
 verify_rendered_pages() {
   prefix=$1
   expect=$2
   label=$3
+  width=${#expect}
   i=1
   while [ "$i" -le "$expect" ]; do
-    if [ ! -f "${prefix}-${i}.png" ]; then
+    page=$(printf "%0${width}d" "$i")
+    if [ ! -f "${prefix}-${page}.png" ]; then
       echo "MISSING PAGE $label $i"
       return 1
     fi
     i=$((i + 1))
   done
+  seen=""
   for img in "${prefix}"-*.png; do
     if [ ! -f "$img" ]; then
       echo "MISSING RENDERED PAGE"
@@ -25,10 +30,16 @@ verify_rendered_pages() {
     case "$num" in
       ''|*[!0-9]*) echo "UNNUMBERED PAGE $img"; return 1 ;;
     esac
-    if [ "$num" -lt 1 ] || [ "$num" -gt "$expect" ]; then
+    dec=$(printf '%s' "$num" | sed 's/^0*//')
+    [ -n "$dec" ] || dec=0
+    if [ "$dec" -lt 1 ] || [ "$dec" -gt "$expect" ]; then
       echo "EXTRA PAGE $img"
       return 1
     fi
+    case " $seen " in
+      *" $dec "*) echo "DUPLICATE PAGE $img"; return 1 ;;
+    esac
+    seen="$seen $dec"
   done
 }
 trap 'rm -rf "$W"' EXIT HUP INT TERM
