@@ -8,6 +8,8 @@ const initialState = {
   commandPaletteOpen: false,
   shortcutsOpen: false,
   pendingSettingsSection: null,
+  recurringSheet: null,
+  invoicesTabRequest: null,
 };
 
 const UIReducer = handleActions(
@@ -48,6 +50,21 @@ const UIReducer = handleActions(
       Object.assign({}, state, {
         pendingSettingsSection: null,
       }),
+
+    [ACTION_TYPES.UI_RECURRING_SHEET_SET]: (state, action) =>
+      Object.assign({}, state, {
+        recurringSheet: action.payload,
+      }),
+
+    [ACTION_TYPES.UI_INVOICES_TAB_REQUEST]: (state, action) => {
+      if (action.payload == null) {
+        return Object.assign({}, state, { invoicesTabRequest: null });
+      }
+      return Object.assign({}, state, {
+        activeTab: 'invoices',
+        invoicesTabRequest: action.payload,
+      });
+    },
   },
   initialState
 );

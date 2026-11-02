@@ -24,6 +24,8 @@ export default function TitleBar({ activeTab }) {
     title = t('app:nav:invoices');
   } else if (activeTab === 'estimates') {
     title = t('app:nav:estimates');
+  } else if (activeTab === 'recurring') {
+    title = t('app:nav:recurring');
   } else if (activeTab === 'contacts') {
     title = t('app:nav:clients');
   } else if (activeTab === 'items') {

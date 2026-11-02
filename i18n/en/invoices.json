@@ -29,6 +29,9 @@
     "status": "Status",
     "actions": "Actions"
   },
+  "number": {
+    "none": "No number yet"
+  },
   "due": {
     "none": "No due date",
     "today": "Due today",
@@ -42,6 +45,7 @@
     "preview": "Preview / Export PDF",
     "edit": "Edit",
     "duplicate": "Duplicate",
+    "makeRecurring": "Make recurring",
     "createCreditNote": "Create credit note",
     "recordPayment": "Record payment…",
     "markPaidInFull": "Mark as paid in full",

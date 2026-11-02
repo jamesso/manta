@@ -49,3 +49,13 @@ export const requestSettingsSection = createAction(
 export const clearSettingsSectionRequest = createAction(
   ACTION_TYPES.UI_SETTINGS_SECTION_CLEAR
 );
+
+export const setRecurringSheet = createAction(
+  ACTION_TYPES.UI_RECURRING_SHEET_SET,
+  v => v
+);
+
+export const openInvoicesTab = createAction(
+  ACTION_TYPES.UI_INVOICES_TAB_REQUEST,
+  tab => tab
+);

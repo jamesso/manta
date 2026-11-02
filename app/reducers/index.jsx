@@ -4,6 +4,7 @@ import FormReducer from './FormReducer';
 import InvoicesReducer from './InvoicesReducer';
 import ContactsReducer from './ContactsReducer';
 import ItemsReducer from './ItemsReducer';
+import RecurringReducer from './RecurringReducer';
 import SettingsReducer from './SettingsReducer';
 import BootstrapReducer from './BootstrapReducer';
 
@@ -13,6 +14,7 @@ export default combineReducers({
   invoices: InvoicesReducer,
   contacts: ContactsReducer,
   items: ItemsReducer,
+  recurring: RecurringReducer,
   settings: SettingsReducer,
   startup: BootstrapReducer,
 });

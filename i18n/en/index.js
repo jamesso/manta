@@ -10,6 +10,7 @@ import estimates from './estimates.json';
 import messages from './messages.json';
 import preview from './preview.json';
 import settings from './settings.json';
+import recurring from './recurring.json';
 
 export default {
   app,
@@ -24,4 +25,5 @@ export default {
   messages,
   preview,
   settings,
+  recurring,
 };

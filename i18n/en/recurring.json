@@ -1,0 +1,76 @@
+{
+  "header": {
+    "name": "Recurring",
+    "new": "New recurring invoice"
+  },
+  "empty": {
+    "title": "No recurring invoices yet",
+    "description": "Manta creates drafts while the app is open. Nothing is sent automatically."
+  },
+  "columns": {
+    "name": "Name",
+    "client": "Client",
+    "amount": "Amount",
+    "interval": "Repeat",
+    "nextDate": "Next draft",
+    "active": "Active",
+    "actions": "Actions"
+  },
+  "interval": {
+    "weekly_one": "Weekly",
+    "weekly_other": "Every {{count}} weeks",
+    "monthly_one": "Monthly",
+    "monthly_other": "Every {{count}} months",
+    "quarterly_one": "Quarterly",
+    "quarterly_other": "Every {{count}} quarters",
+    "yearly_one": "Yearly",
+    "yearly_other": "Every {{count}} years"
+  },
+  "status": {
+    "paused": "Paused",
+    "ended": "Ended"
+  },
+  "actions": {
+    "open": "Open",
+    "editSchedule": "Edit schedule",
+    "editTemplate": "Edit template",
+    "pause": "Pause",
+    "resume": "Resume",
+    "delete": "Delete"
+  },
+  "sheet": {
+    "titleNew": "New recurring invoice",
+    "titleEdit": "Edit recurring invoice",
+    "name": "Name",
+    "every": "Repeat every",
+    "interval": "Interval",
+    "startDate": "Start date",
+    "endDate": "End date (optional)",
+    "active": "Active",
+    "summary": "Summary",
+    "nextDates": "Next drafts:",
+    "createsToday": "The first draft will be created today when you save.",
+    "save": "Save",
+    "cancel": "Cancel"
+  },
+  "errors": {
+    "name": "Enter a name.",
+    "every": "Enter a number from 1 to 99.",
+    "interval": "Choose an interval.",
+    "startDate": "Choose a valid start date.",
+    "endDate": "End date must be on or after the start date.",
+    "template": "Add a client and at least one line item in the template."
+  },
+  "toast": {
+    "created_one": "{{count}} recurring invoice created as a draft",
+    "created_other": "{{count}} recurring invoices created as drafts",
+    "viewDrafts": "View drafts",
+    "capped": "More drafts are waiting for: {{names}}",
+    "runFailed": "Recurring run failed",
+    "saved": "Recurring invoice saved",
+    "deleted_one": "Recurring invoice deleted",
+    "deleted_other": "{{count}} recurring invoices deleted",
+    "undo": "Undo",
+    "restored": "Recurring invoice restored"
+  }
+}

@@ -10,6 +10,7 @@ import FormMW from '../middlewares/FormMW';
 import ContactsMW from '../middlewares/ContactsMW';
 import ItemsMW from '../middlewares/ItemsMW';
 import InvoicesMW from '../middlewares/InvoicesMW';
+import RecurringMW from '../middlewares/RecurringMW';
 import SettingsMW from '../middlewares/SettingsMW';
 import UIMiddleware from '../middlewares/UIMiddleware';
 
@@ -19,6 +20,7 @@ const middlewares = [
   ContactsMW,
   ItemsMW,
   InvoicesMW,
+  RecurringMW,
   SettingsMW,
   UIMiddleware,
 ];

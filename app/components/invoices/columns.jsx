@@ -68,7 +68,11 @@ export function getColumns({
             onOpen(row.id);
           }}
         >
-          {row.original.number}
+          {row.original.number || (
+            <span className="font-normal text-muted-foreground">
+              {t('invoices:number:none')}
+            </span>
+          )}
         </button>
       ),
       sortingFn: 'alphanumeric',

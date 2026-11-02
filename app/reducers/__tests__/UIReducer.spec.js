@@ -8,6 +8,8 @@ const baseState = {
   commandPaletteOpen: false,
   shortcutsOpen: false,
   pendingSettingsSection: null,
+  recurringSheet: null,
+  invoicesTabRequest: null,
 };
 
 describe('UI Reducer', () => {

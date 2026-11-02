@@ -6,6 +6,7 @@ import * as SettingsActions from './actions/settings';
 import * as InvoicesActions from './actions/invoices';
 import * as ContactsActions from './actions/contacts';
 import * as ItemsActions from './actions/items';
+import * as RecurringActions from './actions/recurring';
 import AppMain from './components/layout/AppMain';
 import AppSidebar from './components/layout/AppSidebar';
 import TitleBar from './components/layout/TitleBar';
@@ -14,6 +15,7 @@ import ShortcutsDialog from './components/layout/ShortcutsDialog';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { useMediaQuery } from '@/hooks/use-media-query';
+import { startRecurringScheduler } from './helpers/recurringScheduler';
 
 const ipc = window.manta.ipc;
 
@@ -57,6 +59,15 @@ function App() {
     dispatch(ItemsActions.getAllItems());
     dispatch(InvoicesActions.getInvoices());
     dispatch(SettingsActions.getInitalSettings());
+    dispatch(RecurringActions.getRecurring());
+
+    const stopRecurring = startRecurringScheduler({
+      trigger: () => dispatch(RecurringActions.runRecurring()),
+      subscribeResume: fn => {
+        ipc.on('system-resumed', fn);
+        return () => ipc.removeAllListeners('system-resumed');
+      },
+    });
 
     const onMenuChangeTab = (_e, tabName) => {
       dispatch(UIActions.changeActiveTab(tabName));
@@ -98,6 +109,7 @@ function App() {
     });
 
     return () => {
+      stopRecurring();
       ipc.removeAllListeners(MENU_CHANNELS);
     };
   }, [dispatch]);

@@ -70,6 +70,11 @@ export default function CommandPalette() {
         keywords: ['quotes', 'estimates'],
       },
       {
+        id: 'nav-recurring',
+        label: t('app:nav:recurring'),
+        keywords: ['subscription', 'repeat', 'retainer'],
+      },
+      {
         id: 'nav-contacts',
         label: t('app:nav:clients'),
         keywords: ['contacts', 'customers', 'clients'],
@@ -170,6 +175,10 @@ export default function CommandPalette() {
                     else if (cmd.id === 'nav-estimates')
                       run(() =>
                         dispatch(UIActions.changeActiveTab('estimates'))
+                      );
+                    else if (cmd.id === 'nav-recurring')
+                      run(() =>
+                        dispatch(UIActions.changeActiveTab('recurring'))
                       );
                     else if (cmd.id === 'nav-contacts')
                       run(() =>

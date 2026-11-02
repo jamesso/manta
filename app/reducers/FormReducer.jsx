@@ -84,6 +84,7 @@ const initialState = {
   creditedInvoiceId: null,
   creditedInvoice: null,
   seller: null,
+  templateTarget: null,
 };
 
 function populateFromDuplicate(state, payload) {
@@ -330,6 +331,23 @@ const FormReducer = handleActions(
         formGeneration: (state.formGeneration || 0) + 1,
       }),
 
+    [ACTION_TYPES.FORM_LOAD_TEMPLATE]: (state, action) => {
+      const { template, profileId, contacts } = action.payload;
+      const populated = populateFromInvoice(state, {
+        ...template,
+        contacts,
+      });
+      return Object.assign({}, populated, {
+        invoiceID: '',
+        issuedAt: null,
+        templateTarget: { profileId },
+        formGeneration: (state.formGeneration || 0) + 1,
+        settings: Object.assign({}, populated.settings, {
+          editMode: { active: false },
+        }),
+      });
+    },
+
     [ACTION_TYPES.FORM_RECONCILE_NUMBERING]: (state, action) =>
       Object.assign({}, state, {
         reconciledNumbering: action.payload,
@@ -425,6 +443,7 @@ const FormReducer = handleActions(
         creditedInvoiceId: null,
         creditedInvoice: null,
         seller: null,
+        templateTarget: null,
         settings: Object.assign({}, state.settings, {
           open: false,
           editMode: {

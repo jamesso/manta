@@ -7,6 +7,7 @@ import Invoices from '../../containers/Invoices';
 import Estimates from '../../containers/Estimates';
 import Contacts from '../../containers/Contacts';
 import Items from '../../containers/Items';
+import Recurring from '../../containers/Recurring';
 import Settings from '../../containers/Settings';
 
 class AppMain extends Component {
@@ -22,6 +23,7 @@ class AppMain extends Component {
         {activeTab === 'form' && <Form />}
         {activeTab === 'invoices' && <Invoices />}
         {activeTab === 'estimates' && <Estimates />}
+        {activeTab === 'recurring' && <Recurring />}
         {activeTab === 'contacts' && <Contacts />}
         {activeTab === 'items' && <Items />}
         {activeTab === 'settings' && <Settings />}
