@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { truncate } from 'lodash';
 import moment from 'moment';
 import { calTermDate } from '../../../../helpers/date';
+import { getIssuedAt } from '../../../../app/helpers/invoice';
 
 // Styles
 import styled from 'styled-components';
@@ -66,7 +67,7 @@ function Header({ t, invoice, profile, configs }) {
         </h4>
         <p>
           {t('preview:common:created', { lng: language })}:{' '}
-          {moment(invoice.created_at).lang(language).format(configs.dateFormat)}
+          {moment(getIssuedAt(invoice)).lang(language).format(configs.dateFormat)}
         </p>
         {dueDate && [
           <p key="dueDate">
@@ -75,7 +76,7 @@ function Header({ t, invoice, profile, configs }) {
               ? moment(dueDate.selectedDate)
                   .lang(language)
                   .format(configs.dateFormat)
-              : moment(calTermDate(invoice.created_at, dueDate.paymentTerm))
+              : moment(calTermDate(getIssuedAt(invoice), dueDate.paymentTerm))
                   .lang(language)
                   .format(configs.dateFormat)}
           </p>,

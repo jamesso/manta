@@ -2,6 +2,7 @@
 import * as ACTION_TYPES from '../constants/actions';
 import { createSelector } from 'reselect';
 import { handleActions } from 'redux-actions';
+import { getDefaultPreviewConfigs } from '../constants/defaultConfigs';
 const appConfig = window.manta.settings;
 const invoiceSettings = appConfig.get('invoice');
 const profileSettings = appConfig.get('profile');
@@ -11,22 +12,7 @@ const initialState = {
   ui: { language: generalSettings.language },
   invoice: {},
   profile: profileSettings,
-  configs: {
-    // Set default from settings
-    dateFormat: invoiceSettings.dateFormat,
-    language: generalSettings.language,
-    template: invoiceSettings.template,
-    accentColor: '#2CCCE4',
-    // Other settings
-    logoSize: '20',
-    fontSize: '200',
-    alignItems: 'middle',
-    // Toggle
-    showLogo: true,
-    useSymbol: true,
-    customAccentColor: true,
-    showRecipient: true,
-  },
+  configs: getDefaultPreviewConfigs(invoiceSettings, generalSettings),
 };
 
 const RootReducer = handleActions(

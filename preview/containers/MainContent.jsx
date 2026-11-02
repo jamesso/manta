@@ -40,19 +40,12 @@ const Page = styled.div`
 `;
 
 // Components
-import Minimal from '../templates/minimal';
-import Business from '../templates/business';
+import { getTemplate } from '../templates';
 
 class MainContent extends Component {
   renderTemplate() {
-    switch (this.props.configs.template) {
-      case 'business': {
-        return <Business {...this.props} />;
-      }
-      default: {
-        return <Minimal {...this.props} />;
-      }
-    }
+    const Template = getTemplate(this.props.configs.template);
+    return <Template {...this.props} />;
   }
 
   render() {

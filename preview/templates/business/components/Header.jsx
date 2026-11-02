@@ -6,6 +6,7 @@ import moment from 'moment';
 
 // Helper
 import { calTermDate } from '../../../../helpers/date';
+import { getIssuedAt } from '../../../../app/helpers/invoice';
 
 // Styles
 import styled from 'styled-components';
@@ -105,7 +106,7 @@ function Header({ t, invoice, profile, configs }) {
         </h4>
         <p>
           {t('preview:common:created', { lng: language })}:{' '}
-          {moment(invoice.created_at).lang(language).format(configs.dateFormat)}
+          {moment(getIssuedAt(invoice)).lang(language).format(configs.dateFormat)}
         </p>
         {invoice.dueDate && [
           <p key="dueDate">
@@ -115,7 +116,7 @@ function Header({ t, invoice, profile, configs }) {
                   .lang(language)
                   .format(configs.dateFormat)
               : moment(
-                  calTermDate(invoice.created_at, invoice.dueDate.paymentTerm)
+                  calTermDate(getIssuedAt(invoice), invoice.dueDate.paymentTerm)
                 )
                   .lang(language)
                   .format(configs.dateFormat)}
