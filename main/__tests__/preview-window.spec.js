@@ -9,6 +9,7 @@ import {
   allocatePdfPath,
   consumePreviewToken,
   createPreviewToken,
+  getPreviewWindow,
   enqueueJob,
   runDirectPreviewPdfJob,
   runPreviewPdfJob,
@@ -29,6 +30,8 @@ function makePreviewWindow() {
   const webContents = {
     send: vi.fn(),
     mainFrame: 'main-frame',
+    executeJavaScript: vi.fn().mockResolvedValue(undefined),
+    isDestroyed: () => false,
   };
   return {
     isDestroyed: () => false,
@@ -45,16 +48,25 @@ function latestPreviewRenderedHandler() {
 
 async function ackPreviewRender(win, invoiceId) {
   await vi.waitFor(() =>
-    win.webContents.send.mock.calls.some(c => c[0] === 'update-preview')
+    win.webContents.send.mock.calls.some(
+      c => c[0] === 'update-preview' && c[1]?.requestId
+    )
   );
-  const update = win.webContents.send.mock.calls
-    .filter(c => c[0] === 'update-preview')
-    .at(-1);
-  const { requestId } = update[1];
-  const handler = latestPreviewRenderedHandler();
-  handler(
+  await new Promise(resolve => {
+    setTimeout(resolve, 0);
+  });
+  await vi.waitFor(() =>
+    ipcMain.on.mock.calls.some(c => c[0] === 'preview-rendered')
+  );
+  const updateCall = [...win.webContents.send.mock.calls]
+    .reverse()
+    .find(c => c[0] === 'update-preview' && c[1]?.requestId);
+  latestPreviewRenderedHandler()(
     { sender: win.webContents, senderFrame: win.webContents.mainFrame },
-    { requestId, invoiceId: String(invoiceId) }
+    {
+      requestId: updateCall[1].requestId,
+      invoiceId: String(invoiceId),
+    }
   );
 }
 
@@ -82,6 +94,39 @@ describe('preview pdf coordinator queue', () => {
     expect(order).toEqual(['first-start', 'first-end', 'second']);
   });
 
+  it('snapshot job sends update-preview after sync freeze', async () => {
+    const win = makePreviewWindow();
+    BrowserWindow.fromId.mockReturnValue(win);
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'manta-x-'));
+    const appConfig = {
+      get: key =>
+        key === 'previewWindowID'
+          ? 1
+          : key === 'invoice.exportDir'
+            ? dir
+            : undefined,
+    };
+    const writeInvoicePdf = vi.fn(async (w, pdfPath, { flag }) => {
+      fs.writeFileSync(pdfPath, 'x', { flag });
+    });
+    const job = runPreviewPdfJob(appConfig, writeInvoicePdf, {
+      invoice: { _id: 'inv-z' },
+      snapshot: { profile: {}, configs: {}, language: 'en' },
+      pdfPath: path.join(dir, 'z.pdf'),
+    });
+    await vi.waitFor(
+      () =>
+        win.webContents.send.mock.calls.some(c => c[0] === 'update-preview'),
+      { timeout: 1000 }
+    );
+    expect(win.webContents.executeJavaScript).toHaveBeenCalledWith(
+      'window.__mantaExportFrozen = true;',
+      true
+    );
+    await ackPreviewRender(win, 'inv-z');
+    await job;
+  });
+
   it('prints each queued invoice with its own render ack', async () => {
     const win = makePreviewWindow();
     BrowserWindow.fromId.mockReturnValue(win);
@@ -89,7 +134,7 @@ describe('preview pdf coordinator queue', () => {
     const appConfig = {
       get: key => {
         if (key === 'previewWindowID') {
-          return 42;
+          return 1;
         }
         if (key === 'invoice.exportDir') {
           return dir;
@@ -97,6 +142,7 @@ describe('preview pdf coordinator queue', () => {
         return undefined;
       },
     };
+    expect(getPreviewWindow(appConfig)).toBe(win);
     const seen = [];
     const writeInvoicePdf = vi.fn(async (w, pdfPath, { flag }) => {
       const update = w.webContents.send.mock.calls
@@ -284,7 +330,7 @@ describe('preview pdf coordinator queue', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'manta-pdf-'));
     const target = path.join(dir, 'doc.pdf');
     fs.writeFileSync(target, 'ORIGINAL');
-    const win = { isDestroyed: () => false };
+    const win = makePreviewWindow();
     let calls = 0;
     const writeInvoicePdf = vi.fn(async (_w, pdfPath, { flag }) => {
       calls += 1;
@@ -305,12 +351,63 @@ describe('preview pdf coordinator queue', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'manta-pdf-'));
     const target = path.join(dir, 'doc.pdf');
     fs.writeFileSync(target, 'OLD');
-    const win = { isDestroyed: () => false };
+    const win = makePreviewWindow();
     const writeInvoicePdf = vi.fn(async (_w, pdfPath, { flag }) => {
       fs.writeFileSync(pdfPath, 'SAVED', { flag });
     });
     await runDirectPreviewPdfJob(win, target, writeInvoicePdf, { flag: 'w' });
     expect(fs.readFileSync(target, 'utf8')).toBe('SAVED');
+  });
+
+  it('sets sync export freeze before direct print and clears after', async () => {
+    const win = makePreviewWindow();
+    const order = [];
+    win.webContents.executeJavaScript.mockImplementation(async code => {
+      order.push(code.includes('true') ? 'freeze-on' : 'freeze-off');
+    });
+    const writeInvoicePdf = vi.fn(async () => {
+      order.push('print');
+    });
+    await runDirectPreviewPdfJob(win, '/tmp/out.pdf', writeInvoicePdf);
+    expect(order).toEqual(['freeze-on', 'print', 'freeze-off']);
+  });
+
+  it('sets sync export freeze before update-preview on snapshot jobs', async () => {
+    const win = makePreviewWindow();
+    BrowserWindow.fromId.mockReturnValue(win);
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'manta-pdf-'));
+    const appConfig = {
+      get: key =>
+        key === 'previewWindowID'
+          ? 1
+          : key === 'invoice.exportDir'
+            ? dir
+            : undefined,
+    };
+    const order = [];
+    win.webContents.executeJavaScript.mockImplementation(async code => {
+      order.push(code.includes('true') ? 'freeze-on' : 'freeze-off');
+    });
+    const sendMock = win.webContents.send;
+    sendMock.mockImplementation((channel, ...args) => {
+      if (channel === 'update-preview') {
+        order.push('update-preview');
+      }
+    });
+    const writeInvoicePdf = vi.fn(async (w, pdfPath, { flag }) => {
+      fs.writeFileSync(pdfPath, 'pdf', { flag });
+    });
+    const job = runPreviewPdfJob(appConfig, writeInvoicePdf, {
+      invoice: { _id: 'inv-1' },
+      snapshot: { profile: {}, configs: {}, language: 'en' },
+      pdfPath: path.join(dir, 'one.pdf'),
+    });
+    await ackPreviewRender(win, 'inv-1');
+    await job;
+    expect(order.indexOf('freeze-on')).toBeLessThan(
+      order.indexOf('update-preview')
+    );
+    expect(order.at(-1)).toBe('freeze-off');
   });
 });
 

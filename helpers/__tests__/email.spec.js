@@ -97,6 +97,39 @@ describe('buildMailto', () => {
     expect(url).toContain('subject=One%20Two');
   });
 
+  it('truncates a 300-character subject at 200 code points with an ellipsis', () => {
+    const subject = 'S'.repeat(300);
+    const { url, truncated } = buildMailto({
+      to: 'user@example.com',
+      subject,
+      body: '',
+    });
+    expect(truncated).toBe(true);
+    const parsed = decodeURIComponent(
+      new URL(url).searchParams.get('subject') ?? ''
+    );
+    expect(parsed.endsWith('\u2026')).toBe(true);
+    expect(Array.from(parsed).length).toBe(201);
+  });
+
+  it('prefers a shorter word-boundary body cut when it still fits', () => {
+    const short = `${'a'.repeat(20)} `;
+    const near = 'b'.repeat(50);
+    const body = `${short}${near}${'c'.repeat(3000)}`;
+    const { url, truncated } = buildMailto(
+      {
+        to: 'user@example.com',
+        subject: 'S',
+        body,
+      },
+      { maxLength: 130 }
+    );
+    expect(truncated).toBe(true);
+    const decoded = decodeURIComponent(url.match(/body=([^&]*)/)?.[1] ?? '');
+    expect(decoded).toBe(`${'a'.repeat(20)}\u2026`);
+    expect(decoded.includes('b')).toBe(false);
+  });
+
   it('throws on invalid recipient', () => {
     expect(() => buildMailto({ to: 'bad' })).toThrow('invalid-recipient');
     expect(() => buildMailto({ to: 'a@b.c, d@e.f' })).toThrow(

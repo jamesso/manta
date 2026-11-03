@@ -86,6 +86,23 @@ function setPreviewExportFrozen(win, frozen) {
   }
 }
 
+async function applySyncExportFrozen(win, frozen) {
+  if (!win || win.isDestroyed()) {
+    return;
+  }
+  const { webContents } = win;
+  if (
+    !webContents ||
+    (typeof webContents.isDestroyed === 'function' && webContents.isDestroyed())
+  ) {
+    return;
+  }
+  await webContents.executeJavaScript(
+    `window.__mantaExportFrozen = ${frozen ? 'true' : 'false'};`,
+    true
+  );
+}
+
 function clearCoordinatorEmailFreeze(win) {
   if (coordinatorEmailFreeze && win && !win.isDestroyed()) {
     setPreviewExportFrozen(win, false);
@@ -186,8 +203,17 @@ async function runDirectPreviewPdfJob(
     if (!win || win.isDestroyed()) {
       throw new Error('preview-unavailable');
     }
-    await writeInvoicePdf(win, pdfPath, { flag });
-    return pdfPath;
+    let syncFreezeAcquired = false;
+    try {
+      await applySyncExportFrozen(win, true);
+      syncFreezeAcquired = true;
+      await writeInvoicePdf(win, pdfPath, { flag });
+      return pdfPath;
+    } finally {
+      if (syncFreezeAcquired) {
+        await applySyncExportFrozen(win, false);
+      }
+    }
   });
 }
 
@@ -198,10 +224,13 @@ async function runPreviewPdfJob(appConfig, writeInvoicePdf, params) {
     const requestId = crypto.randomBytes(12).toString('hex');
     activeRequestId = requestId;
     coordinatorEmailFreeze = true;
-    setPreviewExportFrozen(previewWindow, true);
     const hideAfter =
       params.hidePreviewAfter === true && !previewWindow.isVisible();
+    let syncFreezeAcquired = false;
     try {
+      await applySyncExportFrozen(previewWindow, true);
+      syncFreezeAcquired = true;
+      setPreviewExportFrozen(previewWindow, true);
       previewWindow.webContents.send('update-preview', {
         requestId,
         invoice,
@@ -226,6 +255,9 @@ async function runPreviewPdfJob(appConfig, writeInvoicePdf, params) {
     } finally {
       activeRequestId = null;
       clearCoordinatorEmailFreeze(previewWindow);
+      if (syncFreezeAcquired) {
+        await applySyncExportFrozen(previewWindow, false);
+      }
     }
   });
 }
@@ -253,7 +285,6 @@ function __resetForTests() {
   activeRequestId = null;
   coordinatorEmailFreeze = false;
   previewTokens.clear();
-  testElectron = null;
 }
 
 module.exports = {

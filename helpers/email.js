@@ -112,16 +112,30 @@ function buildUrl(toEnc, subjectEnc, bodyEnc) {
 
 function fitSubject(subject, toEnc, maxLength, bodyEnc) {
   const flat = subjectForMailto(subject);
-  let chars = Array.from(flat);
+  const fullChars = Array.from(flat);
+  let chars = fullChars;
   if (chars.length > 200) {
     chars = chars.slice(0, 200);
   }
-  let truncated = chars.length < Array.from(flat).length;
+  let truncated = chars.length < fullChars.length;
 
   const tryLen = len => {
     const prefix = chars.slice(0, len).join('');
     const enc = encodeMailtoValue(prefix);
     return urlLengthFor(toEnc, enc, bodyEnc) <= maxLength;
+  };
+
+  const withEllipsisIfShortened = (prefix, wasTruncated) => {
+    if (!wasTruncated) {
+      return { subject: prefix, truncated: false };
+    }
+    const withEllipsis = `${prefix}\u2026`;
+    if (
+      urlLengthFor(toEnc, encodeMailtoValue(withEllipsis), bodyEnc) <= maxLength
+    ) {
+      return { subject: withEllipsis, truncated: true };
+    }
+    return { subject: prefix, truncated: true };
   };
 
   if (!tryLen(chars.length)) {
@@ -135,21 +149,11 @@ function fitSubject(subject, toEnc, maxLength, bodyEnc) {
         hi = mid - 1;
       }
     }
-    let prefix = chars.slice(0, lo).join('');
-    if (lo < chars.length) {
-      truncated = true;
-      const withEllipsis = `${prefix}…`;
-      if (
-        urlLengthFor(toEnc, encodeMailtoValue(withEllipsis), bodyEnc) <=
-        maxLength
-      ) {
-        return { subject: withEllipsis, truncated };
-      }
-      prefix = chars.slice(0, lo).join('');
-    }
-    return { subject: prefix, truncated };
+    const prefix = chars.slice(0, lo).join('');
+    truncated = truncated || lo < chars.length;
+    return withEllipsisIfShortened(prefix, truncated);
   }
-  return { subject: chars.join(''), truncated };
+  return withEllipsisIfShortened(chars.join(''), truncated);
 }
 
 function fitBody(body, toEnc, subjectEnc, maxLength) {
@@ -185,14 +189,24 @@ function fitBody(body, toEnc, subjectEnc, maxLength) {
   }
 
   let prefix = codePoints.slice(0, lo).join('').trimEnd();
-  let candidate = `${prefix}…`;
+  let candidate = `${prefix}\u2026`;
   if (urlLengthFor(toEnc, subjectEnc, tryBody(candidate)) <= maxLength) {
+    const lastSpace = prefix.lastIndexOf(' ');
+    if (lastSpace >= 0 && prefix.length - lastSpace <= 80) {
+      const wordCut = prefix.slice(0, lastSpace);
+      const wordCandidate = `${wordCut}\u2026`;
+      if (
+        urlLengthFor(toEnc, subjectEnc, tryBody(wordCandidate)) <= maxLength
+      ) {
+        return { body: wordCandidate, truncated: true };
+      }
+    }
     return { body: candidate, truncated: true };
   }
   const lastSpace = prefix.lastIndexOf(' ');
   if (lastSpace >= 0 && prefix.length - lastSpace <= 80) {
     const wordCut = prefix.slice(0, lastSpace);
-    candidate = `${wordCut}…`;
+    candidate = `${wordCut}\u2026`;
     if (urlLengthFor(toEnc, subjectEnc, tryBody(candidate)) <= maxLength) {
       return { body: candidate, truncated: true };
     }
