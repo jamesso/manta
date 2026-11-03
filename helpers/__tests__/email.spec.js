@@ -236,16 +236,45 @@ describe('validateEmailRequest', () => {
 });
 
 describe('invoicesMatchCaptured', () => {
+  const stored = {
+    _id: 'x',
+    invoiceID: 'INV-1',
+    grandTotal: 10,
+    currency: { code: 'USD', fraction: 2 },
+    dueDate: { formattedDate: '2026-01-15' },
+    payments: [],
+    rows: [{ description: 'A', subtotal: 10 }],
+    recipient: { fullname: 'C' },
+    seller: { company: 'Co' },
+  };
+
   it('detects same-id revisions with different line items', () => {
-    const stored = {
-      _id: 'x',
-      invoiceID: 'INV-1',
-      grandTotal: 10,
-      rows: [{ description: 'A', subtotal: 10 }],
-      recipient: { fullname: 'C' },
-    };
     const mutated = { ...stored, rows: [{ description: 'B', subtotal: 10 }] };
     expect(invoicesMatchCaptured(stored, stored)).toBe(true);
+    expect(invoicesMatchCaptured(stored, mutated)).toBe(false);
+  });
+
+  it('rejects a currency change', () => {
+    const mutated = {
+      ...stored,
+      currency: { code: 'EUR', fraction: 2 },
+    };
+    expect(invoicesMatchCaptured(stored, mutated)).toBe(false);
+  });
+
+  it('rejects a payments change', () => {
+    const mutated = {
+      ...stored,
+      payments: [{ amount: 5, date: '2026-01-01' }],
+    };
+    expect(invoicesMatchCaptured(stored, mutated)).toBe(false);
+  });
+
+  it('rejects a due-date change', () => {
+    const mutated = {
+      ...stored,
+      dueDate: { formattedDate: '2026-02-01' },
+    };
     expect(invoicesMatchCaptured(stored, mutated)).toBe(false);
   });
 });

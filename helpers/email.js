@@ -555,15 +555,10 @@ function fingerprintPart(value) {
 }
 
 export function invoiceCaptureFingerprint(invoice) {
-  return JSON.stringify(
-    fingerprintPart({
-      invoiceID: invoice.invoiceID,
-      grandTotal: invoice.grandTotal,
-      rows: invoice.rows,
-      recipient: invoice.recipient,
-      seller: invoice.seller,
-    })
-  );
+  if (!invoice || typeof invoice !== 'object') {
+    return '';
+  }
+  return JSON.stringify(fingerprintPart(invoice));
 }
 
 export function invoicesMatchCaptured(stored, supplied) {
