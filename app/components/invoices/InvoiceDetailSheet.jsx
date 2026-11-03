@@ -216,27 +216,17 @@ export default function InvoiceDetailSheet({
             </div>
           ) : null}
           {invoice.sentAt ? (
-            <div>
-              <dt className="text-muted-foreground">
-                {t('email:sheet:sentOn')}
-              </dt>
-              <dd>
-                {t('email:sheet:sentOn', {
-                  date: moment(invoice.sentAt).format(fmt),
-                })}
-              </dd>
+            <div className="text-muted-foreground">
+              {t('email:sheet:sentOn', {
+                date: moment(invoice.sentAt).format(fmt),
+              })}
             </div>
           ) : null}
           {invoice.remindedAt ? (
-            <div>
-              <dt className="text-muted-foreground">
-                {t('email:sheet:remindedOn')}
-              </dt>
-              <dd>
-                {t('email:sheet:remindedOn', {
-                  date: moment(invoice.remindedAt).format(fmt),
-                })}
-              </dd>
+            <div className="text-muted-foreground">
+              {t('email:sheet:remindedOn', {
+                date: moment(invoice.remindedAt).format(fmt),
+              })}
             </div>
           ) : null}
         </dl>
