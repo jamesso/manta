@@ -151,7 +151,9 @@ export default function InvoiceDefaults({
       </div>
 
       <div className="space-y-3">
-        <h3 className="font-medium">{t('form:numbering:title')}</h3>
+        <h3 className="text-base font-semibold tracking-tight">
+          {t('form:numbering:title')}
+        </h3>
         <div className="grid gap-4 md:grid-cols-3">
           {['prefix', 'next', 'padding'].map(name => (
             <Field key={name}>
@@ -179,7 +181,7 @@ export default function InvoiceDefaults({
       </div>
 
       <div className="space-y-3">
-        <h3 className="font-medium">
+        <h3 className="text-base font-semibold tracking-tight">
           {t('settings:sections:estimates:title')}
         </h3>
         <div className="grid gap-4 md:grid-cols-3">
@@ -232,7 +234,7 @@ export default function InvoiceDefaults({
       </div>
 
       <div className="space-y-3">
-        <h3 className="font-medium">
+        <h3 className="text-base font-semibold tracking-tight">
           {t('settings:sections:creditNotes:title')}
         </h3>
         <div className="grid gap-4 md:grid-cols-3">
@@ -282,7 +284,9 @@ export default function InvoiceDefaults({
       </Field>
 
       <div className="space-y-3">
-        <h3 className="font-medium">{t('form:fields:currency')}</h3>
+        <h3 className="text-base font-semibold tracking-tight">
+          {t('form:fields:currency')}
+        </h3>
         <div className="grid gap-4 md:grid-cols-2">
           <Field>
             <FieldLabel>{t('form:fields:currency')}</FieldLabel>
@@ -380,7 +384,9 @@ export default function InvoiceDefaults({
       />
 
       <div className="space-y-3">
-        <h3 className="font-medium">{t('settings:fields:requiredFields')}</h3>
+        <h3 className="text-base font-semibold tracking-tight">
+          {t('settings:fields:requiredFields')}
+        </h3>
         <div className="grid gap-3 sm:grid-cols-2">
           {REQUIRED_KEYS.map(name => (
             <Field

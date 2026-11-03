@@ -28,10 +28,6 @@ class Logo extends Component {
     });
   }
 
-  shouldComponentUpdate(nextProps) {
-    return this.props.logo !== nextProps.logo || this.props.t !== nextProps.t;
-  }
-
   componentWillUnmount() {
     ipc.removeAllListeners('file-selected');
   }

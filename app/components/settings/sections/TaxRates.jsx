@@ -207,7 +207,9 @@ export default function TaxRates({ value, onChange }) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-2">
-        <h3 className="font-medium">{t('settings:taxRates:title')}</h3>
+        <h3 className="text-base font-semibold tracking-tight">
+          {t('settings:taxRates:title')}
+        </h3>
         <Button
           type="button"
           variant="outline"

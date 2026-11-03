@@ -18,7 +18,10 @@ import { getEInvoiceIssues } from '../../../../helpers/einvoice/getEInvoiceIssue
 
 export default function EInvoiceSettings({ profile, value, onSave, saveNow }) {
   const { t } = useTranslation();
-  const eInvoice = value?.eInvoice ?? { enabled: false, format: 'xrechnung-ubl' };
+  const eInvoice = value?.eInvoice ?? {
+    enabled: false,
+    format: 'xrechnung-ubl',
+  };
   const [busy, setBusy] = useState(false);
   const formatValue = eInvoice.format ?? 'xrechnung-ubl';
   const formatLabel =
@@ -90,7 +93,7 @@ export default function EInvoiceSettings({ profile, value, onSave, saveNow }) {
   return (
     <div className="space-y-4 border-t pt-6">
       <div>
-        <h3 className="font-medium text-foreground">
+        <h3 className="text-base font-semibold tracking-tight text-foreground">
           {t('settings:sections:eInvoice.title')}
         </h3>
         <p className="text-sm text-muted-foreground">

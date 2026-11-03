@@ -7,15 +7,12 @@ import Logo from '../_partials/profile/Logo';
 import PostalAddressFields from '../../shared/PostalAddressFields.jsx';
 import { useDebouncedSave } from '../useDebouncedSave';
 import { getSellerTaxIds } from '../../../helpers/tax';
-import { isValidBic, isValidIban } from '../../../../helpers/einvoice/identifiers.js';
+import {
+  isValidBic,
+  isValidIban,
+} from '../../../../helpers/einvoice/identifiers.js';
 
-const TEXT_FIELDS = [
-  'fullname',
-  'company',
-  'email',
-  'phone',
-  'website',
-];
+const TEXT_FIELDS = ['fullname', 'company', 'email', 'phone', 'website'];
 
 const emptyPostal = {
   street: '',
@@ -159,18 +156,20 @@ export default function BusinessProfile({
         </Field>
       </div>
       <div className="space-y-3">
-        <h3 className="font-medium text-foreground">
+        <h3 className="text-base font-semibold tracking-tight text-foreground">
           {t('settings:fields:postalAddress:title')}
         </h3>
         <PostalAddressFields
           idPrefix="profile-postal"
           value={draft.postalAddress}
           errors={errors}
-          onChange={postalAddress => setDraft(prev => ({ ...prev, postalAddress }))}
+          onChange={postalAddress =>
+            setDraft(prev => ({ ...prev, postalAddress }))
+          }
         />
       </div>
       <div className="space-y-3">
-        <h3 className="font-medium text-foreground">
+        <h3 className="text-base font-semibold tracking-tight text-foreground">
           {t('settings:fields:bank:title')}
         </h3>
         <div className="grid gap-4 md:grid-cols-2">

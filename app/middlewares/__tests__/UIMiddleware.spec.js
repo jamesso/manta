@@ -110,6 +110,38 @@ describe('UI Middleware', () => {
       expect(dispatch).toHaveBeenCalledWith(FormActions.clearForm(null, true));
       expect(dispatch).toHaveBeenCalledWith(UIActions.changeActiveTab('form'));
     });
+
+    it('asks before leaving a recurring template, then clears the form', async () => {
+      getState.mockReturnValue({
+        ui: { activeTab: 'form' },
+        form: {
+          templateTarget: { profileId: 'rec-1' },
+          settings: { editMode: { active: false } },
+        },
+      });
+      dialog.confirm.mockResolvedValueOnce(true);
+      middleware(UIActions.newInvoice());
+      expect(dialog.confirm).toHaveBeenCalledTimes(1);
+      await Promise.resolve();
+      expect(dispatch).toHaveBeenCalledWith(FormActions.clearForm(null, true));
+      expect(dispatch).toHaveBeenCalledWith(
+        FormActions.setFormDocType('invoice')
+      );
+    });
+
+    it('keeps the recurring template when the confirm is declined', async () => {
+      getState.mockReturnValue({
+        ui: { activeTab: 'form' },
+        form: {
+          templateTarget: { profileId: 'rec-1' },
+          settings: { editMode: { active: false } },
+        },
+      });
+      dialog.confirm.mockResolvedValueOnce(false);
+      middleware(UIActions.newInvoice());
+      await Promise.resolve();
+      expect(dispatch).not.toHaveBeenCalled();
+    });
   });
 
   it('let other actions pass through', () => {

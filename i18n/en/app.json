@@ -84,7 +84,11 @@
     "confirmTitle": "Stop editing this invoice?",
     "confirmMessage": "Unsaved changes to this invoice will be lost. The saved invoice does not change.",
     "confirm": "Start new invoice",
-    "cancel": "Keep editing"
+    "cancel": "Keep editing",
+    "template": {
+      "confirmTitle": "Stop editing this recurring template?",
+      "confirmMessage": "Unsaved changes to this template will be lost. The saved template does not change."
+    }
   },
   "error": {
     "title": "Something went wrong",

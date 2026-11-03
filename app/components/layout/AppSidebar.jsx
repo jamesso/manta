@@ -24,6 +24,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import {
   DropdownMenu,
@@ -38,6 +39,7 @@ import * as UIActions from '../../actions/ui';
 import AppUpdate from './AppUpdate';
 import { getOverdueCount } from '../../reducers/InvoicesReducer';
 import { useNow } from '../invoices/useNow';
+import { getFormNavSection } from './navSection';
 
 const ipc = window.manta.ipc;
 const modKey = window.manta.platform === 'darwin' ? '⌘' : 'Ctrl+';
@@ -47,6 +49,11 @@ export default function AppSidebar({ activeTab }) {
   const dispatch = useDispatch();
   const profile = useSelector(s => s.settings.saved?.profile) || {};
   const formDocType = useSelector(s => s.form?.docType || 'invoice');
+  const templateTarget = useSelector(s => s.form?.templateTarget ?? null);
+  const formEditActive = useSelector(
+    s => s.form?.settings?.editMode?.active === true
+  );
+  const { isMobile } = useSidebar();
   const now = useNow();
   const overdue = useSelector(state => getOverdueCount(state, now));
 
@@ -55,9 +62,15 @@ export default function AppSidebar({ activeTab }) {
 
   const changeTab = tab => dispatch(UIActions.changeActiveTab(tab));
 
-  const isActive = tab =>
-    activeTab === tab ||
-    (tab === 'estimates' && activeTab === 'form' && formDocType === 'estimate');
+  const formSection =
+    activeTab === 'form'
+      ? getFormNavSection({
+          docType: formDocType,
+          templateTarget,
+          editActive: formEditActive,
+        })
+      : null;
+  const isActive = tab => activeTab === tab || formSection === tab;
 
   const renderItem = ({ tab, label, icon: Icon, badge, tooltipExtra }) => (
     <SidebarMenuItem key={tab}>
@@ -110,11 +123,15 @@ export default function AppSidebar({ activeTab }) {
       variant="inset"
       className="top-12! h-[calc(100svh-3rem)]! pt-0"
     >
+      {isMobile ? (
+        // The sheet starts at the window top: keep clear of the window controls.
+        <div className="titlebar drag-region h-12 shrink-0" />
+      ) : null}
       <SidebarHeader className="pt-1">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
-              isActive={activeTab === 'form' && formDocType === 'invoice'}
+              isActive={formSection === 'newInvoice'}
               tooltip={t('app:nav:newInvoice')}
               onClick={() => dispatch(UIActions.newInvoice())}
               className="font-medium text-sidebar-accent-foreground [&_svg]:text-current! data-active:[&_svg]:text-current!"

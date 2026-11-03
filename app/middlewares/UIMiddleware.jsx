@@ -56,20 +56,25 @@ const UIMiddleware =
       }
 
       case ACTION_TYPES.UI_NEW_INVOICE: {
-        const editMode = getState().form?.settings?.editMode?.active;
+        const form = getState().form;
+        const editMode = form?.settings?.editMode?.active;
+        // A recurring template is also edited in the form. Leave it explicitly.
+        const templateMode = form?.templateTarget != null;
         const apply = () => {
           dispatch(FormActions.setFormDocType('invoice'));
           dispatch(UIActions.changeActiveTab('form'));
         };
-        if (!editMode) {
-          dispatch(FormActions.setFormDocType('invoice'));
-          dispatch(UIActions.changeActiveTab('form'));
+        if (!editMode && !templateMode) {
+          apply();
           return undefined;
         }
+        const copy = templateMode
+          ? 'app:newInvoice:template'
+          : 'app:newInvoice';
         return dialog
           .confirm({
-            title: i18n.t('app:newInvoice:confirmTitle'),
-            message: i18n.t('app:newInvoice:confirmMessage'),
+            title: i18n.t(`${copy}:confirmTitle`),
+            message: i18n.t(`${copy}:confirmMessage`),
             confirmLabel: i18n.t('app:newInvoice:confirm'),
             cancelLabel: i18n.t('app:newInvoice:cancel'),
           })

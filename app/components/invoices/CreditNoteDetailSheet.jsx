@@ -129,7 +129,7 @@ export default function CreditNoteDetailSheet({
 
         {creditNote.note ? (
           <div className="mt-4 px-4 text-sm">
-            <h3 className="font-medium">{t('invoices:sheet:note')}</h3>
+            <h3 className="text-sm font-medium">{t('invoices:sheet:note')}</h3>
             <p className="mt-1 text-muted-foreground">{creditNote.note}</p>
           </div>
         ) : null}
