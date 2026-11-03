@@ -27,6 +27,7 @@ vi.mock('../preview-pdf-coordinator', async importOriginal => {
 
 import {
   buildMailto,
+  invoicesMatchCaptured,
   validateCaptureSnapshotPayload,
   validateEmailRequest,
   validateShareRequest,
@@ -35,6 +36,7 @@ import {
   consumePreviewToken,
   createPreviewToken,
   restorePreviewToken,
+  __resetForTests,
 } from '../preview-pdf-coordinator';
 import { getEmailVars } from '../../app/helpers/emailDraft';
 import { clipboard, ipcMain, shell, BrowserWindow } from 'electron';
@@ -208,6 +210,7 @@ describe('email-invoice ipc handler', () => {
     shell.openExternal.mockClear();
     shell.showItemInFolder.mockClear();
     runPreviewPdfJob.mockReset();
+    __resetForTests();
   });
 
   const basePayload = {
@@ -259,6 +262,37 @@ describe('email-invoice ipc handler', () => {
     expect(res.truncated).toBe(true);
     expect(res.fullMessage).toContain('B'.repeat(20));
     expect(clipboard.writeText).not.toHaveBeenCalled();
+  });
+
+  it('rejects preview email when the invoice changed after capture', async () => {
+    const captured = {
+      _id: 'inv1',
+      docType: 'invoice',
+      invoiceID: 'INV-1',
+      status: 'pending',
+      grandTotal: 100,
+      rows: [{ description: 'Line', subtotal: 100 }],
+      recipient: { fullname: 'Client' },
+    };
+    const token = createPreviewToken({
+      invoiceId: 'inv1',
+      invoice: captured,
+      snapshot: {
+        profile: {},
+        configs: { language: 'en' },
+        language: 'en',
+      },
+    });
+    const res = await emailHandler(trustedEvent, {
+      ...basePayload,
+      source: 'preview',
+      previewToken: token,
+      invoice: { ...captured, invoiceID: 'INV-2' },
+    });
+    expect(res.ok).toBe(false);
+    expect(res.error).toBe('preview-invoice-mismatch');
+    expect(shell.openExternal).not.toHaveBeenCalled();
+    expect(runPreviewPdfJob).not.toHaveBeenCalled();
   });
 });
 

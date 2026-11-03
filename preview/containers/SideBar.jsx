@@ -36,7 +36,11 @@ export default function SideBar({
   };
 
   const savePDF = () => {
-    ipc.send('save-pdf', invoice._id, { docType: getDocType(invoice) });
+    ipc.send('save-pdf', {
+      invoice,
+      snapshot: emailSnapshot,
+      docType: getDocType(invoice),
+    });
     saveConfigs();
   };
 

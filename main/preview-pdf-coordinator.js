@@ -243,11 +243,13 @@ async function runPreviewPdfJob(appConfig, writeInvoicePdf, params) {
         requestId,
         String(invoice._id ?? '')
       );
-      const written = await writePdfWithWx(
-        previewWindow,
-        pdfPath,
-        writeInvoicePdf
-      );
+      let written;
+      if (params.writeFlag === 'w') {
+        await writeInvoicePdf(previewWindow, pdfPath, { flag: 'w' });
+        written = pdfPath;
+      } else {
+        written = await writePdfWithWx(previewWindow, pdfPath, writeInvoicePdf);
+      }
       if (hideAfter) {
         previewWindow.hide();
       }

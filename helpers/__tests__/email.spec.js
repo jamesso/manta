@@ -5,6 +5,7 @@ import {
   buildMailto,
   encodeMailtoValue,
   fillTemplate,
+  invoicesMatchCaptured,
   isValidEmail,
   safePdfFileName,
   validateEmailRequest,
@@ -231,6 +232,21 @@ describe('validateEmailRequest', () => {
     expect(() =>
       validateEmailRequest({ ...base, draft: { ...base.draft, body: 1 } })
     ).toThrow('invalid-request');
+  });
+});
+
+describe('invoicesMatchCaptured', () => {
+  it('detects same-id revisions with different line items', () => {
+    const stored = {
+      _id: 'x',
+      invoiceID: 'INV-1',
+      grandTotal: 10,
+      rows: [{ description: 'A', subtotal: 10 }],
+      recipient: { fullname: 'C' },
+    };
+    const mutated = { ...stored, rows: [{ description: 'B', subtotal: 10 }] };
+    expect(invoicesMatchCaptured(stored, stored)).toBe(true);
+    expect(invoicesMatchCaptured(stored, mutated)).toBe(false);
   });
 });
 

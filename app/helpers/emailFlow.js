@@ -69,7 +69,10 @@ export async function runEmailFlow(
 
   const flowSnapshot =
     source === 'preview' && snapshot
-      ? snapshot
+      ? {
+          ...snapshot,
+          profile: snapshotProfileForInvoice(invoice, snapshot.profile),
+        }
       : captureAppSnapshot(invoice, settings);
 
   const draft = buildEmailDraft(invoice, kind, {

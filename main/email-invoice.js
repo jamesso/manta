@@ -20,6 +20,7 @@ import {
   validateCaptureSnapshotPayload,
   validateEmailRequest,
   validateShareRequest,
+  invoicesMatchCaptured,
 } from '../helpers/email.js';
 
 function canEmail(invoice) {
@@ -79,6 +80,10 @@ function consumePreviewSnapshot(req) {
   if (!entry) {
     throw new Error('preview-token-invalid');
   }
+  if (!invoicesMatchCaptured(entry.invoice, req.invoice)) {
+    restorePreviewToken(req.previewToken, entry);
+    throw new Error('preview-invoice-mismatch');
+  }
   return entry;
 }
 
@@ -114,10 +119,12 @@ ipcMain.handle('email-invoice', async (event, payload) => {
   try {
     const req = validateEmailRequest(payload);
     let resolvedSnapshot = req.snapshot;
+    let invoiceForPrint = req.invoice;
     if (req.source === 'preview') {
       previewToken = req.previewToken;
       previewTokenEntry = consumePreviewSnapshot(req);
       resolvedSnapshot = previewTokenEntry.snapshot;
+      invoiceForPrint = previewTokenEntry.invoice;
     }
     const { url, truncated } = buildMailto(req.draft);
     assertMailtoUrl(url);
@@ -131,7 +138,7 @@ ipcMain.handle('email-invoice', async (event, payload) => {
       }
     }
     const pdfPath = await exportSnapshotPdf(
-      { ...req, resolvedSnapshot },
+      { ...req, invoice: invoiceForPrint, resolvedSnapshot },
       { hidePreviewAfter }
     );
     const fullMessage = truncated
@@ -171,13 +178,16 @@ ipcMain.handle('share-invoice-pdf', async (event, payload) => {
   try {
     const req = validateShareRequest(payload);
     let resolvedSnapshot = req.snapshot;
+    let invoiceForPrint = req.invoice;
     if (req.source === 'preview') {
       previewToken = req.previewToken;
       previewTokenEntry = consumePreviewSnapshot(req);
       resolvedSnapshot = previewTokenEntry.snapshot;
+      invoiceForPrint = previewTokenEntry.invoice;
     }
     const pdfPath = await exportSnapshotPdf({
       ...req,
+      invoice: invoiceForPrint,
       resolvedSnapshot,
       draft: undefined,
     });

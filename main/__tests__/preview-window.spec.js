@@ -347,6 +347,49 @@ describe('preview pdf coordinator queue', () => {
     expect(fs.readFileSync(written, 'utf8')).toBe('NEW');
   });
 
+  it('keeps export pdf bytes for the captured invoice after another invoice rendered', async () => {
+    const win = makePreviewWindow();
+    BrowserWindow.fromId.mockReturnValue(win);
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'manta-pdf-'));
+    const appConfig = {
+      get: key =>
+        key === 'previewWindowID'
+          ? 1
+          : key === 'invoice.exportDir'
+            ? dir
+            : undefined,
+    };
+    const snap = { profile: {}, configs: {}, language: 'en' };
+    const writeInvoicePdf = vi.fn(async (w, pdfPath, { flag }) => {
+      const update = w.webContents.send.mock.calls
+        .filter(c => c[0] === 'update-preview')
+        .at(-1);
+      fs.writeFileSync(pdfPath, `pdf-${update[1].invoice._id}`, { flag });
+    });
+    const pathA = path.join(dir, 'doc-a.pdf');
+    const pathB = path.join(dir, 'doc-b.pdf');
+
+    const jobB = runPreviewPdfJob(appConfig, writeInvoicePdf, {
+      invoice: { _id: 'inv-b' },
+      snapshot: snap,
+      pdfPath: pathB,
+    });
+    await ackPreviewRender(win, 'inv-b');
+    await jobB;
+
+    const jobA = runPreviewPdfJob(appConfig, writeInvoicePdf, {
+      invoice: { _id: 'inv-a' },
+      snapshot: snap,
+      pdfPath: pathA,
+      writeFlag: 'w',
+    });
+    await ackPreviewRender(win, 'inv-a');
+    await jobA;
+
+    expect(fs.readFileSync(pathA, 'utf8')).toBe('pdf-inv-a');
+    expect(fs.readFileSync(pathB, 'utf8')).toBe('pdf-inv-b');
+  });
+
   it('save-pdf path overwrites with flag w via direct job', async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'manta-pdf-'));
     const target = path.join(dir, 'doc.pdf');

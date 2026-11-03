@@ -535,3 +535,42 @@ export function validateCaptureSnapshotPayload(p) {
   const normalizedSnapshot = validateSnapshot(snapshot);
   return { invoice, snapshot: normalizedSnapshot };
 }
+
+function fingerprintPart(value) {
+  if (value === null || value === undefined) {
+    return null;
+  }
+  if (typeof value !== 'object') {
+    return value;
+  }
+  if (Array.isArray(value)) {
+    return value.map(fingerprintPart);
+  }
+  const keys = Object.keys(value).sort();
+  const out = {};
+  for (const key of keys) {
+    out[key] = fingerprintPart(value[key]);
+  }
+  return out;
+}
+
+export function invoiceCaptureFingerprint(invoice) {
+  return JSON.stringify(
+    fingerprintPart({
+      invoiceID: invoice.invoiceID,
+      grandTotal: invoice.grandTotal,
+      rows: invoice.rows,
+      recipient: invoice.recipient,
+      seller: invoice.seller,
+    })
+  );
+}
+
+export function invoicesMatchCaptured(stored, supplied) {
+  if (!stored || !supplied || stored._id !== supplied._id) {
+    return false;
+  }
+  return (
+    invoiceCaptureFingerprint(stored) === invoiceCaptureFingerprint(supplied)
+  );
+}
