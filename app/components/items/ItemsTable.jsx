@@ -72,11 +72,14 @@ function getColumns({ t, currency, onEdit }) {
       ),
       cell: ({ getValue }) => (
         <span className="block text-end tabular-nums">
-          {formatNumber(
-            getValue(),
-            currency.fraction ?? 2,
-            currency.separator ?? 'commaDot'
-          )}
+          {/* Items stored by an older import can have no price. */}
+          {Number.isFinite(getValue())
+            ? formatNumber(
+                getValue(),
+                currency.fraction ?? 2,
+                currency.separator ?? 'commaDot'
+              )
+            : '—'}
         </span>
       ),
     }),

@@ -126,7 +126,9 @@ function validateItem(doc) {
     isPlainObject(doc) &&
     validDocId(doc._id) &&
     typeof doc.name === 'string' &&
-    doc.name.length > 0
+    doc.name.length > 0 &&
+    // The app always saves a finite number. Other values crash the Items list.
+    Number.isFinite(doc.unitPrice)
   );
 }
 

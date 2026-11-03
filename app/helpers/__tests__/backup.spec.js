@@ -219,6 +219,26 @@ describe('backup helpers', () => {
     expect(bad.error).toBe('invalid-format');
   });
 
+  it('counts items without a finite unitPrice as invalid', () => {
+    const parsed = parseBackup(
+      JSON.stringify({
+        app: 'Manta',
+        version: 2,
+        invoices: [],
+        contacts: [],
+        items: [
+          { _id: 'i1', name: 'No price' },
+          { _id: 'i2', name: 'Text price', unitPrice: '120' },
+          { _id: 'i3', name: 'Null price', unitPrice: null },
+          { _id: 'i4', name: 'Zero price', unitPrice: 0 },
+        ],
+      })
+    );
+    expect(parsed.ok).toBe(true);
+    expect(parsed.backup.items.map(item => item._id)).toEqual(['i4']);
+    expect(parsed.invalid.items).toBe(3);
+  });
+
   it('rejects newer backup versions', () => {
     const parsed = parseBackup(
       JSON.stringify({
