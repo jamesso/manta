@@ -71,7 +71,7 @@ describe('theme', () => {
   it('titleBarOptions on win32 uses overlay colors', () => {
     const dark = titleBarOptions('win32', { shouldUseDarkColors: true });
     expect(dark.titleBarOverlay.color).toBe(WINDOW_BACKGROUND.dark);
-    expect(dark.titleBarOverlay.height).toBe(40);
+    expect(dark.titleBarOverlay.height).toBe(48);
     const light = titleBarOverlayFor({ shouldUseDarkColors: false });
     expect(light.color).toBe(WINDOW_BACKGROUND.light);
   });

@@ -95,7 +95,7 @@
   },
   "backup": {
     "export": "Export backup…",
-    "import": "Import backup…",
+    "import": "Import",
     "exportCsv": "Export invoices as CSV…",
     "autoHint": "Manta saves an automatic backup before every import.",
     "exportSuccess": "Backup saved",
@@ -103,7 +103,6 @@
     "showFile": "Show file",
     "showSafety": "Show safety backup",
     "importTitle": "Import backup",
-    "import": "Import",
     "importing": "Importing…",
     "includeSettings": "Also import settings",
     "modeSkip": "Skip items that already exist",
@@ -237,13 +236,34 @@
     "reason": "Exemption reason",
     "actionsFor": "Actions for {{name}}",
     "categories": {
-      "S": { "label": "Standard rate", "help": "The normal VAT rate, for example 19 % or 20 %." },
-      "Z": { "label": "Zero rated", "help": "Taxable, but at 0 %." },
-      "E": { "label": "Exempt", "help": "Exempt from VAT by law. Needs a reason." },
-      "AE": { "label": "Reverse charge", "help": "The buyer pays the VAT. Needs a reason and the buyer's VAT ID." },
-      "K": { "label": "Intra-community supply", "help": "Goods to a VAT-registered buyer in another EU country. Needs a reason." },
-      "G": { "label": "Export outside the EU", "help": "No VAT is charged on the export. Needs a reason." },
-      "O": { "label": "Outside the scope of VAT", "help": "Not subject to VAT, for example you are not VAT registered. Needs a reason." }
+      "S": {
+        "label": "Standard rate",
+        "help": "The normal VAT rate, for example 19 % or 20 %."
+      },
+      "Z": {
+        "label": "Zero rated",
+        "help": "Taxable, but at 0 %."
+      },
+      "E": {
+        "label": "Exempt",
+        "help": "Exempt from VAT by law. Needs a reason."
+      },
+      "AE": {
+        "label": "Reverse charge",
+        "help": "The buyer pays the VAT. Needs a reason and the buyer's VAT ID."
+      },
+      "K": {
+        "label": "Intra-community supply",
+        "help": "Goods to a VAT-registered buyer in another EU country. Needs a reason."
+      },
+      "G": {
+        "label": "Export outside the EU",
+        "help": "No VAT is charged on the export. Needs a reason."
+      },
+      "O": {
+        "label": "Outside the scope of VAT",
+        "help": "Not subject to VAT, for example you are not VAT registered. Needs a reason."
+      }
     },
     "errors": {
       "name": "Enter a name between 1 and 40 characters.",
@@ -254,5 +274,11 @@
       "noDefault": "Mark exactly one active rate as default.",
       "empty": "Add at least one tax rate."
     }
+  },
+  "logo": {
+    "drop": "Drop logo here",
+    "choose": "Choose logo…",
+    "replace": "Replace…",
+    "remove": "Remove logo"
   }
 }

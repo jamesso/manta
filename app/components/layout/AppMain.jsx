@@ -18,7 +18,7 @@ class AppMain extends Component {
   render() {
     const { activeTab } = this.props;
     return (
-      <div className="h-full overflow-auto bg-background">
+      <div className="min-h-0 flex-1 overflow-auto bg-background">
         {activeTab === 'dashboard' && <Dashboard />}
         {activeTab === 'form' && <Form />}
         {activeTab === 'invoices' && <Invoices />}

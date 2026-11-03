@@ -33,10 +33,13 @@ test.beforeAll(async () => {
     .toBeGreaterThanOrEqual(2);
 
   await expect
-    .poll(async () => {
-      const titles = await Promise.all(app.windows().map(p => p.title()));
-      return titles.includes(MAIN_TITLE);
-    }, { timeout: 30_000 })
+    .poll(
+      async () => {
+        const titles = await Promise.all(app.windows().map(p => p.title()));
+        return titles.includes(MAIN_TITLE);
+      },
+      { timeout: 30_000 }
+    )
     .toBe(true);
 });
 
@@ -95,16 +98,25 @@ test('captures e-invoice UI screenshots', async () => {
       .toBe(true);
 
     const sidebar = main.locator('[data-slot="sidebar"]');
-    await sidebar.getByRole('button', { name: 'Settings', exact: true }).click();
-    await expect(main.locator('h1.text-2xl', { hasText: 'Settings' })).toBeVisible({
+    await sidebar
+      .getByRole('button', { name: 'Settings', exact: true })
+      .click();
+    await expect(
+      main.getByRole('heading', { level: 1, name: 'Settings' })
+    ).toBeVisible({
       timeout: 15_000,
     });
-    await main.getByRole('button', { name: 'Invoice defaults', exact: true }).click();
+    await main
+      .getByRole('button', { name: 'Invoice defaults', exact: true })
+      .click();
     await expect(
       main.getByRole('switch', { name: 'Enable e-invoice export', exact: true })
     ).toBeVisible();
 
-    const sw = main.getByRole('switch', { name: 'Enable e-invoice export', exact: true });
+    const sw = main.getByRole('switch', {
+      name: 'Enable e-invoice export',
+      exact: true,
+    });
     await sw.scrollIntoViewIfNeeded();
     if ((await sw.getAttribute('aria-checked')) === 'true') {
       await sw.click({ force: true });
@@ -114,7 +126,10 @@ test('captures e-invoice UI screenshots', async () => {
     const dialog = main.getByRole('alertdialog');
     await expect(dialog).toBeVisible({ timeout: 15_000 });
     await dialog.screenshot({
-      path: path.join(outDir, `settings-einvoice-disclaimer-dialog-${theme}.png`),
+      path: path.join(
+        outDir,
+        `settings-einvoice-disclaimer-dialog-${theme}.png`
+      ),
     });
     await main.getByRole('button', { name: 'Cancel', exact: true }).click();
     await expect(dialog).toBeHidden({ timeout: 15_000 });
@@ -122,7 +137,9 @@ test('captures e-invoice UI screenshots', async () => {
 
     await sw.click({ force: true });
     await expect(dialog).toBeVisible({ timeout: 15_000 });
-    await main.getByRole('button', { name: 'I understand', exact: true }).click();
+    await main
+      .getByRole('button', { name: 'I understand', exact: true })
+      .click();
     await expect(sw).toHaveAttribute('aria-checked', 'true');
     await main.screenshot({
       path: path.join(outDir, `settings-einvoice-checklist-${theme}.png`),
@@ -175,21 +192,28 @@ test('captures e-invoice UI screenshots', async () => {
     }, badInvoice);
     await preview.waitForFunction(
       id =>
-        document.querySelector('.print-area')?.getAttribute('data-invoice-id') ===
-        id,
+        document
+          .querySelector('.print-area')
+          ?.getAttribute('data-invoice-id') === id,
       badInvoice._id,
       { timeout: 15_000 }
     );
-    await expect(
-      preview.getByText(/\d+ problems to fix/)
-    ).toBeVisible({ timeout: 10_000 });
+    await expect(preview.getByText(/\d+ problems to fix/)).toBeVisible({
+      timeout: 10_000,
+    });
     const einvoiceBlock = preview.locator('[data-einvoice-export]');
     await einvoiceBlock.scrollIntoViewIfNeeded();
     await expect(
-      einvoiceBlock.getByRole('button', { name: 'Export XRechnung (XML)', exact: true })
+      einvoiceBlock.getByRole('button', {
+        name: 'Export XRechnung (XML)',
+        exact: true,
+      })
     ).toBeDisabled();
     await expect(
-      einvoiceBlock.getByRole('button', { name: 'Export Factur-X (PDF)', exact: true })
+      einvoiceBlock.getByRole('button', {
+        name: 'Export Factur-X (PDF)',
+        exact: true,
+      })
     ).toBeDisabled();
     await preview.screenshot({
       path: path.join(outDir, `preview-einvoice-blocked-${theme}.png`),

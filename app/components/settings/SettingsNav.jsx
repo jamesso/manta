@@ -36,7 +36,7 @@ export default function SettingsNav({ active, onChange }) {
 
   return (
     <>
-      <nav className="hidden flex-col gap-1 md:flex">
+      <nav className="sticky top-0 hidden flex-col gap-0.5 self-start md:flex">
         {ITEMS.map(item => {
           const Icon = item.icon;
           const isActive = active === item.id;
@@ -46,9 +46,9 @@ export default function SettingsNav({ active, onChange }) {
               type="button"
               aria-current={isActive ? 'page' : undefined}
               className={cn(
-                'inline-flex min-h-9 items-center gap-2 rounded-md px-3 py-2 text-start text-sm',
+                'inline-flex min-h-9 items-center gap-2.5 rounded-lg px-3 py-2 text-start text-sm transition-colors',
                 isActive
-                  ? 'bg-muted font-medium text-foreground'
+                  ? 'bg-accent font-medium text-foreground [&>svg]:text-brand'
                   : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
               )}
               onClick={() => onChange(item.id)}

@@ -27,8 +27,38 @@ import { features } from './clientsTableFeatures';
 
 const columnHelper = createColumnHelper();
 
+// Soft tints from the status palette, so they work in light and dark mode.
+const AVATAR_TINTS = [
+  'bg-status-partial-bg text-status-partial',
+  'bg-status-paid-bg text-status-paid',
+  'bg-status-pending-bg text-status-pending',
+  'bg-status-refunded-bg text-status-refunded',
+  'bg-status-overdue-bg text-status-overdue',
+];
+
+function ClientAvatar({ name = '' }) {
+  const initials =
+    name
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map(part => part[0])
+      .join('')
+      .toUpperCase() || '?';
+  let hash = 0;
+  for (const ch of name) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+  return (
+    <span
+      aria-hidden
+      className={`flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${AVATAR_TINTS[hash % AVATAR_TINTS.length]}`}
+    >
+      {initials}
+    </span>
+  );
+}
+
 const sortHeaderClass =
-  'inline-flex min-h-6 items-center gap-1 bg-transparent text-foreground shadow-none';
+  'inline-flex min-h-6 items-center gap-1 bg-transparent text-muted-foreground shadow-none transition-colors hover:text-foreground';
 
 function formatOutstandingLines(outstanding, invoices) {
   const codes = Object.keys(outstanding);
@@ -66,13 +96,16 @@ function getColumns({ t, dispatch, onEdit, onOpenDetail }) {
         </button>
       ),
       cell: ({ row }) => (
-        <div>
-          <div className="font-medium">{row.original.fullname}</div>
-          {row.original.company ? (
-            <div className="text-sm text-muted-foreground">
-              {row.original.company}
-            </div>
-          ) : null}
+        <div className="flex items-center gap-3">
+          <ClientAvatar name={row.original.fullname} />
+          <div className="min-w-0">
+            <div className="font-medium">{row.original.fullname}</div>
+            {row.original.company ? (
+              <div className="text-sm text-muted-foreground">
+                {row.original.company}
+              </div>
+            ) : null}
+          </div>
         </div>
       ),
       sortingFn: (a, b) =>

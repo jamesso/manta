@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import InvoiceDetailSheet from '../components/invoices/InvoiceDetailSheet';
+import GreetingSummary from '../components/dashboard/GreetingSummary';
 import KpiCards from '../components/dashboard/KpiCards';
 import NeedsAttention from '../components/dashboard/NeedsAttention';
 import OnboardingChecklist from '../components/dashboard/OnboardingChecklist';
@@ -36,7 +37,7 @@ import rawLogo from '../../static/imgs/default_logo.svg?raw';
 const defaultLogoDataUrl = 'data:image/svg+xml;base64,' + btoa(rawLogo);
 
 export default function Dashboard() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const now = useNow();
   const ready = useSelector(isBootstrapReady);
   const invoices = useSelector(getInvoices);
@@ -116,7 +117,7 @@ export default function Dashboard() {
 
   if (!ready) {
     return (
-      <div className="space-y-4 p-4 text-foreground">
+      <div className="space-y-4 px-8 pt-7 pb-8 text-foreground">
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-40 w-full" />
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -129,10 +130,32 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-6 p-4 text-foreground">
-      <h1 className="text-2xl font-semibold tracking-tight">
-        {t('dashboard:heading')}
-      </h1>
+    <div className="space-y-6 px-8 pt-7 pb-8 text-foreground">
+      <div>
+        <h1 className="text-[1.75rem] leading-tight font-bold tracking-tight">
+          {t('dashboard:heading')}
+        </h1>
+        <p className="mt-0.5 text-sm text-muted-foreground">
+          {new Intl.DateTimeFormat(i18n.language, {
+            weekday: 'long',
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+          }).format(now)}
+        </p>
+      </div>
+
+      {hasInvoices ? (
+        <GreetingSummary
+          now={now}
+          overdue={bucket?.overdueCount ?? 0}
+          outstanding={Math.max(
+            0,
+            (bucket?.outstandingCount ?? 0) - (bucket?.overdueCount ?? 0)
+          )}
+          drafts={stats.counts.draft}
+        />
+      ) : null}
 
       {checklist && !checklist.dismissed ? (
         <OnboardingChecklist checklist={checklist} invoices={invoices} />

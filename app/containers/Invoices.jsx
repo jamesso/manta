@@ -174,10 +174,10 @@ export default function Invoices() {
   const showEmptyResults = !showEmptyNone && visible.length === 0;
 
   return (
-    <div className="flex h-full flex-col gap-4 p-4 text-foreground">
+    <div className="flex h-full flex-col gap-5 px-8 pt-7 pb-8 text-foreground">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
+          <h1 className="text-[1.75rem] leading-tight font-bold tracking-tight">
             {t('invoices:header:name')}
           </h1>
           <p className="text-sm text-muted-foreground">
@@ -214,10 +214,7 @@ export default function Invoices() {
       </div>
 
       <Tabs value={tab} onValueChange={setTab}>
-        <TabsList
-          variant="line"
-          className="h-auto w-full flex-wrap justify-start"
-        >
+        <TabsList className="h-auto flex-wrap justify-start">
           {INVOICE_TABS.map(key => (
             <TabsTrigger key={key} value={key}>
               {t(`invoices:tabs:${key}`)}

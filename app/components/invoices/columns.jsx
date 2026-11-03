@@ -12,7 +12,7 @@ import StatusBadge from './StatusBadge';
 const columnHelper = createColumnHelper();
 
 const sortHeaderClass =
-  'inline-flex min-h-6 items-center gap-1 bg-transparent text-foreground shadow-none';
+  'inline-flex min-h-6 items-center gap-1 bg-transparent text-muted-foreground shadow-none transition-colors hover:text-foreground';
 
 export function getColumns({
   t,
@@ -26,7 +26,7 @@ export function getColumns({
       id: 'select',
       header: ({ table }) => (
         <Checkbox
-          className="size-6"
+          className="size-4.5"
           aria-label={t('invoices:columns:selectAll')}
           checked={table.getIsAllRowsSelected()}
           indeterminate={
@@ -38,7 +38,7 @@ export function getColumns({
       cell: ({ row }) => (
         <div onClick={event => event.stopPropagation()} role="presentation">
           <Checkbox
-            className="size-6"
+            className="size-4.5"
             aria-label={t('invoices:columns:select', {
               number: row.original.number,
             })}
@@ -149,7 +149,7 @@ export function getColumns({
           : null;
         return (
           <div className="text-end">
-            <span className="tabular-nums">{amountText}</span>
+            <span className="font-medium tabular-nums">{amountText}</span>
             {showBalance ? (
               <div className="text-xs text-muted-foreground tabular-nums">
                 {t('invoices:payments:balanceShort', { amount: balanceLabel })}

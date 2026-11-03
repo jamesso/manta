@@ -49,5 +49,19 @@
       "pdf": "Preview and export PDF"
     },
     "pdfHint": "Create an invoice first"
+  },
+  "greeting": {
+    "morning": "Good morning",
+    "afternoon": "Good afternoon",
+    "evening": "Good evening",
+    "lead": "{{greeting}}, you have",
+    "and": "and",
+    "clear": "{{greeting}}. You are all caught up — nothing is overdue.",
+    "overdue_one": "{{count}} overdue invoice",
+    "overdue_other": "{{count}} overdue invoices",
+    "outstanding_one": "{{count}} awaiting payment",
+    "outstanding_other": "{{count}} awaiting payment",
+    "drafts_one": "{{count}} draft",
+    "drafts_other": "{{count}} drafts"
   }
 }

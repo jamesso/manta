@@ -147,10 +147,10 @@ export default function Viewer() {
   return (
     <div
       dir={i18n.dir(UILang)}
-      className="flex h-screen flex-col bg-background text-foreground"
+      className="flex h-screen flex-col bg-sidebar text-foreground"
     >
-      <header className="titlebar titlebar-inset titlebar-mac-traffic drag-region flex h-10 shrink-0 items-center gap-2 border-b bg-background text-foreground">
-        <h1 className="truncate text-sm font-medium text-foreground">
+      <header className="titlebar titlebar-inset titlebar-mac-traffic drag-region flex h-12 shrink-0 items-center gap-2 bg-sidebar text-foreground">
+        <h1 className="truncate text-sm font-semibold text-foreground">
           {title}
         </h1>
       </header>

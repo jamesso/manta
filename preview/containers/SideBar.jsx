@@ -79,7 +79,7 @@ export default function SideBar({
   const emailable = canEmail(invoice);
 
   return (
-    <aside className="flex w-72 shrink-0 flex-col border-e bg-sidebar text-sidebar-foreground">
+    <aside className="flex w-72 shrink-0 flex-col bg-sidebar text-sidebar-foreground">
       <div className="flex-1 space-y-6 overflow-y-auto p-4">
         <Template
           t={t}

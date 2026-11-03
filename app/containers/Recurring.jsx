@@ -41,9 +41,11 @@ export default function Recurring() {
   );
 
   return (
-    <div className="flex h-full flex-col gap-4 p-4 text-foreground">
+    <div className="flex h-full flex-col gap-5 px-8 pt-7 pb-8 text-foreground">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold">{t('recurring:header:name')}</h1>
+        <h1 className="text-[1.75rem] leading-tight font-bold tracking-tight">
+          {t('recurring:header:name')}
+        </h1>
         {sorted.length > 0 ? (
           <Button type="button" onClick={openNewTemplate}>
             <Plus className="size-4" />

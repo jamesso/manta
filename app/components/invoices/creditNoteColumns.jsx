@@ -8,7 +8,7 @@ import StatusBadge from './StatusBadge';
 const columnHelper = createColumnHelper();
 
 const sortHeaderClass =
-  'inline-flex min-h-6 items-center gap-1 bg-transparent text-foreground shadow-none';
+  'inline-flex min-h-6 items-center gap-1 bg-transparent text-muted-foreground shadow-none transition-colors hover:text-foreground';
 
 export function getCreditNoteColumns({
   t,

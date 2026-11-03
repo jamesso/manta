@@ -46,9 +46,11 @@ export default function EditorLayout() {
       : null;
   return (
     <div className="@container flex h-full min-h-0 flex-col text-foreground">
-      <header className="flex flex-wrap items-center justify-between gap-3 border-b p-4">
+      <header className="flex flex-wrap items-end justify-between gap-3 border-b px-8 pt-7 pb-5">
         <div>
-          <h1 className="text-xl font-semibold">{heading}</h1>
+          <h1 className="text-[1.75rem] leading-tight font-bold tracking-tight">
+            {heading}
+          </h1>
           {sourceEstimate ? (
             <p className="text-sm text-muted-foreground">
               {t('form:convertedFrom', {

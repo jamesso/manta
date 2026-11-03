@@ -47,7 +47,7 @@ export default function KpiCards({ stats, currencyCode, hasInvoices }) {
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {cards.map(card => (
         <Card key={card.key}>
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-1">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               {card.overdue ? (
                 <span className="inline-flex items-center gap-1.5 text-status-overdue">
@@ -61,12 +61,12 @@ export default function KpiCards({ stats, currencyCode, hasInvoices }) {
           </CardHeader>
           <CardContent>
             {card.draftCount ? (
-              <p className="text-2xl font-semibold tabular-nums text-foreground">
+              <p className="text-[1.625rem] leading-tight font-bold tracking-tight tabular-nums text-foreground">
                 {!hasInvoices ? '—' : card.sub}
               </p>
             ) : (
               <>
-                <p className="text-2xl font-semibold tabular-nums text-foreground">
+                <p className="text-[1.625rem] leading-tight font-bold tracking-tight tabular-nums text-foreground">
                   {!hasInvoices || card.amount == null
                     ? '—'
                     : formatMoney(card.amount, currency)}

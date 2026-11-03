@@ -119,15 +119,15 @@ function App() {
       <SidebarProvider
         open={open}
         onOpenChange={onOpenChange}
-        className="h-svh overflow-hidden"
+        className="h-svh flex-col overflow-hidden bg-sidebar"
       >
-        <AppSidebar activeTab={activeTab} />
-        <SidebarInset className="min-w-0 overflow-hidden">
-          <TitleBar activeTab={activeTab} />
-          <div className="min-h-0 flex-1">
+        <TitleBar />
+        <div className="flex min-h-0 flex-1">
+          <AppSidebar activeTab={activeTab} />
+          <SidebarInset className="m-2 mt-0 min-w-0 overflow-hidden rounded-2xl shadow-panel md:peer-data-[variant=inset]:mt-0 md:peer-data-[variant=inset]:rounded-2xl md:peer-data-[variant=inset]:shadow-panel">
             <AppMain activeTab={activeTab} />
-          </div>
-        </SidebarInset>
+          </SidebarInset>
+        </div>
         <CommandPalette />
         <ShortcutsDialog />
       </SidebarProvider>

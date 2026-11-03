@@ -5,7 +5,7 @@ import { exportKey } from '../../helpers/einvoice/exportKey.js';
 export default function MainContent({ t, invoice, configs, profile, UILang }) {
   const key = invoice._id ? exportKey(invoice, profile, configs) : '';
   return (
-    <main className="min-w-0 flex-1 overflow-auto bg-muted/40 pt-8 pb-8">
+    <main className="m-2 mt-0 min-w-0 flex-1 overflow-auto rounded-2xl bg-background pt-8 pb-8 shadow-panel">
       {invoice._id ? (
         <div
           className="print-area"

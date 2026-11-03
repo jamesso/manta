@@ -54,9 +54,9 @@ export default function Items() {
     query.trim() === '';
 
   return (
-    <div className="flex h-full flex-col gap-4 p-4 text-foreground">
+    <div className="flex h-full flex-col gap-5 px-8 pt-7 pb-8 text-foreground">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold">
+        <h1 className="text-[1.75rem] leading-tight font-bold tracking-tight">
           {t('items:header')}
           {!showEmptyNone ? (
             <span className="ms-2 text-base font-normal text-muted-foreground">

@@ -13,7 +13,10 @@
     "businessProfile": "Business profile",
     "shortcuts": "Keyboard shortcuts",
     "tutorial": "Show tutorial",
-    "learnMore": "Learn more"
+    "learnMore": "Learn more",
+    "toggleSidebar": "Toggle sidebar",
+    "searchPlaceholder": "Search, or jump to anything…",
+    "library": "Library"
   },
   "titles": {
     "newInvoice": "New invoice",

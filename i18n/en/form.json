@@ -1,7 +1,7 @@
 {
   "header": {
-    "new": "Create A New Invoice",
-    "edit": "Edit Invoice",
+    "new": "New invoice",
+    "edit": "Edit invoice",
     "newEstimate": "New estimate",
     "editEstimate": "Edit estimate",
     "newCreditNote": "New credit note",

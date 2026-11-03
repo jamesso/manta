@@ -1,7 +1,9 @@
 // Libraries
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { X } from 'lucide-react';
+import { ImageUp, Trash2 } from 'lucide-react';
+import { withTranslation } from 'react-i18next';
+import { Button } from '@/components/ui/button';
 
 // Helpers
 import { processImg } from '../../../../helpers/image';
@@ -27,7 +29,7 @@ class Logo extends Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    return this.props.logo !== nextProps.logo;
+    return this.props.logo !== nextProps.logo || this.props.t !== nextProps.t;
   }
 
   componentWillUnmount() {
@@ -53,39 +55,47 @@ class Logo extends Component {
   }
 
   render() {
+    const { logo, t } = this.props;
     return (
-      <div className="relative flex size-[200px] items-center justify-center rounded border border-black/10 p-5">
-        {this.props.logo ? (
-          <div className="flex max-h-40 max-w-40">
+      <div className="flex items-center gap-4">
+        <div className="flex size-28 shrink-0 items-center justify-center overflow-hidden rounded-2xl border bg-card p-3 shadow-xs">
+          {logo ? (
             <img
-              src={this.props.logo}
+              src={logo}
               alt="Logo"
-              className="h-auto w-full max-w-[180px]"
+              className="max-h-full max-w-full object-contain"
             />
-          </div>
-        ) : (
-          <div className="flex h-full w-full flex-col">
-            <TargetBox onDrop={this.handleFileDrop} />
-          </div>
-        )}
-        {this.props.logo ? (
-          <button
+          ) : (
+            <TargetBox
+              onDrop={this.handleFileDrop}
+              label={t('settings:logo:drop')}
+            />
+          )}
+        </div>
+        <div className="flex flex-col items-start gap-2">
+          <Button
             type="button"
-            onClick={this.removeLogo}
-            aria-label="Remove logo"
-            className="absolute -top-4 -end-4 cursor-pointer text-[#ec476e]"
-          >
-            <X aria-hidden="true" className="size-8" />
-          </button>
-        ) : (
-          <button
-            type="button"
+            variant="outline"
+            size="sm"
             onClick={this.selectLogo}
-            className="absolute bottom-5 w-4/5 cursor-pointer rounded bg-[#469fe5] px-2 py-1 text-center text-xs tracking-wide text-white uppercase"
           >
-            Or Select Photo
-          </button>
-        )}
+            <ImageUp />
+            {logo ? t('settings:logo:replace') : t('settings:logo:choose')}
+          </Button>
+          {logo ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={this.removeLogo}
+              aria-label={t('settings:logo:remove')}
+              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+            >
+              <Trash2 />
+              {t('settings:logo:remove')}
+            </Button>
+          ) : null}
+        </div>
       </div>
     );
   }
@@ -94,10 +104,11 @@ class Logo extends Component {
 Logo.propTypes = {
   handleLogoChange: PropTypes.func.isRequired,
   logo: PropTypes.string,
+  t: PropTypes.func.isRequired,
 };
 
 Logo.defaultProps = {
   logo: null,
 };
 
-export default Logo;
+export default withTranslation()(Logo);

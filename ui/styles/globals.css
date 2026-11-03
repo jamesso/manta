@@ -2,11 +2,12 @@
 
 /* Layer order: later wins. Unlayered CSS (styled-components, preview CSS)
    beats every layer. */
-@layer theme, base, paper, components, utilities;
+@layer theme, preflight, base, paper, components, utilities;
 
-/* Tailwind, split so that Preflight is one line (decision in Step 12).
-   Preflight stays off. */
+/* Tailwind, split so that Preflight can be scoped. Preflight applies to the
+   app UI only, not to the invoice paper (see preflight-scoped.css). */
 @import 'tailwindcss/theme.css' layer(theme);
+@import './preflight-scoped.css' layer(preflight);
 @import 'tailwindcss/utilities.css' layer(utilities) source(none);
 @import './paper.css' layer(paper);
 
@@ -64,6 +65,8 @@
 
   /* Manta */
   --color-brand: var(--brand);
+  --color-link: var(--link);
+  --shadow-panel: var(--panel-shadow);
   --color-status-draft: var(--status-draft);
   --color-status-draft-bg: var(--status-draft-bg);
   --color-status-pending: var(--status-pending);
@@ -80,113 +83,121 @@
   --color-status-cancelled-bg: var(--status-cancelled-bg);
 }
 
+/* Surfaces. The window chrome (--sidebar) is a step darker than the panel
+   (--background) that holds the page, like a native macOS app. Keep the
+   chrome colors equal to WINDOW_BACKGROUND in main/theme.js. */
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  --background: oklch(0.993 0.001 84);
+  --foreground: oklch(0.2 0.004 286);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: oklch(0.2 0.004 286);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
+  --popover-foreground: oklch(0.2 0.004 286);
+  --primary: oklch(0.23 0.004 286);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.955 0.002 84);
+  --secondary-foreground: oklch(0.23 0.004 286);
+  --muted: oklch(0.962 0.002 84);
+  --muted-foreground: oklch(0.53 0.006 286);
+  --accent: oklch(0.948 0.002 84);
+  --accent-foreground: oklch(0.2 0.004 286);
+  --destructive: oklch(0.577 0.215 27.3);
+  --border: oklch(0.917 0.003 84);
+  --input: oklch(0.89 0.003 84);
+  --ring: oklch(0.6 0.134 245.5);
+  --chart-1: oklch(0.6 0.134 245.5);
+  --chart-2: oklch(0.65 0.13 155);
+  --chart-3: oklch(0.72 0.14 70);
+  --chart-4: oklch(0.6 0.15 295);
+  --chart-5: oklch(0.63 0.18 25);
+  --sidebar: oklch(0.958 0.002 84);
+  --sidebar-foreground: oklch(0.32 0.004 286);
+  --sidebar-primary: oklch(0.23 0.004 286);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.915 0.003 84);
+  --sidebar-accent-foreground: oklch(0.18 0.004 286);
+  --sidebar-border: oklch(0.905 0.003 84);
+  --sidebar-ring: oklch(0.6 0.134 245.5);
 
-  /* Manta: primary = Manta blue, darkened for white text (4.81:1) */
-  --primary: oklch(0.55 0.134 245.5);
-  --primary-foreground: oklch(1 0 0);
-  --ring: oklch(0.55 0.134 245.5);
-  --sidebar-primary: oklch(0.55 0.134 245.5);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-ring: oklch(0.55 0.134 245.5);
-  --brand: oklch(0.68 0.134 245.45); /* #469fe5, decoration only */
+  /* Manta blue #469fe5. Brand marks, links and active icons. */
+  --brand: oklch(0.68 0.134 245.45);
+  /* Same hue, dark enough for text on the panel (4.6:1). */
+  --link: oklch(0.52 0.134 245.5);
+  --panel-shadow:
+    0 0 0 1px oklch(0 0 0 / 4%), 0 1px 2px oklch(0 0 0 / 4%),
+    0 4px 16px -4px oklch(0 0 0 / 6%);
 
-  /* Manta: status badges. Text color / badge background. */
+  /* Status badges. Text color / badge background. */
   --status-draft: oklch(0.45 0.03 250);
-  --status-draft-bg: oklch(0.955 0.01 250);
-  --status-pending: oklch(0.45 0.117 70);
-  --status-pending-bg: oklch(0.955 0.035 70);
+  --status-draft-bg: oklch(0.945 0.01 250);
+  --status-pending: oklch(0.47 0.117 70);
+  --status-pending-bg: oklch(0.95 0.045 80);
   --status-partial: oklch(0.45 0.07 215);
-  --status-partial-bg: oklch(0.955 0.025 215);
-  --status-overdue: oklch(0.45 0.144 25);
-  --status-overdue-bg: oklch(0.955 0.035 25);
+  --status-partial-bg: oklch(0.945 0.03 215);
+  --status-overdue: oklch(0.5 0.17 27);
+  --status-overdue-bg: oklch(0.945 0.035 25);
   --status-paid: oklch(0.45 0.117 150);
-  --status-paid-bg: oklch(0.955 0.035 150);
+  --status-paid-bg: oklch(0.945 0.045 150);
   --status-refunded: oklch(0.45 0.117 295);
-  --status-refunded-bg: oklch(0.955 0.035 295);
+  --status-refunded-bg: oklch(0.945 0.035 295);
   --status-cancelled: oklch(0.45 0 0);
-  --status-cancelled-bg: oklch(0.955 0 0);
+  --status-cancelled-bg: oklch(0.945 0 0);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.488 0.243 264.376);
-    --chart-2: oklch(0.696 0.17 162.48);
-    --chart-3: oklch(0.769 0.188 70.08);
-    --chart-4: oklch(0.627 0.265 303.9);
-    --chart-5: oklch(0.645 0.246 16.439);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
-
-    /* Manta */
-    --primary: oklch(0.68 0.134 245.45);
-    --primary-foreground: oklch(0.145 0 0);
+    --background: oklch(0.215 0.004 286);
+    --foreground: oklch(0.965 0 0);
+    --card: oklch(0.245 0.004 286);
+    --card-foreground: oklch(0.965 0 0);
+    --popover: oklch(0.25 0.004 286);
+    --popover-foreground: oklch(0.965 0 0);
+    --primary: oklch(0.955 0 0);
+    --primary-foreground: oklch(0.2 0.004 286);
+    --secondary: oklch(0.275 0.004 286);
+    --secondary-foreground: oklch(0.965 0 0);
+    --muted: oklch(0.255 0.004 286);
+    --muted-foreground: oklch(0.7 0.005 286);
+    --accent: oklch(0.29 0.004 286);
+    --accent-foreground: oklch(0.965 0 0);
+    --destructive: oklch(0.704 0.191 22.2);
+    --border: oklch(1 0 0 / 8%);
+    --input: oklch(1 0 0 / 13%);
     --ring: oklch(0.68 0.134 245.45);
-    --sidebar-primary: oklch(0.68 0.134 245.45);
-    --sidebar-primary-foreground: oklch(0.145 0 0);
+    --chart-1: oklch(0.68 0.134 245.45);
+    --chart-2: oklch(0.72 0.14 155);
+    --chart-3: oklch(0.8 0.14 75);
+    --chart-4: oklch(0.7 0.15 295);
+    --chart-5: oklch(0.7 0.17 25);
+    --sidebar: oklch(0.155 0.003 286);
+    --sidebar-foreground: oklch(0.78 0.004 286);
+    --sidebar-primary: oklch(0.955 0 0);
+    --sidebar-primary-foreground: oklch(0.2 0.004 286);
+    --sidebar-accent: oklch(0.255 0.004 286);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(1 0 0 / 8%);
     --sidebar-ring: oklch(0.68 0.134 245.45);
+
     --brand: oklch(0.68 0.134 245.45);
+    --link: oklch(0.74 0.12 245.45);
+    --panel-shadow:
+      0 0 0 1px oklch(1 0 0 / 6%), 0 8px 24px -8px oklch(0 0 0 / 50%);
 
     --status-draft: oklch(0.86 0.02 250);
-    --status-draft-bg: oklch(0.29 0.01 250);
-    --status-pending: oklch(0.86 0.078 70);
-    --status-pending-bg: oklch(0.29 0.06 70);
+    --status-draft-bg: oklch(0.3 0.015 250);
+    --status-pending: oklch(0.86 0.1 75);
+    --status-pending-bg: oklch(0.31 0.06 70);
     --status-partial: oklch(0.86 0.07 215);
-    --status-partial-bg: oklch(0.29 0.045 215);
-    --status-overdue: oklch(0.86 0.096 25);
-    --status-overdue-bg: oklch(0.29 0.06 25);
-    --status-paid: oklch(0.86 0.078 150);
-    --status-paid-bg: oklch(0.29 0.06 150);
+    --status-partial-bg: oklch(0.3 0.045 215);
+    --status-overdue: oklch(0.82 0.11 25);
+    --status-overdue-bg: oklch(0.31 0.07 25);
+    --status-paid: oklch(0.86 0.09 150);
+    --status-paid-bg: oklch(0.3 0.06 150);
     --status-refunded: oklch(0.86 0.078 295);
-    --status-refunded-bg: oklch(0.29 0.06 295);
-    --status-cancelled: oklch(0.86 0 0);
-    --status-cancelled-bg: oklch(0.29 0 0);
+    --status-refunded-bg: oklch(0.3 0.06 295);
+    --status-cancelled: oklch(0.82 0 0);
+    --status-cancelled-bg: oklch(0.3 0 0);
   }
 }
 
@@ -202,8 +213,13 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background font-sans text-foreground;
     margin: 0;
   }
   /* Old screens: no ring after a mouse click. This replaces the removed
@@ -236,15 +252,8 @@
         0.5rem
     );
   }
+  /* The top bar spans the full window. Leave room for the traffic lights. */
   html[data-platform='darwin'] .titlebar-mac-traffic {
-    @media (max-width: 899px) {
-      padding-left: 88px;
-    }
-  }
-  /* Do not use the px-2 class here. Bootstrap defines it with !important. */
-  html[data-platform='darwin']
-    [data-slot='sidebar-wrapper']:has([data-state='collapsed'])
-    .titlebar-inset {
-    padding-left: 2.5rem;
+    padding-left: 84px;
   }
 }

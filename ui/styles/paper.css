@@ -10,7 +10,8 @@
 
 /* Invoice paper. Reproduces the Bootstrap 4 reboot rules the templates relied on.
    Layer `paper` beats Tailwind base; unlayered styled-components still beat it.
-   Preflight stays off, so this file does not revert Preflight rules. */
+   Preflight is scoped away from .paper and .print-area (preflight-scoped.css),
+   so this file does not revert Preflight rules. */
 .paper {
   position: relative;
   display: flex;

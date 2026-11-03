@@ -1,18 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-const style = {
-  flex: '1',
-  background: '#F9FAFA',
-  border: '2px dashed #469FE5',
-  borderRadius: '4px',
-  marginBottom: '20px',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  margin: '-20px',
-};
-
 class TargetBox extends Component {
   constructor(props) {
     super(props);
@@ -41,17 +29,18 @@ class TargetBox extends Component {
   render() {
     return (
       <div
-        style={style}
+        data-over={this.state.isOver || undefined}
+        className="-m-3 flex size-[calc(100%+1.5rem)] items-center justify-center rounded-2xl border-2 border-dashed border-border p-3 text-center text-xs text-muted-foreground transition-colors data-over:border-brand data-over:bg-brand/10 data-over:text-foreground"
         onDragOver={this.onDragOver}
         onDragLeave={this.onDragLeave}
         onDrop={this.onDrop}
       >
-        {this.state.isOver ? 'Release to drop' : 'Drag file here'}
+        {this.props.label}
       </div>
     );
   }
 }
 
-TargetBox.propTypes = { onDrop: PropTypes.func };
+TargetBox.propTypes = { onDrop: PropTypes.func, label: PropTypes.string };
 
 export default TargetBox;

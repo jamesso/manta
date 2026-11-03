@@ -2,8 +2,8 @@
 // follows it through the prefers-color-scheme media query.
 export const THEMES = ['system', 'light', 'dark'];
 
-// Same values as --background in ui/styles/globals.css.
-export const WINDOW_BACKGROUND = { light: '#ffffff', dark: '#0a0a0a' };
+// Same values as --sidebar (window chrome) in ui/styles/globals.css.
+export const WINDOW_BACKGROUND = { light: '#f2f1f0', dark: '#0c0c0d' };
 
 export function normalizeTheme(value) {
   return THEMES.includes(value) ? value : 'system';
@@ -30,7 +30,7 @@ export function setupTheme({ nativeTheme, ipcMain, BrowserWindow, store }) {
   });
 }
 
-export const TITLEBAR_HEIGHT = 40;
+export const TITLEBAR_HEIGHT = 48;
 const TITLEBAR_SYMBOL = { light: '#0a0a0a', dark: '#fafafa' };
 
 export function titleBarOverlayFor(nativeTheme) {
@@ -46,7 +46,7 @@ export function titleBarOptions(platform, nativeTheme) {
   if (platform === 'darwin') {
     return {
       titleBarStyle: 'hiddenInset',
-      trafficLightPosition: { x: 14, y: 13 },
+      trafficLightPosition: { x: 18, y: 17 },
     };
   }
   return {

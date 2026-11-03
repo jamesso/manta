@@ -106,7 +106,7 @@ test('fresh profile opens main window on Dashboard with the checklist', async ()
   }
   expect(page).toBeTruthy();
   await expect(
-    page.locator('h1.text-2xl', { hasText: 'Dashboard' })
+    page.getByRole('heading', { level: 1, name: 'Dashboard' })
   ).toBeVisible();
   await expect(
     page.getByRole('list', { name: 'Setup steps' }).getByRole('listitem')
@@ -191,7 +191,7 @@ test('theme setting reaches Manta and Previewer', async () => {
         )
         .toBe(theme === 'dark');
     }
-    const expected = theme === 'dark' ? '#0a0a0a' : '#ffffff';
+    const expected = theme === 'dark' ? '#0c0c0d' : '#f2f1f0';
     await expect
       .poll(async () => {
         const colors = await app.evaluate(({ BrowserWindow }) =>
@@ -237,7 +237,7 @@ test('sidebar shows labels and Ctrl/Cmd+K opens the command palette', async () =
     .getByRole('button', { name: 'Dashboard', exact: true })
     .click();
   await expect(
-    page.locator('h1.text-2xl', { hasText: 'Dashboard' })
+    page.getByRole('heading', { level: 1, name: 'Dashboard' })
   ).toBeVisible();
   const sidebarNav = page.locator('[data-slot="sidebar"]');
   await expect(
@@ -255,7 +255,7 @@ test('sidebar shows labels and Ctrl/Cmd+K opens the command palette', async () =
   await palette.getByRole('option', { name: 'Clients' }).click();
   await expect(palette).toBeHidden();
   await expect(
-    page.locator('h1.text-2xl', { hasText: 'Clients' })
+    page.getByRole('heading', { level: 1, name: 'Clients' })
   ).toBeVisible();
 });
 
@@ -285,7 +285,7 @@ test('recurring profile starting today creates one draft and resume does not dup
   const sidebar = page.locator('[data-slot="sidebar"]');
   await sidebar.getByRole('button', { name: 'Recurring', exact: true }).click();
   await expect(
-    page.locator('h1.text-2xl', { hasText: 'Recurring' })
+    page.getByRole('heading', { level: 1, name: 'Recurring' })
   ).toBeVisible({ timeout: 15_000 });
   await page.screenshot({
     path: '/tmp/manta-024-screens/recurring-empty-light.png',
@@ -337,9 +337,10 @@ test('recurring profile starting today creates one draft and resume does not dup
   await page
     .getByRole('button', { name: 'Save template', exact: true })
     .click();
-  await expect(
-    page.locator('h1.text-2xl', { hasText: 'Recurring' })
-  ).toBeVisible({ timeout: 15_000 });
+  // The detail sheet opens at once and hides the page from the a11y tree.
+  await expect(page.locator('h1', { hasText: 'Recurring' })).toBeVisible({
+    timeout: 15_000,
+  });
 
   const sheet = page.locator('[data-slot="sheet-content"]');
   await expect(sheet).toBeVisible({ timeout: 15_000 });
@@ -357,7 +358,7 @@ test('recurring profile starting today creates one draft and resume does not dup
 
   await page.getByRole('button', { name: 'View drafts', exact: true }).click();
   await expect(
-    page.locator('h1.text-2xl', { hasText: 'Invoices' })
+    page.getByRole('heading', { level: 1, name: 'Invoices' })
   ).toBeVisible();
   await expect(page.getByText('No number yet')).toBeVisible({
     timeout: 20_000,
