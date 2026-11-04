@@ -122,7 +122,10 @@ export function getEInvoiceIssues(model, { format, invoice, derived } = {}) {
     }
   }
 
-  if (hasCategory(rows, 'O') && rows.some(r => (r.taxCategory ?? 'S') !== 'O')) {
+  if (
+    hasCategory(rows, 'O') &&
+    rows.some(r => (r.taxCategory ?? 'S') !== 'O')
+  ) {
     push(issues, {
       code: 'OUT_OF_SCOPE_MIXED',
       severity: 'error',
@@ -134,7 +137,10 @@ export function getEInvoiceIssues(model, { format, invoice, derived } = {}) {
 
   for (const g of totals?.taxBreakdown ?? []) {
     const cat = g.category ?? 'S';
-    if (['E', 'AE', 'G', 'O'].includes(cat) && !String(g.exemptionReason ?? '').trim()) {
+    if (
+      ['E', 'AE', 'G', 'O'].includes(cat) &&
+      !String(g.exemptionReason ?? '').trim()
+    ) {
       push(issues, {
         code: 'EXEMPTION_REASON_MISSING',
         severity: 'error',
@@ -156,11 +162,7 @@ export function getEInvoiceIssues(model, { format, invoice, derived } = {}) {
   }
 
   const sAddr = model.seller?.address ?? {};
-  if (
-    !trim(sAddr.street) ||
-    !trim(sAddr.postcode) ||
-    !trim(sAddr.city)
-  ) {
+  if (!trim(sAddr.street) || !trim(sAddr.postcode) || !trim(sAddr.city)) {
     push(issues, {
       code: 'SELLER_ADDRESS_INCOMPLETE',
       severity: 'error',
@@ -264,11 +266,7 @@ export function getEInvoiceIssues(model, { format, invoice, derived } = {}) {
   }
 
   const payable = model.totals?.payable ?? 0;
-  if (
-    model.typeCode === '380' &&
-    payable > 0 &&
-    !model.dueDate
-  ) {
+  if (model.typeCode === '380' && payable > 0 && !model.dueDate) {
     push(issues, {
       code: 'DUE_DATE_MISSING',
       severity: 'error',
@@ -309,7 +307,15 @@ export function getEInvoiceIssues(model, { format, invoice, derived } = {}) {
     });
   }
 
-  if (isXrechnung && !trim(model.buyerReference)) {
+  if (isXrechnung && model.buyerReferenceOff) {
+    push(issues, {
+      code: 'BUYER_REFERENCE_OFF',
+      severity: 'error',
+      rule: 'BR-DE-15',
+      field: 'buyerReference',
+      fix: 'invoice',
+    });
+  } else if (isXrechnung && !trim(model.buyerReference)) {
     push(issues, {
       code: 'BUYER_REFERENCE_MISSING',
       severity: 'error',
@@ -341,7 +347,10 @@ export function getEInvoiceIssues(model, { format, invoice, derived } = {}) {
         fix: 'profile',
       });
     }
-    if (!trim(model.seller?.electronicAddress) || !trim(model.buyer?.electronicAddress)) {
+    if (
+      !trim(model.seller?.electronicAddress) ||
+      !trim(model.buyer?.electronicAddress)
+    ) {
       push(issues, {
         code: 'ELECTRONIC_ADDRESS_MISSING',
         severity: 'error',

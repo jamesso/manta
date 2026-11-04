@@ -36,7 +36,9 @@ function baseModel(overrides = {}) {
     },
     payment: { iban: 'DE89370400440532013000', bic: 'COBADEFFXXX' },
     lines: [{ net: 100, taxCategory: 'S', taxRate: 19 }],
-    vatBreakdown: [{ base: 100, amount: 19, category: 'S', rate: 19, exemptionReason: '' }],
+    vatBreakdown: [
+      { base: 100, amount: 19, category: 'S', rate: 19, exemptionReason: '' },
+    ],
     totals: {
       subtotal: 100,
       discount: 0,
@@ -123,6 +125,23 @@ describe('getEInvoiceIssues', () => {
     expect(fx.some(i => i.code === 'BUYER_REFERENCE_MISSING')).toBe(false);
   });
 
+  it('XRechnung asks to turn the buyer reference back on when it is off', () => {
+    const model = baseModel({ buyerReference: '', buyerReferenceOff: true });
+    const xr = getEInvoiceIssues(model, {
+      format: 'xrechnung-ubl',
+      invoice: baseInvoice(),
+      derived: baseDerived(),
+    });
+    const fx = getEInvoiceIssues(model, {
+      format: 'facturx-en16931',
+      invoice: baseInvoice(),
+      derived: baseDerived(),
+    });
+    expect(xr.find(i => i.code === 'BUYER_REFERENCE_OFF')?.fix).toBe('invoice');
+    expect(xr.some(i => i.code === 'BUYER_REFERENCE_MISSING')).toBe(false);
+    expect(fx.some(i => i.field === 'buyerReference')).toBe(false);
+  });
+
   it('buyer address severity differs by format', () => {
     const model = baseModel({
       buyer: {
@@ -148,7 +167,15 @@ describe('getEInvoiceIssues', () => {
 
   it('detects arithmetic mismatch on tax amount', () => {
     const model = baseModel({
-      vatBreakdown: [{ base: 100, amount: 18.99, category: 'S', rate: 19, exemptionReason: '' }],
+      vatBreakdown: [
+        {
+          base: 100,
+          amount: 18.99,
+          category: 'S',
+          rate: 19,
+          exemptionReason: '',
+        },
+      ],
       totals: {
         subtotal: 100,
         discount: 0,

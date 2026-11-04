@@ -77,3 +77,12 @@ export function leitwegCheck(s) {
   }
   return 'ok';
 }
+
+// The buyer reference (Leitweg-ID) is an e-invoice field: it is on only when
+// e-invoicing is on and its own switch is not off (missing means on).
+export function isBuyerReferenceOn(invoiceSettings) {
+  return (
+    invoiceSettings?.eInvoice?.enabled === true &&
+    invoiceSettings?.useBuyerReference !== false
+  );
+}

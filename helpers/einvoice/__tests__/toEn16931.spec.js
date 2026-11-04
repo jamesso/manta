@@ -16,7 +16,11 @@ const profile = {
     city: 'Berlin',
     countryCode: 'DE',
   },
-  bank: { iban: 'DE89370400440532013000', bic: 'COBADEFFXXX', accountName: 'Co' },
+  bank: {
+    iban: 'DE89370400440532013000',
+    bic: 'COBADEFFXXX',
+    accountName: 'Co',
+  },
 };
 
 const settings = { profile, invoice: {} };
@@ -35,7 +39,16 @@ function derived(overrides = {}) {
       taxTotal: 19,
       grandTotal: 119,
       lines: [{ net: 100 }],
-      taxBreakdown: [{ key: 'S-19', category: 'S', rate: 19, base: 100, amount: 19, exemptionReason: '' }],
+      taxBreakdown: [
+        {
+          key: 'S-19',
+          category: 'S',
+          rate: 19,
+          base: 100,
+          amount: 19,
+          exemptionReason: '',
+        },
+      ],
     },
     seller: { taxId: 'T1', vatId: 'DE123456789' },
     preceding: null,
@@ -75,7 +88,15 @@ describe('toEn16931', () => {
       invoiceID: ' INV-1 ',
       currency: { code: 'EUR' },
       recipient: { company: 'Buyer', fullname: 'Person', email: 'b@c.de' },
-      rows: [{ price: 100, quantity: 1, taxCategory: 'S', taxRate: 19, description: 'Work' }],
+      rows: [
+        {
+          price: 100,
+          quantity: 1,
+          taxCategory: 'S',
+          taxRate: 19,
+          description: 'Work',
+        },
+      ],
     };
     const model = toEn16931(invoice, settings, derived());
     expect(model.number).toBe('INV-1');
@@ -103,7 +124,15 @@ describe('toEn16931', () => {
         taxTotal: 5.7,
         grandTotal: 35.69,
         lines: [{ net: 29.99 }],
-        taxBreakdown: [{ category: 'S', rate: 19, base: 29.99, amount: 5.7, exemptionReason: '' }],
+        taxBreakdown: [
+          {
+            category: 'S',
+            rate: 19,
+            base: 29.99,
+            amount: 5.7,
+            exemptionReason: '',
+          },
+        ],
       },
     });
     const model = toEn16931(invoice, settings, d);
@@ -119,7 +148,13 @@ describe('toEn16931', () => {
       rows: [
         { price: 100, quantity: 1, taxRate: 19, taxCategory: 'S' },
         { price: 50, quantity: 1, taxRate: 7, taxCategory: 'S' },
-        { price: 30, quantity: 1, taxRate: 0, taxCategory: 'E', taxExemptionReason: 'Exempt' },
+        {
+          price: 30,
+          quantity: 1,
+          taxRate: 0,
+          taxCategory: 'E',
+          taxExemptionReason: 'Exempt',
+        },
       ],
     };
     const totals = getInvoiceTotals(doc);
@@ -243,7 +278,15 @@ describe('toEn16931', () => {
       invoiceID: 'O1',
       currency: { code: 'EUR' },
       recipient: { fullname: 'B', email: 'b@x.de', taxId: 'DE999' },
-      rows: [{ price: 10, quantity: 1, taxRate: 0, taxCategory: 'O', taxExemptionReason: 'Out' }],
+      rows: [
+        {
+          price: 10,
+          quantity: 1,
+          taxRate: 0,
+          taxCategory: 'O',
+          taxExemptionReason: 'Out',
+        },
+      ],
     };
     const model = toEn16931(
       invoice,
@@ -257,7 +300,13 @@ describe('toEn16931', () => {
           grandTotal: 10,
           lines: [{ net: 10 }],
           taxBreakdown: [
-            { category: 'O', rate: 0, base: 10, amount: 0, exemptionReason: 'Out' },
+            {
+              category: 'O',
+              rate: 0,
+              base: 10,
+              amount: 0,
+              exemptionReason: 'Out',
+            },
           ],
         },
       })
@@ -288,7 +337,15 @@ describe('toEn16931', () => {
           taxTotal: 9.5,
           grandTotal: 59.5,
           lines: [{ net: 50 }],
-          taxBreakdown: [{ category: 'S', rate: 19, base: 50, amount: 9.5, exemptionReason: '' }],
+          taxBreakdown: [
+            {
+              category: 'S',
+              rate: 19,
+              base: 50,
+              amount: 9.5,
+              exemptionReason: '',
+            },
+          ],
         },
       })
     );
@@ -306,5 +363,37 @@ describe('toEn16931', () => {
     };
     const model = toEn16931(invoice, settings, derived());
     expect(model.buyer.contactName).toBe('Person');
+  });
+});
+
+describe('toEn16931 buyer reference setting', () => {
+  const invoice = {
+    invoiceID: 'X',
+    currency: { code: 'EUR' },
+    recipient: { fullname: 'B', buyerReference: '04011000-1234512345-06' },
+    rows: [{ price: 100, quantity: 1, taxCategory: 'S', taxRate: 19 }],
+  };
+
+  it('keeps the buyer reference when the switch is missing', () => {
+    const model = toEn16931(
+      invoice,
+      { profile, invoice: { eInvoice: { enabled: true } } },
+      derived()
+    );
+    expect(model.buyerReference).toBe('04011000-1234512345-06');
+    expect(model.buyerReferenceOff).toBe(false);
+  });
+
+  it('drops the buyer reference when the switch is off', () => {
+    const model = toEn16931(
+      invoice,
+      {
+        profile,
+        invoice: { eInvoice: { enabled: true }, useBuyerReference: false },
+      },
+      derived()
+    );
+    expect(model.buyerReference).toBe('');
+    expect(model.buyerReferenceOff).toBe(true);
   });
 });

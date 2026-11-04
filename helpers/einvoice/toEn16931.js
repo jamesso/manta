@@ -6,7 +6,7 @@ import {
   TYPE_CODE,
   VATEX_DEFAULTS,
 } from './codes.js';
-import { looksLikeVatId } from './identifiers.js';
+import { isBuyerReferenceOn, looksLikeVatId } from './identifiers.js';
 import { round2 } from './money.js';
 import { getSellerTaxIds } from '../../app/helpers/tax.js';
 
@@ -73,6 +73,7 @@ export function toEn16931(invoice, settings, derived) {
     r => (r.taxCategory ?? 'S') === 'O'
   );
   const sellerTax = sellerTaxIdentity(invoice, settings);
+  const buyerReferenceOn = isBuyerReferenceOn(settings?.invoice);
 
   const sellerName =
     trim(profile.legalName) || trim(profile.company) || trim(profile.fullname);
@@ -103,7 +104,12 @@ export function toEn16931(invoice, settings, derived) {
 
   const allowances = vatBreakdown
     .map(g => {
-      const lineSum = groupLineNetSum(invoice, g.category, g.rate, totals.lines);
+      const lineSum = groupLineNetSum(
+        invoice,
+        g.category,
+        g.rate,
+        totals.lines
+      );
       const amount = round2(lineSum - g.base);
       if (amount <= 0) {
         return null;
@@ -142,7 +148,8 @@ export function toEn16931(invoice, settings, derived) {
     typeCode,
     currency,
     note: trim(invoice.note),
-    buyerReference: trim(recipient.buyerReference),
+    buyerReference: buyerReferenceOn ? trim(recipient.buyerReference) : '',
+    buyerReferenceOff: !buyerReferenceOn,
     preceding: derived.preceding,
     seller: {
       name: sellerName,
