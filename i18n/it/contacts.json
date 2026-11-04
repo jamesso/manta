@@ -1,9 +1,73 @@
 {
-  "header": "Tutti i Contatti",
+  "header": "Clienti",
   "fields": {
     "contact": "Contatto",
     "email": "Email",
     "phone": "Telefono",
-    "actions": "Azioni"
+    "actions": "Azioni",
+    "nameCompany": "Nome / Azienda",
+    "invoices": "Fatture",
+    "outstanding": "Da incassare",
+    "taxId": "Codice fiscale / Partita IVA",
+    "buyerReference": "Riferimento acquirente (Leitweg-ID)",
+    "buyerReferenceHint": "Richiesto dagli enti pubblici tedeschi.",
+    "buyerReferenceWarning": "Le cifre di controllo di questa Leitweg-ID sembrano errate.",
+    "addressTitle": "Indirizzo"
+  },
+  "searchPlaceholder": "Filtra clienti…",
+  "newClient": "Nuovo cliente",
+  "empty": {
+    "title": "Ancora nessun cliente",
+    "description": "I clienti vengono salvati quando crei una fattura, oppure puoi aggiungerne uno ora.",
+    "noResultsFiltered": "Nessun cliente corrispondente"
+  },
+  "editor": {
+    "createTitle": "Nuovo cliente",
+    "editTitle": "Modifica cliente",
+    "hint": "Le modifiche si applicano alle nuove fatture. Le fatture esistenti mantengono i dati con cui sono state create.",
+    "fullname": "Nome e cognome",
+    "company": "Azienda",
+    "email": "Email",
+    "phone": "Telefono",
+    "save": "Salva"
+  },
+  "detail": {
+    "outstanding": "Da incassare",
+    "noInvoices": "Ancora nessuna fattura per questo cliente.",
+    "newInvoice": "Nuova fattura",
+    "edit": "Modifica"
+  },
+  "actions": {
+    "newInvoice": "Nuova fattura",
+    "edit": "Modifica",
+    "delete": "Elimina",
+    "menuLabel": "Azioni per {{name}}"
+  },
+  "toast": {
+    "deleted": "Cliente eliminato",
+    "deleted_one": "{{count}} cliente eliminato",
+    "deleted_many": "{{count}} clienti eliminati",
+    "deleted_other": "{{count}} clienti eliminati",
+    "undo": "Annulla",
+    "restored": "Cliente ripristinato",
+    "restored_one": "{{count}} cliente ripristinato",
+    "restored_many": "{{count}} clienti ripristinati",
+    "restored_other": "{{count}} clienti ripristinati",
+    "deleteFailed": "Impossibile eliminarne {{count}}"
+  },
+  "errors": {
+    "fullnameRequired": "Inserisci nome e cognome",
+    "emailRequired": "Inserisci un indirizzo email",
+    "emailInvalid": "Inserisci un indirizzo email valido",
+    "countryInvalid": "Scegli un codice paese valido"
+  },
+  "searchLabel": "Filtra clienti",
+  "count_one": "{{count}} cliente",
+  "count_many": "{{count}} clienti",
+  "count_other": "{{count}} clienti",
+  "balance": {
+    "outstanding": "Da incassare",
+    "settled": "Saldato",
+    "noInvoices": "Nessuna fattura"
   }
 }

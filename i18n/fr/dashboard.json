@@ -1,0 +1,70 @@
+{
+  "heading": "Tableau de bord",
+  "loading": "Chargement du tableau de bord…",
+  "kpi": {
+    "outstanding": "À encaisser",
+    "overdue": "En retard",
+    "paidThisMonth": "Payé ce mois-ci",
+    "creditedThisMonth": "Avoirs : −{{amount}}",
+    "drafts": "Brouillons",
+    "invoiceCount": "{{count}} factures"
+  },
+  "currency": {
+    "label": "Devise"
+  },
+  "chart": {
+    "paid": "Payé",
+    "title": "Paiements des 6 derniers mois",
+    "empty": "Aucun paiement au cours des 6 derniers mois"
+  },
+  "needsAttention": {
+    "title": "À traiter",
+    "empty": "Rien à traiter"
+  },
+  "recent": {
+    "title": "Factures récentes",
+    "empty": "Aucune facture pour le moment",
+    "viewAll": "Voir toutes les factures",
+    "newInvoice": "Nouvelle facture"
+  },
+  "checklist": {
+    "heading": "Bien démarrer avec Manta",
+    "progress": "{{done}} sur {{total}} terminées",
+    "allDone": "Tout est prêt",
+    "dismiss": "Masquer la liste",
+    "toastHidden": "Liste masquée",
+    "undo": "Annuler",
+    "items": {
+      "profile": "Ajoutez le nom de votre entreprise",
+      "logo": "Ajoutez votre logo",
+      "client": "Ajoutez votre premier client",
+      "invoice": "Créez votre première facture",
+      "pdf": "Exportez votre premier PDF"
+    },
+    "links": {
+      "profile": "Modifier le profil de l’entreprise",
+      "logo": "Importer un logo",
+      "client": "Ajouter un client",
+      "invoice": "Nouvelle facture",
+      "pdf": "Prévisualiser et exporter en PDF"
+    },
+    "pdfHint": "Créez d’abord une facture"
+  },
+  "greeting": {
+    "morning": "Bonjour",
+    "afternoon": "Bon après-midi",
+    "evening": "Bonsoir",
+    "lead": "{{greeting}}, vous avez",
+    "and": "et",
+    "clear": "{{greeting}}. Vous êtes à jour : aucune facture en retard.",
+    "overdue_one": "{{count}} facture en retard",
+    "overdue_many": "{{count}} factures en retard",
+    "overdue_other": "{{count}} factures en retard",
+    "outstanding_one": "{{count}} en attente de paiement",
+    "outstanding_many": "{{count}} en attente de paiement",
+    "outstanding_other": "{{count}} en attente de paiement",
+    "drafts_one": "{{count}} brouillon",
+    "drafts_many": "{{count}} brouillons",
+    "drafts_other": "{{count}} brouillons"
+  }
+}

@@ -16,27 +16,37 @@
       "recipient": "Recipient"
     },
     "accentColor": {
-      "name" : "Accent Color",
+      "name": "Accent Color",
       "useCustom": "Use Custom",
-      "custom": "Custom color"
+      "custom": "Custom Color"
     },
     "actions": {
       "name": "Actions",
       "savePDF": "Export PDF",
-      "emailInvoice": "Email invoice",
+      "emailInvoice": "Email Invoice",
       "sharePdf": "Share PDF…",
-      "saveConfigs": "Save settings"
+      "saveConfigs": "Save Settings"
     },
     "einvoice": {
       "title": "E-invoice",
-      "ready": "Ready to export",
+      "ready": "Ready to Export",
       "problems": "{{count}} problems to fix",
       "exportXrechnung": "Export XRechnung (XML)",
       "exportFacturx": "Export Factur-X (PDF)",
       "disclaimer": "Validate exports before sending.",
-      "reveal": "Show in folder",
+      "reveal": "Show in Folder",
       "exportFailed": "Export failed"
     }
+  },
+  "drawer": {
+    "title": "Preview {{number}}",
+    "style": "Style",
+    "defaultStyle": "This document uses the default style from Settings.",
+    "ownStyle": "This document has its own style.",
+    "saveStyle": "Save Style",
+    "useDefaults": "Use Default Style",
+    "exported": "File Exported",
+    "exportFailed": "Could not export the PDF: {{reason}}"
   },
   "common": {
     "billedTo": "Billed To",
@@ -46,9 +56,9 @@
     "invoice": "Invoice",
     "estimate": "Estimate",
     "creditNote": "Credit note",
-    "creditsInvoice": "Credits invoice {{number}} of {{date}}",
-    "totalCredit": "Total credit",
-    "validUntil": "Valid until",
+    "creditsInvoice": "Credits Invoice {{number}} of {{date}}",
+    "totalCredit": "Total Credit",
+    "validUntil": "Valid Until",
     "itemDescription": "Item Description",
     "notice": "Notice",
     "order": "No",
@@ -56,8 +66,9 @@
     "qty": "Quantity",
     "subtotal": "Subtotal",
     "total": "Total",
-    "amountPaid": "Amount paid",
-    "balanceDue": "Balance due"
+    "amountPaid": "Amount Paid",
+    "balanceDue": "Balance Due",
+    "labelled": "{{label}}: {{value}}"
   },
   "tax": {
     "taxId": "Tax ID",
@@ -67,15 +78,15 @@
     "category": {
       "S": "VAT",
       "Z": "VAT 0 %",
-      "E": "VAT exempt",
-      "AE": "Reverse charge",
-      "K": "Intra-community supply",
+      "E": "VAT Exempt",
+      "AE": "Reverse Charge",
+      "K": "Intra-community Supply",
       "G": "Export",
-      "O": "Outside the scope of VAT"
+      "O": "Outside the Scope of VAT"
     }
   },
   "einvoice": {
     "bank": "Bank",
-    "buyerReference": "Buyer reference"
+    "buyerReference": "Buyer Reference"
   }
 }

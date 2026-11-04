@@ -1,16 +1,31 @@
 {
+  "cancel": {
+    "label": "Zrušiť",
+    "title": "Zahodiť zmeny?",
+    "newMessage": "Tento doklad nie je uložený. Zadané údaje sa stratia.",
+    "editMessage": "Neuložené zmeny sa stratia. Uložená verzia sa nezmení.",
+    "confirm": "Zahodiť",
+    "keep": "Pokračovať v úpravách"
+  },
   "header": {
-    "new": "Vytvoriť novú faktúru",
+    "new": "Nová faktúra",
     "edit": "Upraviť faktúru",
+    "newEstimate": "Nová cenová ponuka",
+    "editEstimate": "Upraviť cenovú ponuku",
+    "newCreditNote": "Nový dobropis",
+    "editCreditNote": "Upraviť dobropis",
+    "template": "Šablóna opakovanej faktúry",
     "btns": {
       "clear": "Vyčistiť",
       "update": "Aktualizovať",
-      "saveAndPreview": "Uložiť a zobraziť"
+      "saveAndPreview": "Uložiť a zobraziť",
+      "saveDraft": "Uložiť koncept",
+      "issueCreditNote": "Vystaviť dobropis"
     }
   },
   "settings": {
     "name": "Nastavenie formulára",
-    "hint": "Prepnutím sa pole stane povinným."
+    "hint": "Zapnite pole, aby bolo vo formulári povinné."
   },
   "fields": {
     "items": {
@@ -18,17 +33,35 @@
       "description": "Popis",
       "price": "Cena",
       "quantity": "Množstvo",
-      "add": "Pridať novú položku"
+      "add": "Pridať novú položku",
+      "amount": "Suma",
+      "reorder": "Presunúť položku {{number}}",
+      "remove": "Odstrániť položku {{number}}",
+      "descriptionRow": "Popis položky {{number}}",
+      "priceRow": "Cena položky {{number}}",
+      "quantityRow": "Množstvo položky {{number}}",
+      "unit": "Jednotka",
+      "saveAsItem": "Uložiť riadok {{n}} ako položku",
+      "noMatch": "Žiadne zodpovedajúce uložené položky",
+      "pickPlaceholder": "Vyberte alebo píšte…"
     },
     "recipient": {
       "name": "Príjemca",
       "select": "Vybrať",
-      "add": "Vytvoriť nového príjemcu"
+      "add": "Vytvoriť nového príjemcu",
+      "fullname": "Celé meno",
+      "company": "Spoločnosť",
+      "email": "E-mail",
+      "phone": "Telefón",
+      "pickPlaceholder": "Vyberte klienta alebo zadajte nové meno…",
+      "linked": "Uložený klient. Ak chcete pridať nového klienta, zadajte iné meno.",
+      "noMatch": "Žiadni zodpovedajúci klienti",
+      "taxId": "DIČ / IČ DPH"
     },
     "discount": {
       "name": "Zľava",
       "percentage": "Percentuálne",
-      "flat": "Paušálna sadzba"
+      "flat": "Pevná suma"
     },
     "dueDate": {
       "name": "Dátum splatnosti",
@@ -36,34 +69,122 @@
       "paymentTerms": {
         "name": "Vyberte splatnosť",
         "net7": {
-          "label": "Sieť 7",
+          "label": "Splatnosť 7 dní",
           "description": "Platba do siedmich dní od dátumu vystavenia faktúry"
         },
         "net10": {
-          "label": "Sieť 10",
+          "label": "Splatnosť 10 dní",
           "description": "Platba do desiatich dní od dátumu vystavenia faktúry"
         },
         "net30": {
-          "label": "Sieť 30",
+          "label": "Splatnosť 30 dní",
           "description": "Platba do 30 dní od dátumu vystavenia faktúry"
         },
         "net60": {
-          "label": "Sieť 60",
+          "label": "Splatnosť 60 dní",
           "description": "Platba do 60 dní od dátumu vystavenia faktúry"
         },
         "net90": {
-          "label": "Sieť 90",
+          "label": "Splatnosť 90 dní",
           "description": "Platba do 90 dní od dátumu vystavenia faktúry"
         }
-      }
+      },
+      "modeDate": "Dátum",
+      "modeTerms": "Platobné podmienky",
+      "modeOffset": "Dni od vystavenia",
+      "offsetDays": "Dni od vystavenia",
+      "computed": "Splatné {{date}}"
     },
     "tax": {
       "name": "Daň",
       "id": "Daňové identifikačné číslo",
       "method": "Spôsob",
-      "reverse": "Prenesenie daňovej povinnosti"
+      "reverse": "Prenesenie daňovej povinnosti",
+      "rate": "Daň",
+      "rateRow": "Daňová sadzba položky {{number}}",
+      "perLine": "Daň za riadok",
+      "switchToLine": "Prepnúť na daň za riadok",
+      "switchHint": "Súčty sa prepočítajú podľa vašich daňových sadzieb.",
+      "on": "z {{amount}}"
     },
     "note": "Poznámka",
-    "currency": "Mena"
+    "currency": "Mena",
+    "issuedAt": "Dátum vystavenia",
+    "clearDate": "Vymazať dátum",
+    "invoiceNumber": {
+      "label": "Číslo faktúry",
+      "hint": "Ďalšie číslo z nastavení"
+    },
+    "estimateNumber": {
+      "label": "Číslo cenovej ponuky",
+      "hint": "Ďalšie číslo z nastavení"
+    },
+    "validUntil": "Platná do"
+  },
+  "cards": {
+    "client": "Klient",
+    "details": "Podrobnosti",
+    "items": "Položky",
+    "adjustments": "Úpravy",
+    "notes": "Poznámky"
+  },
+  "customize": {
+    "name": "Prispôsobiť polia",
+    "saveAsDefault": "Uložiť ako predvolené"
+  },
+  "preview": {
+    "toggle": "Ukážka",
+    "error": "Ukážku sa nepodarilo vykresliť.",
+    "overflow": "Dlhé faktúry môžu byť v živej ukážke orezané. Celú stránku zobrazíte pomocou $t(form:header.btns.saveAndPreview)."
+  },
+  "footer": {
+    "saveTemplate": "Uložiť šablónu"
+  },
+  "totals": {
+    "subtotal": "Medzisúčet",
+    "discount": "Zľava",
+    "tax": "Daň",
+    "total": "Celkom",
+    "amountPaid": "Zaplatená suma",
+    "balanceDue": "Zostatok na úhradu"
+  },
+  "errors": {
+    "summary": "Opravte zvýraznené polia.",
+    "noItems": "Pridajte aspoň jednu položku.",
+    "draftEmpty": "Pred uložením konceptu pridajte klienta alebo položku.",
+    "offsetDays": "Zadajte počet dní od 0 do 365.",
+    "recipientRequired": "Vyberte klienta.",
+    "partialContactSave": "Faktúra je uložená, ale kontakt sa nepodarilo uložiť.",
+    "partialNumberingSave": "Faktúra je uložená, ale ďalšie číslo faktúry sa nepodarilo uložiť.",
+    "totalBelowPaid": "Nová celková suma ({{total}}) je nižšia ako už zaplatená suma ({{paid}}). Najprv odstráňte platbu.",
+    "currencyLocked": "Táto faktúra má platby. Jej menu nemôžete zmeniť.",
+    "taxRateRequired": "Vyberte daňovú sadzbu pre tento riadok.",
+    "discountTooLarge": "Zľava je pre túto faktúru príliš vysoká.",
+    "exemptionReasonRequired": "Zadajte dôvod oslobodenia.",
+    "conflictingExemptionReasons": "Daňové riadky v rovnakej skupine musia mať rovnaký dôvod oslobodenia.",
+    "validUntilBeforeIssue": "Dátum platnosti nesmie byť skorší ako dátum vystavenia",
+    "creditedMissing": "Dobropisovaná faktúra chýba.",
+    "creditZero": "Suma dobropisu musí byť vyššia ako 0.",
+    "creditCurrency": "Mena dobropisu sa musí zhodovať s menou faktúry.",
+    "creditExceeds": "Dobropis presahuje sumu, ktorú ešte možno dobropisovať.",
+    "belowCredited": "Celková suma nemôže byť nižšia ako platby spolu s vystavenými dobropismi.",
+    "creditOriginalNotCreditable": "K tejto faktúre v aktuálnom stave nemožno vystaviť dobropis."
+  },
+  "convertedFrom": "Vytvorené z cenovej ponuky {{number}}",
+  "creditNote": {
+    "credits": "Dobropis k faktúre {{number}} zo dňa {{date}}",
+    "remaining": "Zostáva"
+  },
+  "numbering": {
+    "title": "Číslovanie faktúr",
+    "prefix": "Predpona",
+    "next": "Ďalšie číslo",
+    "padding": "Počet číslic",
+    "format": "Formát",
+    "formats": {
+      "sequential": "Poradové číslo",
+      "random": "Náhodné ID"
+    },
+    "sample": "Príklad: {{number}}"
   }
 }

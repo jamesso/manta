@@ -1,41 +1,92 @@
 {
   "sidebar": {
-    "template": "Template",
+    "template": "Modello",
     "alignment": {
       "name": "Allineamento",
-      "top": "In Alto",
-      "middle": "Centrale",
-      "bottom": "In Fondo"
+      "top": "In alto",
+      "middle": "Al centro",
+      "bottom": "In basso"
     },
-    "fontSize": "Dimensione del Carattere",
+    "fontSize": "Dimensione carattere",
+    "logoSize": "Dimensione logo",
     "toggle": {
-      "name": "Attiva\/Disattiva",
+      "name": "Attiva\/disattiva",
       "logo": "Logo",
       "symbol": "Simbolo",
       "recipient": "Destinatario"
     },
     "accentColor": {
-      "name": "Colore Primario",
-      "useCustom": "Usa un Colore Personalizzato"
+      "name": "Colore principale",
+      "useCustom": "Usa colore personalizzato",
+      "custom": "Colore personalizzato"
     },
     "actions": {
       "name": "Azioni",
       "savePDF": "Esporta PDF",
-      "saveConfigs": "Salva Configurazione"
+      "emailInvoice": "Invia fattura via email",
+      "sharePdf": "Condividi PDF…",
+      "saveConfigs": "Salva impostazioni"
+    },
+    "einvoice": {
+      "title": "Fattura elettronica",
+      "ready": "Pronta per l'esportazione",
+      "problems": "Problemi da correggere: {{count}}",
+      "exportXrechnung": "Esporta XRechnung (XML)",
+      "exportFacturx": "Esporta Factur-X (PDF)",
+      "disclaimer": "Convalida i file esportati prima di inviarli.",
+      "reveal": "Mostra nella cartella",
+      "exportFailed": "Esportazione non riuscita"
     }
+  },
+  "drawer": {
+    "title": "Anteprima {{number}}",
+    "style": "Stile",
+    "defaultStyle": "Questo documento usa lo stile predefinito delle Impostazioni.",
+    "ownStyle": "Questo documento ha uno stile proprio.",
+    "saveStyle": "Salva stile",
+    "useDefaults": "Usa stile predefinito",
+    "exported": "File esportato",
+    "exportFailed": "Impossibile esportare il PDF: {{reason}}"
   },
   "common": {
     "billedTo": "Destinatario",
-    "chooseInvoiceToPreview": "Si prega di scegliere una fattura per l'anteprima",
-    "created": "Creato",
+    "chooseInvoiceToPreview": "Scegli una fattura da visualizzare in anteprima",
+    "created": "Data di emissione",
     "due": "Scadenza",
     "invoice": "Fattura",
-    "itemDescription": "Descrizione Oggetto",
-    "notice": "Avviso",
-    "order": "Num",
+    "estimate": "Preventivo",
+    "creditNote": "Nota di credito",
+    "creditsInvoice": "Storna la fattura {{number}} del {{date}}",
+    "totalCredit": "Credito totale",
+    "validUntil": "Valido fino al",
+    "itemDescription": "Descrizione articolo",
+    "notice": "Note",
+    "order": "N.",
     "price": "Prezzo",
     "qty": "Quantità",
-    "subtotal": "Compenso",
-    "total": "Totale"
+    "subtotal": "Subtotale",
+    "total": "Totale",
+    "amountPaid": "Importo pagato",
+    "balanceDue": "Saldo dovuto",
+    "labelled": "{{label}}: {{value}}"
+  },
+  "tax": {
+    "taxId": "Codice fiscale",
+    "vatId": "Partita IVA",
+    "recipientTaxId": "Partita IVA cliente",
+    "on": "su {{amount}}",
+    "category": {
+      "S": "IVA",
+      "Z": "IVA 0 %",
+      "E": "Esente IVA",
+      "AE": "Inversione contabile",
+      "K": "Cessione intracomunitaria",
+      "G": "Esportazione",
+      "O": "Fuori campo IVA"
+    }
+  },
+  "einvoice": {
+    "bank": "Banca",
+    "buyerReference": "Riferimento acquirente"
   }
 }

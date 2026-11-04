@@ -2,40 +2,91 @@
   "sidebar": {
     "template": "سانچہ",
     "alignment": {
-      "name": "قطار بندی",
+      "name": "سیدھ",
       "top": "اوپر",
       "middle": "درمیان",
       "bottom": "نیچے"
     },
     "fontSize": "فانٹ سائز",
+    "logoSize": "لوگو کا سائز",
     "toggle": {
-      "name": "تبدیل کرنا",
+      "name": "دکھائیں/چھپائیں",
       "logo": "لوگو",
       "symbol": "علامت",
       "recipient": "وصول کنندہ"
     },
     "accentColor": {
-      "name": "لہجے کا رنگ",
-      "useCustom": "اپنی مرضی کے مطابق استعمال کریں"
+      "name": "نمایاں رنگ",
+      "useCustom": "حسب منشا رنگ استعمال کریں",
+      "custom": "حسب منشا رنگ"
     },
     "actions": {
       "name": "افعال",
       "savePDF": "PDF برآمد کریں",
-      "saveConfigs": "کونفگز محفوظ کریں"
+      "emailInvoice": "انوائس ای میل کریں",
+      "sharePdf": "PDF شیئر کریں…",
+      "saveConfigs": "ترتیبات محفوظ کریں"
+    },
+    "einvoice": {
+      "title": "ای انوائس",
+      "ready": "برآمد کے لیے تیار",
+      "problems": "درست کرنے کے لیے {{count}} مسائل",
+      "exportXrechnung": "XRechnung (XML) برآمد کریں",
+      "exportFacturx": "Factur-X (PDF) برآمد کریں",
+      "disclaimer": "بھیجنے سے پہلے برآمد شدہ فائلوں کی تصدیق کریں۔",
+      "reveal": "فولڈر میں دکھائیں",
+      "exportFailed": "برآمد ناکام ہو گئی"
     }
   },
+  "drawer": {
+    "title": "{{number}} کا پیش نظارہ",
+    "style": "انداز",
+    "defaultStyle": "یہ دستاویز ترتیبات کا پہلے سے طے شدہ انداز استعمال کرتی ہے۔",
+    "ownStyle": "اس دستاویز کا اپنا انداز ہے۔",
+    "saveStyle": "انداز محفوظ کریں",
+    "useDefaults": "پہلے سے طے شدہ انداز استعمال کریں",
+    "exported": "فائل برآمد ہو گئی",
+    "exportFailed": "PDF برآمد نہیں ہو سکی: {{reason}}"
+  },
   "common": {
-    "billedTo": "کو بل بھیجا گیا",
+    "billedTo": "بل بنام",
     "chooseInvoiceToPreview": "برائے مہربانی پیش نظارہ کرنے کے لیے ایک انوائس منتخب کریں",
-    "created": "بنایا گیا",
-    "due": "واجب",
+    "created": "تاریخ اجرا",
+    "due": "واجب الادا",
     "invoice": "انوائس",
+    "estimate": "تخمینہ",
+    "creditNote": "کریڈٹ نوٹ",
+    "creditsInvoice": "انوائس {{number}} مورخہ {{date}} کا کریڈٹ",
+    "totalCredit": "کل کریڈٹ",
+    "validUntil": "مؤثر تا",
     "itemDescription": "شے کی تفصیل",
     "notice": "نوٹس",
     "order": "نمبر",
     "price": "قیمت",
     "qty": "مقدار",
     "subtotal": "ذیلی میزان",
-    "total": "کل"
+    "total": "کل",
+    "amountPaid": "ادا شدہ رقم",
+    "balanceDue": "واجب الادا بقایا",
+    "labelled": "{{label}}: {{value}}"
+  },
+  "tax": {
+    "taxId": "ٹیکس آئی ڈی",
+    "vatId": "VAT آئی ڈی",
+    "recipientTaxId": "کلائنٹ کی VAT آئی ڈی",
+    "on": "{{amount}} پر",
+    "category": {
+      "S": "VAT",
+      "Z": "VAT 0 %",
+      "E": "VAT سے مستثنیٰ",
+      "AE": "ریورس چارج",
+      "K": "انٹرا کمیونٹی سپلائی",
+      "G": "برآمد",
+      "O": "VAT کے دائرہ کار سے باہر"
+    }
+  },
+  "einvoice": {
+    "bank": "بینک",
+    "buyerReference": "خریدار کا حوالہ"
   }
 }

@@ -1,49 +1,56 @@
 {
   "header": "Settings",
   "nav": {
-    "profile": "Business profile",
-    "invoice": "Invoice defaults",
+    "profile": "Profile",
+    "invoice": "Invoices",
     "appearance": "Appearance",
-    "language": "Language & region",
-    "export": "Export & backup",
+    "language": "Languages",
+    "export": "Exports",
     "updates": "Updates",
     "sounds": "Sounds"
   },
   "sections": {
     "profile": {
-      "title": "Business profile",
-      "description": "Your name and contact details appear on invoices."
+      "title": "Profile",
+      "description": "Your name and contact details appear on invoices.",
+      "details": "Business Details"
     },
     "invoice": {
-      "title": "Invoice defaults",
-      "description": "Defaults for new invoices, tax, and currency.",
+      "title": "Invoices",
+      "description": "Numbering, style, currency, tax and emails for your documents.",
       "email": {
-        "title": "Email templates",
-        "tabInvoice": "Invoice email",
-        "tabReminder": "Payment reminder",
+        "title": "Email Templates",
+        "tabInvoice": "Invoice Email",
+        "tabReminder": "Payment Reminder",
         "subject": "Subject",
         "body": "Body",
         "placeholders": "Placeholders",
         "preview": "Preview",
         "lengthWarning": "This message is long. Mail apps may get a shortened text.",
-        "reset": "Reset to default",
-        "defaultBadge": "Default"
-      }
+        "reset": "Reset to Default",
+        "defaultBadge": "Default",
+        "description": "The subject and text for invoice and reminder emails."
+      },
+      "invoicesTitle": "Invoices",
+      "requiredHint": "The fields that show when you start a new document.",
+      "numberingTitle": "Numbering"
     },
     "estimates": {
       "title": "Estimates"
     },
     "creditNotes": {
-      "title": "Credit notes"
+      "title": "Credit Notes"
     },
     "eInvoice": {
       "title": "E-invoice",
       "description": "Export XRechnung XML and Factur-X PDF from the preview.",
       "disclaimer": "Manta creates e-invoices to the best of its ability but does not guarantee legal compliance. Validate the files and check them with your tax advisor before you send them.",
-      "enable": "Enable e-invoice export",
-      "defaultFormat": "Default format",
-      "confirmTitle": "Enable e-invoice export",
-      "confirmAccept": "I understand",
+      "enable": "Enable E-Invoice Export",
+      "defaultFormat": "Default Format",
+      "buyerReference": "Buyer Reference",
+      "buyerReferenceHint": "Ask for a buyer reference (Leitweg-ID) on clients and put it on invoices. XRechnung needs it.",
+      "confirmTitle": "Enable E-Invoice Export",
+      "confirmAccept": "I Understand",
       "formats": {
         "xrechnung": "XRechnung XML (UBL)",
         "facturx": "Factur-X (PDF)"
@@ -54,18 +61,30 @@
       "description": "Choose light, dark, or match the system."
     },
     "language": {
-      "title": "Language & region",
-      "description": "App language and how dates are shown."
+      "title": "Languages",
+      "description": "App language and how dates are shown.",
+      "languageHint": "Used for menus and new invoices.",
+      "dateFormatHint": "How dates show in lists and on invoices."
     },
     "export": {
-      "title": "Export & backup",
+      "title": "Exports",
       "description": "PDF export folder, backups, and CSV export.",
-      "chooseFolder": "Choose folder"
+      "chooseFolder": "Choose Folder",
+      "pdfTitle": "PDF Export",
+      "backupTitle": "Backup",
+      "exportBackup": "Export Backup",
+      "exportBackupHint": "Save all your data and settings to one file.",
+      "importBackupHint": "Add data from a Manta backup file.",
+      "csvTitle": "CSV",
+      "csvInvoices": "Invoices",
+      "csvInvoicesHint": "Save all invoices as a spreadsheet file."
     },
     "updates": {
       "title": "Updates",
       "description": "Manta checks for updates when it starts.",
-      "check": "Check for updates"
+      "check": "Check for Updates",
+      "manual": "Check Now",
+      "manualHint": "Look for a new version of Manta."
     },
     "sounds": {
       "title": "Sounds",
@@ -79,7 +98,7 @@
     "numberingPadding": "Enter a whole number from 0 to 12",
     "numberingPrefix": "Use 20 characters or fewer",
     "importInProgress": "Import in progress. Try again when it finishes.",
-    "profileInvalid": "Business profile values are invalid",
+    "profileInvalid": "Profile values are invalid",
     "generalInvalid": "General settings values are invalid",
     "invoiceInvalid": "Invoice settings values are invalid",
     "themeInvalid": "Choose System, Light, or Dark",
@@ -94,23 +113,35 @@
     "emailBody": "Use 1500 characters or fewer"
   },
   "backup": {
-    "export": "Export backup…",
+    "export": "Export Backup…",
     "import": "Import",
-    "exportCsv": "Export invoices as CSV…",
+    "exportCsv": "Export Invoices as CSV…",
     "autoHint": "Manta saves an automatic backup before every import.",
-    "exportSuccess": "Backup saved",
-    "csvSuccess": "CSV exported",
-    "showFile": "Show file",
-    "showSafety": "Show safety backup",
-    "importTitle": "Import backup",
+    "exportSuccess": "Backup Saved",
+    "csvSuccess": "CSV Exported",
+    "showFile": "Show File",
+    "showSafety": "Show Safety Backup",
+    "importTitle": "Import Backup",
     "importing": "Importing…",
-    "includeSettings": "Also import settings",
-    "modeSkip": "Skip items that already exist",
-    "modeOverwrite": "Replace items that already exist",
-    "previewCounts": "{{invoices}} invoices and {{contacts}} clients in this file. {{added}} are new. {{existing}} already exist.",
-    "summaryWithItems": "{{invoices}} invoices, {{clients}} clients and {{items}} items in this file. {{added}} are new. {{existing}} already exist.",
-    "invalidCounts": "{{invoices}} invalid invoices, {{contacts}} invalid clients and {{items}} invalid items were skipped.",
-    "duplicateCounts": "{{invoices}} duplicate invoices, {{contacts}} duplicate clients and {{items}} duplicate items were skipped.",
+    "includeSettings": "Import Settings",
+    "modeSkip": "Keep My Version",
+    "modeOverwrite": "Use the Backup Version",
+    "exportedOn": "Exported {{date}}",
+    "fromVersion": "Manta {{version}}",
+    "colInFile": "In File",
+    "colNew": "New",
+    "colExisting": "Already in Manta",
+    "colSkipped": "Skipped",
+    "rowInvoices": "Invoices & Estimates",
+    "skippedHint": "Skipped records are damaged or listed twice in the file. Manta will not import them.",
+    "empty": "This backup has no records.",
+    "existingTitle": "Records Already in Manta",
+    "keepHint_one": "Keep your current version of {{count}} record.",
+    "keepHint_other": "Keep your current version of {{count}} records.",
+    "replaceHint_one": "Replace {{count}} record with the version in this backup.",
+    "replaceHint_other": "Replace {{count}} records with the version in this backup.",
+    "settingsHint": "Replace your business profile, invoice defaults and app preferences.",
+    "noSettings": "This backup has no settings.",
     "creditWarnings": "{{count}} issued credit notes have data warnings (missing invoice, currency mismatch, or invalid amount). They will still import.",
     "importSuccess": "Imported {{added}} new and replaced {{overwritten}} items. Skipped {{skipped}}.",
     "importFailedDocs": "{{count}} could not be written.",
@@ -140,47 +171,61 @@
     "taxSettings": "Tax Settings",
     "taxId": "Tax ID",
     "vatId": "VAT ID",
-    "legalName": "Legal name",
+    "legalName": "Legal Name",
     "legalNameHint": "Registered name; leave empty to use the company name.",
     "printedAddress": "Printed address (used when the structured address is empty)",
     "postalAddress": {
       "title": "Address",
       "street": "Street",
-      "additional": "Additional line",
+      "additional": "Additional Line",
       "postcode": "Postcode",
       "city": "City",
       "region": "Region",
       "country": "Country"
     },
     "bank": {
-      "title": "Bank account",
-      "accountName": "Account holder",
+      "title": "Bank Account",
+      "accountName": "Account Holder",
       "iban": "IBAN",
       "bic": "BIC"
     },
     "template": "Template",
-    "estimateValidDays": "Valid for (days)",
+    "style": {
+      "title": "Invoice Style",
+      "hint": "All documents use this style. To change one document, open its preview.",
+      "toggles": {
+        "showLogo": "Show Logo",
+        "showLogoHint": "Print your logo at the top of the document.",
+        "useSymbol": "Use Currency Symbol",
+        "useSymbolHint": "Show $ instead of USD.",
+        "showRecipient": "Show Client Details",
+        "showRecipientHint": "Print the client name and address.",
+        "customAccentColor": "Accent Color",
+        "customAccentColorHint": "Color the title and the totals."
+      }
+    },
+    "estimateValidDays": "Valid for (Days)",
     "dateFormat": "Date Format",
-    "pdfExportDir": "PDF Export Directory",
-    "requiredFields": "Required Fields",
+    "pdfExportDir": "Export Folder",
+    "requiredFields": "Form Fields",
     "sound": "Sound",
     "mute": "Mute",
     "autoCheckUpdate": {
       "name": "Auto Check for Update",
-      "daily": "Everday (Recommended)",
-      "weekly": "Everyweek"
+      "daily": "Every Day (Recommended)",
+      "weekly": "Every Week"
     },
     "currency": {
-      "placement": "Sign placement",
+      "placement": "Sign Placement",
       "afterAmount": "After Amount",
       "beforeAmount": "Before Amount",
-      "fraction": "Decimal Fraction",
+      "fraction": "Decimal Places",
       "separator": "Separator",
       "commaDot": "Comma & Dot",
       "dotComma": "Dot & Comma",
       "spaceDot": "Space & Dot"
     },
-    "openPDFReader": "Open PDF after Export",
+    "openPDFReader": "Open PDF After Export",
     "theme": {
       "name": "Theme",
       "system": "System",
@@ -218,13 +263,13 @@
     "other": "Other"
   },
   "taxRates": {
-    "title": "Tax rates",
-    "add": "Add tax rate",
-    "edit": "Edit tax rate",
+    "title": "Tax Rates",
+    "add": "Add Tax Rate",
+    "edit": "Edit Tax Rate",
     "default": "Default",
     "inactive": "Inactive",
-    "setDefault": "Set as default",
-    "markInactive": "Mark inactive",
+    "setDefault": "Set as Default",
+    "markInactive": "Mark as Inactive",
     "reactivate": "Reactivate",
     "delete": "Delete",
     "usedBy": "Used by {{count}} items. Mark it inactive instead?",
@@ -233,15 +278,15 @@
     "name": "Name",
     "rate": "Rate %",
     "category": "Category",
-    "reason": "Exemption reason",
+    "reason": "Exemption Reason",
     "actionsFor": "Actions for {{name}}",
     "categories": {
       "S": {
-        "label": "Standard rate",
+        "label": "Standard Rate",
         "help": "The normal VAT rate, for example 19 % or 20 %."
       },
       "Z": {
-        "label": "Zero rated",
+        "label": "Zero Rated",
         "help": "Taxable, but at 0 %."
       },
       "E": {
@@ -249,19 +294,19 @@
         "help": "Exempt from VAT by law. Needs a reason."
       },
       "AE": {
-        "label": "Reverse charge",
+        "label": "Reverse Charge",
         "help": "The buyer pays the VAT. Needs a reason and the buyer's VAT ID."
       },
       "K": {
-        "label": "Intra-community supply",
+        "label": "Intra-community Supply",
         "help": "Goods to a VAT-registered buyer in another EU country. Needs a reason."
       },
       "G": {
-        "label": "Export outside the EU",
+        "label": "Export Outside the EU",
         "help": "No VAT is charged on the export. Needs a reason."
       },
       "O": {
-        "label": "Outside the scope of VAT",
+        "label": "Outside the Scope of VAT",
         "help": "Not subject to VAT, for example you are not VAT registered. Needs a reason."
       }
     },
@@ -276,9 +321,9 @@
     }
   },
   "logo": {
-    "drop": "Drop logo here",
-    "choose": "Choose logo…",
+    "drop": "Drop Logo Here",
+    "choose": "Choose Logo…",
     "replace": "Replace…",
-    "remove": "Remove logo"
+    "remove": "Remove Logo"
   }
 }

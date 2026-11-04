@@ -1,0 +1,74 @@
+{
+  "header": {
+    "name": "Preventivi",
+    "count_one": "{{count}} preventivo",
+    "count_many": "{{count}} preventivi",
+    "count_other": "{{count}} preventivi"
+  },
+  "newEstimate": "Nuovo preventivo",
+  "search": {
+    "label": "Filtra preventivi",
+    "placeholder": "Filtra preventivi…"
+  },
+  "tabs": {
+    "all": "Tutti",
+    "draft": "Bozze",
+    "sent": "Inviati",
+    "accepted": "Accettati",
+    "declined": "Rifiutati",
+    "expired": "Scaduti",
+    "converted": "Convertiti"
+  },
+  "status": {
+    "sent": "Inviato",
+    "accepted": "Accettato",
+    "declined": "Rifiutato",
+    "expired": "Scaduto",
+    "converted": "Convertito"
+  },
+  "columns": {
+    "number": "Numero",
+    "client": "Cliente",
+    "issued": "Emesso",
+    "validUntil": "Valido fino al",
+    "amount": "Importo",
+    "status": "Stato",
+    "actions": "Azioni"
+  },
+  "valid": {
+    "today": "Valido fino a oggi",
+    "inDays_one": "Valido ancora {{count}} giorno",
+    "inDays_many": "Valido ancora {{count}} giorni",
+    "inDays_other": "Valido ancora {{count}} giorni",
+    "expiredDays_one": "Scaduto {{count}} giorno fa",
+    "expiredDays_many": "Scaduto {{count}} giorni fa",
+    "expiredDays_other": "Scaduto {{count}} giorni fa"
+  },
+  "actions": {
+    "open": "Azioni preventivo",
+    "edit": "Modifica",
+    "duplicate": "Duplica",
+    "markSent": "Segna come inviato",
+    "markAccepted": "Segna come accettato",
+    "markDeclined": "Segna come rifiutato",
+    "convert": "Converti in fattura",
+    "openInvoice": "Apri fattura",
+    "preview": "Anteprima",
+    "delete": "Elimina"
+  },
+  "empty": {
+    "title": "Ancora nessun preventivo",
+    "description": "Crea un preventivo e convertilo in fattura quando il cliente lo accetta.",
+    "noResults": "Nessun preventivo corrispondente",
+    "clearFilters": "Rimuovi filtri"
+  },
+  "toast": {
+    "converted": "Preventivo {{number}} convertito",
+    "alreadyConverted": "Questo preventivo è già stato convertito in fattura",
+    "notFound": "Questo preventivo non esiste più",
+    "linkFailed": "La fattura è stata salvata, ma non è stato possibile segnare il preventivo come convertito",
+    "deleted_one": "Preventivo eliminato",
+    "deleted_many": "{{count}} preventivi eliminati",
+    "deleted_other": "{{count}} preventivi eliminati"
+  }
+}

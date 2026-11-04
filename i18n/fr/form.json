@@ -1,16 +1,31 @@
 {
+  "cancel": {
+    "label": "Annuler",
+    "title": "Abandonner les modifications ?",
+    "newMessage": "Ce document n’est pas enregistré. Votre saisie sera perdue.",
+    "editMessage": "Les modifications non enregistrées seront perdues. La version enregistrée reste inchangée.",
+    "confirm": "Abandonner",
+    "keep": "Continuer la modification"
+  },
   "header": {
-    "new": "Créer une nouvelle facture",
+    "new": "Nouvelle facture",
     "edit": "Modifier la facture",
+    "newEstimate": "Nouveau devis",
+    "editEstimate": "Modifier le devis",
+    "newCreditNote": "Nouvel avoir",
+    "editCreditNote": "Modifier l’avoir",
+    "template": "Modèle de facture récurrente",
     "btns": {
-      "clear": "Supprimer",
+      "clear": "Effacer",
       "update": "Mettre à jour",
-      "saveAndPreview": "Enregistrer et prévisualiser"
+      "saveAndPreview": "Enregistrer et prévisualiser",
+      "saveDraft": "Enregistrer le brouillon",
+      "issueCreditNote": "Émettre l’avoir"
     }
   },
   "settings": {
     "name": "Paramètres du formulaire",
-    "hint": "Activer un champ pour le rendre disponible."
+    "hint": "Activez un champ pour le rendre obligatoire dans le formulaire."
   },
   "fields": {
     "items": {
@@ -18,23 +33,41 @@
       "description": "Description",
       "price": "Prix",
       "quantity": "Quantité",
-      "add": "Ajouter un nouvel élément"
+      "add": "Ajouter un article",
+      "amount": "Montant",
+      "reorder": "Déplacer l’article {{number}}",
+      "remove": "Supprimer l’article {{number}}",
+      "descriptionRow": "Description de l’article {{number}}",
+      "priceRow": "Prix de l’article {{number}}",
+      "quantityRow": "Quantité de l’article {{number}}",
+      "unit": "Unité",
+      "saveAsItem": "Enregistrer la ligne {{n}} comme article",
+      "noMatch": "Aucun article enregistré correspondant",
+      "pickPlaceholder": "Choisissez ou saisissez…"
     },
     "recipient": {
       "name": "Destinataire",
       "select": "Sélectionner",
-      "add": "Créer un nouveau"
+      "add": "Nouveau client",
+      "fullname": "Nom et prénom",
+      "company": "Société",
+      "email": "Email",
+      "phone": "Téléphone",
+      "pickPlaceholder": "Choisissez un client ou saisissez un nouveau nom…",
+      "linked": "Client enregistré. Saisissez un autre nom pour ajouter un nouveau client.",
+      "noMatch": "Aucun client correspondant",
+      "taxId": "N° fiscal / TVA"
     },
     "discount": {
-      "name": "Remise ",
+      "name": "Remise",
       "percentage": "Pourcentage",
-      "flat": "Taux Fixe"
+      "flat": "Montant fixe"
     },
     "dueDate": {
       "name": "Échéance",
       "placeHolder": "Choisir une date",
       "paymentTerms": {
-        "name": "Sélectionner un term de paiement",
+        "name": "Sélectionner des conditions de paiement",
         "net7": {
           "label": "Net 7",
           "description": "Paiement sept jours après la date de facturation"
@@ -55,15 +88,103 @@
           "label": "Net 90",
           "description": "Paiement 90 jours après la date de facturation"
         }
-      }
+      },
+      "modeDate": "Date",
+      "modeTerms": "Conditions de paiement",
+      "modeOffset": "Jours après émission",
+      "offsetDays": "Jours après émission",
+      "computed": "Échéance le {{date}}"
     },
     "tax": {
       "name": "Taxe",
       "id": "Numéro de TVA",
       "method": "Méthode",
-      "reverse": "Autoliquidation"
+      "reverse": "Autoliquidation",
+      "rate": "Taxe",
+      "rateRow": "Taux de taxe de l’article {{number}}",
+      "perLine": "Taxe par ligne",
+      "switchToLine": "Passer à la taxe par ligne",
+      "switchHint": "Les totaux sont recalculés avec vos taux de taxe.",
+      "on": "sur {{amount}}"
     },
     "note": "Remarque",
-    "currency": "Devise"
+    "currency": "Devise",
+    "issuedAt": "Date d’émission",
+    "clearDate": "Effacer la date",
+    "invoiceNumber": {
+      "label": "Numéro de facture",
+      "hint": "Prochain numéro défini dans les paramètres"
+    },
+    "estimateNumber": {
+      "label": "Numéro de devis",
+      "hint": "Prochain numéro défini dans les paramètres"
+    },
+    "validUntil": "Valable jusqu’au"
+  },
+  "cards": {
+    "client": "Client",
+    "details": "Détails",
+    "items": "Lignes",
+    "adjustments": "Ajustements",
+    "notes": "Remarques"
+  },
+  "customize": {
+    "name": "Personnaliser les champs",
+    "saveAsDefault": "Enregistrer par défaut"
+  },
+  "preview": {
+    "toggle": "Aperçu",
+    "error": "Impossible d’afficher l’aperçu.",
+    "overflow": "Les factures longues peuvent être tronquées dans l’aperçu en direct. Utilisez $t(form:header.btns.saveAndPreview) pour voir la page complète."
+  },
+  "footer": {
+    "saveTemplate": "Enregistrer le modèle"
+  },
+  "totals": {
+    "subtotal": "Sous-total",
+    "discount": "Remise",
+    "tax": "Taxe",
+    "total": "Total",
+    "amountPaid": "Montant payé",
+    "balanceDue": "Solde dû"
+  },
+  "errors": {
+    "summary": "Veuillez corriger les champs signalés.",
+    "noItems": "Ajoutez au moins un article.",
+    "draftEmpty": "Ajoutez un client ou un article avant d’enregistrer un brouillon.",
+    "offsetDays": "Saisissez un nombre de jours entre 0 et 365.",
+    "recipientRequired": "Choisissez un client.",
+    "partialContactSave": "Facture enregistrée, mais le contact n’a pas pu être enregistré.",
+    "partialNumberingSave": "Facture enregistrée, mais le prochain numéro de facture n’a pas pu être enregistré.",
+    "totalBelowPaid": "Le nouveau total ({{total}}) est inférieur au montant déjà payé ({{paid}}). Supprimez d’abord un paiement.",
+    "currencyLocked": "Cette facture comporte des paiements. Vous ne pouvez pas changer sa devise.",
+    "taxRateRequired": "Choisissez un taux de taxe pour cette ligne.",
+    "discountTooLarge": "La remise est trop élevée pour cette facture.",
+    "exemptionReasonRequired": "Saisissez un motif d’exonération.",
+    "conflictingExemptionReasons": "Les lignes d’un même groupe de taxe doivent avoir le même motif d’exonération.",
+    "validUntilBeforeIssue": "La date de validité doit être identique ou postérieure à la date d’émission",
+    "creditedMissing": "La facture concernée par l’avoir est introuvable.",
+    "creditZero": "Le montant de l’avoir doit être supérieur à 0.",
+    "creditCurrency": "La devise de l’avoir doit être celle de la facture.",
+    "creditExceeds": "L’avoir dépasse le montant encore créditable.",
+    "belowCredited": "Le total ne peut pas être inférieur aux paiements et avoirs émis.",
+    "creditOriginalNotCreditable": "Cette facture ne peut pas recevoir d’avoir dans son statut actuel."
+  },
+  "convertedFrom": "Créée à partir du devis {{number}}",
+  "creditNote": {
+    "credits": "Avoir sur la facture {{number}} du {{date}}",
+    "remaining": "Restant"
+  },
+  "numbering": {
+    "title": "Numérotation des factures",
+    "prefix": "Préfixe",
+    "next": "Prochain numéro",
+    "padding": "Chiffres",
+    "format": "Format",
+    "formats": {
+      "sequential": "Numéro séquentiel",
+      "random": "ID aléatoire"
+    },
+    "sample": "Exemple : {{number}}"
   }
 }

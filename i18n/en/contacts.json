@@ -9,24 +9,23 @@
     "invoices": "Invoices",
     "outstanding": "Outstanding",
     "taxId": "Tax / VAT ID",
-    "buyerReference": "Buyer reference (Leitweg-ID)",
+    "buyerReference": "Buyer Reference (Leitweg-ID)",
     "buyerReferenceHint": "Required by German public-sector buyers.",
     "buyerReferenceWarning": "Check digits on this Leitweg-ID look wrong.",
     "addressTitle": "Address"
   },
-  "searchPlaceholder": "Search clients…",
-  "newClient": "New client",
+  "searchPlaceholder": "Filter clients…",
+  "newClient": "New Client",
   "empty": {
     "title": "No clients yet",
     "description": "Clients are saved when you create an invoice, or you can add one now.",
-    "noResults": "No clients match \"{{query}}\"",
-    "clearSearch": "Clear search"
+    "noResultsFiltered": "No matching clients"
   },
   "editor": {
-    "createTitle": "New client",
-    "editTitle": "Edit client",
+    "createTitle": "New Client",
+    "editTitle": "Edit Client",
     "hint": "Changes apply to new invoices. Existing invoices keep the details they were created with.",
-    "fullname": "Full name",
+    "fullname": "Full Name",
     "company": "Company",
     "email": "Email",
     "phone": "Phone",
@@ -35,11 +34,11 @@
   "detail": {
     "outstanding": "Outstanding",
     "noInvoices": "No invoices for this client yet.",
-    "newInvoice": "New invoice",
+    "newInvoice": "New Invoice",
     "edit": "Edit"
   },
   "actions": {
-    "newInvoice": "New invoice",
+    "newInvoice": "New Invoice",
     "edit": "Edit",
     "delete": "Delete",
     "menuLabel": "Actions for {{name}}"
@@ -57,5 +56,13 @@
     "emailRequired": "Enter an email address",
     "emailInvalid": "Enter a valid email address",
     "countryInvalid": "Choose a valid country code"
+  },
+  "searchLabel": "Filter Clients",
+  "count_one": "{{count}} client",
+  "count_other": "{{count}} clients",
+  "balance": {
+    "outstanding": "Outstanding",
+    "settled": "Paid Up",
+    "noInvoices": "No Invoices"
   }
 }

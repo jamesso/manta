@@ -1,0 +1,68 @@
+{
+  "header": "Položky",
+  "new": "Nová položka",
+  "search": {
+    "label": "Filtrovať položky",
+    "placeholder": "Filtrovať položky…"
+  },
+  "views": {
+    "active": "Aktívne",
+    "archived": "Archivované"
+  },
+  "columns": {
+    "name": "Názov",
+    "unit": "Jednotka",
+    "unitPrice": "Jednotková cena",
+    "actions": "Akcie"
+  },
+  "actions": {
+    "open": "Akcie pre {{name}}",
+    "edit": "Upraviť",
+    "archive": "Archivovať",
+    "unarchive": "Obnoviť z archívu",
+    "delete": "Odstrániť"
+  },
+  "dialog": {
+    "newTitle": "Nová položka",
+    "editTitle": "Upraviť položku",
+    "name": "Názov",
+    "description": "Popis",
+    "descriptionHint": "Tento text sa vytlačí na faktúre. Ak je prázdny, vytlačí sa názov.",
+    "unitPrice": "Jednotková cena",
+    "priceHint": "Použije sa mena faktúry.",
+    "unit": "Jednotka",
+    "taxRate": "Daňová sadzba",
+    "defaultTaxRate": "Predvolená sadzba",
+    "save": "Uložiť",
+    "cancel": "Zrušiť"
+  },
+  "detail": {
+    "noDescription": "Bez popisu. Na faktúre sa vytlačí názov."
+  },
+  "errors": {
+    "nameRequired": "Zadajte názov.",
+    "nameTooLong": "Názov môže mať najviac 120 znakov.",
+    "nameTaken": "Tento názov už používa aktívna položka.",
+    "price": "Zadajte platnú jednotkovú cenu.",
+    "unit": "Vyberte platný kód jednotky."
+  },
+  "empty": {
+    "title": "Zatiaľ žiadne položky",
+    "description": "Uložte si produkty a služby, ktoré často predávate. Potom ich vyberiete pri pridávaní riadkov faktúry.",
+    "noArchived": "Žiadne archivované položky",
+    "noResultsFiltered": "Žiadne zodpovedajúce položky"
+  },
+  "units": {
+    "C62": "Kus",
+    "HUR": "Hodina",
+    "DAY": "Deň",
+    "MON": "Mesiac",
+    "KGM": "Kilogram",
+    "MTR": "Meter",
+    "LS": "Paušál"
+  },
+  "count_one": "{{count}} položka",
+  "count_few": "{{count}} položky",
+  "count_many": "{{count}} položky",
+  "count_other": "{{count}} položiek"
+}

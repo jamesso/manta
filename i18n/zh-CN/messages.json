@@ -4,13 +4,29 @@
   "invoice": {
     "saved": "已成功保存发票",
     "updated": "已成功更新发票",
-    "deleted": "已成功删除发票"
+    "deleted": "已成功删除发票",
+    "draftSaved": "草稿已保存"
+  },
+  "estimate": {
+    "saved": "报价单已保存",
+    "draftSaved": "报价单已保存为草稿"
   },
   "contact": {
-    "saved": "已成功保存联系人",
-    "deleted": "已成功删除联系人"
+    "saved": "客户已保存",
+    "updated": "客户已更新",
+    "deleted": "客户已删除"
+  },
+  "item": {
+    "saved": "项目已保存",
+    "updated": "项目已更新",
+    "archived": "项目已归档",
+    "unarchived": "项目已恢复为使用中",
+    "deleted_other": "已删除 {{count}} 个项目",
+    "deleteFailed": "无法删除该项目",
+    "undo": "撤销",
+    "restored": "项目已恢复"
   },
   "settings": {
-    "saved": "已成功保存所有的设置"
+    "saved": "已保存"
   }
 }

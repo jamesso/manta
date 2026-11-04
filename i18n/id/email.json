@@ -1,0 +1,53 @@
+{
+  "defaults": {
+    "invoice": {
+      "subject": "Faktur {number} dari {company}",
+      "body": "Halo {client},\n\nTerlampir faktur {number} sebesar {total}. Jatuh tempo: {dueDate}.\n\nTerima kasih atas kerja samanya.\n\n{company}"
+    },
+    "reminder": {
+      "subject": "Pengingat pembayaran: faktur {number}",
+      "body": "Halo {client},\n\nKami ingin mengingatkan bahwa faktur {number} sebesar {total} telah jatuh tempo pada {dueDate}. Sisa tagihan adalah {balance}.\n\nJika Anda sudah membayar, abaikan pesan ini.\n\nSalam hormat,\n{company}"
+    }
+  },
+  "vars": {
+    "noDueDate": "saat diterima"
+  },
+  "placeholders": {
+    "number": "Nomor faktur",
+    "client": "Nama klien",
+    "total": "Total faktur",
+    "balance": "Sisa tagihan",
+    "dueDate": "Tanggal jatuh tempo",
+    "company": "Nama perusahaan Anda"
+  },
+  "actions": {
+    "email": "Kirim Faktur via Email",
+    "reminder": "Kirim Pengingat",
+    "share": "Bagikan PDF…",
+    "markSent": "Tandai sebagai Terkirim",
+    "markReminded": "Tandai Pengingat sebagai Terkirim",
+    "copyFullMessage": "Salin pesan lengkap"
+  },
+  "toast": {
+    "opened": "Aplikasi email dibuka — lampirkan PDF dari folder",
+    "openedHint": "{{fileName}} dipilih di folder yang terbuka.",
+    "truncated": "Pesan terlalu panjang untuk tautan email. Gunakan Salin pesan lengkap untuk menyalin seluruh teks.",
+    "failed": "Tidak dapat menyiapkan email: {{reason}}",
+    "noMailApp": "Tidak dapat membuka aplikasi email Anda. PDF sudah disimpan.",
+    "markedSent": "Ditandai sebagai terkirim",
+    "notSaved": "Simpan faktur terlebih dahulu.",
+    "copied": "Pesan disalin"
+  },
+  "ask": {
+    "title": "Alamat Email untuk {{client}}",
+    "description": "Masukkan alamat email untuk membuka aplikasi email Anda dengan draf pesan.",
+    "label": "Email",
+    "save": "Simpan alamat ini ke klien",
+    "confirm": "Lanjutkan",
+    "invalid": "Masukkan alamat email yang valid"
+  },
+  "sheet": {
+    "sentOn": "Dikirim pada {{date}}",
+    "remindedOn": "Pengingat dikirim pada {{date}}"
+  }
+}

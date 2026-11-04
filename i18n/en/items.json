@@ -1,10 +1,9 @@
 {
   "header": "Items",
-  "count": "{{count}} total",
-  "new": "New item",
+  "new": "New Item",
   "search": {
-    "label": "Search items",
-    "placeholder": "Search by name, description, or unit…"
+    "label": "Filter Items",
+    "placeholder": "Filter items…"
   },
   "views": {
     "active": "Active",
@@ -13,29 +12,32 @@
   "columns": {
     "name": "Name",
     "unit": "Unit",
-    "unitPrice": "Unit price",
+    "unitPrice": "Unit Price",
     "actions": "Actions"
   },
   "actions": {
     "open": "Actions for {{name}}",
     "edit": "Edit",
     "archive": "Archive",
-    "unarchive": "Restore to active",
+    "unarchive": "Unarchive",
     "delete": "Delete"
   },
   "dialog": {
-    "newTitle": "New item",
-    "editTitle": "Edit item",
+    "newTitle": "New Item",
+    "editTitle": "Edit Item",
     "name": "Name",
     "description": "Description",
     "descriptionHint": "This text prints on the invoice. If empty, the name prints.",
-    "unitPrice": "Unit price",
+    "unitPrice": "Unit Price",
     "priceHint": "Uses the currency of the invoice.",
     "unit": "Unit",
-    "taxRate": "Tax rate",
-    "defaultTaxRate": "Default rate",
+    "taxRate": "Tax Rate",
+    "defaultTaxRate": "Default Rate",
     "save": "Save",
     "cancel": "Cancel"
+  },
+  "detail": {
+    "noDescription": "No description. The name prints on the invoice."
   },
   "errors": {
     "nameRequired": "Enter a name.",
@@ -47,9 +49,8 @@
   "empty": {
     "title": "No items yet",
     "description": "Save products and services you sell often. Then pick them when you add invoice lines.",
-    "noResults": "No items match “{{query}}”",
-    "clearSearch": "Clear search",
-    "noArchived": "No archived items"
+    "noArchived": "No archived items",
+    "noResultsFiltered": "No matching items"
   },
   "units": {
     "C62": "Unit",
@@ -58,6 +59,8 @@
     "MON": "Month",
     "KGM": "Kilogram",
     "MTR": "Metre",
-    "LS": "Lump sum"
-  }
+    "LS": "Lump Sum"
+  },
+  "count_one": "{{count}} item",
+  "count_other": "{{count}} items"
 }

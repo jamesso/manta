@@ -1,5 +1,167 @@
 {
   "header": "Nastavenia",
+  "nav": {
+    "profile": "Profil",
+    "invoice": "Faktúry",
+    "appearance": "Vzhľad",
+    "language": "Jazyky",
+    "export": "Exporty",
+    "updates": "Aktualizácie",
+    "sounds": "Zvuky"
+  },
+  "sections": {
+    "profile": {
+      "title": "Profil",
+      "description": "Vaše meno a kontaktné údaje sa zobrazujú na faktúrach.",
+      "details": "Údaje o firme"
+    },
+    "invoice": {
+      "title": "Faktúry",
+      "description": "Číslovanie, štýl, mena, daň a e-maily pre vaše doklady.",
+      "email": {
+        "title": "Šablóny e-mailov",
+        "tabInvoice": "E-mail s faktúrou",
+        "tabReminder": "Pripomienka platby",
+        "subject": "Predmet",
+        "body": "Text",
+        "placeholders": "Zástupné symboly",
+        "preview": "Ukážka",
+        "lengthWarning": "Táto správa je dlhá. Poštové aplikácie môžu dostať skrátený text.",
+        "reset": "Obnoviť predvolené",
+        "defaultBadge": "Predvolené",
+        "description": "Predmet a text e-mailov s faktúrou a pripomienkou."
+      },
+      "invoicesTitle": "Faktúry",
+      "requiredHint": "Polia, ktoré sa zobrazia pri vytvorení nového dokladu.",
+      "numberingTitle": "Číslovanie"
+    },
+    "estimates": {
+      "title": "Cenové ponuky"
+    },
+    "creditNotes": {
+      "title": "Dobropisy"
+    },
+    "eInvoice": {
+      "title": "E-faktúra",
+      "description": "Exportujte XRechnung XML a Factur-X PDF z ukážky.",
+      "disclaimer": "Manta vytvára e-faktúry podľa svojich najlepších možností, no nezaručuje súlad s právnymi predpismi. Pred odoslaním súbory overte a skontrolujte so svojím daňovým poradcom.",
+      "enable": "Povoliť export e-faktúr",
+      "defaultFormat": "Predvolený formát",
+      "buyerReference": "Referencia odberateľa",
+      "buyerReferenceHint": "Vyžadovať pri klientoch referenciu odberateľa (Leitweg-ID) a uvádzať ju na faktúrach. XRechnung ju vyžaduje.",
+      "confirmTitle": "Povoliť export e-faktúr",
+      "confirmAccept": "Rozumiem",
+      "formats": {
+        "xrechnung": "XRechnung XML (UBL)",
+        "facturx": "Factur-X (PDF)"
+      }
+    },
+    "appearance": {
+      "title": "Vzhľad",
+      "description": "Vyberte svetlý, tmavý alebo systémový vzhľad."
+    },
+    "language": {
+      "title": "Jazyky",
+      "description": "Jazyk aplikácie a zobrazenie dátumov.",
+      "languageHint": "Používa sa v ponukách a na nových faktúrach.",
+      "dateFormatHint": "Ako sa dátumy zobrazujú v zoznamoch a na faktúrach."
+    },
+    "export": {
+      "title": "Exporty",
+      "description": "Priečinok pre export PDF, zálohy a export CSV.",
+      "chooseFolder": "Vybrať priečinok",
+      "pdfTitle": "Export PDF",
+      "backupTitle": "Záloha",
+      "exportBackup": "Exportovať zálohu",
+      "exportBackupHint": "Uložte všetky údaje a nastavenia do jedného súboru.",
+      "importBackupHint": "Pridajte údaje zo zálohy Manta.",
+      "csvTitle": "CSV",
+      "csvInvoices": "Faktúry",
+      "csvInvoicesHint": "Uložte všetky faktúry ako tabuľkový súbor."
+    },
+    "updates": {
+      "title": "Aktualizácie",
+      "description": "Manta pri spustení kontroluje aktualizácie.",
+      "check": "Kontrolovať aktualizácie",
+      "manual": "Skontrolovať teraz",
+      "manualHint": "Vyhľadať novú verziu Manta."
+    },
+    "sounds": {
+      "title": "Zvuky",
+      "description": "Zvuky upozornení pri ukladaní alebo odstraňovaní."
+    }
+  },
+  "errors": {
+    "taxAmount": "Zadajte číslo 0 alebo vyššie",
+    "fraction": "Zadajte celé číslo od 0 do 20",
+    "numberingNext": "Zadajte celé číslo 1 alebo vyššie",
+    "numberingPadding": "Zadajte celé číslo od 0 do 12",
+    "numberingPrefix": "Použite najviac 20 znakov",
+    "importInProgress": "Prebieha import. Skúste to znova po jeho dokončení.",
+    "profileInvalid": "Hodnoty profilu sú neplatné",
+    "generalInvalid": "Hodnoty všeobecných nastavení sú neplatné",
+    "invoiceInvalid": "Hodnoty nastavení faktúr sú neplatné",
+    "themeInvalid": "Vyberte Systém, Svetlý alebo Tmavý",
+    "languageInvalid": "Vyberte podporovaný jazyk",
+    "soundInvalid": "Vyberte podporovaný zvuk",
+    "templateInvalid": "Vyberte podporovanú šablónu faktúry",
+    "validDays": "Zadajte celé číslo od 1 do 365",
+    "countryInvalid": "Vyberte platný kód krajiny",
+    "ibanInvalid": "Zadajte platný IBAN",
+    "bicInvalid": "Zadajte platný BIC",
+    "emailSubject": "Použite jeden riadok s najviac 200 znakmi",
+    "emailBody": "Použite najviac 1500 znakov"
+  },
+  "backup": {
+    "export": "Exportovať zálohu…",
+    "import": "Importovať",
+    "exportCsv": "Exportovať faktúry ako CSV…",
+    "autoHint": "Manta pred každým importom uloží automatickú zálohu.",
+    "exportSuccess": "Záloha uložená",
+    "csvSuccess": "CSV exportované",
+    "showFile": "Zobraziť súbor",
+    "showSafety": "Zobraziť bezpečnostnú zálohu",
+    "importTitle": "Importovať zálohu",
+    "importing": "Importuje sa…",
+    "includeSettings": "Importovať nastavenia",
+    "modeSkip": "Ponechať moju verziu",
+    "modeOverwrite": "Použiť verziu zo zálohy",
+    "exportedOn": "Exportované {{date}}",
+    "fromVersion": "Manta {{version}}",
+    "colInFile": "V súbore",
+    "colNew": "Nové",
+    "colExisting": "Už v aplikácii Manta",
+    "colSkipped": "Preskočené",
+    "rowInvoices": "Faktúry a cenové ponuky",
+    "skippedHint": "Preskočené záznamy sú poškodené alebo sú v súbore dvakrát. Manta ich neimportuje.",
+    "empty": "Táto záloha neobsahuje žiadne záznamy.",
+    "existingTitle": "Záznamy, ktoré už sú v aplikácii Manta",
+    "keepHint_one": "Ponechať aktuálnu verziu {{count}} záznamu.",
+    "keepHint_few": "Ponechať aktuálnu verziu {{count}} záznamov.",
+    "keepHint_many": "Ponechať aktuálnu verziu {{count}} záznamu.",
+    "keepHint_other": "Ponechať aktuálnu verziu {{count}} záznamov.",
+    "replaceHint_one": "Nahradiť {{count}} záznam verziou z tejto zálohy.",
+    "replaceHint_few": "Nahradiť {{count}} záznamy verziou z tejto zálohy.",
+    "replaceHint_many": "Nahradiť {{count}} záznamu verziou z tejto zálohy.",
+    "replaceHint_other": "Nahradiť {{count}} záznamov verziou z tejto zálohy.",
+    "settingsHint": "Nahradí váš firemný profil, predvolené nastavenia faktúr a predvoľby aplikácie.",
+    "noSettings": "Táto záloha neobsahuje nastavenia.",
+    "creditWarnings": "Vystavené dobropisy s upozorneniami k údajom (chýbajúca faktúra, nezhoda meny alebo neplatná suma): {{count}}. Aj tak sa naimportujú.",
+    "importSuccess": "Importované nové: {{added}}, nahradené: {{overwritten}}, preskočené: {{skipped}}.",
+    "importFailedDocs": "Nepodarilo sa zapísať: {{count}}.",
+    "batchFailed": "Import {{batch}} sa zastavil: {{detail}}",
+    "settingsApplyFailed": "Nastavenia zlyhali pre: {{sections}}.",
+    "snapshotWarning": "Bezpečnostná záloha bola ponechaná, ale čistenie zlyhalo: {{detail}}",
+    "skippedSettings": "Nastavenia neboli importované pre: {{sections}}.",
+    "errors": {
+      "invalidJson": "Tento súbor nie je platná záloha.",
+      "wrongApp": "Tento súbor nie je zálohou Manta.",
+      "newerVersion": "Táto záloha bola vytvorená novšou verziou Manta. Aktualizujte Manta a skúste to znova.",
+      "invalidFormat": "Tento súbor zálohy je poškodený.",
+      "tooLarge": "Tento súbor je príliš veľký (viac ako 100 MB).",
+      "unsupportedData": "Táto záloha obsahuje nepodporované údaje príloh."
+    }
+  },
   "tabs": {
     "profile": "Profil",
     "invoice": "Faktúra",
@@ -8,13 +170,48 @@
   "fields": {
     "logo": {
       "name": "Logo",
-      "hint": "Povolené PNG, JPG a SVG (odporúča sa)"
+      "hint": "Podporované formáty: PNG, JPG a SVG (odporúčané)"
     },
     "taxSettings": "Nastavenia dane",
+    "taxId": "DIČ",
+    "vatId": "IČ DPH",
+    "legalName": "Obchodné meno",
+    "legalNameHint": "Registrovaný názov; ak ho necháte prázdny, použije sa názov spoločnosti.",
+    "printedAddress": "Tlačená adresa (použije sa, keď je štruktúrovaná adresa prázdna)",
+    "postalAddress": {
+      "title": "Adresa",
+      "street": "Ulica",
+      "additional": "Doplnkový riadok",
+      "postcode": "PSČ",
+      "city": "Mesto",
+      "region": "Kraj",
+      "country": "Krajina"
+    },
+    "bank": {
+      "title": "Bankový účet",
+      "accountName": "Majiteľ účtu",
+      "iban": "IBAN",
+      "bic": "BIC"
+    },
     "template": "Šablóna",
+    "style": {
+      "title": "Štýl faktúry",
+      "hint": "Tento štýl používajú všetky doklady. Ak chcete zmeniť jeden doklad, otvorte jeho ukážku.",
+      "toggles": {
+        "showLogo": "Zobraziť logo",
+        "showLogoHint": "Vytlačí logo v hornej časti dokladu.",
+        "useSymbol": "Použiť symbol meny",
+        "useSymbolHint": "Zobrazí $ namiesto USD.",
+        "showRecipient": "Zobraziť údaje klienta",
+        "showRecipientHint": "Vytlačí meno a adresu klienta.",
+        "customAccentColor": "Farba zvýraznenia",
+        "customAccentColorHint": "Zafarbí nadpis a súčty."
+      }
+    },
+    "estimateValidDays": "Platnosť (dni)",
     "dateFormat": "Formát dátumu",
     "pdfExportDir": "Priečinok pre export PDF",
-    "requiredFields": "Povinné polia",
+    "requiredFields": "Polia formulára",
     "sound": "Zvuk",
     "mute": "Stlmiť",
     "autoCheckUpdate": {
@@ -23,9 +220,9 @@
       "weekly": "Každý týždeň"
     },
     "currency": {
-      "placement": "Umiestnenie znaku",
-      "afterAmount": "Za čiastkou",
-      "beforeAmount": "Pred čiastkou",
+      "placement": "Umiestnenie symbolu",
+      "afterAmount": "Za sumou",
+      "beforeAmount": "Pred sumou",
       "fraction": "Desatinné miesta",
       "separator": "Oddeľovač",
       "commaDot": "Čiarka a bodka",
@@ -33,34 +230,104 @@
       "spaceDot": "Medzera a bodka"
     },
     "openPDFReader": "Po exporte otvoriť PDF",
+    "theme": {
+      "name": "Motív",
+      "system": "Systém",
+      "light": "Svetlý",
+      "dark": "Tmavý"
+    },
     "language": {
       "name": "Jazyk",
-      "ar": "Arabský",
-      "cs": "Český",
-      "da": "Dánsky",
-      "de": "Nemecký",
-      "el": "Grécky",
-      "en": "Anglický",
-      "esES": "Španielsky",
-      "fr": "Francúzsky",
-      "id": "Indonézsky",
-      "it": "Taliansky",
-      "ja": "Japonský",
-      "ko": "Kórejský",
-      "lt": "Litovský",
-      "nl": "Holandský",
+      "ar": "Arabčina",
+      "cs": "Čeština",
+      "da": "Dánčina",
+      "de": "Nemčina",
+      "el": "Gréčtina",
+      "en": "Angličtina",
+      "esES": "Španielčina",
+      "fr": "Francúzština",
+      "id": "Indonézština",
+      "it": "Taliančina",
+      "ja": "Japončina",
+      "ko": "Kórejčina",
+      "lt": "Litovčina",
+      "nl": "Holandčina",
       "ptBR": "Portugalčina (Brazília)",
-      "ptPT": "Portugalský",
-      "ru": "Ruský",
-      "sk": "Slovenský",
-      "th": "Thajský",
-      "tl": "Tagalog, Filipíny",
-      "tr": "Turecký",
-      "ur-PK": "Urdský (Pakistan)",
-      "vi": "Vietnamský",
+      "ptPT": "Portugalčina",
+      "ru": "Ruština",
+      "sk": "Slovenčina",
+      "th": "Thajčina",
+      "tl": "Tagalčina (Filipíny)",
+      "tr": "Turečtina",
+      "ur-PK": "Urdčina (Pakistan)",
+      "vi": "Vietnamčina",
       "zh-CN": "Čínština (zjednodušená)",
       "zh-TW": "Čínština (tradičná)"
     },
     "other": "Ostatné"
+  },
+  "taxRates": {
+    "title": "Daňové sadzby",
+    "add": "Pridať daňovú sadzbu",
+    "edit": "Upraviť daňovú sadzbu",
+    "default": "Predvolená",
+    "inactive": "Neaktívna",
+    "setDefault": "Nastaviť ako predvolenú",
+    "markInactive": "Označiť ako neaktívnu",
+    "reactivate": "Znova aktivovať",
+    "delete": "Odstrániť",
+    "usedBy": "Používajú ju položky ({{count}}). Označiť ju radšej ako neaktívnu?",
+    "hintSnapshot": "Zmeny sa prejavia na nových riadkoch. Uložené faktúry si ponechajú svoje sadzby.",
+    "hintAdvisor": "Opýtajte sa daňového poradcu, ktorá kategória sa uplatňuje.",
+    "name": "Názov",
+    "rate": "Sadzba %",
+    "category": "Kategória",
+    "reason": "Dôvod oslobodenia",
+    "actionsFor": "Akcie pre {{name}}",
+    "categories": {
+      "S": {
+        "label": "Základná sadzba",
+        "help": "Bežná sadzba DPH, napríklad 19 % alebo 20 %."
+      },
+      "Z": {
+        "label": "Nulová sadzba",
+        "help": "Zdaniteľné, ale sadzbou 0 %."
+      },
+      "E": {
+        "label": "Oslobodené",
+        "help": "Oslobodené od DPH zo zákona. Vyžaduje dôvod."
+      },
+      "AE": {
+        "label": "Prenesenie daňovej povinnosti",
+        "help": "DPH platí odberateľ. Vyžaduje dôvod a IČ DPH odberateľa."
+      },
+      "K": {
+        "label": "Dodanie tovaru v rámci EÚ",
+        "help": "Tovar pre odberateľa registrovaného pre DPH v inej krajine EÚ. Vyžaduje dôvod."
+      },
+      "G": {
+        "label": "Vývoz mimo EÚ",
+        "help": "Na vývoz sa DPH neúčtuje. Vyžaduje dôvod."
+      },
+      "O": {
+        "label": "Nepodlieha DPH",
+        "help": "Nepodlieha DPH, napríklad ak nie ste platiteľom DPH. Vyžaduje dôvod."
+      }
+    },
+    "errors": {
+      "name": "Zadajte názov s dĺžkou 1 až 40 znakov.",
+      "rateStandard": "Základné sadzby musia byť od 0 do 100 %.",
+      "rateZero": "Táto kategória musí používať 0 %.",
+      "reasonRequired": "Zadajte dôvod oslobodenia (najviac 200 znakov).",
+      "duplicateId": "Každá daňová sadzba musí mať jedinečné ID.",
+      "noDefault": "Ako predvolenú označte práve jednu aktívnu sadzbu.",
+      "empty": "Pridajte aspoň jednu daňovú sadzbu."
+    }
+  },
+  "logo": {
+    "drop": "Presuňte logo sem",
+    "choose": "Vybrať logo…",
+    "replace": "Nahradiť…",
+    "remove": "Odstrániť logo"
   }
 }

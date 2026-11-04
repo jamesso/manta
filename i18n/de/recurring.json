@@ -1,0 +1,105 @@
+{
+  "header": {
+    "name": "Wiederkehrend",
+    "new": "Neue wiederkehrende Rechnung",
+    "count_one": "{{count}} wiederkehrende Rechnung",
+    "count_other": "{{count}} wiederkehrende Rechnungen"
+  },
+  "empty": {
+    "title": "Noch keine wiederkehrenden Rechnungen",
+    "description": "Manta erstellt Entwürfe, während die App geöffnet ist. Es wird nichts automatisch versendet.",
+    "noResults": "Keine passenden wiederkehrenden Rechnungen"
+  },
+  "columns": {
+    "name": "Name",
+    "client": "Kunde",
+    "amount": "Betrag",
+    "interval": "Wiederholung",
+    "nextDate": "Nächster Entwurf",
+    "active": "Aktiv",
+    "actions": "Aktionen"
+  },
+  "interval": {
+    "weekly": "Wöchentlich",
+    "monthly": "Monatlich",
+    "quarterly": "Vierteljährlich",
+    "yearly": "Jährlich"
+  },
+  "repeatEvery": {
+    "weekly_one": "Jede Woche",
+    "weekly_other": "Alle {{count}} Wochen",
+    "monthly_one": "Jeden Monat",
+    "monthly_other": "Alle {{count}} Monate",
+    "quarterly_one": "Jedes Quartal",
+    "quarterly_other": "Alle {{count}} Quartale",
+    "yearly_one": "Jedes Jahr",
+    "yearly_other": "Alle {{count}} Jahre"
+  },
+  "status": {
+    "paused": "Pausiert",
+    "ended": "Beendet",
+    "active": "Aktiv"
+  },
+  "actions": {
+    "open": "Aktionen für wiederkehrende Rechnung",
+    "editSchedule": "Zeitplan bearbeiten",
+    "editTemplate": "Vorlage bearbeiten",
+    "pause": "Pausieren",
+    "resume": "Fortsetzen",
+    "delete": "Löschen"
+  },
+  "sheet": {
+    "titleNew": "Neue wiederkehrende Rechnung",
+    "titleEdit": "Wiederkehrende Rechnung bearbeiten",
+    "schedule": "Zeitplan",
+    "name": "Name",
+    "every": "Wiederholen alle",
+    "interval": "Intervall",
+    "startDate": "Startdatum",
+    "endDate": "Enddatum (optional)",
+    "noEndDate": "Kein Enddatum",
+    "activeHint": "Pausierte Vorlagen erstellen keine Entwürfe.",
+    "active": "Aktiv",
+    "summary": "Zusammenfassung",
+    "client": "Kunde",
+    "items": "Positionen",
+    "itemsCount_one": "{{count}} Position",
+    "itemsCount_other": "{{count}} Positionen",
+    "amount": "Betrag",
+    "nextDates": "Nächste Entwürfe",
+    "createsToday": "Der erste Entwurf wird heute beim Speichern erstellt.",
+    "save": "Speichern",
+    "cancel": "Abbrechen"
+  },
+  "detail": {
+    "startDate": "Startdatum",
+    "endDate": "Enddatum",
+    "noItems": "Keine Positionen in der Vorlage.",
+    "created": "Erstellte Rechnungen",
+    "noneCreated": "Noch keine Rechnungen erstellt."
+  },
+  "errors": {
+    "name": "Geben Sie einen Namen ein.",
+    "every": "Geben Sie eine Zahl von 1 bis 99 ein.",
+    "interval": "Wählen Sie ein Intervall.",
+    "startDate": "Wählen Sie ein gültiges Startdatum.",
+    "endDate": "Das Enddatum darf nicht vor dem Startdatum liegen.",
+    "template": "Fügen Sie der Vorlage einen Kunden und mindestens eine Position hinzu."
+  },
+  "toast": {
+    "created_one": "{{count}} wiederkehrende Rechnung als Entwurf erstellt",
+    "created_other": "{{count}} wiederkehrende Rechnungen als Entwürfe erstellt",
+    "viewDrafts": "Entwürfe anzeigen",
+    "capped": "Weitere Entwürfe stehen aus für: {{names}}",
+    "runFailed": "Erstellung wiederkehrender Rechnungen fehlgeschlagen",
+    "saved": "Wiederkehrende Rechnung gespeichert",
+    "deleted_one": "Wiederkehrende Rechnung gelöscht",
+    "deleted_other": "{{count}} wiederkehrende Rechnungen gelöscht",
+    "undo": "Rückgängig",
+    "restored": "Wiederkehrende Rechnung wiederhergestellt"
+  },
+  "search": {
+    "label": "Wiederkehrende Rechnungen filtern",
+    "placeholder": "Wiederkehrende filtern …"
+  }
+}

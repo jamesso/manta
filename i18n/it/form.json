@@ -1,11 +1,26 @@
 {
+  "cancel": {
+    "label": "Annulla",
+    "title": "Annullare le modifiche?",
+    "newMessage": "Questo documento non è salvato. I dati inseriti andranno persi.",
+    "editMessage": "Le modifiche non salvate andranno perse. La versione salvata non cambia.",
+    "confirm": "Annulla modifiche",
+    "keep": "Continua a modificare"
+  },
   "header": {
-    "new": "Creare una Nuova Fattura",
-    "edit": "Modifica Fattura",
+    "new": "Nuova fattura",
+    "edit": "Modifica fattura",
+    "newEstimate": "Nuovo preventivo",
+    "editEstimate": "Modifica preventivo",
+    "newCreditNote": "Nuova nota di credito",
+    "editCreditNote": "Modifica nota di credito",
+    "template": "Modello di fattura ricorrente",
     "btns": {
-      "clear": "Ripulisci",
+      "clear": "Reimposta",
       "update": "Aggiorna",
-      "saveAndPreview": "Salva e Anteprima"
+      "saveAndPreview": "Salva e anteprima",
+      "saveDraft": "Salva bozza",
+      "issueCreditNote": "Emetti nota di credito"
     }
   },
   "settings": {
@@ -18,52 +33,158 @@
       "description": "Descrizione",
       "price": "Prezzo",
       "quantity": "Quantità",
-      "add": "Aggiungi una nuova riga"
+      "add": "Aggiungi una nuova riga",
+      "amount": "Importo",
+      "reorder": "Riordina articolo {{number}}",
+      "remove": "Rimuovi articolo {{number}}",
+      "descriptionRow": "Descrizione dell'articolo {{number}}",
+      "priceRow": "Prezzo dell'articolo {{number}}",
+      "quantityRow": "Quantità dell'articolo {{number}}",
+      "unit": "Unità",
+      "saveAsItem": "Salva riga {{n}} come articolo",
+      "noMatch": "Nessun articolo salvato corrispondente",
+      "pickPlaceholder": "Scegli o digita…"
     },
     "recipient": {
       "name": "Destinatario",
       "select": "Seleziona",
-      "add": "Crea Nuovo"
+      "add": "Crea nuovo",
+      "fullname": "Nome e cognome",
+      "company": "Azienda",
+      "email": "Email",
+      "phone": "Telefono",
+      "pickPlaceholder": "Scegli un cliente o digita un nuovo nome…",
+      "linked": "Cliente salvato. Digita un nome diverso per aggiungere un nuovo cliente.",
+      "noMatch": "Nessun cliente corrispondente",
+      "taxId": "Codice fiscale / Partita IVA"
     },
     "discount": {
       "name": "Sconto",
       "percentage": "Percentuale",
-      "flat": "Tariffa Fissa"
+      "flat": "Importo fisso"
     },
     "dueDate": {
-      "name": "Data di Scadenza",
+      "name": "Data di scadenza",
       "placeHolder": "Seleziona una data",
       "paymentTerms": {
         "name": "Seleziona i termini di pagamento",
         "net7": {
           "label": "7 gg",
-          "description": "Pagamento entro 7 giorni data fattura"
+          "description": "Pagamento entro 7 giorni dalla data della fattura"
         },
         "net10": {
           "label": "10 gg",
-          "description": "Pagamento entro 10 giorni data fattura"
+          "description": "Pagamento entro 10 giorni dalla data della fattura"
         },
         "net30": {
-          "label": "30 gg FM",
-          "description": "Pagamento entro 30 giorni fine mese data fattura"
+          "label": "30 gg",
+          "description": "Pagamento entro 30 giorni dalla data della fattura"
         },
         "net60": {
-          "label": "60 gg FM",
-          "description": "Pagamento entro 60 giorni fine mese data fattura"
+          "label": "60 gg",
+          "description": "Pagamento entro 60 giorni dalla data della fattura"
         },
         "net90": {
-          "label": "90 gg FM",
-          "description": "Pagamento entro 90 giorni fine mese data fattura"
+          "label": "90 gg",
+          "description": "Pagamento entro 90 giorni dalla data della fattura"
         }
-      }
+      },
+      "modeDate": "Data",
+      "modeTerms": "Termini di pagamento",
+      "modeOffset": "Giorni dall'emissione",
+      "offsetDays": "Giorni dall'emissione",
+      "computed": "Scade il {{date}}"
     },
     "tax": {
       "name": "Imposta",
       "id": "Partita IVA",
       "method": "Metodo",
-      "reverse": "Inversione Contabile"
+      "reverse": "Inversione contabile",
+      "rate": "Imposta",
+      "rateRow": "Aliquota dell'articolo {{number}}",
+      "perLine": "Imposta per riga",
+      "switchToLine": "Passa all'imposta per riga",
+      "switchHint": "I totali vengono ricalcolati con le tue aliquote.",
+      "on": "su {{amount}}"
     },
-    "note": "Note",
-    "currency": "Valuta"
+    "note": "Nota",
+    "currency": "Valuta",
+    "issuedAt": "Data di emissione",
+    "clearDate": "Cancella data",
+    "invoiceNumber": {
+      "label": "Numero fattura",
+      "hint": "Prossimo numero dalle Impostazioni"
+    },
+    "estimateNumber": {
+      "label": "Numero preventivo",
+      "hint": "Prossimo numero dalle Impostazioni"
+    },
+    "validUntil": "Valido fino al"
+  },
+  "cards": {
+    "client": "Cliente",
+    "details": "Dettagli",
+    "items": "Righe",
+    "adjustments": "Rettifiche",
+    "notes": "Note"
+  },
+  "customize": {
+    "name": "Personalizza campi",
+    "saveAsDefault": "Salva come predefinito"
+  },
+  "preview": {
+    "toggle": "Anteprima",
+    "error": "Impossibile generare l'anteprima.",
+    "overflow": "Le fatture lunghe potrebbero essere tagliate nell'anteprima dal vivo. Usa $t(form:header.btns.saveAndPreview) per la pagina completa."
+  },
+  "footer": {
+    "saveTemplate": "Salva modello"
+  },
+  "totals": {
+    "subtotal": "Subtotale",
+    "discount": "Sconto",
+    "tax": "Imposta",
+    "total": "Totale",
+    "amountPaid": "Importo pagato",
+    "balanceDue": "Saldo dovuto"
+  },
+  "errors": {
+    "summary": "Correggi i campi evidenziati.",
+    "noItems": "Aggiungi almeno un articolo.",
+    "draftEmpty": "Aggiungi un cliente o un articolo prima di salvare una bozza.",
+    "offsetDays": "Inserisci un numero di giorni da 0 a 365.",
+    "recipientRequired": "Scegli un cliente.",
+    "partialContactSave": "Fattura salvata, ma non è stato possibile salvare il contatto.",
+    "partialNumberingSave": "Fattura salvata, ma non è stato possibile salvare il prossimo numero di fattura.",
+    "totalBelowPaid": "Il nuovo totale ({{total}}) è inferiore all'importo già pagato ({{paid}}). Rimuovi prima un pagamento.",
+    "currencyLocked": "Questa fattura ha dei pagamenti. Non puoi cambiarne la valuta.",
+    "taxRateRequired": "Scegli un'aliquota per questa riga.",
+    "discountTooLarge": "Lo sconto è troppo alto per questa fattura.",
+    "exemptionReasonRequired": "Inserisci un motivo di esenzione.",
+    "conflictingExemptionReasons": "Le righe d'imposta dello stesso gruppo devono avere lo stesso motivo di esenzione.",
+    "validUntilBeforeIssue": "La data di validità deve essere uguale o successiva alla data di emissione",
+    "creditedMissing": "Manca la fattura stornata.",
+    "creditZero": "L'importo del credito deve essere maggiore di 0.",
+    "creditCurrency": "La valuta della nota di credito deve corrispondere a quella della fattura.",
+    "creditExceeds": "Il credito supera l'importo ancora stornabile.",
+    "belowCredited": "Il totale non può essere inferiore ai pagamenti più le note di credito emesse.",
+    "creditOriginalNotCreditable": "Con lo stato attuale, questa fattura non può ricevere una nota di credito."
+  },
+  "convertedFrom": "Creata dal preventivo {{number}}",
+  "creditNote": {
+    "credits": "Storna la fattura {{number}} del {{date}}",
+    "remaining": "Residuo"
+  },
+  "numbering": {
+    "title": "Numerazione fatture",
+    "prefix": "Prefisso",
+    "next": "Prossimo numero",
+    "padding": "Cifre",
+    "format": "Formato",
+    "formats": {
+      "sequential": "Numero progressivo",
+      "random": "ID casuale"
+    },
+    "sample": "Esempio: {{number}}"
   }
 }

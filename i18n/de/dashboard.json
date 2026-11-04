@@ -1,0 +1,67 @@
+{
+  "heading": "Übersicht",
+  "loading": "Übersicht wird geladen …",
+  "kpi": {
+    "outstanding": "Offen",
+    "overdue": "Überfällig",
+    "paidThisMonth": "Bezahlt diesen Monat",
+    "creditedThisMonth": "Gutschriften: −{{amount}}",
+    "drafts": "Entwürfe",
+    "invoiceCount": "{{count}} Rechnungen"
+  },
+  "currency": {
+    "label": "Währung"
+  },
+  "chart": {
+    "paid": "Bezahlt",
+    "title": "Zahlungen der letzten 6 Monate",
+    "empty": "Keine Zahlungen in den letzten 6 Monaten"
+  },
+  "needsAttention": {
+    "title": "Handlungsbedarf",
+    "empty": "Kein Handlungsbedarf"
+  },
+  "recent": {
+    "title": "Letzte Rechnungen",
+    "empty": "Noch keine Rechnungen",
+    "viewAll": "Alle Rechnungen anzeigen",
+    "newInvoice": "Neue Rechnung"
+  },
+  "checklist": {
+    "heading": "Erste Schritte mit Manta",
+    "progress": "{{done}} von {{total}} erledigt",
+    "allDone": "Alles eingerichtet",
+    "dismiss": "Checkliste ausblenden",
+    "toastHidden": "Checkliste ausgeblendet",
+    "undo": "Rückgängig",
+    "items": {
+      "profile": "Firmennamen hinzufügen",
+      "logo": "Logo hinzufügen",
+      "client": "Ersten Kunden hinzufügen",
+      "invoice": "Erste Rechnung erstellen",
+      "pdf": "Erstes PDF exportieren"
+    },
+    "links": {
+      "profile": "Firmenprofil bearbeiten",
+      "logo": "Logo hochladen",
+      "client": "Kunde hinzufügen",
+      "invoice": "Neue Rechnung",
+      "pdf": "Vorschau und PDF-Export"
+    },
+    "pdfHint": "Erstellen Sie zuerst eine Rechnung"
+  },
+  "greeting": {
+    "morning": "Guten Morgen",
+    "afternoon": "Guten Tag",
+    "evening": "Guten Abend",
+    "lead": "{{greeting}}, Sie haben",
+    "and": "und",
+    "clear": "{{greeting}}. Alles erledigt – nichts ist überfällig.",
+    "overdue_one": "{{count}} überfällige Rechnung",
+    "overdue_other": "{{count}} überfällige Rechnungen",
+    "outstanding_one": "{{count}} offene Rechnung",
+    "outstanding_other": "{{count}} offene Rechnungen",
+    "drafts_one": "{{count}} Entwurf",
+    "drafts_other": "{{count}} Entwürfe"
+  }
+}

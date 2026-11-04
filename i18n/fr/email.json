@@ -1,0 +1,53 @@
+{
+  "defaults": {
+    "invoice": {
+      "subject": "Facture {number} de {company}",
+      "body": "Bonjour {client},\n\nVeuillez trouver ci-joint la facture {number} d’un montant de {total}. Échéance : {dueDate}.\n\nMerci pour votre confiance.\n\n{company}"
+    },
+    "reminder": {
+      "subject": "Rappel de paiement : facture {number}",
+      "body": "Bonjour {client},\n\nNous nous permettons de vous rappeler que la facture {number} d’un montant de {total} (échéance : {dueDate}) reste à régler. Le solde dû est de {balance}.\n\nSi vous avez déjà effectué le paiement, merci de ne pas tenir compte de ce message.\n\nCordialement,\n{company}"
+    }
+  },
+  "vars": {
+    "noDueDate": "à réception"
+  },
+  "placeholders": {
+    "number": "Numéro de facture",
+    "client": "Nom du client",
+    "total": "Total de la facture",
+    "balance": "Solde dû",
+    "dueDate": "Échéance",
+    "company": "Nom de votre société"
+  },
+  "actions": {
+    "email": "Envoyer la facture par email",
+    "reminder": "Envoyer un rappel",
+    "share": "Partager le PDF…",
+    "markSent": "Marquer comme envoyée",
+    "markReminded": "Marquer le rappel comme envoyé",
+    "copyFullMessage": "Copier le message complet"
+  },
+  "toast": {
+    "opened": "Messagerie ouverte : joignez le PDF depuis le dossier",
+    "openedHint": "{{fileName}} est sélectionné dans le dossier qui s’est ouvert.",
+    "truncated": "Le message est trop long pour un lien mail. Utilisez Copier le message complet pour copier tout le texte.",
+    "failed": "Impossible de préparer l’email : {{reason}}",
+    "noMailApp": "Impossible d’ouvrir votre messagerie. Le PDF est enregistré.",
+    "markedSent": "Marquée comme envoyée",
+    "notSaved": "Enregistrez d’abord la facture.",
+    "copied": "Message copié"
+  },
+  "ask": {
+    "title": "Adresse email de {{client}}",
+    "description": "Saisissez une adresse email pour ouvrir votre messagerie avec un brouillon de message.",
+    "label": "Email",
+    "save": "Enregistrer cette adresse pour le client",
+    "confirm": "Continuer",
+    "invalid": "Saisissez une adresse email valide"
+  },
+  "sheet": {
+    "sentOn": "Envoyée le {{date}}",
+    "remindedOn": "Rappel envoyé le {{date}}"
+  }
+}

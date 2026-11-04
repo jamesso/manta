@@ -1,5 +1,161 @@
 {
   "header": "Pengaturan",
+  "nav": {
+    "profile": "Profil",
+    "invoice": "Faktur",
+    "appearance": "Tampilan",
+    "language": "Bahasa",
+    "export": "Ekspor",
+    "updates": "Pembaruan",
+    "sounds": "Suara"
+  },
+  "sections": {
+    "profile": {
+      "title": "Profil",
+      "description": "Nama dan detail kontak Anda tampil di faktur.",
+      "details": "Detail Usaha"
+    },
+    "invoice": {
+      "title": "Faktur",
+      "description": "Penomoran, gaya, mata uang, pajak, dan email untuk dokumen Anda.",
+      "email": {
+        "title": "Templat Email",
+        "tabInvoice": "Email Faktur",
+        "tabReminder": "Pengingat Pembayaran",
+        "subject": "Subjek",
+        "body": "Isi",
+        "placeholders": "Placeholder",
+        "preview": "Pratinjau",
+        "lengthWarning": "Pesan ini panjang. Aplikasi email mungkin menerima teks yang terpotong.",
+        "reset": "Kembalikan ke Standar",
+        "defaultBadge": "Standar",
+        "description": "Subjek dan teks untuk email faktur dan pengingat."
+      },
+      "invoicesTitle": "Faktur",
+      "requiredHint": "Bidang yang ditampilkan saat Anda membuat dokumen baru.",
+      "numberingTitle": "Penomoran"
+    },
+    "estimates": {
+      "title": "Penawaran"
+    },
+    "creditNotes": {
+      "title": "Nota Kredit"
+    },
+    "eInvoice": {
+      "title": "E-faktur",
+      "description": "Ekspor XML XRechnung dan PDF Factur-X dari pratinjau.",
+      "disclaimer": "Manta membuat e-faktur sebaik mungkin, tetapi tidak menjamin kepatuhan hukum. Validasi berkasnya dan periksa bersama konsultan pajak Anda sebelum mengirimnya.",
+      "enable": "Aktifkan Ekspor E-faktur",
+      "defaultFormat": "Format Standar",
+      "buyerReference": "Referensi Pembeli",
+      "buyerReferenceHint": "Minta referensi pembeli (Leitweg-ID) pada klien dan cantumkan di faktur. XRechnung memerlukannya.",
+      "confirmTitle": "Aktifkan Ekspor E-faktur",
+      "confirmAccept": "Saya Mengerti",
+      "formats": {
+        "xrechnung": "XRechnung XML (UBL)",
+        "facturx": "Factur-X (PDF)"
+      }
+    },
+    "appearance": {
+      "title": "Tampilan",
+      "description": "Pilih terang, gelap, atau ikuti sistem."
+    },
+    "language": {
+      "title": "Bahasa",
+      "description": "Bahasa aplikasi dan cara tanggal ditampilkan.",
+      "languageHint": "Digunakan untuk menu dan faktur baru.",
+      "dateFormatHint": "Cara tanggal ditampilkan di daftar dan pada faktur."
+    },
+    "export": {
+      "title": "Ekspor",
+      "description": "Folder ekspor PDF, cadangan, dan ekspor CSV.",
+      "chooseFolder": "Pilih Folder",
+      "pdfTitle": "Ekspor PDF",
+      "backupTitle": "Cadangan",
+      "exportBackup": "Ekspor Cadangan",
+      "exportBackupHint": "Simpan semua data dan pengaturan Anda ke satu berkas.",
+      "importBackupHint": "Tambahkan data dari berkas cadangan Manta.",
+      "csvTitle": "CSV",
+      "csvInvoices": "Faktur",
+      "csvInvoicesHint": "Simpan semua faktur sebagai berkas spreadsheet."
+    },
+    "updates": {
+      "title": "Pembaruan",
+      "description": "Manta memeriksa pembaruan saat dijalankan.",
+      "check": "Periksa Pembaruan",
+      "manual": "Periksa Sekarang",
+      "manualHint": "Cari versi baru Manta."
+    },
+    "sounds": {
+      "title": "Suara",
+      "description": "Suara notifikasi saat Anda menyimpan atau menghapus."
+    }
+  },
+  "errors": {
+    "taxAmount": "Masukkan angka 0 atau lebih",
+    "fraction": "Masukkan bilangan bulat dari 0 hingga 20",
+    "numberingNext": "Masukkan bilangan bulat 1 atau lebih",
+    "numberingPadding": "Masukkan bilangan bulat dari 0 hingga 12",
+    "numberingPrefix": "Gunakan maksimal 20 karakter",
+    "importInProgress": "Impor sedang berjalan. Coba lagi setelah selesai.",
+    "profileInvalid": "Nilai profil tidak valid",
+    "generalInvalid": "Nilai pengaturan umum tidak valid",
+    "invoiceInvalid": "Nilai pengaturan faktur tidak valid",
+    "themeInvalid": "Pilih Sistem, Terang, atau Gelap",
+    "languageInvalid": "Pilih bahasa yang didukung",
+    "soundInvalid": "Pilih suara yang didukung",
+    "templateInvalid": "Pilih templat faktur yang didukung",
+    "validDays": "Masukkan bilangan bulat dari 1 hingga 365",
+    "countryInvalid": "Pilih kode negara yang valid",
+    "ibanInvalid": "Masukkan IBAN yang valid",
+    "bicInvalid": "Masukkan BIC yang valid",
+    "emailSubject": "Gunakan satu baris dengan maksimal 200 karakter",
+    "emailBody": "Gunakan maksimal 1500 karakter"
+  },
+  "backup": {
+    "export": "Ekspor Cadangan…",
+    "import": "Impor",
+    "exportCsv": "Ekspor Faktur sebagai CSV…",
+    "autoHint": "Manta menyimpan cadangan otomatis sebelum setiap impor.",
+    "exportSuccess": "Cadangan Disimpan",
+    "csvSuccess": "CSV Diekspor",
+    "showFile": "Tampilkan Berkas",
+    "showSafety": "Tampilkan Cadangan Pengaman",
+    "importTitle": "Impor Cadangan",
+    "importing": "Mengimpor…",
+    "includeSettings": "Impor Pengaturan",
+    "modeSkip": "Pertahankan Versi Saya",
+    "modeOverwrite": "Gunakan Versi Cadangan",
+    "exportedOn": "Diekspor {{date}}",
+    "fromVersion": "Manta {{version}}",
+    "colInFile": "Di Berkas",
+    "colNew": "Baru",
+    "colExisting": "Sudah Ada di Manta",
+    "colSkipped": "Dilewati",
+    "rowInvoices": "Faktur & Penawaran",
+    "skippedHint": "Catatan yang dilewati rusak atau tercantum dua kali di berkas. Manta tidak akan mengimpornya.",
+    "empty": "Cadangan ini tidak berisi catatan.",
+    "existingTitle": "Catatan yang Sudah Ada di Manta",
+    "keepHint_other": "Pertahankan versi Anda saat ini untuk {{count}} catatan.",
+    "replaceHint_other": "Ganti {{count}} catatan dengan versi dari cadangan ini.",
+    "settingsHint": "Ganti profil usaha, standar faktur, dan preferensi aplikasi Anda.",
+    "noSettings": "Cadangan ini tidak berisi pengaturan.",
+    "creditWarnings": "{{count}} nota kredit yang diterbitkan memiliki peringatan data (faktur hilang, mata uang tidak cocok, atau jumlah tidak valid). Nota tersebut tetap akan diimpor.",
+    "importSuccess": "Mengimpor {{added}} item baru dan mengganti {{overwritten}} item. Melewati {{skipped}}.",
+    "importFailedDocs": "{{count}} tidak dapat ditulis.",
+    "batchFailed": "Impor {{batch}} terhenti: {{detail}}",
+    "settingsApplyFailed": "Pengaturan gagal untuk: {{sections}}.",
+    "snapshotWarning": "Cadangan pengaman disimpan, tetapi pembersihan gagal: {{detail}}",
+    "skippedSettings": "Pengaturan tidak diimpor untuk: {{sections}}.",
+    "errors": {
+      "invalidJson": "Berkas ini bukan cadangan yang valid.",
+      "wrongApp": "Berkas ini bukan cadangan Manta.",
+      "newerVersion": "Cadangan ini dibuat oleh versi Manta yang lebih baru. Perbarui Manta, lalu coba lagi.",
+      "invalidFormat": "Berkas cadangan ini rusak.",
+      "tooLarge": "Berkas ini terlalu besar (lebih dari 100 MB).",
+      "unsupportedData": "Cadangan ini berisi data lampiran yang tidak didukung."
+    }
+  },
   "tabs": {
     "profile": "Profil",
     "invoice": "Faktur",
@@ -11,28 +167,69 @@
       "hint": "Menerima PNG, JPG & SVG (Direkomendasikan)"
     },
     "taxSettings": "Pengaturan Pajak",
+    "taxId": "ID Pajak",
+    "vatId": "ID PPN",
+    "legalName": "Nama Resmi",
+    "legalNameHint": "Nama terdaftar; kosongkan untuk memakai nama perusahaan.",
+    "printedAddress": "Alamat cetak (digunakan jika alamat terstruktur kosong)",
+    "postalAddress": {
+      "title": "Alamat",
+      "street": "Jalan",
+      "additional": "Baris Tambahan",
+      "postcode": "Kode Pos",
+      "city": "Kota",
+      "region": "Provinsi/Wilayah",
+      "country": "Negara"
+    },
+    "bank": {
+      "title": "Rekening Bank",
+      "accountName": "Nama Pemilik Rekening",
+      "iban": "IBAN",
+      "bic": "BIC"
+    },
     "template": "Templat",
+    "style": {
+      "title": "Gaya Faktur",
+      "hint": "Semua dokumen menggunakan gaya ini. Untuk mengubah satu dokumen, buka pratinjaunya.",
+      "toggles": {
+        "showLogo": "Tampilkan Logo",
+        "showLogoHint": "Cetak logo Anda di bagian atas dokumen.",
+        "useSymbol": "Gunakan Simbol Mata Uang",
+        "useSymbolHint": "Tampilkan $ alih-alih USD.",
+        "showRecipient": "Tampilkan Detail Klien",
+        "showRecipientHint": "Cetak nama dan alamat klien.",
+        "customAccentColor": "Warna Aksen",
+        "customAccentColorHint": "Beri warna pada judul dan total."
+      }
+    },
+    "estimateValidDays": "Berlaku Selama (Hari)",
     "dateFormat": "Format Tanggal",
-    "pdfExportDir": "Direktori Ekspor PDF",
-    "requiredFields": "Bidang-bidang yang diperlukan",
+    "pdfExportDir": "Folder Ekspor",
+    "requiredFields": "Bidang Formulir",
     "sound": "Suara",
     "mute": "Senyap",
     "autoCheckUpdate": {
-      "name": "Pemeriksaan Otomatis untuk Pembaruan",
+      "name": "Periksa Pembaruan Secara Otomatis",
       "daily": "Setiap Hari (Direkomendasikan)",
       "weekly": "Setiap Minggu"
     },
     "currency": {
-      "placement": "Tanda penempatan",
+      "placement": "Posisi Simbol",
       "afterAmount": "Setelah Jumlah",
       "beforeAmount": "Sebelum Jumlah",
-      "fraction": "Pecahan Desimal",
+      "fraction": "Angka Desimal",
       "separator": "Pemisah",
       "commaDot": "Koma & Titik",
       "dotComma": "Titik & Koma",
       "spaceDot": "Spasi & Titik"
     },
     "openPDFReader": "Buka PDF setelah Mengekspor",
+    "theme": {
+      "name": "Tema",
+      "system": "Sistem",
+      "light": "Terang",
+      "dark": "Gelap"
+    },
     "language": {
       "name": "Bahasa",
       "ar": "Arab",
@@ -42,25 +239,89 @@
       "el": "Yunani",
       "en": "Inggris",
       "esES": "Spanyol",
-      "fr": "Perancis",
+      "fr": "Prancis",
       "id": "Indonesia",
       "it": "Italia",
       "ja": "Jepang",
       "ko": "Korea",
       "lt": "Lithuania",
       "nl": "Belanda",
-      "ptBR": "Portugis, Brazil",
+      "ptBR": "Portugis, Brasil",
       "ptPT": "Portugis",
       "ru": "Rusia",
       "sk": "Slovakia",
-      "th": "Thailand",
+      "th": "Thai",
       "tl": "Tagalog, Filipina",
       "tr": "Turki",
       "ur-PK": "Urdu (Pakistan)",
       "vi": "Vietnam",
-      "zh-CN": "China (Disederhanakan)",
-      "zh-TW": "China (Tradisional)"
+      "zh-CN": "Tionghoa (Sederhana)",
+      "zh-TW": "Tionghoa (Tradisional)"
     },
     "other": "Lainnya"
+  },
+  "taxRates": {
+    "title": "Tarif Pajak",
+    "add": "Tambah Tarif Pajak",
+    "edit": "Sunting Tarif Pajak",
+    "default": "Standar",
+    "inactive": "Nonaktif",
+    "setDefault": "Jadikan Standar",
+    "markInactive": "Tandai sebagai Nonaktif",
+    "reactivate": "Aktifkan Kembali",
+    "delete": "Hapus",
+    "usedBy": "Digunakan oleh {{count}} item. Tandai sebagai nonaktif saja?",
+    "hintSnapshot": "Perubahan berlaku untuk baris baru. Faktur yang tersimpan tetap memakai tarifnya.",
+    "hintAdvisor": "Tanyakan kepada konsultan pajak Anda kategori mana yang berlaku.",
+    "name": "Nama",
+    "rate": "Tarif %",
+    "category": "Kategori",
+    "reason": "Alasan Pembebasan",
+    "actionsFor": "Tindakan untuk {{name}}",
+    "categories": {
+      "S": {
+        "label": "Tarif Standar",
+        "help": "Tarif PPN normal, misalnya 19 % atau 20 %."
+      },
+      "Z": {
+        "label": "Tarif Nol",
+        "help": "Kena pajak, tetapi dengan tarif 0 %."
+      },
+      "E": {
+        "label": "Dibebaskan",
+        "help": "Dibebaskan dari PPN menurut undang-undang. Memerlukan alasan."
+      },
+      "AE": {
+        "label": "Reverse Charge",
+        "help": "Pembeli yang membayar PPN. Memerlukan alasan dan ID PPN pembeli."
+      },
+      "K": {
+        "label": "Pengiriman Intra-Komunitas",
+        "help": "Barang untuk pembeli terdaftar PPN di negara UE lain. Memerlukan alasan."
+      },
+      "G": {
+        "label": "Ekspor ke Luar UE",
+        "help": "Tidak ada PPN yang dikenakan atas ekspor. Memerlukan alasan."
+      },
+      "O": {
+        "label": "Di Luar Cakupan PPN",
+        "help": "Tidak dikenakan PPN, misalnya karena Anda tidak terdaftar PPN. Memerlukan alasan."
+      }
+    },
+    "errors": {
+      "name": "Masukkan nama dengan 1 hingga 40 karakter.",
+      "rateStandard": "Tarif standar harus antara 0 dan 100 %.",
+      "rateZero": "Kategori ini harus menggunakan 0 %.",
+      "reasonRequired": "Masukkan alasan pembebasan (maksimal 200 karakter).",
+      "duplicateId": "Setiap tarif pajak memerlukan id yang unik.",
+      "noDefault": "Tandai tepat satu tarif aktif sebagai standar.",
+      "empty": "Tambahkan minimal satu tarif pajak."
+    }
+  },
+  "logo": {
+    "drop": "Letakkan Logo di Sini",
+    "choose": "Pilih Logo…",
+    "replace": "Ganti…",
+    "remove": "Hapus Logo"
   }
 }

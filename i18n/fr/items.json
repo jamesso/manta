@@ -1,0 +1,67 @@
+{
+  "header": "Articles",
+  "new": "Nouvel article",
+  "search": {
+    "label": "Filtrer les articles",
+    "placeholder": "Filtrer les articles…"
+  },
+  "views": {
+    "active": "Actifs",
+    "archived": "Archivés"
+  },
+  "columns": {
+    "name": "Nom",
+    "unit": "Unité",
+    "unitPrice": "Prix unitaire",
+    "actions": "Actions"
+  },
+  "actions": {
+    "open": "Actions pour {{name}}",
+    "edit": "Modifier",
+    "archive": "Archiver",
+    "unarchive": "Désarchiver",
+    "delete": "Supprimer"
+  },
+  "dialog": {
+    "newTitle": "Nouvel article",
+    "editTitle": "Modifier l’article",
+    "name": "Nom",
+    "description": "Description",
+    "descriptionHint": "Ce texte s’imprime sur la facture. S’il est vide, c’est le nom qui s’imprime.",
+    "unitPrice": "Prix unitaire",
+    "priceHint": "Utilise la devise de la facture.",
+    "unit": "Unité",
+    "taxRate": "Taux de taxe",
+    "defaultTaxRate": "Taux par défaut",
+    "save": "Enregistrer",
+    "cancel": "Annuler"
+  },
+  "detail": {
+    "noDescription": "Aucune description. Le nom s’imprime sur la facture."
+  },
+  "errors": {
+    "nameRequired": "Saisissez un nom.",
+    "nameTooLong": "Le nom ne doit pas dépasser 120 caractères.",
+    "nameTaken": "Un article actif utilise déjà ce nom.",
+    "price": "Saisissez un prix unitaire valide.",
+    "unit": "Choisissez un code d’unité valide."
+  },
+  "empty": {
+    "title": "Aucun article pour le moment",
+    "description": "Enregistrez les produits et services que vous vendez souvent, puis sélectionnez-les lorsque vous ajoutez des lignes de facture.",
+    "noArchived": "Aucun article archivé",
+    "noResultsFiltered": "Aucun article correspondant"
+  },
+  "units": {
+    "C62": "Unité",
+    "HUR": "Heure",
+    "DAY": "Jour",
+    "MON": "Mois",
+    "KGM": "Kilogramme",
+    "MTR": "Mètre",
+    "LS": "Forfait"
+  },
+  "count_one": "{{count}} article",
+  "count_many": "{{count}} articles",
+  "count_other": "{{count}} articles"
+}

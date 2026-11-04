@@ -4,10 +4,10 @@
     "count_one": "{{count}} estimate",
     "count_other": "{{count}} estimates"
   },
-  "newEstimate": "New estimate",
+  "newEstimate": "New Estimate",
   "search": {
-    "label": "Search estimates",
-    "placeholder": "Search number, client or amount"
+    "label": "Filter Estimates",
+    "placeholder": "Filter estimates…"
   },
   "tabs": {
     "all": "All",
@@ -29,7 +29,7 @@
     "number": "Number",
     "client": "Client",
     "issued": "Issued",
-    "validUntil": "Valid until",
+    "validUntil": "Valid Until",
     "amount": "Amount",
     "status": "Status",
     "actions": "Actions"
@@ -42,15 +42,15 @@
     "expiredDays_other": "Expired {{count}} days ago"
   },
   "actions": {
-    "open": "Estimate actions",
+    "open": "Estimate Actions",
     "edit": "Edit",
     "duplicate": "Duplicate",
-    "markSent": "Mark as sent",
-    "markAccepted": "Mark as accepted",
-    "markDeclined": "Mark as declined",
-    "convert": "Convert to invoice",
-    "openInvoice": "Open invoice",
-    "preview": "Preview / Export PDF",
+    "markSent": "Mark as Sent",
+    "markAccepted": "Mark as Accepted",
+    "markDeclined": "Mark as Declined",
+    "convert": "Convert to Invoice",
+    "openInvoice": "Open Invoice",
+    "preview": "Preview",
     "delete": "Delete"
   },
   "empty": {

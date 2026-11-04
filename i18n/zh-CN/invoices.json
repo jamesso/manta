@@ -1,6 +1,96 @@
 {
   "header": {
-    "name": "所有发票"
+    "name": "发票",
+    "count_other": "{{count}} 张发票"
+  },
+  "newInvoice": "新建发票",
+  "search": {
+    "label": "筛选发票",
+    "placeholder": "筛选发票…"
+  },
+  "tabs": {
+    "all": "全部",
+    "draft": "草稿",
+    "outstanding": "未付",
+    "overdue": "逾期",
+    "paid": "已付款",
+    "closed": "已关闭",
+    "creditNotes": "贷项通知单"
+  },
+  "columns": {
+    "select": "选择发票 {{number}}",
+    "selectAll": "选择所有发票",
+    "number": "编号",
+    "client": "客户",
+    "issued": "开具日期",
+    "due": "截止日期",
+    "amount": "金额",
+    "status": "状态",
+    "actions": "操作"
+  },
+  "number": {
+    "none": "暂无编号"
+  },
+  "due": {
+    "none": "无截止日期",
+    "today": "今天到期",
+    "inDays_other": "{{count}} 天后到期",
+    "overdueDays_other": "逾期 {{count}} 天"
+  },
+  "actions": {
+    "open": "发票操作",
+    "preview": "预览",
+    "edit": "编辑",
+    "duplicate": "复制",
+    "makeRecurring": "设为定期发票",
+    "createCreditNote": "创建贷项通知单",
+    "recordPayment": "记录付款…",
+    "markPaidInFull": "标记为已全额付款",
+    "setStatus": "设置状态",
+    "delete": "删除"
+  },
+  "bulk": {
+    "markPaidInFull": "标记为已全额付款"
+  },
+  "empty": {
+    "title": "还没有发票",
+    "description": "创建你的第一张发票，它会显示在这里。",
+    "noResults": "没有匹配的发票",
+    "noResultsDescription": "请尝试其他搜索或筛选条件。",
+    "clearFilters": "清除筛选"
+  },
+  "sheet": {
+    "title": "发票 {{number}}",
+    "client": "客户",
+    "issued": "开具日期",
+    "due": "截止日期",
+    "currency": "币种",
+    "items": "项目",
+    "description": "简介",
+    "quantity": "数量",
+    "price": "单价",
+    "subtotal": "小计",
+    "discount": "折扣",
+    "tax": "税费",
+    "total": "总计",
+    "note": "备注",
+    "fromEstimate": "由报价单 {{number}} 创建",
+    "credited": "已冲销",
+    "balanceDue": "应付余额",
+    "refundDue": "应退金额",
+    "creditNotes": "贷项通知单",
+    "einvoiceTitle": "电子发票"
+  },
+  "toast": {
+    "deleted_other": "已删除 {{count}} 张发票",
+    "deleteFailed_other": "{{count}} 张发票无法删除",
+    "undo": "撤销",
+    "restored_other": "已恢复 {{count}} 张发票",
+    "updated_other": "已更新 {{count}} 张发票",
+    "notFound": "未找到发票"
+  },
+  "nav": {
+    "overdueBadge_other": "{{count}} 张逾期发票"
   },
   "fields": {
     "client": "客户",
@@ -10,14 +100,121 @@
     "total": "总价"
   },
   "status": {
-    "pending": "待定",
+    "draft": "草稿",
+    "pending": "待处理",
+    "partial": "部分付款",
+    "overdue": "逾期",
     "paid": "已付款",
     "refunded": "已退款",
     "cancelled": "已取消"
   },
+  "payments": {
+    "title": "付款",
+    "empty": "尚无付款记录。",
+    "amountPaid": "已付金额",
+    "balanceDue": "应付余额",
+    "partiallyPaid": "部分付款",
+    "balanceShort": "应付 {{amount}}",
+    "remove": "删除 {{date}} 的 {{amount}} 付款",
+    "methods": {
+      "bank": "银行转账",
+      "cash": "现金",
+      "check": "支票",
+      "card": "银行卡",
+      "paypal": "PayPal",
+      "other": "其他"
+    },
+    "dialog": {
+      "title": "记录付款",
+      "description": "发票 {{number}} · 应付余额 {{balance}}",
+      "amount": "金额",
+      "payFull": "支付全部余额",
+      "date": "付款日期",
+      "method": "付款方式",
+      "note": "备注",
+      "notePlaceholder": "参考号或备注（可选）",
+      "submit": "记录付款",
+      "cancel": "取消"
+    },
+    "errors": {
+      "amountInvalid": "请输入金额，例如 {{example}}。",
+      "amountPositive": "金额必须大于 0。",
+      "tooManyDecimals_zero": "只能使用整数。",
+      "tooManyDecimals_other": "最多使用 {{count}} 位小数。",
+      "overpayment": "金额超过应付余额（{{balance}}）。",
+      "dateRequired": "请选择付款日期。",
+      "dateFuture": "付款日期不能是将来的日期。",
+      "draft": "草稿不能接收付款。请先保存发票。",
+      "closed": "已退款或已取消的发票不能接收付款。请先将状态设为待处理。",
+      "nothingDue": "此发票没有应付余额。",
+      "duplicate": "此付款已记录。",
+      "notFound": "未找到发票或付款。",
+      "draftWithPayments": "有付款的发票不能改为草稿。请先删除付款。"
+    },
+    "toast": {
+      "recorded_other": "已记录 {{count}} 笔付款",
+      "skipped_other": "已跳过 {{count}} 张发票：{{reason}}",
+      "removed": "付款已删除",
+      "undo": "撤销",
+      "stillPaid": "付款已覆盖总额，因此发票仍为已付款。"
+    }
+  },
   "btns": {
     "view": "查看",
     "edit": "编辑",
-    "markAsPaid": "标记为「已付款」"
+    "markAsPaid": "标记为已付款"
+  },
+  "creditNotes": {
+    "status": {
+      "draft": "草稿",
+      "issued": "已开具",
+      "void": "已作废"
+    },
+    "columns": {
+      "credits": "冲销发票"
+    },
+    "sheet": {
+      "title": "贷项通知单 {{number}}",
+      "credits": "冲销 {{date}} 的发票 {{number}}",
+      "totalCredit": "冲销总额"
+    },
+    "actions": {
+      "issue": "开具",
+      "void": "作废",
+      "edit": "编辑",
+      "delete": "删除",
+      "preview": "预览"
+    },
+    "void": {
+      "title": "要作废贷项通知单 {{number}} 吗？",
+      "description": "此操作无法撤销。冲销金额将退回到发票。",
+      "confirm": "作废"
+    },
+    "errors": {
+      "creditedMissing": "缺少被冲销的发票。",
+      "creditZero": "冲销金额必须大于 0。",
+      "creditCurrency": "贷项通知单的币种必须与发票一致。",
+      "creditExceeds": "冲销金额超过了剩余可冲销金额。",
+      "syncFailed": "贷项通知单已保存，但无法更新发票。",
+      "updateFailed": "无法更新被冲销的发票。",
+      "repairFailed": "冲销后无法修复发票状态。",
+      "notAllowed": "无法为此发票创建贷项通知单。",
+      "void": "贷项通知单已作废。",
+      "draftVoid": "草稿贷项通知单不能作废。"
+    },
+    "toast": {
+      "issued": "贷项通知单已开具",
+      "voided": "贷项通知单已作废",
+      "hasCreditNotes_other": "此发票有贷项通知单。请先将其删除或作废。",
+      "issuedCreditNote_other": "此发票有已开具的贷项通知单。"
+    },
+    "empty": {
+      "title": "还没有贷项通知单",
+      "description": "从发票创建贷项通知单后，会显示在这里。"
+    }
+  },
+  "views": {
+    "invoices": "发票",
+    "creditNotes": "贷项通知单"
   }
 }

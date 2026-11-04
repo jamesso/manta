@@ -1,0 +1,113 @@
+{
+  "header": {
+    "name": "Récurrentes",
+    "new": "Nouvelle facture récurrente",
+    "count_one": "{{count}} facture récurrente",
+    "count_many": "{{count}} factures récurrentes",
+    "count_other": "{{count}} factures récurrentes"
+  },
+  "empty": {
+    "title": "Aucune facture récurrente pour le moment",
+    "description": "Manta crée des brouillons tant que l’application est ouverte. Rien n’est envoyé automatiquement.",
+    "noResults": "Aucune facture récurrente correspondante"
+  },
+  "columns": {
+    "name": "Nom",
+    "client": "Client",
+    "amount": "Montant",
+    "interval": "Fréquence",
+    "nextDate": "Prochain brouillon",
+    "active": "Active",
+    "actions": "Actions"
+  },
+  "interval": {
+    "weekly": "Toutes les semaines",
+    "monthly": "Tous les mois",
+    "quarterly": "Tous les trimestres",
+    "yearly": "Tous les ans"
+  },
+  "repeatEvery": {
+    "weekly_one": "Chaque semaine",
+    "weekly_many": "Toutes les {{count}} semaines",
+    "weekly_other": "Toutes les {{count}} semaines",
+    "monthly_one": "Chaque mois",
+    "monthly_many": "Tous les {{count}} mois",
+    "monthly_other": "Tous les {{count}} mois",
+    "quarterly_one": "Chaque trimestre",
+    "quarterly_many": "Tous les {{count}} trimestres",
+    "quarterly_other": "Tous les {{count}} trimestres",
+    "yearly_one": "Chaque année",
+    "yearly_many": "Tous les {{count}} ans",
+    "yearly_other": "Tous les {{count}} ans"
+  },
+  "status": {
+    "paused": "En pause",
+    "ended": "Terminée",
+    "active": "Active"
+  },
+  "actions": {
+    "open": "Actions de la facture récurrente",
+    "editSchedule": "Modifier la planification",
+    "editTemplate": "Modifier le modèle",
+    "pause": "Mettre en pause",
+    "resume": "Reprendre",
+    "delete": "Supprimer"
+  },
+  "sheet": {
+    "titleNew": "Nouvelle facture récurrente",
+    "titleEdit": "Modifier la facture récurrente",
+    "schedule": "Planification",
+    "name": "Nom",
+    "every": "Répéter tous les",
+    "interval": "Intervalle",
+    "startDate": "Date de début",
+    "endDate": "Date de fin (facultatif)",
+    "noEndDate": "Pas de date de fin",
+    "activeHint": "Les modèles en pause ne créent aucun brouillon.",
+    "active": "Active",
+    "summary": "Récapitulatif",
+    "client": "Client",
+    "items": "Articles",
+    "itemsCount_one": "{{count}} article",
+    "itemsCount_many": "{{count}} articles",
+    "itemsCount_other": "{{count}} articles",
+    "amount": "Montant",
+    "nextDates": "Prochains brouillons",
+    "createsToday": "Le premier brouillon sera créé aujourd’hui à l’enregistrement.",
+    "save": "Enregistrer",
+    "cancel": "Annuler"
+  },
+  "detail": {
+    "startDate": "Date de début",
+    "endDate": "Date de fin",
+    "noItems": "Aucune ligne dans le modèle.",
+    "created": "Factures créées",
+    "noneCreated": "Aucune facture créée pour le moment."
+  },
+  "errors": {
+    "name": "Saisissez un nom.",
+    "every": "Saisissez un nombre entre 1 et 99.",
+    "interval": "Choisissez un intervalle.",
+    "startDate": "Choisissez une date de début valide.",
+    "endDate": "La date de fin doit être identique ou postérieure à la date de début.",
+    "template": "Ajoutez un client et au moins une ligne dans le modèle."
+  },
+  "toast": {
+    "created_one": "{{count}} facture récurrente créée en brouillon",
+    "created_many": "{{count}} factures récurrentes créées en brouillon",
+    "created_other": "{{count}} factures récurrentes créées en brouillon",
+    "viewDrafts": "Voir les brouillons",
+    "capped": "D’autres brouillons sont en attente pour : {{names}}",
+    "runFailed": "Échec de la génération récurrente",
+    "saved": "Facture récurrente enregistrée",
+    "deleted_one": "Facture récurrente supprimée",
+    "deleted_many": "{{count}} factures récurrentes supprimées",
+    "deleted_other": "{{count}} factures récurrentes supprimées",
+    "undo": "Annuler",
+    "restored": "Facture récurrente restaurée"
+  },
+  "search": {
+    "label": "Filtrer les factures récurrentes",
+    "placeholder": "Filtrer les récurrentes…"
+  }
+}

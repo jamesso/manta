@@ -2,7 +2,7 @@
   "appUpdate": {
     "available": {
       "title": "Nová aktualizácia je k dispozícii",
-      "message": "Chcete prevziať aktualizácie na pozadí?"
+      "message": "Chcete stiahnuť aktualizáciu na pozadí?"
     },
     "noUpdate": {
       "title": "Nie je k dispozícii žiadna aktualizácia",
@@ -13,23 +13,23 @@
     },
     "downloaded": {
       "title": "Aktualizácia bola stiahnutá",
-      "message": "Chcete ukončiť a aktualizovať aplikáciu?",
+      "message": "Chcete aplikáciu teraz ukončiť a aktualizovať?",
       "quitNow": "Ukončiť teraz",
       "later": "Neskôr"
     }
   },
   "noAccess": {
     "title": "Nemáte potrebné povolenia",
-    "message": "Prosím, vyberte si iný adresár"
+    "message": "Vyberte iný priečinok"
   },
   "errorBoundary": "Vyskytla sa chyba",
   "deleteInvoice": {
-    "title": "Vymazať túto faktúru?",
+    "title": "Odstrániť túto faktúru?",
     "message": "Faktúra bude natrvalo odstránená z databázy"
   },
   "deleteContact": {
-    "title": "Vymazať tento kontakt?",
-    "message": "Kontakt bude natrvalo odstránený z databázy"
+    "title": "Odstrániť tohto klienta?",
+    "message": "Klient bude natrvalo odstránený z databázy"
   },
   "fileTypeErr": {
     "title": "Prosím, vyberte si iný súbor"
@@ -41,8 +41,8 @@
     },
     "recipient": {
       "empty": {
-        "title": "Neplatný kontakt",
-        "message": "Kontakt nemôže byť prázdny"
+        "title": "Neplatný klient",
+        "message": "Klient musí byť vyplnený"
       },
       "requiredFields": {
         "title": "Povinné polia",
@@ -50,7 +50,7 @@
       },
       "email": {
         "title": "Neplatný e-mail",
-        "message": "Prosím, vyberte iný email"
+        "message": "Zadajte iný e-mail"
       }
     },
     "rows": {
@@ -73,13 +73,13 @@
     },
     "currency": {
       "fraction": {
-        "title": "Neplatný zlomok",
-        "message": "Desatinný zlomok musí byť rovný alebo väčší ako nula"
+        "title": "Neplatný počet desatinných miest",
+        "message": "Počet desatinných miest musí byť 0 alebo viac"
       }
     },
     "discount": {
       "title": "Neplatná zľava",
-      "message": "Čiastka zľavy musí byť väčšia ako nula"
+      "message": "Výška zľavy musí byť väčšia ako nula"
     },
     "tax": {
       "title": "Neplatná daň",

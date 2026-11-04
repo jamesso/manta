@@ -1,16 +1,31 @@
 {
+  "cancel": {
+    "label": "取消",
+    "title": "要放弃更改吗？",
+    "newMessage": "此单据尚未保存。你输入的内容将会丢失。",
+    "editMessage": "未保存的更改将会丢失。已保存的版本不会改变。",
+    "confirm": "放弃",
+    "keep": "继续编辑"
+  },
   "header": {
-    "new": "创建新发票",
+    "new": "新建发票",
     "edit": "编辑发票",
+    "newEstimate": "新建报价单",
+    "editEstimate": "编辑报价单",
+    "newCreditNote": "新建贷项通知单",
+    "editCreditNote": "编辑贷项通知单",
+    "template": "定期发票模板",
     "btns": {
       "clear": "清空",
       "update": "更新",
-      "saveAndPreview": "保存并预览"
+      "saveAndPreview": "保存并预览",
+      "saveDraft": "保存草稿",
+      "issueCreditNote": "开具贷项通知单"
     }
   },
   "settings": {
     "name": "表单设置",
-    "hint": "打开需要在表格中设置为必填的项目"
+    "hint": "开启任意字段，即可将其设为表单必填项。"
   },
   "fields": {
     "items": {
@@ -18,12 +33,30 @@
       "description": "简介",
       "price": "价格",
       "quantity": "数量",
-      "add": "增加一项"
+      "add": "增加一项",
+      "amount": "金额",
+      "reorder": "调整第 {{number}} 项的顺序",
+      "remove": "删除第 {{number}} 项",
+      "descriptionRow": "第 {{number}} 项的简介",
+      "priceRow": "第 {{number}} 项的价格",
+      "quantityRow": "第 {{number}} 项的数量",
+      "unit": "单位",
+      "saveAsItem": "将第 {{n}} 行保存为项目",
+      "noMatch": "没有匹配的已保存项目",
+      "pickPlaceholder": "选择或输入…"
     },
     "recipient": {
       "name": "接收者",
       "select": "选择",
-      "add": "新建"
+      "add": "新建",
+      "fullname": "完整姓名",
+      "company": "公司",
+      "email": "电子邮件",
+      "phone": "电话",
+      "pickPlaceholder": "选择客户或输入新名称…",
+      "linked": "已保存的客户。输入其他名称可添加新客户。",
+      "noMatch": "没有匹配的客户",
+      "taxId": "税号 / 增值税号"
     },
     "discount": {
       "name": "折扣",
@@ -34,7 +67,7 @@
       "name": "截止日期",
       "placeHolder": "选择一个日期",
       "paymentTerms": {
-        "name": "选择付款时间的条款",
+        "name": "选择付款条款",
         "net7": {
           "label": "Net 7",
           "description": "在开票日期后 7 天内付款"
@@ -55,15 +88,103 @@
           "label": "Net 90",
           "description": "在开票日期后 90 天内付款"
         }
-      }
+      },
+      "modeDate": "日期",
+      "modeTerms": "付款条款",
+      "modeOffset": "开票后天数",
+      "offsetDays": "开票后天数",
+      "computed": "{{date}} 到期"
     },
     "tax": {
       "name": "税费",
       "id": "税号",
       "method": "计算方法",
-      "reverse": "反向征收"
+      "reverse": "反向征收",
+      "rate": "税费",
+      "rateRow": "第 {{number}} 项的税率",
+      "perLine": "按行计税",
+      "switchToLine": "切换为按行计税",
+      "switchHint": "将按你的税率重新计算合计。",
+      "on": "基于 {{amount}}"
     },
     "note": "备注",
-    "currency": "币种"
+    "currency": "币种",
+    "issuedAt": "开票日期",
+    "clearDate": "清除日期",
+    "invoiceNumber": {
+      "label": "发票编号",
+      "hint": "取自设置中的下一个编号"
+    },
+    "estimateNumber": {
+      "label": "报价单编号",
+      "hint": "取自设置中的下一个编号"
+    },
+    "validUntil": "有效期至"
+  },
+  "cards": {
+    "client": "客户",
+    "details": "详细信息",
+    "items": "明细",
+    "adjustments": "调整",
+    "notes": "备注"
+  },
+  "customize": {
+    "name": "自定义字段",
+    "saveAsDefault": "保存为默认"
+  },
+  "preview": {
+    "toggle": "预览",
+    "error": "无法渲染预览。",
+    "overflow": "较长的发票在实时预览中可能被截断。请使用“$t(form:header.btns.saveAndPreview)”查看完整页面。"
+  },
+  "footer": {
+    "saveTemplate": "保存模板"
+  },
+  "totals": {
+    "subtotal": "小计",
+    "discount": "折扣",
+    "tax": "税费",
+    "total": "总计",
+    "amountPaid": "已付金额",
+    "balanceDue": "应付余额"
+  },
+  "errors": {
+    "summary": "请更正突出显示的字段。",
+    "noItems": "请至少添加一项。",
+    "draftEmpty": "保存草稿前请添加客户或项目。",
+    "offsetDays": "请输入 0 到 365 之间的天数。",
+    "recipientRequired": "请选择客户。",
+    "partialContactSave": "发票已保存，但无法保存联系人。",
+    "partialNumberingSave": "发票已保存，但无法保存下一个发票编号。",
+    "totalBelowPaid": "新的总额（{{total}}）低于已付金额（{{paid}}）。请先删除一笔付款。",
+    "currencyLocked": "此发票已有付款，无法更改币种。",
+    "taxRateRequired": "请为此行选择税率。",
+    "discountTooLarge": "折扣超出此发票的金额。",
+    "exemptionReasonRequired": "请输入免税原因。",
+    "conflictingExemptionReasons": "同一组的税行必须使用相同的免税原因。",
+    "validUntilBeforeIssue": "有效期不能早于开票日期",
+    "creditedMissing": "缺少被冲销的发票。",
+    "creditZero": "冲销金额必须大于 0。",
+    "creditCurrency": "贷项通知单的币种必须与发票一致。",
+    "creditExceeds": "冲销金额超过了剩余可冲销金额。",
+    "belowCredited": "总额不能低于付款与已开具贷项通知单的合计。",
+    "creditOriginalNotCreditable": "此发票当前的状态无法开具贷项通知单。"
+  },
+  "convertedFrom": "由报价单 {{number}} 创建",
+  "creditNote": {
+    "credits": "冲销 {{date}} 的发票 {{number}}",
+    "remaining": "剩余"
+  },
+  "numbering": {
+    "title": "发票编号规则",
+    "prefix": "前缀",
+    "next": "下一个编号",
+    "padding": "位数",
+    "format": "格式",
+    "formats": {
+      "sequential": "顺序编号",
+      "random": "随机编号"
+    },
+    "sample": "示例：{{number}}"
   }
 }

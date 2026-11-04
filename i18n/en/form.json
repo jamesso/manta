@@ -1,18 +1,26 @@
 {
+  "cancel": {
+    "label": "Cancel",
+    "title": "Discard changes?",
+    "newMessage": "This document is not saved. What you entered will be lost.",
+    "editMessage": "Unsaved changes will be lost. The saved version does not change.",
+    "confirm": "Discard",
+    "keep": "Keep Editing"
+  },
   "header": {
-    "new": "New invoice",
-    "edit": "Edit invoice",
-    "newEstimate": "New estimate",
-    "editEstimate": "Edit estimate",
-    "newCreditNote": "New credit note",
-    "editCreditNote": "Edit credit note",
-    "template": "Recurring invoice template",
+    "new": "New Invoice",
+    "edit": "Edit Invoice",
+    "newEstimate": "New Estimate",
+    "editEstimate": "Edit Estimate",
+    "newCreditNote": "New Credit Note",
+    "editCreditNote": "Edit Credit Note",
+    "template": "Recurring Invoice Template",
     "btns": {
       "clear": "Clear",
       "update": "Update",
       "saveAndPreview": "Save & Preview",
-      "saveDraft": "Save draft",
-      "issueCreditNote": "Issue credit note"
+      "saveDraft": "Save Draft",
+      "issueCreditNote": "Issue Credit Note"
     }
   },
   "settings": {
@@ -27,27 +35,27 @@
       "quantity": "Quantity",
       "add": "Add a New Item",
       "amount": "Amount",
-      "reorder": "Reorder item {{number}}",
-      "remove": "Remove item {{number}}",
+      "reorder": "Reorder Item {{number}}",
+      "remove": "Remove Item {{number}}",
       "descriptionRow": "Description for item {{number}}",
-      "priceRow": "Price for item {{number}}",
-      "quantityRow": "Quantity for item {{number}}",
+      "priceRow": "Price for Item {{number}}",
+      "quantityRow": "Quantity for Item {{number}}",
       "unit": "Unit",
-      "saveAsItem": "Save line {{n}} as item",
-      "noMatch": "No saved items match"
+      "saveAsItem": "Save Line {{n}} as Item",
+      "noMatch": "No Saved Items Match",
+      "pickPlaceholder": "Pick or type…"
     },
     "recipient": {
       "name": "Recipient",
       "select": "Select",
       "add": "Create New",
-      "fullname": "Full name",
+      "fullname": "Full Name",
       "company": "Company",
       "email": "Email",
       "phone": "Phone",
-      "addNew": "Add new client",
-      "chooseExisting": "Choose existing client",
-      "search": "Search clients",
-      "noMatch": "No matching clients",
+      "pickPlaceholder": "Pick a client or type a new name…",
+      "linked": "Saved client. Type a different name to add a new client.",
+      "noMatch": "No Matching Clients",
       "taxId": "Tax / VAT ID"
     },
     "discount": {
@@ -82,9 +90,9 @@
         }
       },
       "modeDate": "Date",
-      "modeTerms": "Payment terms",
-      "modeOffset": "Days after issue",
-      "offsetDays": "Days after issue",
+      "modeTerms": "Payment Terms",
+      "modeOffset": "Days After Issue",
+      "offsetDays": "Days After Issue",
       "computed": "Due {{date}}"
     },
     "tax": {
@@ -93,52 +101,52 @@
       "method": "Method",
       "reverse": "Reverse Charge",
       "rate": "Tax",
-      "rateRow": "Tax rate for item {{number}}",
-      "perLine": "Tax per line",
-      "switchToLine": "Switch to tax per line",
+      "rateRow": "Tax Rate for Item {{number}}",
+      "perLine": "Tax per Line",
+      "switchToLine": "Switch to Tax per Line",
       "switchHint": "Totals are recalculated with your tax rates.",
       "on": "on {{amount}}"
     },
     "note": "Note",
     "currency": "Currency",
-    "issuedAt": "Issue date",
-    "clearDate": "Clear date",
+    "issuedAt": "Issue Date",
+    "clearDate": "Clear Date",
     "invoiceNumber": {
-      "label": "Invoice number",
+      "label": "Invoice Number",
       "hint": "Next number from Settings"
     },
     "estimateNumber": {
-      "label": "Estimate number",
+      "label": "Estimate Number",
       "hint": "Next number from Settings"
     },
-    "validUntil": "Valid until"
+    "validUntil": "Valid Until"
   },
   "cards": {
     "client": "Client",
     "details": "Details",
-    "items": "Line items",
+    "items": "Line Items",
     "adjustments": "Adjustments",
     "notes": "Notes"
   },
   "customize": {
-    "name": "Customize fields",
-    "saveAsDefault": "Save as default"
+    "name": "Customize Fields",
+    "saveAsDefault": "Save as Default"
   },
   "preview": {
     "toggle": "Preview",
     "error": "Preview could not be rendered.",
-    "overflow": "Long invoices may be clipped in the live preview. Use Save & Preview for the full page."
+    "overflow": "Long invoices may be clipped in the live preview. Use $t(form:header.btns.saveAndPreview) for the full page."
   },
   "footer": {
-    "saveTemplate": "Save template"
+    "saveTemplate": "Save Template"
   },
   "totals": {
     "subtotal": "Subtotal",
     "discount": "Discount",
     "tax": "Tax",
     "total": "Total",
-    "amountPaid": "Amount paid",
-    "balanceDue": "Balance due"
+    "amountPaid": "Amount Paid",
+    "balanceDue": "Balance Due"
   },
   "errors": {
     "summary": "Please correct the highlighted fields.",
@@ -162,16 +170,21 @@
     "belowCredited": "The total cannot be less than payments plus issued credit notes.",
     "creditOriginalNotCreditable": "This invoice cannot receive a credit note in its current status."
   },
-  "convertedFrom": "Created from estimate {{number}}",
+  "convertedFrom": "Created from Estimate {{number}}",
   "creditNote": {
-    "credits": "Credits invoice {{number}} of {{date}}",
+    "credits": "Credits Invoice {{number}} of {{date}}",
     "remaining": "Remaining"
   },
   "numbering": {
-    "title": "Invoice numbering",
+    "title": "Invoice Numbering",
     "prefix": "Prefix",
-    "next": "Next number",
+    "next": "Next Number",
     "padding": "Digits",
+    "format": "Format",
+    "formats": {
+      "sequential": "Sequential Number",
+      "random": "Random ID"
+    },
     "sample": "Example: {{number}}"
   }
 }

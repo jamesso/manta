@@ -1,23 +1,220 @@
 {
   "header": {
-    "name": "Tất cả hoá đơn"
+    "name": "Hóa đơn",
+    "count_other": "{{count}} hóa đơn"
+  },
+  "newInvoice": "Hóa đơn mới",
+  "search": {
+    "label": "Lọc hóa đơn",
+    "placeholder": "Lọc hóa đơn…"
+  },
+  "tabs": {
+    "all": "Tất cả",
+    "draft": "Bản nháp",
+    "outstanding": "Chưa thanh toán",
+    "overdue": "Quá hạn",
+    "paid": "Đã thanh toán",
+    "closed": "Đã đóng",
+    "creditNotes": "Giấy báo có"
+  },
+  "columns": {
+    "select": "Chọn hóa đơn {{number}}",
+    "selectAll": "Chọn tất cả hóa đơn",
+    "number": "Số",
+    "client": "Khách hàng",
+    "issued": "Ngày lập",
+    "due": "Hạn",
+    "amount": "Số tiền",
+    "status": "Trạng thái",
+    "actions": "Tác vụ"
+  },
+  "number": {
+    "none": "Chưa có số"
+  },
+  "due": {
+    "none": "Không có hạn thanh toán",
+    "today": "Đến hạn hôm nay",
+    "inDays_other": "Đến hạn sau {{count}} ngày",
+    "overdueDays_other": "Quá hạn {{count}} ngày"
+  },
+  "actions": {
+    "open": "Tác vụ hóa đơn",
+    "preview": "Xem trước",
+    "edit": "Chỉnh sửa",
+    "duplicate": "Nhân bản",
+    "makeRecurring": "Đặt định kỳ",
+    "createCreditNote": "Tạo giấy báo có",
+    "recordPayment": "Ghi nhận thanh toán…",
+    "markPaidInFull": "Đánh dấu đã thanh toán đủ",
+    "setStatus": "Đặt trạng thái",
+    "delete": "Xóa"
+  },
+  "bulk": {
+    "markPaidInFull": "Đánh dấu đã thanh toán đủ"
+  },
+  "empty": {
+    "title": "Chưa có hóa đơn nào",
+    "description": "Hãy tạo hóa đơn đầu tiên. Hóa đơn sẽ hiển thị ở đây.",
+    "noResults": "Không có hóa đơn phù hợp",
+    "noResultsDescription": "Hãy thử tìm kiếm hoặc bộ lọc khác.",
+    "clearFilters": "Xóa bộ lọc"
+  },
+  "sheet": {
+    "title": "Hóa đơn {{number}}",
+    "client": "Khách hàng",
+    "issued": "Ngày lập",
+    "due": "Hạn",
+    "currency": "Tiền tệ",
+    "items": "Mặt hàng",
+    "description": "Mô tả",
+    "quantity": "SL",
+    "price": "Giá",
+    "subtotal": "Tổng phụ",
+    "discount": "Giảm giá",
+    "tax": "Thuế",
+    "total": "Tổng cộng",
+    "note": "Ghi chú",
+    "fromEstimate": "Tạo từ báo giá {{number}}",
+    "credited": "Đã ghi có",
+    "balanceDue": "Số dư còn nợ",
+    "refundDue": "Cần hoàn tiền",
+    "creditNotes": "Giấy báo có",
+    "einvoiceTitle": "Hóa đơn điện tử"
+  },
+  "toast": {
+    "deleted_other": "Đã xóa {{count}} hóa đơn",
+    "deleteFailed_other": "Không thể xóa {{count}} hóa đơn",
+    "undo": "Hoàn tác",
+    "restored_other": "Đã khôi phục {{count}} hóa đơn",
+    "updated_other": "Đã cập nhật {{count}} hóa đơn",
+    "notFound": "Không tìm thấy hóa đơn"
+  },
+  "nav": {
+    "overdueBadge_other": "{{count}} hóa đơn quá hạn"
   },
   "fields": {
     "client": "Khách hàng",
-    "invoiceID": "Mã hoá đơn",
-    "createdDate": "Tạo ngày",
+    "invoiceID": "Mã hóa đơn",
+    "createdDate": "Ngày tạo",
     "dueDate": "Hạn thanh toán",
     "total": "Tổng giá trị"
   },
   "status": {
-    "pending": "Đang chờ duyệt",
+    "draft": "Bản nháp",
+    "pending": "Đang chờ",
+    "partial": "Đã thanh toán một phần",
+    "overdue": "Quá hạn",
     "paid": "Đã thanh toán",
     "refunded": "Đã hoàn tiền",
     "cancelled": "Đã hủy"
   },
+  "payments": {
+    "title": "Thanh toán",
+    "empty": "Chưa ghi nhận khoản thanh toán nào.",
+    "amountPaid": "Số tiền đã trả",
+    "balanceDue": "Số dư còn nợ",
+    "partiallyPaid": "Đã thanh toán một phần",
+    "balanceShort": "Còn nợ {{amount}}",
+    "remove": "Xóa khoản thanh toán {{amount}} ngày {{date}}",
+    "methods": {
+      "bank": "Chuyển khoản ngân hàng",
+      "cash": "Tiền mặt",
+      "check": "Séc",
+      "card": "Thẻ",
+      "paypal": "PayPal",
+      "other": "Khác"
+    },
+    "dialog": {
+      "title": "Ghi nhận thanh toán",
+      "description": "Hóa đơn {{number}} · Số dư còn nợ {{balance}}",
+      "amount": "Số tiền",
+      "payFull": "Thanh toán toàn bộ số dư",
+      "date": "Ngày thanh toán",
+      "method": "Phương thức",
+      "note": "Ghi chú",
+      "notePlaceholder": "Mã tham chiếu hoặc ghi chú (không bắt buộc)",
+      "submit": "Ghi nhận thanh toán",
+      "cancel": "Hủy"
+    },
+    "errors": {
+      "amountInvalid": "Nhập số tiền, ví dụ {{example}}.",
+      "amountPositive": "Số tiền phải lớn hơn 0.",
+      "tooManyDecimals_zero": "Chỉ dùng số nguyên.",
+      "tooManyDecimals_other": "Dùng tối đa {{count}} chữ số thập phân.",
+      "overpayment": "Số tiền lớn hơn số dư còn nợ ({{balance}}).",
+      "dateRequired": "Chọn ngày thanh toán.",
+      "dateFuture": "Ngày thanh toán không được ở tương lai.",
+      "draft": "Bản nháp không thể nhận thanh toán. Hãy lưu hóa đơn trước.",
+      "closed": "Hóa đơn đã hoàn tiền hoặc đã hủy không thể nhận thanh toán. Hãy đặt trạng thái về Đang chờ trước.",
+      "nothingDue": "Hóa đơn này không còn số dư nợ.",
+      "duplicate": "Khoản thanh toán này đã được ghi nhận.",
+      "notFound": "Không tìm thấy hóa đơn hoặc khoản thanh toán.",
+      "draftWithPayments": "Hóa đơn có thanh toán không thể chuyển thành bản nháp. Hãy xóa các khoản thanh toán trước."
+    },
+    "toast": {
+      "recorded_other": "Đã ghi nhận {{count}} khoản thanh toán",
+      "skipped_other": "Đã bỏ qua {{count}} hóa đơn: {{reason}}",
+      "removed": "Đã xóa khoản thanh toán",
+      "undo": "Hoàn tác",
+      "stillPaid": "Các khoản thanh toán đã đủ tổng tiền, nên hóa đơn vẫn ở trạng thái Đã thanh toán."
+    }
+  },
   "btns": {
     "view": "Xem",
     "edit": "Chỉnh sửa",
-    "markAsPaid": "Đã trả tiền"
+    "markAsPaid": "Đánh dấu đã thanh toán"
+  },
+  "creditNotes": {
+    "status": {
+      "draft": "Bản nháp",
+      "issued": "Đã phát hành",
+      "void": "Đã vô hiệu"
+    },
+    "columns": {
+      "credits": "Ghi có cho"
+    },
+    "sheet": {
+      "title": "Giấy báo có {{number}}",
+      "credits": "Ghi có cho hóa đơn {{number}} ngày {{date}}",
+      "totalCredit": "Tổng ghi có"
+    },
+    "actions": {
+      "issue": "Phát hành",
+      "void": "Vô hiệu hóa",
+      "edit": "Chỉnh sửa",
+      "delete": "Xóa",
+      "preview": "Xem trước"
+    },
+    "void": {
+      "title": "Vô hiệu hóa giấy báo có {{number}}?",
+      "description": "Không thể hoàn tác thao tác này. Số tiền đã ghi có sẽ được trả về hóa đơn.",
+      "confirm": "Vô hiệu hóa"
+    },
+    "errors": {
+      "creditedMissing": "Không tìm thấy hóa đơn được ghi có.",
+      "creditZero": "Số tiền ghi có phải lớn hơn 0.",
+      "creditCurrency": "Tiền tệ của giấy báo có phải trùng với hóa đơn.",
+      "creditExceeds": "Số tiền ghi có vượt quá số tiền còn có thể ghi có.",
+      "syncFailed": "Đã lưu giấy báo có, nhưng không thể cập nhật hóa đơn.",
+      "updateFailed": "Không thể cập nhật hóa đơn được ghi có.",
+      "repairFailed": "Không thể sửa trạng thái hóa đơn sau khi ghi có.",
+      "notAllowed": "Không thể tạo giấy báo có cho hóa đơn này.",
+      "void": "Giấy báo có này đã bị hủy.",
+      "draftVoid": "Không thể hủy giấy báo có ở trạng thái nháp."
+    },
+    "toast": {
+      "issued": "Đã phát hành giấy báo có",
+      "voided": "Đã vô hiệu hóa giấy báo có",
+      "hasCreditNotes_other": "Hóa đơn này có giấy báo có. Hãy xóa hoặc vô hiệu hóa chúng trước.",
+      "issuedCreditNote_other": "Hóa đơn này có giấy báo có đã phát hành."
+    },
+    "empty": {
+      "title": "Chưa có giấy báo có nào",
+      "description": "Tạo giấy báo có từ một hóa đơn để xem tại đây."
+    }
+  },
+  "views": {
+    "invoices": "Hóa đơn",
+    "creditNotes": "Giấy báo có"
   }
 }

@@ -1,16 +1,34 @@
 {
-  "noContact": "Vous n'avez pas encore de contact",
-  "noInvoice": "Vous n'avez pas créé de facture pour le moment",
+  "noContact": "Vous n’avez pas encore de client",
+  "noInvoice": "Vous n’avez pas encore créé de facture",
   "invoice": {
     "saved": "Facture enregistrée avec succès",
     "updated": "Facture mise à jour avec succès",
-    "deleted": "Facture supprimée avec succès"
+    "deleted": "Facture supprimée avec succès",
+    "draftSaved": "Brouillon enregistré"
+  },
+  "estimate": {
+    "saved": "Devis enregistré",
+    "draftSaved": "Devis enregistré comme brouillon"
   },
   "contact": {
-    "saved": "Contact enregistré avec succès",
-    "deleted": "Contact supprimé avec succès"
+    "saved": "Client enregistré",
+    "updated": "Client mis à jour",
+    "deleted": "Client supprimé"
+  },
+  "item": {
+    "saved": "Article enregistré",
+    "updated": "Article mis à jour",
+    "archived": "Article archivé",
+    "unarchived": "Article réactivé",
+    "deleted_one": "Article supprimé",
+    "deleted_many": "{{count}} articles supprimés",
+    "deleted_other": "{{count}} articles supprimés",
+    "deleteFailed": "Impossible de supprimer l’article",
+    "undo": "Annuler",
+    "restored": "Article restauré"
   },
   "settings": {
-    "saved": "Tous les paramètres ont été enregistrés avec succès"
+    "saved": "Enregistré"
   }
 }

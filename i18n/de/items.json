@@ -1,0 +1,66 @@
+{
+  "header": "Artikel",
+  "new": "Neuer Artikel",
+  "search": {
+    "label": "Artikel filtern",
+    "placeholder": "Artikel filtern …"
+  },
+  "views": {
+    "active": "Aktiv",
+    "archived": "Archiviert"
+  },
+  "columns": {
+    "name": "Name",
+    "unit": "Einheit",
+    "unitPrice": "Einzelpreis",
+    "actions": "Aktionen"
+  },
+  "actions": {
+    "open": "Aktionen für {{name}}",
+    "edit": "Bearbeiten",
+    "archive": "Archivieren",
+    "unarchive": "Wiederherstellen",
+    "delete": "Löschen"
+  },
+  "dialog": {
+    "newTitle": "Neuer Artikel",
+    "editTitle": "Artikel bearbeiten",
+    "name": "Name",
+    "description": "Beschreibung",
+    "descriptionHint": "Dieser Text erscheint auf der Rechnung. Ist er leer, wird der Name gedruckt.",
+    "unitPrice": "Einzelpreis",
+    "priceHint": "Verwendet die Währung der Rechnung.",
+    "unit": "Einheit",
+    "taxRate": "Steuersatz",
+    "defaultTaxRate": "Standardsatz",
+    "save": "Speichern",
+    "cancel": "Abbrechen"
+  },
+  "detail": {
+    "noDescription": "Keine Beschreibung. Auf der Rechnung erscheint der Name."
+  },
+  "errors": {
+    "nameRequired": "Geben Sie einen Namen ein.",
+    "nameTooLong": "Der Name darf höchstens 120 Zeichen lang sein.",
+    "nameTaken": "Ein aktiver Artikel verwendet diesen Namen bereits.",
+    "price": "Geben Sie einen gültigen Einzelpreis ein.",
+    "unit": "Wählen Sie einen gültigen Einheitencode."
+  },
+  "empty": {
+    "title": "Noch keine Artikel",
+    "description": "Speichern Sie Produkte und Leistungen, die Sie oft verkaufen. Wählen Sie diese dann beim Hinzufügen von Rechnungspositionen aus.",
+    "noArchived": "Keine archivierten Artikel",
+    "noResultsFiltered": "Keine passenden Artikel"
+  },
+  "units": {
+    "C62": "Stück",
+    "HUR": "Stunde",
+    "DAY": "Tag",
+    "MON": "Monat",
+    "KGM": "Kilogramm",
+    "MTR": "Meter",
+    "LS": "Pauschale"
+  },
+  "count_one": "{{count}} Artikel",
+  "count_other": "{{count}} Artikel"
+}

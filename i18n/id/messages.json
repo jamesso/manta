@@ -1,16 +1,32 @@
 {
-  "noContact": "Anda belum memiliki kontak apapun",
-  "noInvoice": "Anda belum membuat faktur apapun",
+  "noContact": "Anda belum memiliki kontak apa pun",
+  "noInvoice": "Anda belum membuat faktur apa pun",
   "invoice": {
-    "saved": "Faktur disimpan dengan sukses",
-    "updated": "Faktur diperbarui dengan sukses",
-    "deleted": "Faktur dihapus dengan sukses"
+    "saved": "Faktur berhasil disimpan",
+    "updated": "Faktur berhasil diperbarui",
+    "deleted": "Faktur berhasil dihapus",
+    "draftSaved": "Draf disimpan"
+  },
+  "estimate": {
+    "saved": "Penawaran disimpan",
+    "draftSaved": "Penawaran disimpan sebagai draf"
   },
   "contact": {
-    "saved": "Kontak disimpan dengan sukses",
-    "deleted": "Kontak dihapus dengan sukses"
+    "saved": "Klien disimpan",
+    "updated": "Klien diperbarui",
+    "deleted": "Klien dihapus"
+  },
+  "item": {
+    "saved": "Item disimpan",
+    "updated": "Item diperbarui",
+    "archived": "Item diarsipkan",
+    "unarchived": "Item dikembalikan ke aktif",
+    "deleted_other": "{{count}} item dihapus",
+    "deleteFailed": "Item tidak dapat dihapus",
+    "undo": "Urungkan",
+    "restored": "Item dipulihkan"
   },
   "settings": {
-    "saved": "Semua pengaturan sudah disimpan dengan sukses"
+    "saved": "Tersimpan"
   }
 }

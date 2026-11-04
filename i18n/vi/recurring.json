@@ -1,0 +1,97 @@
+{
+  "header": {
+    "name": "Định kỳ",
+    "new": "Hóa đơn định kỳ mới",
+    "count_other": "{{count}} hóa đơn định kỳ"
+  },
+  "empty": {
+    "title": "Chưa có hóa đơn định kỳ nào",
+    "description": "Manta tạo bản nháp khi ứng dụng đang mở. Không có gì được gửi tự động.",
+    "noResults": "Không có hóa đơn định kỳ phù hợp"
+  },
+  "columns": {
+    "name": "Tên",
+    "client": "Khách hàng",
+    "amount": "Số tiền",
+    "interval": "Lặp lại",
+    "nextDate": "Bản nháp tiếp theo",
+    "active": "Hoạt động",
+    "actions": "Tác vụ"
+  },
+  "interval": {
+    "weekly": "Hàng tuần",
+    "monthly": "Hàng tháng",
+    "quarterly": "Hàng quý",
+    "yearly": "Hàng năm"
+  },
+  "repeatEvery": {
+    "weekly_other": "Mỗi {{count}} tuần",
+    "monthly_other": "Mỗi {{count}} tháng",
+    "quarterly_other": "Mỗi {{count}} quý",
+    "yearly_other": "Mỗi {{count}} năm"
+  },
+  "status": {
+    "paused": "Tạm dừng",
+    "ended": "Đã kết thúc",
+    "active": "Đang hoạt động"
+  },
+  "actions": {
+    "open": "Tác vụ hóa đơn định kỳ",
+    "editSchedule": "Sửa lịch",
+    "editTemplate": "Sửa mẫu",
+    "pause": "Tạm dừng",
+    "resume": "Tiếp tục",
+    "delete": "Xóa"
+  },
+  "sheet": {
+    "titleNew": "Hóa đơn định kỳ mới",
+    "titleEdit": "Chỉnh sửa hóa đơn định kỳ",
+    "schedule": "Lịch",
+    "name": "Tên",
+    "every": "Lặp lại mỗi",
+    "interval": "Chu kỳ",
+    "startDate": "Ngày bắt đầu",
+    "endDate": "Ngày kết thúc (không bắt buộc)",
+    "noEndDate": "Không có ngày kết thúc",
+    "activeHint": "Mẫu đang tạm dừng sẽ không tạo bản nháp.",
+    "active": "Hoạt động",
+    "summary": "Tóm tắt",
+    "client": "Khách hàng",
+    "items": "Mặt hàng",
+    "itemsCount_other": "{{count}} mặt hàng",
+    "amount": "Số tiền",
+    "nextDates": "Các bản nháp tiếp theo",
+    "createsToday": "Bản nháp đầu tiên sẽ được tạo hôm nay khi bạn lưu.",
+    "save": "Lưu",
+    "cancel": "Hủy"
+  },
+  "detail": {
+    "startDate": "Ngày bắt đầu",
+    "endDate": "Ngày kết thúc",
+    "noItems": "Mẫu chưa có dòng hàng nào.",
+    "created": "Hóa đơn đã tạo",
+    "noneCreated": "Chưa tạo hóa đơn nào."
+  },
+  "errors": {
+    "name": "Nhập tên.",
+    "every": "Nhập một số từ 1 đến 99.",
+    "interval": "Chọn chu kỳ.",
+    "startDate": "Chọn ngày bắt đầu hợp lệ.",
+    "endDate": "Ngày kết thúc phải bằng hoặc sau ngày bắt đầu.",
+    "template": "Thêm khách hàng và ít nhất một dòng hàng vào mẫu."
+  },
+  "toast": {
+    "created_other": "Đã tạo {{count}} hóa đơn định kỳ dưới dạng bản nháp",
+    "viewDrafts": "Xem bản nháp",
+    "capped": "Còn bản nháp đang chờ cho: {{names}}",
+    "runFailed": "Chạy hóa đơn định kỳ thất bại",
+    "saved": "Đã lưu hóa đơn định kỳ",
+    "deleted_other": "Đã xóa {{count}} hóa đơn định kỳ",
+    "undo": "Hoàn tác",
+    "restored": "Đã khôi phục hóa đơn định kỳ"
+  },
+  "search": {
+    "label": "Lọc hóa đơn định kỳ",
+    "placeholder": "Lọc hóa đơn định kỳ…"
+  }
+}

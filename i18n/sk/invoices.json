@@ -1,23 +1,259 @@
 {
   "header": {
-    "name": "Všetky faktúry"
+    "name": "Faktúry",
+    "count_one": "{{count}} faktúra",
+    "count_few": "{{count}} faktúry",
+    "count_many": "{{count}} faktúry",
+    "count_other": "{{count}} faktúr"
+  },
+  "newInvoice": "Nová faktúra",
+  "search": {
+    "label": "Filtrovať faktúry",
+    "placeholder": "Filtrovať faktúry…"
+  },
+  "tabs": {
+    "all": "Všetky",
+    "draft": "Koncepty",
+    "outstanding": "Neuhradené",
+    "overdue": "Po splatnosti",
+    "paid": "Zaplatené",
+    "closed": "Uzavreté",
+    "creditNotes": "Dobropisy"
+  },
+  "columns": {
+    "select": "Vybrať faktúru {{number}}",
+    "selectAll": "Vybrať všetky faktúry",
+    "number": "Číslo",
+    "client": "Klient",
+    "issued": "Vystavené",
+    "due": "Splatnosť",
+    "amount": "Suma",
+    "status": "Stav",
+    "actions": "Akcie"
+  },
+  "number": {
+    "none": "Zatiaľ bez čísla"
+  },
+  "due": {
+    "none": "Bez splatnosti",
+    "today": "Splatná dnes",
+    "inDays_one": "Splatná o {{count}} deň",
+    "inDays_few": "Splatná o {{count}} dni",
+    "inDays_many": "Splatná o {{count}} dňa",
+    "inDays_other": "Splatná o {{count}} dní",
+    "overdueDays_one": "{{count}} deň po splatnosti",
+    "overdueDays_few": "{{count}} dni po splatnosti",
+    "overdueDays_many": "{{count}} dňa po splatnosti",
+    "overdueDays_other": "{{count}} dní po splatnosti"
+  },
+  "actions": {
+    "open": "Akcie faktúry",
+    "preview": "Ukážka",
+    "edit": "Upraviť",
+    "duplicate": "Duplikovať",
+    "makeRecurring": "Nastaviť ako opakovanú",
+    "createCreditNote": "Vytvoriť dobropis",
+    "recordPayment": "Zaznamenať platbu…",
+    "markPaidInFull": "Označiť ako plne zaplatené",
+    "setStatus": "Nastaviť stav",
+    "delete": "Odstrániť"
+  },
+  "bulk": {
+    "markPaidInFull": "Označiť ako plne zaplatené"
+  },
+  "empty": {
+    "title": "Zatiaľ žiadne faktúry",
+    "description": "Vytvorte svoju prvú faktúru. Zobrazí sa tu.",
+    "noResults": "Žiadne zodpovedajúce faktúry",
+    "noResultsDescription": "Skúste iné vyhľadávanie alebo filter.",
+    "clearFilters": "Zrušiť filtre"
+  },
+  "sheet": {
+    "title": "Faktúra {{number}}",
+    "client": "Klient",
+    "issued": "Vystavené",
+    "due": "Splatnosť",
+    "currency": "Mena",
+    "items": "Položky",
+    "description": "Popis",
+    "quantity": "Množ.",
+    "price": "Cena",
+    "subtotal": "Medzisúčet",
+    "discount": "Zľava",
+    "tax": "Daň",
+    "total": "Celkom",
+    "note": "Poznámka",
+    "fromEstimate": "Vytvorené z cenovej ponuky {{number}}",
+    "credited": "Dobropisované",
+    "balanceDue": "Zostatok na úhradu",
+    "refundDue": "Na vrátenie",
+    "creditNotes": "Dobropisy",
+    "einvoiceTitle": "E-faktúra"
+  },
+  "toast": {
+    "deleted_one": "Faktúra odstránená",
+    "deleted_few": "{{count}} faktúry odstránené",
+    "deleted_many": "{{count}} faktúry odstránenej",
+    "deleted_other": "{{count}} faktúr odstránených",
+    "deleteFailed_one": "{{count}} faktúru sa nepodarilo odstrániť",
+    "deleteFailed_few": "{{count}} faktúry sa nepodarilo odstrániť",
+    "deleteFailed_many": "{{count}} faktúry sa nepodarilo odstrániť",
+    "deleteFailed_other": "{{count}} faktúr sa nepodarilo odstrániť",
+    "undo": "Späť",
+    "restored_one": "Faktúra obnovená",
+    "restored_few": "{{count}} faktúry obnovené",
+    "restored_many": "{{count}} faktúry obnovenej",
+    "restored_other": "{{count}} faktúr obnovených",
+    "updated_one": "Faktúra aktualizovaná",
+    "updated_few": "{{count}} faktúry aktualizované",
+    "updated_many": "{{count}} faktúry aktualizovanej",
+    "updated_other": "{{count}} faktúr aktualizovaných",
+    "notFound": "Faktúra sa nenašla"
+  },
+  "nav": {
+    "overdueBadge_one": "{{count}} faktúra po splatnosti",
+    "overdueBadge_few": "{{count}} faktúry po splatnosti",
+    "overdueBadge_many": "{{count}} faktúry po splatnosti",
+    "overdueBadge_other": "{{count}} faktúr po splatnosti"
   },
   "fields": {
-    "client": "Zákazník",
+    "client": "Klient",
     "invoiceID": "ID faktúry",
     "createdDate": "Vytvorené",
     "dueDate": "Dátum splatnosti",
     "total": "Celková suma"
   },
   "status": {
-    "pending": "Čakajúce",
-    "paid": "Zaplatené",
-    "refunded": "Vrátené",
-    "cancelled": "Zrušené"
+    "draft": "Koncept",
+    "pending": "Čakajúca",
+    "partial": "Čiastočne zaplatená",
+    "overdue": "Po splatnosti",
+    "paid": "Zaplatená",
+    "refunded": "Vrátená",
+    "cancelled": "Zrušená"
+  },
+  "payments": {
+    "title": "Platby",
+    "empty": "Žiadne zaznamenané platby.",
+    "amountPaid": "Zaplatená suma",
+    "balanceDue": "Zostatok na úhradu",
+    "partiallyPaid": "Čiastočne zaplatená",
+    "balanceShort": "{{amount}} na úhradu",
+    "remove": "Odstrániť platbu {{amount}} z {{date}}",
+    "methods": {
+      "bank": "Bankový prevod",
+      "cash": "Hotovosť",
+      "check": "Šek",
+      "card": "Karta",
+      "paypal": "PayPal",
+      "other": "Iné"
+    },
+    "dialog": {
+      "title": "Zaznamenať platbu",
+      "description": "Faktúra {{number}} · Zostatok na úhradu {{balance}}",
+      "amount": "Suma",
+      "payFull": "Zaplatiť celý zostatok",
+      "date": "Dátum platby",
+      "method": "Spôsob",
+      "note": "Poznámka",
+      "notePlaceholder": "Referencia alebo poznámka (voliteľné)",
+      "submit": "Zaznamenať platbu",
+      "cancel": "Zrušiť"
+    },
+    "errors": {
+      "amountInvalid": "Zadajte sumu, napríklad {{example}}.",
+      "amountPositive": "Suma musí byť väčšia ako 0.",
+      "tooManyDecimals_zero": "Použite iba celé čísla.",
+      "tooManyDecimals_one": "Použite najviac {{count}} desatinné miesto.",
+      "tooManyDecimals_few": "Použite najviac {{count}} desatinné miesta.",
+      "tooManyDecimals_many": "Použite najviac {{count}} desatinného miesta.",
+      "tooManyDecimals_other": "Použite najviac {{count}} desatinných miest.",
+      "overpayment": "Suma je vyššia ako zostatok na úhradu ({{balance}}).",
+      "dateRequired": "Vyberte dátum platby.",
+      "dateFuture": "Dátum platby nemôže byť v budúcnosti.",
+      "draft": "Koncepty nemôžu prijímať platby. Najprv faktúru uložte.",
+      "closed": "Refundované alebo zrušené faktúry nemôžu prijímať platby. Najprv nastavte stav na Čakajúca.",
+      "nothingDue": "Táto faktúra nemá žiadny zostatok na úhradu.",
+      "duplicate": "Táto platba je už zaznamenaná.",
+      "notFound": "Faktúra alebo platba sa nenašla.",
+      "draftWithPayments": "Faktúra s platbami sa nemôže stať konceptom. Najprv odstráňte platby."
+    },
+    "toast": {
+      "recorded_one": "Platba zaznamenaná",
+      "recorded_few": "{{count}} platby zaznamenané",
+      "recorded_many": "{{count}} platby zaznamenanej",
+      "recorded_other": "{{count}} platieb zaznamenaných",
+      "skipped_one": "{{count}} faktúra preskočená: {{reason}}",
+      "skipped_few": "{{count}} faktúry preskočené: {{reason}}",
+      "skipped_many": "{{count}} faktúry preskočenej: {{reason}}",
+      "skipped_other": "{{count}} faktúr preskočených: {{reason}}",
+      "removed": "Platba odstránená",
+      "undo": "Späť",
+      "stillPaid": "Platby pokrývajú celkovú sumu, preto faktúra zostáva zaplatená."
+    }
   },
   "btns": {
     "view": "Zobraziť",
     "edit": "Upraviť",
     "markAsPaid": "Označiť ako zaplatené"
+  },
+  "creditNotes": {
+    "status": {
+      "draft": "Koncept",
+      "issued": "Vystavený",
+      "void": "Stornovaný"
+    },
+    "columns": {
+      "credits": "K faktúre"
+    },
+    "sheet": {
+      "title": "Dobropis {{number}}",
+      "credits": "Dobropis k faktúre {{number}} zo dňa {{date}}",
+      "totalCredit": "Celková suma dobropisu"
+    },
+    "actions": {
+      "issue": "Vystaviť",
+      "void": "Stornovať",
+      "edit": "Upraviť",
+      "delete": "Odstrániť",
+      "preview": "Ukážka"
+    },
+    "void": {
+      "title": "Stornovať dobropis {{number}}?",
+      "description": "Túto akciu nemožno vrátiť späť. Dobropisovaná suma sa vráti na faktúru.",
+      "confirm": "Stornovať"
+    },
+    "errors": {
+      "creditedMissing": "Dobropisovaná faktúra chýba.",
+      "creditZero": "Suma dobropisu musí byť vyššia ako 0.",
+      "creditCurrency": "Mena dobropisu sa musí zhodovať s menou faktúry.",
+      "creditExceeds": "Dobropis presahuje sumu, ktorú ešte možno dobropisovať.",
+      "syncFailed": "Dobropis bol uložený, ale faktúru sa nepodarilo aktualizovať.",
+      "updateFailed": "Dobropisovanú faktúru sa nepodarilo aktualizovať.",
+      "repairFailed": "Stav faktúry sa po dobropisoch nepodarilo opraviť.",
+      "notAllowed": "K tejto faktúre nie je možné vytvoriť dobropis.",
+      "void": "Dobropis je stornovaný.",
+      "draftVoid": "Koncepty dobropisov nie je možné stornovať."
+    },
+    "toast": {
+      "issued": "Dobropis vystavený",
+      "voided": "Dobropis stornovaný",
+      "hasCreditNotes_one": "Táto faktúra má dobropis. Najprv ho odstráňte alebo stornujte.",
+      "hasCreditNotes_few": "Táto faktúra má dobropisy. Najprv ich odstráňte alebo stornujte.",
+      "hasCreditNotes_many": "Táto faktúra má dobropisy. Najprv ich odstráňte alebo stornujte.",
+      "hasCreditNotes_other": "Táto faktúra má dobropisy. Najprv ich odstráňte alebo stornujte.",
+      "issuedCreditNote_one": "Táto faktúra má vystavený dobropis.",
+      "issuedCreditNote_few": "Táto faktúra má vystavené dobropisy.",
+      "issuedCreditNote_many": "Táto faktúra má vystavené dobropisy.",
+      "issuedCreditNote_other": "Táto faktúra má vystavené dobropisy."
+    },
+    "empty": {
+      "title": "Zatiaľ žiadne dobropisy",
+      "description": "Vytvorte dobropis z faktúry a zobrazí sa tu."
+    }
+  },
+  "views": {
+    "invoices": "Faktúry",
+    "creditNotes": "Dobropisy"
   }
 }

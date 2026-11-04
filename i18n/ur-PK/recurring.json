@@ -1,0 +1,105 @@
+{
+  "header": {
+    "name": "مکرر",
+    "new": "نئی مکرر انوائس",
+    "count_one": "{{count}} مکرر انوائس",
+    "count_other": "{{count}} مکرر انوائسز"
+  },
+  "empty": {
+    "title": "ابھی کوئی مکرر انوائس نہیں",
+    "description": "ایپ کھلی ہونے پر Manta ڈرافٹس بناتا ہے۔ کچھ بھی خود بخود نہیں بھیجا جاتا۔",
+    "noResults": "کوئی مماثل مکرر انوائس نہیں"
+  },
+  "columns": {
+    "name": "نام",
+    "client": "کلائنٹ",
+    "amount": "رقم",
+    "interval": "تکرار",
+    "nextDate": "اگلا ڈرافٹ",
+    "active": "فعال",
+    "actions": "افعال"
+  },
+  "interval": {
+    "weekly": "ہفتہ وار",
+    "monthly": "ماہانہ",
+    "quarterly": "سہ ماہی",
+    "yearly": "سالانہ"
+  },
+  "repeatEvery": {
+    "weekly_one": "ہر ہفتے",
+    "weekly_other": "ہر {{count}} ہفتے بعد",
+    "monthly_one": "ہر مہینے",
+    "monthly_other": "ہر {{count}} ماہ بعد",
+    "quarterly_one": "ہر سہ ماہی",
+    "quarterly_other": "ہر {{count}} سہ ماہی بعد",
+    "yearly_one": "ہر سال",
+    "yearly_other": "ہر {{count}} سال بعد"
+  },
+  "status": {
+    "paused": "موقوف",
+    "ended": "ختم",
+    "active": "فعال"
+  },
+  "actions": {
+    "open": "مکرر انوائس کے افعال",
+    "editSchedule": "شیڈول میں ترمیم",
+    "editTemplate": "سانچے میں ترمیم",
+    "pause": "موقوف کریں",
+    "resume": "دوبارہ شروع کریں",
+    "delete": "حذف کریں"
+  },
+  "sheet": {
+    "titleNew": "نئی مکرر انوائس",
+    "titleEdit": "مکرر انوائس میں ترمیم",
+    "schedule": "شیڈول",
+    "name": "نام",
+    "every": "ہر بار دہرائیں",
+    "interval": "وقفہ",
+    "startDate": "تاریخ آغاز",
+    "endDate": "تاریخ اختتام (اختیاری)",
+    "noEndDate": "کوئی تاریخ اختتام نہیں",
+    "activeHint": "موقوف سانچے کوئی ڈرافٹ نہیں بناتے۔",
+    "active": "فعال",
+    "summary": "خلاصہ",
+    "client": "کلائنٹ",
+    "items": "آئٹمز",
+    "itemsCount_one": "{{count}} آئٹم",
+    "itemsCount_other": "{{count}} آئٹمز",
+    "amount": "رقم",
+    "nextDates": "اگلے ڈرافٹس",
+    "createsToday": "محفوظ کرنے پر پہلا ڈرافٹ آج بنایا جائے گا۔",
+    "save": "محفوظ کریں",
+    "cancel": "منسوخ کریں"
+  },
+  "detail": {
+    "startDate": "تاریخ آغاز",
+    "endDate": "تاریخ اختتام",
+    "noItems": "سانچے میں کوئی لائن آئٹم نہیں۔",
+    "created": "بنائی گئی انوائسز",
+    "noneCreated": "ابھی کوئی انوائس نہیں بنائی گئی۔"
+  },
+  "errors": {
+    "name": "نام درج کریں۔",
+    "every": "1 سے 99 تک کوئی عدد درج کریں۔",
+    "interval": "وقفہ منتخب کریں۔",
+    "startDate": "درست تاریخ آغاز منتخب کریں۔",
+    "endDate": "تاریخ اختتام، تاریخ آغاز یا اس کے بعد کی ہونی چاہیے۔",
+    "template": "سانچے میں ایک کلائنٹ اور کم از کم ایک لائن آئٹم شامل کریں۔"
+  },
+  "toast": {
+    "created_one": "{{count}} مکرر انوائس بطور ڈرافٹ بنائی گئی",
+    "created_other": "{{count}} مکرر انوائسز بطور ڈرافٹ بنائی گئیں",
+    "viewDrafts": "ڈرافٹس دیکھیں",
+    "capped": "ان کے مزید ڈرافٹس زیر التوا ہیں: {{names}}",
+    "runFailed": "مکرر انوائسز نہیں بن سکیں",
+    "saved": "مکرر انوائس محفوظ ہو گئی",
+    "deleted_one": "مکرر انوائس حذف ہو گئی",
+    "deleted_other": "{{count}} مکرر انوائسز حذف ہو گئیں",
+    "undo": "واپس کریں",
+    "restored": "مکرر انوائس بحال ہو گئی"
+  },
+  "search": {
+    "label": "مکرر انوائسز فلٹر کریں",
+    "placeholder": "مکرر فلٹر کریں…"
+  }
+}

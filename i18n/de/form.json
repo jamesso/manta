@@ -1,34 +1,67 @@
 {
+  "cancel": {
+    "label": "Abbrechen",
+    "title": "Änderungen verwerfen?",
+    "newMessage": "Dieses Dokument ist nicht gespeichert. Ihre Eingaben gehen verloren.",
+    "editMessage": "Nicht gespeicherte Änderungen gehen verloren. Die gespeicherte Version bleibt unverändert.",
+    "confirm": "Verwerfen",
+    "keep": "Weiter bearbeiten"
+  },
   "header": {
-    "new": "Neue Rechnung erstellen",
+    "new": "Neue Rechnung",
     "edit": "Rechnung bearbeiten",
+    "newEstimate": "Neues Angebot",
+    "editEstimate": "Angebot bearbeiten",
+    "newCreditNote": "Neue Gutschrift",
+    "editCreditNote": "Gutschrift bearbeiten",
+    "template": "Vorlage für wiederkehrende Rechnung",
     "btns": {
-      "clear": "Löschen",
+      "clear": "Zurücksetzen",
       "update": "Aktualisieren",
-      "saveAndPreview": "Speichern & Vorschau"
+      "saveAndPreview": "Speichern & Vorschau",
+      "saveDraft": "Entwurf speichern",
+      "issueCreditNote": "Gutschrift ausstellen"
     }
   },
   "settings": {
     "name": "Formulareinstellungen",
-    "hint": "Umschalten um das Feld im Formular als benötigt darzustellen."
+    "hint": "Schalten Sie ein Feld ein, um es im Formular als Pflichtfeld festzulegen."
   },
   "fields": {
     "items": {
-      "name": "Produkt / Service",
+      "name": "Produkt / Leistung",
       "description": "Beschreibung",
       "price": "Preis",
       "quantity": "Menge",
-      "add": "Neue Position hinzufügen"
+      "add": "Neue Position hinzufügen",
+      "amount": "Betrag",
+      "reorder": "Position {{number}} verschieben",
+      "remove": "Position {{number}} entfernen",
+      "descriptionRow": "Beschreibung für Position {{number}}",
+      "priceRow": "Preis für Position {{number}}",
+      "quantityRow": "Menge für Position {{number}}",
+      "unit": "Einheit",
+      "saveAsItem": "Zeile {{n}} als Artikel speichern",
+      "noMatch": "Keine passenden gespeicherten Artikel",
+      "pickPlaceholder": "Auswählen oder eingeben …"
     },
     "recipient": {
       "name": "Empfänger",
       "select": "Auswählen",
-      "add": "Neuen Empfänger hinzufügen"
+      "add": "Neuen Empfänger hinzufügen",
+      "fullname": "Vollständiger Name",
+      "company": "Firma",
+      "email": "E-Mail",
+      "phone": "Telefon",
+      "pickPlaceholder": "Kunden auswählen oder neuen Namen eingeben …",
+      "linked": "Gespeicherter Kunde. Geben Sie einen anderen Namen ein, um einen neuen Kunden hinzuzufügen.",
+      "noMatch": "Keine passenden Kunden",
+      "taxId": "Steuernummer / USt-ID"
     },
     "discount": {
       "name": "Rabatt",
       "percentage": "Prozent",
-      "flat": "Pauschal"
+      "flat": "Festbetrag"
     },
     "dueDate": {
       "name": "Fälligkeitsdatum",
@@ -55,15 +88,103 @@
           "label": "Netto 90 Tage",
           "description": "Zahlung innerhalb von 90 Tagen ab Rechnungsdatum"
         }
-      }
+      },
+      "modeDate": "Datum",
+      "modeTerms": "Zahlungsbedingungen",
+      "modeOffset": "Tage nach Ausstellung",
+      "offsetDays": "Tage nach Ausstellung",
+      "computed": "Fällig am {{date}}"
     },
     "tax": {
       "name": "Steuer",
       "id": "USt-ID",
-      "method": "Zahlungsmethode",
-      "reverse": "Umkehr der Steuerschuld"
+      "method": "Steuerverfahren",
+      "reverse": "Umkehr der Steuerschuld",
+      "rate": "Steuer",
+      "rateRow": "Steuersatz für Position {{number}}",
+      "perLine": "Steuer pro Position",
+      "switchToLine": "Zu Steuer pro Position wechseln",
+      "switchHint": "Die Summen werden mit Ihren Steuersätzen neu berechnet.",
+      "on": "auf {{amount}}"
     },
     "note": "Notiz",
-    "currency": "Währung"
+    "currency": "Währung",
+    "issuedAt": "Ausstellungsdatum",
+    "clearDate": "Datum entfernen",
+    "invoiceNumber": {
+      "label": "Rechnungsnummer",
+      "hint": "Nächste Nummer aus den Einstellungen"
+    },
+    "estimateNumber": {
+      "label": "Angebotsnummer",
+      "hint": "Nächste Nummer aus den Einstellungen"
+    },
+    "validUntil": "Gültig bis"
+  },
+  "cards": {
+    "client": "Kunde",
+    "details": "Details",
+    "items": "Positionen",
+    "adjustments": "Anpassungen",
+    "notes": "Notizen"
+  },
+  "customize": {
+    "name": "Felder anpassen",
+    "saveAsDefault": "Als Standard speichern"
+  },
+  "preview": {
+    "toggle": "Vorschau",
+    "error": "Die Vorschau konnte nicht erstellt werden.",
+    "overflow": "Lange Rechnungen werden in der Live-Vorschau eventuell abgeschnitten. Verwenden Sie „$t(form:header.btns.saveAndPreview)“ für die ganze Seite."
+  },
+  "footer": {
+    "saveTemplate": "Vorlage speichern"
+  },
+  "totals": {
+    "subtotal": "Zwischensumme",
+    "discount": "Rabatt",
+    "tax": "Steuer",
+    "total": "Gesamt",
+    "amountPaid": "Bezahlter Betrag",
+    "balanceDue": "Offener Betrag"
+  },
+  "errors": {
+    "summary": "Bitte korrigieren Sie die markierten Felder.",
+    "noItems": "Fügen Sie mindestens eine Position hinzu.",
+    "draftEmpty": "Fügen Sie einen Kunden oder eine Position hinzu, bevor Sie einen Entwurf speichern.",
+    "offsetDays": "Geben Sie 0 bis 365 Tage ein.",
+    "recipientRequired": "Wählen Sie einen Kunden.",
+    "partialContactSave": "Die Rechnung wurde gespeichert, aber der Kontakt konnte nicht gespeichert werden.",
+    "partialNumberingSave": "Die Rechnung wurde gespeichert, aber die nächste Rechnungsnummer konnte nicht gespeichert werden.",
+    "totalBelowPaid": "Der neue Gesamtbetrag ({{total}}) ist niedriger als der bereits bezahlte Betrag ({{paid}}). Entfernen Sie zuerst eine Zahlung.",
+    "currencyLocked": "Für diese Rechnung sind Zahlungen erfasst. Die Währung kann nicht geändert werden.",
+    "taxRateRequired": "Wählen Sie einen Steuersatz für diese Position.",
+    "discountTooLarge": "Der Rabatt ist für diese Rechnung zu hoch.",
+    "exemptionReasonRequired": "Geben Sie einen Befreiungsgrund ein.",
+    "conflictingExemptionReasons": "Steuerzeilen derselben Gruppe benötigen denselben Befreiungsgrund.",
+    "validUntilBeforeIssue": "Das Gültigkeitsdatum darf nicht vor dem Ausstellungsdatum liegen",
+    "creditedMissing": "Die gutgeschriebene Rechnung fehlt.",
+    "creditZero": "Der Gutschriftsbetrag muss größer als 0 sein.",
+    "creditCurrency": "Die Währung der Gutschrift muss der Rechnung entsprechen.",
+    "creditExceeds": "Die Gutschrift übersteigt den noch gutschreibbaren Betrag.",
+    "belowCredited": "Der Gesamtbetrag darf nicht niedriger sein als die Zahlungen plus ausgestellte Gutschriften.",
+    "creditOriginalNotCreditable": "Für diese Rechnung kann in ihrem aktuellen Status keine Gutschrift erstellt werden."
+  },
+  "convertedFrom": "Erstellt aus Angebot {{number}}",
+  "creditNote": {
+    "credits": "Gutschrift zu Rechnung {{number}} vom {{date}}",
+    "remaining": "Verbleibend"
+  },
+  "numbering": {
+    "title": "Rechnungsnummerierung",
+    "prefix": "Präfix",
+    "next": "Nächste Nummer",
+    "padding": "Stellen",
+    "format": "Format",
+    "formats": {
+      "sequential": "Fortlaufende Nummer",
+      "random": "Zufällige ID"
+    },
+    "sample": "Beispiel: {{number}}"
   }
 }

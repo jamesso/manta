@@ -1,9 +1,73 @@
 {
-  "header": "Tous les contacts",
+  "header": "Clients",
   "fields": {
     "contact": "Contact",
     "email": "Email",
     "phone": "Téléphone",
-    "actions": "Actions"
+    "actions": "Actions",
+    "nameCompany": "Nom / Société",
+    "invoices": "Factures",
+    "outstanding": "À encaisser",
+    "taxId": "N° fiscal / TVA",
+    "buyerReference": "Référence acheteur (Leitweg-ID)",
+    "buyerReferenceHint": "Exigée par les acheteurs publics allemands.",
+    "buyerReferenceWarning": "Les chiffres de contrôle de ce Leitweg-ID semblent incorrects.",
+    "addressTitle": "Adresse"
+  },
+  "searchPlaceholder": "Filtrer les clients…",
+  "newClient": "Nouveau client",
+  "empty": {
+    "title": "Aucun client pour le moment",
+    "description": "Les clients sont enregistrés lorsque vous créez une facture. Vous pouvez aussi en ajouter un maintenant.",
+    "noResultsFiltered": "Aucun client correspondant"
+  },
+  "editor": {
+    "createTitle": "Nouveau client",
+    "editTitle": "Modifier le client",
+    "hint": "Les modifications s’appliquent aux nouvelles factures. Les factures existantes conservent les informations d’origine.",
+    "fullname": "Nom et prénom",
+    "company": "Société",
+    "email": "Email",
+    "phone": "Téléphone",
+    "save": "Enregistrer"
+  },
+  "detail": {
+    "outstanding": "À encaisser",
+    "noInvoices": "Aucune facture pour ce client pour le moment.",
+    "newInvoice": "Nouvelle facture",
+    "edit": "Modifier"
+  },
+  "actions": {
+    "newInvoice": "Nouvelle facture",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "menuLabel": "Actions pour {{name}}"
+  },
+  "toast": {
+    "deleted": "Client supprimé",
+    "deleted_one": "{{count}} client supprimé",
+    "deleted_many": "{{count}} clients supprimés",
+    "deleted_other": "{{count}} clients supprimés",
+    "undo": "Annuler",
+    "restored": "Client restauré",
+    "restored_one": "{{count}} client restauré",
+    "restored_many": "{{count}} clients restaurés",
+    "restored_other": "{{count}} clients restaurés",
+    "deleteFailed": "Échec de la suppression : {{count}}"
+  },
+  "errors": {
+    "fullnameRequired": "Saisissez un nom complet",
+    "emailRequired": "Saisissez une adresse email",
+    "emailInvalid": "Saisissez une adresse email valide",
+    "countryInvalid": "Choisissez un code pays valide"
+  },
+  "searchLabel": "Filtrer les clients",
+  "count_one": "{{count}} client",
+  "count_many": "{{count}} clients",
+  "count_other": "{{count}} clients",
+  "balance": {
+    "outstanding": "Impayé",
+    "settled": "À jour",
+    "noInvoices": "Aucune facture"
   }
 }

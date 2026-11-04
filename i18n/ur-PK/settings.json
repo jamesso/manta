@@ -1,5 +1,163 @@
 {
   "header": "ترتیبات",
+  "nav": {
+    "profile": "پروفائل",
+    "invoice": "انوائسز",
+    "appearance": "ظاہری شکل",
+    "language": "زبانیں",
+    "export": "برآمدات",
+    "updates": "اپ ڈیٹس",
+    "sounds": "آوازیں"
+  },
+  "sections": {
+    "profile": {
+      "title": "پروفائل",
+      "description": "آپ کا نام اور رابطے کی تفصیلات انوائسز پر ظاہر ہوتی ہیں۔",
+      "details": "کاروباری تفصیلات"
+    },
+    "invoice": {
+      "title": "انوائسز",
+      "description": "آپ کی دستاویزات کے لیے نمبرنگ، انداز، کرنسی، ٹیکس اور ای میلز۔",
+      "email": {
+        "title": "ای میل سانچے",
+        "tabInvoice": "انوائس ای میل",
+        "tabReminder": "ادائیگی کی یاد دہانی",
+        "subject": "عنوان",
+        "body": "متن",
+        "placeholders": "متغیرات",
+        "preview": "پیش نظارہ",
+        "lengthWarning": "یہ پیغام طویل ہے۔ میل ایپس کو مختصر متن مل سکتا ہے۔",
+        "reset": "پہلے سے طے شدہ پر بحال کریں",
+        "defaultBadge": "پہلے سے طے شدہ",
+        "description": "انوائس اور یاد دہانی ای میلز کا عنوان اور متن۔"
+      },
+      "invoicesTitle": "انوائسز",
+      "requiredHint": "نئی دستاویز شروع کرنے پر نظر آنے والی فیلڈز۔",
+      "numberingTitle": "نمبرنگ"
+    },
+    "estimates": {
+      "title": "تخمینے"
+    },
+    "creditNotes": {
+      "title": "کریڈٹ نوٹس"
+    },
+    "eInvoice": {
+      "title": "ای انوائس",
+      "description": "پیش نظارہ سے XRechnung XML اور Factur-X PDF برآمد کریں۔",
+      "disclaimer": "Manta اپنی بہترین صلاحیت کے مطابق ای انوائسز بناتا ہے لیکن قانونی تقاضوں کی تعمیل کی ضمانت نہیں دیتا۔ بھیجنے سے پہلے فائلوں کی تصدیق کریں اور اپنے ٹیکس مشیر سے چیک کروائیں۔",
+      "enable": "ای انوائس برآمد فعال کریں",
+      "defaultFormat": "پہلے سے طے شدہ فارمیٹ",
+      "buyerReference": "خریدار کا حوالہ",
+      "buyerReferenceHint": "کلائنٹس سے خریدار کا حوالہ (Leitweg-ID) طلب کریں اور اسے انوائسز پر درج کریں۔ XRechnung کے لیے یہ ضروری ہے۔",
+      "confirmTitle": "ای انوائس برآمد فعال کریں",
+      "confirmAccept": "میں سمجھ گیا",
+      "formats": {
+        "xrechnung": "XRechnung XML (UBL)",
+        "facturx": "Factur-X (PDF)"
+      }
+    },
+    "appearance": {
+      "title": "ظاہری شکل",
+      "description": "روشن، تاریک یا سسٹم کے مطابق منتخب کریں۔"
+    },
+    "language": {
+      "title": "زبانیں",
+      "description": "ایپ کی زبان اور تاریخیں دکھانے کا طریقہ۔",
+      "languageHint": "مینوز اور نئی انوائسز کے لیے استعمال ہوتی ہے۔",
+      "dateFormatHint": "فہرستوں اور انوائسز پر تاریخیں کیسے دکھائی دیں۔"
+    },
+    "export": {
+      "title": "برآمدات",
+      "description": "PDF برآمد کا فولڈر، بیک اپس اور CSV برآمد۔",
+      "chooseFolder": "فولڈر منتخب کریں",
+      "pdfTitle": "PDF برآمد",
+      "backupTitle": "بیک اپ",
+      "exportBackup": "بیک اپ برآمد کریں",
+      "exportBackupHint": "اپنا تمام ڈیٹا اور ترتیبات ایک فائل میں محفوظ کریں۔",
+      "importBackupHint": "Manta بیک اپ فائل سے ڈیٹا شامل کریں۔",
+      "csvTitle": "CSV",
+      "csvInvoices": "انوائسز",
+      "csvInvoicesHint": "تمام انوائسز اسپریڈشیٹ فائل کے طور پر محفوظ کریں۔"
+    },
+    "updates": {
+      "title": "اپ ڈیٹس",
+      "description": "Manta شروع ہوتے وقت اپ ڈیٹس چیک کرتا ہے۔",
+      "check": "اپ ڈیٹ چیک کریں",
+      "manual": "ابھی چیک کریں",
+      "manualHint": "Manta کا نیا ورژن تلاش کریں۔"
+    },
+    "sounds": {
+      "title": "آوازیں",
+      "description": "محفوظ یا حذف کرنے پر اطلاعی آوازیں۔"
+    }
+  },
+  "errors": {
+    "taxAmount": "0 یا اس سے زیادہ کوئی عدد درج کریں",
+    "fraction": "0 سے 20 تک کوئی پورا عدد درج کریں",
+    "numberingNext": "1 یا اس سے زیادہ کوئی پورا عدد درج کریں",
+    "numberingPadding": "0 سے 12 تک کوئی پورا عدد درج کریں",
+    "numberingPrefix": "20 یا اس سے کم حروف استعمال کریں",
+    "importInProgress": "درآمد جاری ہے۔ مکمل ہونے پر دوبارہ کوشش کریں۔",
+    "profileInvalid": "پروفائل کی اقدار درست نہیں",
+    "generalInvalid": "عمومی ترتیبات کی اقدار درست نہیں",
+    "invoiceInvalid": "انوائس ترتیبات کی اقدار درست نہیں",
+    "themeInvalid": "سسٹم، روشن یا تاریک منتخب کریں",
+    "languageInvalid": "کوئی معاون زبان منتخب کریں",
+    "soundInvalid": "کوئی معاون آواز منتخب کریں",
+    "templateInvalid": "کوئی معاون انوائس سانچہ منتخب کریں",
+    "validDays": "1 سے 365 تک کوئی پورا عدد درج کریں",
+    "countryInvalid": "درست ملکی کوڈ منتخب کریں",
+    "ibanInvalid": "درست IBAN درج کریں",
+    "bicInvalid": "درست BIC درج کریں",
+    "emailSubject": "200 یا اس سے کم حروف کی ایک لائن استعمال کریں",
+    "emailBody": "1500 یا اس سے کم حروف استعمال کریں"
+  },
+  "backup": {
+    "export": "بیک اپ برآمد کریں…",
+    "import": "درآمد کریں",
+    "exportCsv": "انوائسز CSV کے طور پر برآمد کریں…",
+    "autoHint": "Manta ہر درآمد سے پہلے خودکار بیک اپ محفوظ کرتا ہے۔",
+    "exportSuccess": "بیک اپ محفوظ ہو گیا",
+    "csvSuccess": "CSV برآمد ہو گئی",
+    "showFile": "فائل دکھائیں",
+    "showSafety": "حفاظتی بیک اپ دکھائیں",
+    "importTitle": "بیک اپ درآمد کریں",
+    "importing": "درآمد ہو رہا ہے…",
+    "includeSettings": "ترتیبات درآمد کریں",
+    "modeSkip": "میرا ورژن رکھیں",
+    "modeOverwrite": "بیک اپ والا ورژن استعمال کریں",
+    "exportedOn": "{{date}} کو برآمد کیا گیا",
+    "fromVersion": "Manta {{version}}",
+    "colInFile": "فائل میں",
+    "colNew": "نئے",
+    "colExisting": "Manta میں پہلے سے موجود",
+    "colSkipped": "چھوڑے گئے",
+    "rowInvoices": "انوائسز اور تخمینے",
+    "skippedHint": "چھوڑے گئے ریکارڈ خراب ہیں یا فائل میں دو بار درج ہیں۔ Manta انہیں درآمد نہیں کرے گا۔",
+    "empty": "اس بیک اپ میں کوئی ریکارڈ نہیں۔",
+    "existingTitle": "Manta میں پہلے سے موجود ریکارڈ",
+    "keepHint_one": "{{count}} ریکارڈ کا موجودہ ورژن رکھیں۔",
+    "keepHint_other": "{{count}} ریکارڈز کا موجودہ ورژن رکھیں۔",
+    "replaceHint_one": "{{count}} ریکارڈ کو اس بیک اپ کے ورژن سے بدلیں۔",
+    "replaceHint_other": "{{count}} ریکارڈز کو اس بیک اپ کے ورژن سے بدلیں۔",
+    "settingsHint": "اپنی کاروباری پروفائل، انوائس کی پہلے سے طے شدہ ترتیبات اور ایپ کی ترجیحات بدلیں۔",
+    "noSettings": "اس بیک اپ میں کوئی ترتیبات نہیں۔",
+    "creditWarnings": "{{count}} جاری شدہ کریڈٹ نوٹس میں ڈیٹا کی تنبیہات ہیں (انوائس موجود نہیں، کرنسی مختلف، یا رقم غلط)۔ یہ پھر بھی درآمد ہوں گے۔",
+    "importSuccess": "{{added}} نئے آئٹمز درآمد اور {{overwritten}} تبدیل کیے گئے۔ {{skipped}} چھوڑے گئے۔",
+    "importFailedDocs": "{{count}} محفوظ نہیں ہو سکے۔",
+    "batchFailed": "{{batch}} کی درآمد رک گئی: {{detail}}",
+    "settingsApplyFailed": "ان کی ترتیبات ناکام ہو گئیں: {{sections}}۔",
+    "snapshotWarning": "حفاظتی بیک اپ محفوظ ہے، لیکن صفائی ناکام ہو گئی: {{detail}}",
+    "skippedSettings": "ان کی ترتیبات درآمد نہیں ہوئیں: {{sections}}۔",
+    "errors": {
+      "invalidJson": "یہ فائل درست بیک اپ نہیں ہے۔",
+      "wrongApp": "یہ فائل Manta بیک اپ نہیں ہے۔",
+      "newerVersion": "یہ بیک اپ Manta کے نئے ورژن سے بنایا گیا تھا۔ Manta اپ ڈیٹ کریں، پھر دوبارہ کوشش کریں۔",
+      "invalidFormat": "یہ بیک اپ فائل خراب ہے۔",
+      "tooLarge": "یہ فائل بہت بڑی ہے (100 MB سے زیادہ)۔",
+      "unsupportedData": "اس بیک اپ میں غیر معاون منسلکہ ڈیٹا ہے۔"
+    }
+  },
   "tabs": {
     "profile": "پروفائل",
     "invoice": "انوائس",
@@ -8,59 +166,164 @@
   "fields": {
     "logo": {
       "name": "لوگو",
-      "hint": "JPG ،PNG اور SVG (تجویز کردہ) قبول کرتا ہے"
+      "hint": "PNG، JPG اور SVG (تجویز کردہ) قبول کیے جاتے ہیں"
     },
     "taxSettings": "ٹیکس کی ترتیبات",
+    "taxId": "ٹیکس آئی ڈی",
+    "vatId": "VAT آئی ڈی",
+    "legalName": "قانونی نام",
+    "legalNameHint": "رجسٹرڈ نام؛ کمپنی کا نام استعمال کرنے کے لیے خالی چھوڑ دیں۔",
+    "printedAddress": "پرنٹ شدہ پتہ (جب منظم پتہ خالی ہو تو استعمال ہوتا ہے)",
+    "postalAddress": {
+      "title": "پتہ",
+      "street": "گلی",
+      "additional": "اضافی لائن",
+      "postcode": "پوسٹ کوڈ",
+      "city": "شہر",
+      "region": "علاقہ",
+      "country": "ملک"
+    },
+    "bank": {
+      "title": "بینک اکاؤنٹ",
+      "accountName": "اکاؤنٹ ہولڈر",
+      "iban": "IBAN",
+      "bic": "BIC"
+    },
     "template": "سانچہ",
+    "style": {
+      "title": "انوائس کا انداز",
+      "hint": "تمام دستاویزات یہی انداز استعمال کرتی ہیں۔ کسی ایک دستاویز کو بدلنے کے لیے اس کا پیش نظارہ کھولیں۔",
+      "toggles": {
+        "showLogo": "لوگو دکھائیں",
+        "showLogoHint": "دستاویز کے اوپر اپنا لوگو پرنٹ کریں۔",
+        "useSymbol": "کرنسی کی علامت استعمال کریں",
+        "useSymbolHint": "USD کی بجائے $ دکھائیں۔",
+        "showRecipient": "کلائنٹ کی تفصیلات دکھائیں",
+        "showRecipientHint": "کلائنٹ کا نام اور پتہ پرنٹ کریں۔",
+        "customAccentColor": "نمایاں رنگ",
+        "customAccentColorHint": "عنوان اور مجموعوں کو رنگین کریں۔"
+      }
+    },
+    "estimateValidDays": "مدت مؤثر (دن)",
     "dateFormat": "تاریخ کا فارمیٹ",
-    "pdfExportDir": "PDF برآمد کرنے کی ڈائریکٹری",
-    "requiredFields": "مطلوبہ فیلڈز",
+    "pdfExportDir": "برآمد کا فولڈر",
+    "requiredFields": "فارم فیلڈز",
     "sound": "آواز",
     "mute": "خاموش",
     "autoCheckUpdate": {
       "name": "اپ ڈیٹ کے لیے خود بخود چیک کریں",
       "daily": "ہر روز (تجویز کردہ)",
-      "weekly": "ہر ہفتہ"
+      "weekly": "ہر ہفتے"
     },
     "currency": {
-      "placement": "دستخط کا تعین",
-      "afterAmount": "بعد کی رقم",
-      "beforeAmount": "پہلے والی رقم",
-      "fraction": "اعشاری کسر",
-      "separator": "جدا کرنے والا",
-      "commaDot": "کاما ا ور نقطہ",
+      "placement": "علامت کی جگہ",
+      "afterAmount": "رقم کے بعد",
+      "beforeAmount": "رقم سے پہلے",
+      "fraction": "اعشاری ہندسے",
+      "separator": "جداکار",
+      "commaDot": "کاما اور نقطہ",
       "dotComma": "نقطہ اور کاما",
       "spaceDot": "خالی جگہ اور نقطہ"
     },
     "openPDFReader": "برآمد کرنے کے بعد PDF کھولیں",
+    "theme": {
+      "name": "تھیم",
+      "system": "سسٹم",
+      "light": "روشن",
+      "dark": "تاریک"
+    },
     "language": {
       "name": "زبان",
       "ar": "عربی",
-      "cs": "Czech",
-      "da": "Danish",
-      "de": "German",
-      "el": "Greek",
-      "en": "English",
-      "esES": "Spanish",
-      "fr": "French",
-      "id": "Indonesian",
-      "it": "Italian",
-      "ja": "Japanese",
-      "ko": "Korean",
-      "lt": "Lithuanian",
-      "nl": "Dutch",
-      "ptBR": "Portuguese, Brazilian",
-      "ptPT": "Portuguese",
-      "ru": "Russian",
-      "sk": "Slovak",
-      "th": "Thai",
-      "tl": "Tagalog, Philippines",
-      "tr": "Turkish",
+      "cs": "چیک",
+      "da": "ڈینش",
+      "de": "جرمن",
+      "el": "یونانی",
+      "en": "انگریزی",
+      "esES": "ہسپانوی",
+      "fr": "فرانسیسی",
+      "id": "انڈونیشیائی",
+      "it": "اطالوی",
+      "ja": "جاپانی",
+      "ko": "کوریائی",
+      "lt": "لتھوانیائی",
+      "nl": "ڈچ",
+      "ptBR": "پرتگالی (برازیل)",
+      "ptPT": "پرتگالی",
+      "ru": "روسی",
+      "sk": "سلوواک",
+      "th": "تھائی",
+      "tl": "تگالوگ (فلپائن)",
+      "tr": "ترکی",
       "ur-PK": "اُردو (پاکستان)",
-      "vi": "Vietnamese",
-      "zh-CN": "Chinese (Simplified)",
-      "zh-TW": "Chinese (Traditional)"
+      "vi": "ویتنامی",
+      "zh-CN": "چینی (آسان)",
+      "zh-TW": "چینی (روایتی)"
     },
     "other": "دیگر"
+  },
+  "taxRates": {
+    "title": "ٹیکس کی شرحیں",
+    "add": "ٹیکس کی شرح شامل کریں",
+    "edit": "ٹیکس کی شرح میں ترمیم",
+    "default": "پہلے سے طے شدہ",
+    "inactive": "غیر فعال",
+    "setDefault": "پہلے سے طے شدہ بنائیں",
+    "markInactive": "غیر فعال کے طور پر نشان زد کریں",
+    "reactivate": "دوبارہ فعال کریں",
+    "delete": "حذف کریں",
+    "usedBy": "{{count}} آئٹمز میں استعمال ہو رہی ہے۔ اس کی بجائے غیر فعال کر دیں؟",
+    "hintSnapshot": "تبدیلیاں نئی لائنوں پر لاگو ہوں گی۔ محفوظ شدہ انوائسز کی شرحیں وہی رہیں گی۔",
+    "hintAdvisor": "اپنے ٹیکس مشیر سے پوچھیں کہ کون سی کیٹیگری لاگو ہوتی ہے۔",
+    "name": "نام",
+    "rate": "شرح %",
+    "category": "کیٹیگری",
+    "reason": "استثنیٰ کی وجہ",
+    "actionsFor": "{{name}} کے افعال",
+    "categories": {
+      "S": {
+        "label": "معیاری شرح",
+        "help": "عام VAT شرح، مثلاً 19 % یا 20 %۔"
+      },
+      "Z": {
+        "label": "صفر شرح",
+        "help": "قابل ٹیکس، لیکن 0 % پر۔"
+      },
+      "E": {
+        "label": "مستثنیٰ",
+        "help": "قانون کے تحت VAT سے مستثنیٰ۔ وجہ درکار ہے۔"
+      },
+      "AE": {
+        "label": "ریورس چارج",
+        "help": "خریدار VAT ادا کرتا ہے۔ وجہ اور خریدار کی VAT آئی ڈی درکار ہے۔"
+      },
+      "K": {
+        "label": "انٹرا کمیونٹی سپلائی",
+        "help": "کسی دوسرے EU ملک میں VAT رجسٹرڈ خریدار کو سامان۔ وجہ درکار ہے۔"
+      },
+      "G": {
+        "label": "EU سے باہر برآمد",
+        "help": "برآمد پر کوئی VAT نہیں لیا جاتا۔ وجہ درکار ہے۔"
+      },
+      "O": {
+        "label": "VAT کے دائرہ کار سے باہر",
+        "help": "VAT کے تابع نہیں، مثلاً آپ VAT رجسٹرڈ نہیں ہیں۔ وجہ درکار ہے۔"
+      }
+    },
+    "errors": {
+      "name": "1 سے 40 حروف کے درمیان نام درج کریں۔",
+      "rateStandard": "معیاری شرحیں 0 سے 100 % کے درمیان ہونی چاہئیں۔",
+      "rateZero": "اس کیٹیگری میں 0 % استعمال ہونا چاہیے۔",
+      "reasonRequired": "استثنیٰ کی وجہ درج کریں (200 یا اس سے کم حروف)۔",
+      "duplicateId": "ہر ٹیکس شرح کی منفرد id ہونی چاہیے۔",
+      "noDefault": "بالکل ایک فعال شرح کو پہلے سے طے شدہ کے طور پر نشان زد کریں۔",
+      "empty": "کم از کم ایک ٹیکس شرح شامل کریں۔"
+    }
+  },
+  "logo": {
+    "drop": "لوگو یہاں چھوڑیں",
+    "choose": "لوگو منتخب کریں…",
+    "replace": "تبدیل کریں…",
+    "remove": "لوگو ہٹائیں"
   }
 }

@@ -1,0 +1,70 @@
+{
+  "heading": "Dashboard",
+  "loading": "Caricamento dashboard…",
+  "kpi": {
+    "outstanding": "Da incassare",
+    "overdue": "Scadute",
+    "paidThisMonth": "Incassato questo mese",
+    "creditedThisMonth": "Note di credito: −{{amount}}",
+    "drafts": "Bozze",
+    "invoiceCount": "{{count}} fatture"
+  },
+  "currency": {
+    "label": "Valuta"
+  },
+  "chart": {
+    "paid": "Pagato",
+    "title": "Pagamenti degli ultimi 6 mesi",
+    "empty": "Nessun pagamento negli ultimi 6 mesi"
+  },
+  "needsAttention": {
+    "title": "Da controllare",
+    "empty": "Niente da controllare"
+  },
+  "recent": {
+    "title": "Fatture recenti",
+    "empty": "Ancora nessuna fattura",
+    "viewAll": "Vedi tutte le fatture",
+    "newInvoice": "Nuova fattura"
+  },
+  "checklist": {
+    "heading": "Inizia con Manta",
+    "progress": "{{done}} di {{total}} completati",
+    "allDone": "È tutto pronto",
+    "dismiss": "Chiudi checklist",
+    "toastHidden": "Checklist nascosta",
+    "undo": "Annulla",
+    "items": {
+      "profile": "Aggiungi il nome della tua attività",
+      "logo": "Aggiungi il tuo logo",
+      "client": "Aggiungi il tuo primo cliente",
+      "invoice": "Crea la tua prima fattura",
+      "pdf": "Esporta il tuo primo PDF"
+    },
+    "links": {
+      "profile": "Modifica profilo aziendale",
+      "logo": "Carica logo",
+      "client": "Aggiungi cliente",
+      "invoice": "Nuova fattura",
+      "pdf": "Anteprima ed esporta PDF"
+    },
+    "pdfHint": "Crea prima una fattura"
+  },
+  "greeting": {
+    "morning": "Buongiorno",
+    "afternoon": "Buon pomeriggio",
+    "evening": "Buonasera",
+    "lead": "{{greeting}}, hai",
+    "and": "e",
+    "clear": "{{greeting}}. Sei in pari: nessuna fattura scaduta.",
+    "overdue_one": "{{count}} fattura scaduta",
+    "overdue_many": "{{count}} fatture scadute",
+    "overdue_other": "{{count}} fatture scadute",
+    "outstanding_one": "{{count}} in attesa di pagamento",
+    "outstanding_many": "{{count}} in attesa di pagamento",
+    "outstanding_other": "{{count}} in attesa di pagamento",
+    "drafts_one": "{{count}} bozza",
+    "drafts_many": "{{count}} bozze",
+    "drafts_other": "{{count}} bozze"
+  }
+}

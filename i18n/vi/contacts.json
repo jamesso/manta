@@ -1,9 +1,67 @@
 {
-  "header": "Toàn bộ danh bạ",
+  "header": "Khách hàng",
   "fields": {
     "contact": "Thông tin liên hệ",
-    "email": "Thư điện tử",
+    "email": "Email",
     "phone": "Điện thoại",
-    "actions": "Tác vụ"
+    "actions": "Tác vụ",
+    "nameCompany": "Tên / Công ty",
+    "invoices": "Hóa đơn",
+    "outstanding": "Chưa thanh toán",
+    "taxId": "Mã số thuế / VAT",
+    "buyerReference": "Mã tham chiếu người mua (Leitweg-ID)",
+    "buyerReferenceHint": "Bắt buộc với người mua thuộc khu vực công tại Đức.",
+    "buyerReferenceWarning": "Chữ số kiểm tra của Leitweg-ID này có vẻ không đúng.",
+    "addressTitle": "Địa chỉ"
+  },
+  "searchPlaceholder": "Lọc khách hàng…",
+  "newClient": "Khách hàng mới",
+  "empty": {
+    "title": "Chưa có khách hàng nào",
+    "description": "Khách hàng được lưu khi bạn tạo hóa đơn, hoặc bạn có thể thêm ngay bây giờ.",
+    "noResultsFiltered": "Không có khách hàng phù hợp"
+  },
+  "editor": {
+    "createTitle": "Khách hàng mới",
+    "editTitle": "Chỉnh sửa khách hàng",
+    "hint": "Thay đổi áp dụng cho hóa đơn mới. Các hóa đơn hiện có giữ nguyên thông tin lúc được tạo.",
+    "fullname": "Họ và tên",
+    "company": "Công ty",
+    "email": "Email",
+    "phone": "Điện thoại",
+    "save": "Lưu"
+  },
+  "detail": {
+    "outstanding": "Chưa thanh toán",
+    "noInvoices": "Khách hàng này chưa có hóa đơn nào.",
+    "newInvoice": "Hóa đơn mới",
+    "edit": "Chỉnh sửa"
+  },
+  "actions": {
+    "newInvoice": "Hóa đơn mới",
+    "edit": "Chỉnh sửa",
+    "delete": "Xóa",
+    "menuLabel": "Tác vụ cho {{name}}"
+  },
+  "toast": {
+    "deleted": "Đã xóa khách hàng",
+    "deleted_other": "Đã xóa {{count}} khách hàng",
+    "undo": "Hoàn tác",
+    "restored": "Đã khôi phục khách hàng",
+    "restored_other": "Đã khôi phục {{count}} khách hàng",
+    "deleteFailed": "Không thể xóa {{count}} khách hàng"
+  },
+  "errors": {
+    "fullnameRequired": "Nhập họ và tên",
+    "emailRequired": "Nhập địa chỉ email",
+    "emailInvalid": "Nhập địa chỉ email hợp lệ",
+    "countryInvalid": "Chọn mã quốc gia hợp lệ"
+  },
+  "searchLabel": "Lọc khách hàng",
+  "count_other": "{{count}} khách hàng",
+  "balance": {
+    "outstanding": "Chưa thanh toán",
+    "settled": "Đã thanh toán đủ",
+    "noInvoices": "Không có hóa đơn"
   }
 }

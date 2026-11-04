@@ -1,0 +1,121 @@
+{
+  "header": {
+    "name": "Opakované faktúry",
+    "new": "Nová opakovaná faktúra",
+    "count_one": "{{count}} opakovaná faktúra",
+    "count_few": "{{count}} opakované faktúry",
+    "count_many": "{{count}} opakovanej faktúry",
+    "count_other": "{{count}} opakovaných faktúr"
+  },
+  "empty": {
+    "title": "Zatiaľ žiadne opakované faktúry",
+    "description": "Manta vytvára koncepty, kým je aplikácia otvorená. Nič sa neodosiela automaticky.",
+    "noResults": "Žiadne zodpovedajúce opakované faktúry"
+  },
+  "columns": {
+    "name": "Názov",
+    "client": "Klient",
+    "amount": "Suma",
+    "interval": "Opakovanie",
+    "nextDate": "Ďalší koncept",
+    "active": "Aktívne",
+    "actions": "Akcie"
+  },
+  "interval": {
+    "weekly": "Týždenne",
+    "monthly": "Mesačne",
+    "quarterly": "Štvrťročne",
+    "yearly": "Ročne"
+  },
+  "repeatEvery": {
+    "weekly_one": "Každý týždeň",
+    "weekly_few": "Každé {{count}} týždne",
+    "weekly_many": "Každých {{count}} týždňa",
+    "weekly_other": "Každých {{count}} týždňov",
+    "monthly_one": "Každý mesiac",
+    "monthly_few": "Každé {{count}} mesiace",
+    "monthly_many": "Každých {{count}} mesiaca",
+    "monthly_other": "Každých {{count}} mesiacov",
+    "quarterly_one": "Každý štvrťrok",
+    "quarterly_few": "Každé {{count}} štvrťroky",
+    "quarterly_many": "Každých {{count}} štvrťroka",
+    "quarterly_other": "Každých {{count}} štvrťrokov",
+    "yearly_one": "Každý rok",
+    "yearly_few": "Každé {{count}} roky",
+    "yearly_many": "Každých {{count}} roka",
+    "yearly_other": "Každých {{count}} rokov"
+  },
+  "status": {
+    "paused": "Pozastavené",
+    "ended": "Ukončené",
+    "active": "Aktívne"
+  },
+  "actions": {
+    "open": "Akcie opakovanej faktúry",
+    "editSchedule": "Upraviť plán",
+    "editTemplate": "Upraviť šablónu",
+    "pause": "Pozastaviť",
+    "resume": "Pokračovať",
+    "delete": "Odstrániť"
+  },
+  "sheet": {
+    "titleNew": "Nová opakovaná faktúra",
+    "titleEdit": "Upraviť opakovanú faktúru",
+    "schedule": "Plán",
+    "name": "Názov",
+    "every": "Opakovať každých",
+    "interval": "Interval",
+    "startDate": "Dátum začiatku",
+    "endDate": "Dátum ukončenia (voliteľné)",
+    "noEndDate": "Bez dátumu ukončenia",
+    "activeHint": "Pozastavené šablóny nevytvárajú koncepty.",
+    "active": "Aktívne",
+    "summary": "Súhrn",
+    "client": "Klient",
+    "items": "Položky",
+    "itemsCount_one": "{{count}} položka",
+    "itemsCount_few": "{{count}} položky",
+    "itemsCount_many": "{{count}} položky",
+    "itemsCount_other": "{{count}} položiek",
+    "amount": "Suma",
+    "nextDates": "Ďalšie koncepty",
+    "createsToday": "Prvý koncept sa vytvorí dnes po uložení.",
+    "save": "Uložiť",
+    "cancel": "Zrušiť"
+  },
+  "detail": {
+    "startDate": "Dátum začiatku",
+    "endDate": "Dátum ukončenia",
+    "noItems": "Šablóna neobsahuje žiadne položky.",
+    "created": "Vytvorené faktúry",
+    "noneCreated": "Zatiaľ neboli vytvorené žiadne faktúry."
+  },
+  "errors": {
+    "name": "Zadajte názov.",
+    "every": "Zadajte číslo od 1 do 99.",
+    "interval": "Vyberte interval.",
+    "startDate": "Vyberte platný dátum začiatku.",
+    "endDate": "Dátum ukončenia nesmie byť skorší ako dátum začiatku.",
+    "template": "Do šablóny pridajte klienta a aspoň jednu položku."
+  },
+  "toast": {
+    "created_one": "{{count}} opakovaná faktúra vytvorená ako koncept",
+    "created_few": "{{count}} opakované faktúry vytvorené ako koncepty",
+    "created_many": "{{count}} opakovanej faktúry vytvorenej ako koncept",
+    "created_other": "{{count}} opakovaných faktúr vytvorených ako koncepty",
+    "viewDrafts": "Zobraziť koncepty",
+    "capped": "Ďalšie koncepty čakajú pre: {{names}}",
+    "runFailed": "Vytvorenie opakovaných faktúr zlyhalo",
+    "saved": "Opakovaná faktúra uložená",
+    "deleted_one": "Opakovaná faktúra odstránená",
+    "deleted_few": "{{count}} opakované faktúry odstránené",
+    "deleted_many": "{{count}} opakovanej faktúry odstránenej",
+    "deleted_other": "{{count}} opakovaných faktúr odstránených",
+    "undo": "Späť",
+    "restored": "Opakovaná faktúra obnovená"
+  },
+  "search": {
+    "label": "Filtrovať opakované faktúry",
+    "placeholder": "Filtrovať opakované…"
+  }
+}

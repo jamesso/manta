@@ -13,18 +13,18 @@
     },
     "downloaded": {
       "title": "Aggiornamento scaricato",
-      "message": "Si desidera chiudere e aggiornare l'app ora?",
-      "quitNow": "Chiudi Ora",
+      "message": "Vuoi chiudere e aggiornare l'app ora?",
+      "quitNow": "Chiudi ora",
       "later": "Più tardi"
     }
   },
   "noAccess": {
     "title": "Nessuna autorizzazione di accesso",
-    "message": "Si prega di scegliere un'altra directory"
+    "message": "Scegli un'altra cartella"
   },
   "errorBoundary": "Si è verificato un errore",
   "deleteInvoice": {
-    "title": "Elimina questa fattura?",
+    "title": "Eliminare questa fattura?",
     "message": "La fattura verrà rimossa definitivamente dal database"
   },
   "deleteContact": {
@@ -32,7 +32,7 @@
     "message": "Il contatto verrà rimosso definitivamente dal database"
   },
   "fileTypeErr": {
-    "title": "Si prega di scegliere un altro file"
+    "title": "Scegli un altro file"
   },
   "validation": {
     "invoiceID": {
@@ -46,11 +46,11 @@
       },
       "requiredFields": {
         "title": "Campi obbligatori",
-        "message": "Si prega di compilare tutti i campi obbligatori"
+        "message": "Compila tutti i campi obbligatori"
       },
       "email": {
         "title": "Email non valida",
-        "message": "Si prega di scegliere un altro indirizzo email"
+        "message": "Scegli un altro indirizzo email"
       }
     },
     "rows": {
@@ -69,12 +69,12 @@
     },
     "dueDate": {
       "title": "Scadenza non valida",
-      "message": "Si prega di selezionare una data"
+      "message": "Seleziona una data"
     },
     "currency": {
       "fraction": {
-        "title": "Frazione non valida",
-        "message": "La frazione decimale deve essere uguale o maggiore di zero"
+        "title": "Cifre decimali non valide",
+        "message": "Il numero di cifre decimali deve essere pari o superiore a 0"
       }
     },
     "discount": {

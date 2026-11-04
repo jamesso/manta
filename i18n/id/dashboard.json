@@ -1,0 +1,64 @@
+{
+  "heading": "Dasbor",
+  "loading": "Memuat dasbor…",
+  "kpi": {
+    "outstanding": "Belum Dibayar",
+    "overdue": "Lewat Jatuh Tempo",
+    "paidThisMonth": "Dibayar Bulan Ini",
+    "creditedThisMonth": "Nota Kredit: −{{amount}}",
+    "drafts": "Draf",
+    "invoiceCount": "{{count}} faktur"
+  },
+  "currency": {
+    "label": "Mata Uang"
+  },
+  "chart": {
+    "paid": "Dibayar",
+    "title": "Pembayaran 6 Bulan Terakhir",
+    "empty": "Tidak ada pembayaran dalam 6 bulan terakhir"
+  },
+  "needsAttention": {
+    "title": "Perlu Perhatian",
+    "empty": "Tidak ada yang perlu diperhatikan"
+  },
+  "recent": {
+    "title": "Faktur Terbaru",
+    "empty": "Belum ada faktur",
+    "viewAll": "Lihat Semua Faktur",
+    "newInvoice": "Faktur Baru"
+  },
+  "checklist": {
+    "heading": "Mulai menggunakan Manta",
+    "progress": "{{done}} dari {{total}} selesai",
+    "allDone": "Semua sudah siap",
+    "dismiss": "Tutup Daftar Periksa",
+    "toastHidden": "Daftar periksa disembunyikan",
+    "undo": "Urungkan",
+    "items": {
+      "profile": "Tambahkan Nama Usaha Anda",
+      "logo": "Tambahkan Logo Anda",
+      "client": "Tambahkan Klien Pertama Anda",
+      "invoice": "Buat Faktur Pertama Anda",
+      "pdf": "Ekspor PDF Pertama Anda"
+    },
+    "links": {
+      "profile": "Sunting Profil Usaha",
+      "logo": "Unggah Logo",
+      "client": "Tambah Klien",
+      "invoice": "Faktur Baru",
+      "pdf": "Pratinjau dan Ekspor PDF"
+    },
+    "pdfHint": "Buat faktur terlebih dahulu"
+  },
+  "greeting": {
+    "morning": "Selamat pagi",
+    "afternoon": "Selamat siang",
+    "evening": "Selamat malam",
+    "lead": "{{greeting}}, Anda memiliki",
+    "and": "dan",
+    "clear": "{{greeting}}. Semua sudah beres — tidak ada yang lewat jatuh tempo.",
+    "overdue_other": "{{count}} faktur lewat jatuh tempo",
+    "outstanding_other": "{{count}} menunggu pembayaran",
+    "drafts_other": "{{count}} draf"
+  }
+}

@@ -8,34 +8,85 @@
       "bottom": "Dưới cùng"
     },
     "fontSize": "Cỡ chữ",
+    "logoSize": "Kích thước logo",
     "toggle": {
       "name": "Bật\/tắt",
       "logo": "Logo",
-      "symbol": "Biểu tượng",
+      "symbol": "Ký hiệu tiền tệ",
       "recipient": "Người nhận"
     },
     "accentColor": {
       "name": "Màu nhấn",
-      "useCustom": "Sử dụng tùy chỉnh"
+      "useCustom": "Sử dụng tùy chỉnh",
+      "custom": "Màu tùy chỉnh"
     },
     "actions": {
       "name": "Tác vụ",
       "savePDF": "Xuất ra PDF",
-      "saveConfigs": "Lưu Tuỳ Chỉnh"
+      "emailInvoice": "Gửi hóa đơn qua email",
+      "sharePdf": "Chia sẻ PDF…",
+      "saveConfigs": "Lưu cài đặt"
+    },
+    "einvoice": {
+      "title": "Hóa đơn điện tử",
+      "ready": "Sẵn sàng để xuất",
+      "problems": "{{count}} lỗi cần sửa",
+      "exportXrechnung": "Xuất XRechnung (XML)",
+      "exportFacturx": "Xuất Factur-X (PDF)",
+      "disclaimer": "Hãy kiểm tra tệp xuất trước khi gửi.",
+      "reveal": "Hiện trong thư mục",
+      "exportFailed": "Xuất thất bại"
     }
   },
+  "drawer": {
+    "title": "Xem trước {{number}}",
+    "style": "Kiểu trình bày",
+    "defaultStyle": "Chứng từ này dùng kiểu trình bày mặc định từ Cài đặt.",
+    "ownStyle": "Chứng từ này có kiểu trình bày riêng.",
+    "saveStyle": "Lưu kiểu trình bày",
+    "useDefaults": "Dùng kiểu mặc định",
+    "exported": "Đã xuất tệp",
+    "exportFailed": "Không thể xuất PDF: {{reason}}"
+  },
   "common": {
-    "billedTo": "Lập hoá đơn cho",
+    "billedTo": "Lập hóa đơn cho",
     "chooseInvoiceToPreview": "Hãy chọn một hóa đơn để xem",
-    "created": "Ngày Tạo",
-    "due": "Hạn trả",
-    "invoice": "Hoá đơn",
+    "created": "Ngày tạo",
+    "due": "Hạn thanh toán",
+    "invoice": "Hóa đơn",
+    "estimate": "Báo giá",
+    "creditNote": "Giấy báo có",
+    "creditsInvoice": "Ghi có cho hóa đơn {{number}} ngày {{date}}",
+    "totalCredit": "Tổng ghi có",
+    "validUntil": "Hiệu lực đến",
     "itemDescription": "Mô tả mặt hàng",
     "notice": "Chú thích",
-    "order": "Stt",
+    "order": "STT",
     "price": "Giá",
     "qty": "Số lượng",
     "subtotal": "Tổng phụ",
-    "total": "Tổng cộng"
+    "total": "Tổng cộng",
+    "amountPaid": "Số tiền đã trả",
+    "balanceDue": "Số dư còn nợ",
+    "labelled": "{{label}}: {{value}}"
+  },
+  "tax": {
+    "taxId": "Mã số thuế",
+    "vatId": "Mã số VAT",
+    "recipientTaxId": "Mã số VAT của khách hàng",
+    "on": "trên {{amount}}",
+    "category": {
+      "S": "VAT",
+      "Z": "VAT 0 %",
+      "E": "Miễn VAT",
+      "AE": "Thuế đảo ngược",
+      "K": "Cung ứng nội khối EU",
+      "G": "Xuất khẩu",
+      "O": "Ngoài phạm vi VAT"
+    }
+  },
+  "einvoice": {
+    "bank": "Ngân hàng",
+    "buyerReference": "Mã tham chiếu người mua"
   }
 }

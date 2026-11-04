@@ -1,0 +1,73 @@
+{
+  "heading": "Prehľad",
+  "loading": "Načítava sa prehľad…",
+  "kpi": {
+    "outstanding": "Neuhradené",
+    "overdue": "Po splatnosti",
+    "paidThisMonth": "Zaplatené tento mesiac",
+    "creditedThisMonth": "Dobropisy: −{{amount}}",
+    "drafts": "Koncepty",
+    "invoiceCount": "Faktúry: {{count}}"
+  },
+  "currency": {
+    "label": "Mena"
+  },
+  "chart": {
+    "paid": "Zaplatené",
+    "title": "Platby za posledných 6 mesiacov",
+    "empty": "Za posledných 6 mesiacov žiadne platby"
+  },
+  "needsAttention": {
+    "title": "Vyžaduje pozornosť",
+    "empty": "Nič nevyžaduje pozornosť"
+  },
+  "recent": {
+    "title": "Posledné faktúry",
+    "empty": "Zatiaľ žiadne faktúry",
+    "viewAll": "Zobraziť všetky faktúry",
+    "newInvoice": "Nová faktúra"
+  },
+  "checklist": {
+    "heading": "Začíname s aplikáciou Manta",
+    "progress": "Hotovo {{done}} z {{total}}",
+    "allDone": "Všetko je pripravené",
+    "dismiss": "Zavrieť kontrolný zoznam",
+    "toastHidden": "Kontrolný zoznam skrytý",
+    "undo": "Späť",
+    "items": {
+      "profile": "Pridajte názov firmy",
+      "logo": "Pridajte logo",
+      "client": "Pridajte prvého klienta",
+      "invoice": "Vytvorte prvú faktúru",
+      "pdf": "Exportujte prvé PDF"
+    },
+    "links": {
+      "profile": "Upraviť firemný profil",
+      "logo": "Nahrať logo",
+      "client": "Pridať klienta",
+      "invoice": "Nová faktúra",
+      "pdf": "Ukážka a export PDF"
+    },
+    "pdfHint": "Najprv vytvorte faktúru"
+  },
+  "greeting": {
+    "morning": "Dobré ráno",
+    "afternoon": "Dobrý deň",
+    "evening": "Dobrý večer",
+    "lead": "{{greeting}}, máte",
+    "and": "a",
+    "clear": "{{greeting}}. Všetko máte vybavené – nič nie je po splatnosti.",
+    "overdue_one": "{{count}} faktúru po splatnosti",
+    "overdue_few": "{{count}} faktúry po splatnosti",
+    "overdue_many": "{{count}} faktúry po splatnosti",
+    "overdue_other": "{{count}} faktúr po splatnosti",
+    "outstanding_one": "{{count}} faktúru čakajúcu na úhradu",
+    "outstanding_few": "{{count}} faktúry čakajúce na úhradu",
+    "outstanding_many": "{{count}} faktúry čakajúcej na úhradu",
+    "outstanding_other": "{{count}} faktúr čakajúcich na úhradu",
+    "drafts_one": "{{count}} koncept",
+    "drafts_few": "{{count}} koncepty",
+    "drafts_many": "{{count}} konceptu",
+    "drafts_other": "{{count}} konceptov"
+  }
+}

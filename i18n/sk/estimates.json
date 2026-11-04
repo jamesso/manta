@@ -1,0 +1,78 @@
+{
+  "header": {
+    "name": "Cenové ponuky",
+    "count_one": "{{count}} cenová ponuka",
+    "count_few": "{{count}} cenové ponuky",
+    "count_many": "{{count}} cenovej ponuky",
+    "count_other": "{{count}} cenových ponúk"
+  },
+  "newEstimate": "Nová cenová ponuka",
+  "search": {
+    "label": "Filtrovať cenové ponuky",
+    "placeholder": "Filtrovať cenové ponuky…"
+  },
+  "tabs": {
+    "all": "Všetky",
+    "draft": "Koncepty",
+    "sent": "Odoslané",
+    "accepted": "Prijaté",
+    "declined": "Zamietnuté",
+    "expired": "Expirované",
+    "converted": "Prevedené"
+  },
+  "status": {
+    "sent": "Odoslaná",
+    "accepted": "Prijatá",
+    "declined": "Zamietnutá",
+    "expired": "Expirovaná",
+    "converted": "Prevedená"
+  },
+  "columns": {
+    "number": "Číslo",
+    "client": "Klient",
+    "issued": "Vystavené",
+    "validUntil": "Platná do",
+    "amount": "Suma",
+    "status": "Stav",
+    "actions": "Akcie"
+  },
+  "valid": {
+    "today": "Platná do dnes",
+    "inDays_one": "Platná ešte {{count}} deň",
+    "inDays_few": "Platná ešte {{count}} dni",
+    "inDays_many": "Platná ešte {{count}} dňa",
+    "inDays_other": "Platná ešte {{count}} dní",
+    "expiredDays_one": "Platnosť vypršala pred {{count}} dňom",
+    "expiredDays_few": "Platnosť vypršala pred {{count}} dňami",
+    "expiredDays_many": "Platnosť vypršala pred {{count}} dňa",
+    "expiredDays_other": "Platnosť vypršala pred {{count}} dňami"
+  },
+  "actions": {
+    "open": "Akcie cenovej ponuky",
+    "edit": "Upraviť",
+    "duplicate": "Duplikovať",
+    "markSent": "Označiť ako odoslanú",
+    "markAccepted": "Označiť ako prijatú",
+    "markDeclined": "Označiť ako zamietnutú",
+    "convert": "Previesť na faktúru",
+    "openInvoice": "Otvoriť faktúru",
+    "preview": "Ukážka",
+    "delete": "Odstrániť"
+  },
+  "empty": {
+    "title": "Zatiaľ žiadne cenové ponuky",
+    "description": "Vytvorte cenovú ponuku. Keď ju klient prijme, preveďte ju na faktúru.",
+    "noResults": "Žiadne zodpovedajúce cenové ponuky",
+    "clearFilters": "Zrušiť filtre"
+  },
+  "toast": {
+    "converted": "Cenová ponuka {{number}} prevedená",
+    "alreadyConverted": "Táto cenová ponuka už bola prevedená na faktúru",
+    "notFound": "Táto cenová ponuka už neexistuje",
+    "linkFailed": "Faktúra je uložená, ale cenovú ponuku sa nepodarilo označiť ako prevedenú",
+    "deleted_one": "Cenová ponuka odstránená",
+    "deleted_few": "{{count}} cenové ponuky odstránené",
+    "deleted_many": "{{count}} cenovej ponuky odstránenej",
+    "deleted_other": "{{count}} cenových ponúk odstránených"
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "header": {
+    "name": "Penawaran",
+    "count_other": "{{count}} penawaran"
+  },
+  "newEstimate": "Penawaran Baru",
+  "search": {
+    "label": "Saring Penawaran",
+    "placeholder": "Saring penawaran…"
+  },
+  "tabs": {
+    "all": "Semua",
+    "draft": "Draf",
+    "sent": "Terkirim",
+    "accepted": "Diterima",
+    "declined": "Ditolak",
+    "expired": "Kedaluwarsa",
+    "converted": "Dikonversi"
+  },
+  "status": {
+    "sent": "Terkirim",
+    "accepted": "Diterima",
+    "declined": "Ditolak",
+    "expired": "Kedaluwarsa",
+    "converted": "Dikonversi"
+  },
+  "columns": {
+    "number": "Nomor",
+    "client": "Klien",
+    "issued": "Diterbitkan",
+    "validUntil": "Berlaku Hingga",
+    "amount": "Jumlah",
+    "status": "Status",
+    "actions": "Tindakan"
+  },
+  "valid": {
+    "today": "Berlaku hingga hari ini",
+    "inDays_other": "Berlaku {{count}} hari lagi",
+    "expiredDays_other": "Kedaluwarsa {{count}} hari lalu"
+  },
+  "actions": {
+    "open": "Tindakan Penawaran",
+    "edit": "Sunting",
+    "duplicate": "Duplikat",
+    "markSent": "Tandai sebagai Terkirim",
+    "markAccepted": "Tandai sebagai Diterima",
+    "markDeclined": "Tandai sebagai Ditolak",
+    "convert": "Konversi ke Faktur",
+    "openInvoice": "Buka Faktur",
+    "preview": "Pratinjau",
+    "delete": "Hapus"
+  },
+  "empty": {
+    "title": "Belum ada penawaran",
+    "description": "Buat penawaran. Konversikan menjadi faktur saat klien menerimanya.",
+    "noResults": "Tidak ada penawaran yang cocok",
+    "clearFilters": "Hapus filter"
+  },
+  "toast": {
+    "converted": "Penawaran {{number}} dikonversi",
+    "alreadyConverted": "Penawaran ini sudah dikonversi menjadi faktur",
+    "notFound": "Penawaran ini sudah tidak ada",
+    "linkFailed": "Faktur sudah disimpan, tetapi penawaran tidak dapat ditandai sebagai dikonversi",
+    "deleted_other": "{{count}} penawaran dihapus"
+  }
+}

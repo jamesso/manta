@@ -1,23 +1,246 @@
 {
   "header": {
-    "name": "Tutte le Fatture"
+    "name": "Fatture",
+    "count_one": "{{count}} fattura",
+    "count_many": "{{count}} fatture",
+    "count_other": "{{count}} fatture"
+  },
+  "newInvoice": "Nuova fattura",
+  "search": {
+    "label": "Filtra fatture",
+    "placeholder": "Filtra fatture…"
+  },
+  "tabs": {
+    "all": "Tutte",
+    "draft": "Bozze",
+    "outstanding": "Da incassare",
+    "overdue": "Scadute",
+    "paid": "Pagate",
+    "closed": "Chiuse",
+    "creditNotes": "Note di credito"
+  },
+  "columns": {
+    "select": "Seleziona fattura {{number}}",
+    "selectAll": "Seleziona tutte le fatture",
+    "number": "Numero",
+    "client": "Cliente",
+    "issued": "Emessa",
+    "due": "Scadenza",
+    "amount": "Importo",
+    "status": "Stato",
+    "actions": "Azioni"
+  },
+  "number": {
+    "none": "Ancora senza numero"
+  },
+  "due": {
+    "none": "Nessuna scadenza",
+    "today": "Scade oggi",
+    "inDays_one": "Scade tra {{count}} giorno",
+    "inDays_many": "Scade tra {{count}} giorni",
+    "inDays_other": "Scade tra {{count}} giorni",
+    "overdueDays_one": "Scaduta da {{count}} giorno",
+    "overdueDays_many": "Scaduta da {{count}} giorni",
+    "overdueDays_other": "Scaduta da {{count}} giorni"
+  },
+  "actions": {
+    "open": "Azioni fattura",
+    "preview": "Anteprima",
+    "edit": "Modifica",
+    "duplicate": "Duplica",
+    "makeRecurring": "Rendi ricorrente",
+    "createCreditNote": "Crea nota di credito",
+    "recordPayment": "Registra pagamento…",
+    "markPaidInFull": "Segna come saldata",
+    "setStatus": "Imposta stato",
+    "delete": "Elimina"
+  },
+  "bulk": {
+    "markPaidInFull": "Segna come saldate"
+  },
+  "empty": {
+    "title": "Ancora nessuna fattura",
+    "description": "Crea la tua prima fattura. Apparirà qui.",
+    "noResults": "Nessuna fattura corrispondente",
+    "noResultsDescription": "Prova un'altra ricerca o un altro filtro.",
+    "clearFilters": "Rimuovi filtri"
+  },
+  "sheet": {
+    "title": "Fattura {{number}}",
+    "client": "Cliente",
+    "issued": "Emessa",
+    "due": "Scadenza",
+    "currency": "Valuta",
+    "items": "Articoli",
+    "description": "Descrizione",
+    "quantity": "Qtà",
+    "price": "Prezzo",
+    "subtotal": "Subtotale",
+    "discount": "Sconto",
+    "tax": "Imposta",
+    "total": "Totale",
+    "note": "Nota",
+    "fromEstimate": "Creata dal preventivo {{number}}",
+    "credited": "Stornato",
+    "balanceDue": "Saldo dovuto",
+    "refundDue": "Rimborso dovuto",
+    "creditNotes": "Note di credito",
+    "einvoiceTitle": "Fattura elettronica"
+  },
+  "toast": {
+    "deleted_one": "Fattura eliminata",
+    "deleted_many": "{{count}} fatture eliminate",
+    "deleted_other": "{{count}} fatture eliminate",
+    "deleteFailed_one": "Impossibile eliminare {{count}} fattura",
+    "deleteFailed_many": "Impossibile eliminare {{count}} fatture",
+    "deleteFailed_other": "Impossibile eliminare {{count}} fatture",
+    "undo": "Annulla",
+    "restored_one": "Fattura ripristinata",
+    "restored_many": "{{count}} fatture ripristinate",
+    "restored_other": "{{count}} fatture ripristinate",
+    "updated_one": "Fattura aggiornata",
+    "updated_many": "{{count}} fatture aggiornate",
+    "updated_other": "{{count}} fatture aggiornate",
+    "notFound": "Fattura non trovata"
+  },
+  "nav": {
+    "overdueBadge_one": "{{count}} fattura scaduta",
+    "overdueBadge_many": "{{count}} fatture scadute",
+    "overdueBadge_other": "{{count}} fatture scadute"
   },
   "fields": {
     "client": "Cliente",
     "invoiceID": "Numero fattura",
-    "createdDate": "Creato il",
-    "dueDate": "Data di Scadenza",
-    "total": "Valore Totale"
+    "createdDate": "Creata il",
+    "dueDate": "Data di scadenza",
+    "total": "Valore totale"
   },
   "status": {
-    "pending": "In Sospeso",
-    "paid": "Pagato",
-    "refunded": "﻿Rimborsato",
-    "cancelled": "Annullato"
+    "draft": "Bozza",
+    "pending": "In attesa",
+    "partial": "Parzialmente pagata",
+    "overdue": "Scaduta",
+    "paid": "Pagata",
+    "refunded": "Rimborsata",
+    "cancelled": "Annullata"
+  },
+  "payments": {
+    "title": "Pagamenti",
+    "empty": "Nessun pagamento registrato.",
+    "amountPaid": "Importo pagato",
+    "balanceDue": "Saldo dovuto",
+    "partiallyPaid": "Parzialmente pagata",
+    "balanceShort": "{{amount}} dovuti",
+    "remove": "Rimuovi il pagamento di {{amount}} del {{date}}",
+    "methods": {
+      "bank": "Bonifico bancario",
+      "cash": "Contanti",
+      "check": "Assegno",
+      "card": "Carta",
+      "paypal": "PayPal",
+      "other": "Altro"
+    },
+    "dialog": {
+      "title": "Registra pagamento",
+      "description": "Fattura {{number}} · Saldo dovuto {{balance}}",
+      "amount": "Importo",
+      "payFull": "Paga l’intero saldo",
+      "date": "Data del pagamento",
+      "method": "Metodo",
+      "note": "Nota",
+      "notePlaceholder": "Riferimento o commento (facoltativo)",
+      "submit": "Registra pagamento",
+      "cancel": "Annulla"
+    },
+    "errors": {
+      "amountInvalid": "Inserisci un importo, per esempio {{example}}.",
+      "amountPositive": "L’importo deve essere maggiore di 0.",
+      "tooManyDecimals_zero": "Usa solo numeri interi.",
+      "tooManyDecimals_one": "Usa al massimo {{count}} cifra decimale.",
+      "tooManyDecimals_many": "Usa al massimo {{count}} cifre decimali.",
+      "tooManyDecimals_other": "Usa al massimo {{count}} cifre decimali.",
+      "overpayment": "L’importo supera il saldo dovuto ({{balance}}).",
+      "dateRequired": "Scegli una data di pagamento.",
+      "dateFuture": "La data di pagamento non può essere nel futuro.",
+      "draft": "Le bozze non possono ricevere pagamenti. Salva prima la fattura.",
+      "closed": "Le fatture rimborsate o annullate non possono ricevere pagamenti. Imposta prima lo stato su In attesa.",
+      "nothingDue": "Questa fattura non ha alcun saldo dovuto.",
+      "duplicate": "Questo pagamento è già registrato.",
+      "notFound": "Fattura o pagamento non trovato.",
+      "draftWithPayments": "Una fattura con pagamenti non può tornare bozza. Rimuovi prima i pagamenti."
+    },
+    "toast": {
+      "recorded_one": "Pagamento registrato",
+      "recorded_many": "{{count}} pagamenti registrati",
+      "recorded_other": "{{count}} pagamenti registrati",
+      "skipped_one": "{{count}} fattura saltata: {{reason}}",
+      "skipped_many": "{{count}} fatture saltate: {{reason}}",
+      "skipped_other": "{{count}} fatture saltate: {{reason}}",
+      "removed": "Pagamento rimosso",
+      "undo": "Annulla",
+      "stillPaid": "I pagamenti coprono il totale, quindi la fattura resta pagata."
+    }
   },
   "btns": {
     "view": "Visualizza",
     "edit": "Modifica",
-    "markAsPaid": "Contrassegna come Pagato"
+    "markAsPaid": "Segna come pagata"
+  },
+  "creditNotes": {
+    "status": {
+      "draft": "Bozza",
+      "issued": "Emessa",
+      "void": "Annullata"
+    },
+    "columns": {
+      "credits": "Storna"
+    },
+    "sheet": {
+      "title": "Nota di credito {{number}}",
+      "credits": "Storna la fattura {{number}} del {{date}}",
+      "totalCredit": "Credito totale"
+    },
+    "actions": {
+      "issue": "Emetti",
+      "void": "Annulla",
+      "edit": "Modifica",
+      "delete": "Elimina",
+      "preview": "Anteprima"
+    },
+    "void": {
+      "title": "Annullare la nota di credito {{number}}?",
+      "description": "L'operazione non può essere annullata. L'importo stornato torna sulla fattura.",
+      "confirm": "Annulla nota"
+    },
+    "errors": {
+      "creditedMissing": "Manca la fattura stornata.",
+      "creditZero": "L'importo del credito deve essere maggiore di 0.",
+      "creditCurrency": "La valuta della nota di credito deve corrispondere a quella della fattura.",
+      "creditExceeds": "Il credito supera l'importo ancora stornabile.",
+      "syncFailed": "Nota di credito salvata, ma non è stato possibile aggiornare la fattura.",
+      "updateFailed": "Impossibile aggiornare la fattura stornata.",
+      "repairFailed": "Impossibile correggere lo stato della fattura dopo le note di credito.",
+      "notAllowed": "Impossibile creare una nota di credito per questa fattura.",
+      "void": "La nota di credito è annullata.",
+      "draftVoid": "Le note di credito in bozza non possono essere annullate."
+    },
+    "toast": {
+      "issued": "Nota di credito emessa",
+      "voided": "Nota di credito annullata",
+      "hasCreditNotes_one": "Questa fattura ha una nota di credito. Rimuovila o annullala prima.",
+      "hasCreditNotes_many": "Questa fattura ha delle note di credito. Rimuovile o annullale prima.",
+      "hasCreditNotes_other": "Questa fattura ha delle note di credito. Rimuovile o annullale prima.",
+      "issuedCreditNote_one": "Questa fattura ha una nota di credito emessa.",
+      "issuedCreditNote_many": "Questa fattura ha delle note di credito emesse.",
+      "issuedCreditNote_other": "Questa fattura ha delle note di credito emesse."
+    },
+    "empty": {
+      "title": "Ancora nessuna nota di credito",
+      "description": "Crea una nota di credito da una fattura per vederla qui."
+    }
+  },
+  "views": {
+    "invoices": "Fatture",
+    "creditNotes": "Note di credito"
   }
 }

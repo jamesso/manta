@@ -1,6 +1,6 @@
 {
   "nav": {
-    "newInvoice": "New invoice",
+    "newInvoice": "New Invoice",
     "search": "Search",
     "invoices": "Invoices",
     "estimates": "Estimates",
@@ -10,39 +10,40 @@
     "dashboard": "Dashboard",
     "settings": "Settings",
     "help": "Help",
-    "businessProfile": "Business profile",
-    "shortcuts": "Keyboard shortcuts",
-    "tutorial": "Show tutorial",
-    "learnMore": "Learn more",
-    "toggleSidebar": "Toggle sidebar",
-    "searchPlaceholder": "Search, or jump to anything…",
+    "shortcuts": "Keyboard Shortcuts",
+    "tutorial": "Show Tutorial",
+    "learnMore": "Learn More",
+    "toggleSidebar": "Toggle Sidebar",
+    "searchPlaceholder": "Search or jump to…",
     "library": "Library"
   },
   "titles": {
-    "newInvoice": "New invoice",
-    "editInvoice": "Edit invoice",
-    "newEstimate": "New estimate",
-    "editEstimate": "Edit estimate",
+    "newInvoice": "New Invoice",
+    "editInvoice": "Edit Invoice",
+    "newEstimate": "New Estimate",
+    "editEstimate": "Edit Estimate",
     "dashboard": "Dashboard"
   },
   "update": {
-    "check": "Check for updates",
+    "check": "Check for Updates",
     "checking": "Checking for updates…",
     "downloading": "Downloading update {{percent}}%"
   },
   "palette": {
-    "title": "Command palette",
-    "description": "Search pages, invoices, clients, and actions",
+    "title": "Command Palette",
+    "description": "Search pages, invoices, estimates, clients, items, and actions",
     "placeholder": "Type a command or search…",
     "empty": "No results found.",
-    "goTo": "Go to",
+    "goTo": "Go To",
     "actions": "Actions",
-    "newEstimate": "New estimate",
+    "newEstimate": "New Estimate",
     "invoices": "Invoices",
     "estimates": "Estimates",
     "clients": "Clients",
-    "toggleTheme": "Toggle theme",
-    "themeChanged": "Theme set to {{theme}}"
+    "toggleTheme": "Toggle Theme",
+    "themeChanged": "Theme set to {{theme}}",
+    "items": "Items",
+    "showAll": "See All “{{query}}” in {{page}}"
   },
   "theme": {
     "system": "System",
@@ -50,7 +51,7 @@
     "dark": "Dark"
   },
   "shortcuts": {
-    "title": "Keyboard shortcuts",
+    "title": "Keyboard Shortcuts",
     "groups": {
       "general": "General",
       "invoice": "Invoice",
@@ -58,33 +59,33 @@
       "help": "Help"
     },
     "items": {
-      "palette": "Command palette",
-      "sidebar": "Toggle sidebar",
+      "palette": "Command Palette",
+      "sidebar": "Toggle Sidebar",
       "settings": "Settings",
-      "shortcuts": "Keyboard shortcuts",
-      "checkUpdates": "Check for updates",
+      "shortcuts": "Keyboard Shortcuts",
+      "checkUpdates": "Check for Updates",
       "quit": "Quit",
-      "newInvoice": "New invoice",
-      "save": "Save invoice",
-      "reset": "Reset form",
-      "addItem": "Add line item",
-      "toggleSettings": "Toggle form settings",
-      "dueDate": "Toggle due date",
-      "currency": "Toggle currency",
+      "newInvoice": "New Invoice",
+      "save": "Save Invoice",
+      "reset": "Reset Form",
+      "addItem": "Add Line Item",
+      "toggleSettings": "Toggle Form Settings",
+      "dueDate": "Toggle Due Date",
+      "currency": "Toggle Currency",
       "vat": "Toggle VAT",
-      "discount": "Toggle discount",
+      "discount": "Toggle Discount",
       "note": "Toggle note",
       "invoices": "Invoices",
       "dashboard": "Dashboard",
       "clients": "Clients",
-      "tutorial": "Show tutorial"
+      "tutorial": "Show Tutorial"
     }
   },
   "newInvoice": {
     "confirmTitle": "Stop editing this invoice?",
     "confirmMessage": "Unsaved changes to this invoice will be lost. The saved invoice does not change.",
-    "confirm": "Start new invoice",
-    "cancel": "Keep editing",
+    "confirm": "Start New Invoice",
+    "cancel": "Keep Editing",
     "template": {
       "confirmTitle": "Stop editing this recurring template?",
       "confirmMessage": "Unsaved changes to this template will be lost. The saved template does not change."

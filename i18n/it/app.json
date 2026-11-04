@@ -1,0 +1,100 @@
+{
+  "nav": {
+    "newInvoice": "Nuova fattura",
+    "search": "Cerca",
+    "invoices": "Fatture",
+    "estimates": "Preventivi",
+    "recurring": "Ricorrenti",
+    "clients": "Clienti",
+    "items": "Articoli",
+    "dashboard": "Dashboard",
+    "settings": "Impostazioni",
+    "help": "Aiuto",
+    "shortcuts": "Scorciatoie da tastiera",
+    "tutorial": "Mostra tutorial",
+    "learnMore": "Scopri di più",
+    "toggleSidebar": "Mostra/nascondi barra laterale",
+    "searchPlaceholder": "Cerca o vai a…",
+    "library": "Archivio"
+  },
+  "titles": {
+    "newInvoice": "Nuova fattura",
+    "editInvoice": "Modifica fattura",
+    "newEstimate": "Nuovo preventivo",
+    "editEstimate": "Modifica preventivo",
+    "dashboard": "Dashboard"
+  },
+  "update": {
+    "check": "Controlla aggiornamenti",
+    "checking": "Ricerca aggiornamenti…",
+    "downloading": "Download aggiornamento {{percent}}%"
+  },
+  "palette": {
+    "title": "Palette dei comandi",
+    "description": "Cerca pagine, fatture, preventivi, clienti, articoli e azioni",
+    "placeholder": "Digita un comando o cerca…",
+    "empty": "Nessun risultato.",
+    "goTo": "Vai a",
+    "actions": "Azioni",
+    "newEstimate": "Nuovo preventivo",
+    "invoices": "Fatture",
+    "estimates": "Preventivi",
+    "clients": "Clienti",
+    "toggleTheme": "Cambia tema",
+    "themeChanged": "Tema impostato su {{theme}}",
+    "items": "Articoli",
+    "showAll": "Vedi tutti i risultati per “{{query}}” in {{page}}"
+  },
+  "theme": {
+    "system": "Sistema",
+    "light": "Chiaro",
+    "dark": "Scuro"
+  },
+  "shortcuts": {
+    "title": "Scorciatoie da tastiera",
+    "groups": {
+      "general": "Generale",
+      "invoice": "Fattura",
+      "go": "Vai a",
+      "help": "Aiuto"
+    },
+    "items": {
+      "palette": "Palette dei comandi",
+      "sidebar": "Mostra/nascondi barra laterale",
+      "settings": "Impostazioni",
+      "shortcuts": "Scorciatoie da tastiera",
+      "checkUpdates": "Controlla aggiornamenti",
+      "quit": "Esci",
+      "newInvoice": "Nuova fattura",
+      "save": "Salva fattura",
+      "reset": "Reimposta modulo",
+      "addItem": "Aggiungi riga",
+      "toggleSettings": "Mostra/nascondi impostazioni del modulo",
+      "dueDate": "Attiva/disattiva scadenza",
+      "currency": "Attiva/disattiva valuta",
+      "vat": "Attiva/disattiva IVA",
+      "discount": "Attiva/disattiva sconto",
+      "note": "Attiva/disattiva nota",
+      "invoices": "Fatture",
+      "dashboard": "Dashboard",
+      "clients": "Clienti",
+      "tutorial": "Mostra tutorial"
+    }
+  },
+  "newInvoice": {
+    "confirmTitle": "Interrompere la modifica di questa fattura?",
+    "confirmMessage": "Le modifiche non salvate a questa fattura andranno perse. La fattura salvata non cambia.",
+    "confirm": "Inizia nuova fattura",
+    "cancel": "Continua a modificare",
+    "template": {
+      "confirmTitle": "Interrompere la modifica di questo modello ricorrente?",
+      "confirmMessage": "Le modifiche non salvate a questo modello andranno perse. Il modello salvato non cambia."
+    }
+  },
+  "error": {
+    "title": "Si è verificato un errore",
+    "message": "Segnala il problema su GitHub: https://github.com/jamesso/manta/issues",
+    "reload": "Ricarica",
+    "details": "Dettagli"
+  }
+}

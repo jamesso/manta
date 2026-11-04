@@ -1,5 +1,161 @@
 {
   "header": "设置",
+  "nav": {
+    "profile": "个人资料",
+    "invoice": "发票",
+    "appearance": "外观",
+    "language": "语言",
+    "export": "导出",
+    "updates": "更新",
+    "sounds": "声音"
+  },
+  "sections": {
+    "profile": {
+      "title": "个人资料",
+      "description": "你的名称和联系方式会显示在发票上。",
+      "details": "企业信息"
+    },
+    "invoice": {
+      "title": "发票",
+      "description": "单据的编号、样式、币种、税费和邮件。",
+      "email": {
+        "title": "邮件模板",
+        "tabInvoice": "发票邮件",
+        "tabReminder": "付款提醒",
+        "subject": "主题",
+        "body": "正文",
+        "placeholders": "占位符",
+        "preview": "预览",
+        "lengthWarning": "此消息较长，邮件应用收到的文本可能会被截短。",
+        "reset": "恢复默认",
+        "defaultBadge": "默认",
+        "description": "发票邮件和提醒邮件的主题与正文。"
+      },
+      "invoicesTitle": "发票",
+      "requiredHint": "新建单据时显示的字段。",
+      "numberingTitle": "编号"
+    },
+    "estimates": {
+      "title": "报价单"
+    },
+    "creditNotes": {
+      "title": "贷项通知单"
+    },
+    "eInvoice": {
+      "title": "电子发票",
+      "description": "从预览中导出 XRechnung XML 和 Factur-X PDF。",
+      "disclaimer": "Manta 会尽力生成电子发票，但不保证符合法律要求。发送前请验证文件，并请你的税务顾问核对。",
+      "enable": "启用电子发票导出",
+      "defaultFormat": "默认格式",
+      "buyerReference": "买方参考号",
+      "buyerReferenceHint": "为客户填写买方参考号（Leitweg-ID）并显示在发票上。XRechnung 需要此项。",
+      "confirmTitle": "启用电子发票导出",
+      "confirmAccept": "我已了解",
+      "formats": {
+        "xrechnung": "XRechnung XML（UBL）",
+        "facturx": "Factur-X（PDF）"
+      }
+    },
+    "appearance": {
+      "title": "外观",
+      "description": "选择浅色、深色或跟随系统。"
+    },
+    "language": {
+      "title": "语言",
+      "description": "应用语言和日期显示方式。",
+      "languageHint": "用于菜单和新发票。",
+      "dateFormatHint": "列表和发票中日期的显示方式。"
+    },
+    "export": {
+      "title": "导出",
+      "description": "PDF 导出文件夹、备份和 CSV 导出。",
+      "chooseFolder": "选择文件夹",
+      "pdfTitle": "PDF 导出",
+      "backupTitle": "备份",
+      "exportBackup": "导出备份",
+      "exportBackupHint": "将所有数据和设置保存到一个文件中。",
+      "importBackupHint": "从 Manta 备份文件中添加数据。",
+      "csvTitle": "CSV",
+      "csvInvoices": "发票",
+      "csvInvoicesHint": "将所有发票保存为电子表格文件。"
+    },
+    "updates": {
+      "title": "更新",
+      "description": "Manta 会在启动时检查更新。",
+      "check": "检查更新",
+      "manual": "立即检查",
+      "manualHint": "查找 Manta 的新版本。"
+    },
+    "sounds": {
+      "title": "声音",
+      "description": "保存或删除时播放提示音。"
+    }
+  },
+  "errors": {
+    "taxAmount": "请输入 0 或更大的数字",
+    "fraction": "请输入 0 到 20 之间的整数",
+    "numberingNext": "请输入 1 或更大的整数",
+    "numberingPadding": "请输入 0 到 12 之间的整数",
+    "numberingPrefix": "不能超过 20 个字符",
+    "importInProgress": "正在导入，请在完成后重试。",
+    "profileInvalid": "个人资料的值无效",
+    "generalInvalid": "常规设置的值无效",
+    "invoiceInvalid": "发票设置的值无效",
+    "themeInvalid": "请选择跟随系统、浅色或深色",
+    "languageInvalid": "请选择支持的语言",
+    "soundInvalid": "请选择支持的声音",
+    "templateInvalid": "请选择支持的发票模板",
+    "validDays": "请输入 1 到 365 之间的整数",
+    "countryInvalid": "请选择有效的国家代码",
+    "ibanInvalid": "请输入有效的 IBAN",
+    "bicInvalid": "请输入有效的 BIC",
+    "emailSubject": "请使用一行，不超过 200 个字符",
+    "emailBody": "不能超过 1500 个字符"
+  },
+  "backup": {
+    "export": "导出备份…",
+    "import": "导入",
+    "exportCsv": "将发票导出为 CSV…",
+    "autoHint": "Manta 会在每次导入前自动保存一份备份。",
+    "exportSuccess": "备份已保存",
+    "csvSuccess": "CSV 已导出",
+    "showFile": "显示文件",
+    "showSafety": "显示安全备份",
+    "importTitle": "导入备份",
+    "importing": "正在导入…",
+    "includeSettings": "导入设置",
+    "modeSkip": "保留我的版本",
+    "modeOverwrite": "使用备份中的版本",
+    "exportedOn": "导出于 {{date}}",
+    "fromVersion": "Manta {{version}}",
+    "colInFile": "文件中",
+    "colNew": "新增",
+    "colExisting": "Manta 中已有",
+    "colSkipped": "已跳过",
+    "rowInvoices": "发票和报价单",
+    "skippedHint": "跳过的记录已损坏或在文件中重复出现。Manta 不会导入这些记录。",
+    "empty": "此备份中没有记录。",
+    "existingTitle": "Manta 中已有的记录",
+    "keepHint_other": "保留 {{count}} 条记录的当前版本。",
+    "replaceHint_other": "用此备份中的版本替换 {{count}} 条记录。",
+    "settingsHint": "替换你的企业资料、发票默认设置和应用偏好设置。",
+    "noSettings": "此备份中没有设置。",
+    "creditWarnings": "{{count}} 张已开具的贷项通知单存在数据警告（缺少发票、币种不一致或金额无效），但仍会导入。",
+    "importSuccess": "已导入 {{added}} 项新数据，替换 {{overwritten}} 项，跳过 {{skipped}} 项。",
+    "importFailedDocs": "{{count}} 项无法写入。",
+    "batchFailed": "{{batch}} 导入已停止：{{detail}}",
+    "settingsApplyFailed": "以下设置应用失败：{{sections}}。",
+    "snapshotWarning": "已保留安全备份，但清理失败：{{detail}}",
+    "skippedSettings": "以下设置未导入：{{sections}}。",
+    "errors": {
+      "invalidJson": "此文件不是有效的备份。",
+      "wrongApp": "此文件不是 Manta 备份。",
+      "newerVersion": "此备份由更新版本的 Manta 创建。请更新 Manta 后重试。",
+      "invalidFormat": "此备份文件已损坏。",
+      "tooLarge": "此文件过大（超过 100 MB）。",
+      "unsupportedData": "此备份包含不支持的附件数据。"
+    }
+  },
   "tabs": {
     "profile": "个人资料",
     "invoice": "发票",
@@ -8,13 +164,48 @@
   "fields": {
     "logo": {
       "name": "Logo",
-      "hint": "接受 PNG、JPG 和 SVG (推荐)"
+      "hint": "支持 PNG、JPG 和 SVG（推荐）"
     },
-    "taxSettings": "税率设置",
+    "taxSettings": "税务设置",
+    "taxId": "税号",
+    "vatId": "增值税号",
+    "legalName": "法定名称",
+    "legalNameHint": "注册名称；留空则使用公司名称。",
+    "printedAddress": "打印地址（结构化地址为空时使用）",
+    "postalAddress": {
+      "title": "地址",
+      "street": "街道",
+      "additional": "附加地址行",
+      "postcode": "邮政编码",
+      "city": "城市",
+      "region": "省/州",
+      "country": "国家/地区"
+    },
+    "bank": {
+      "title": "银行账户",
+      "accountName": "账户持有人",
+      "iban": "IBAN",
+      "bic": "BIC"
+    },
     "template": "模板",
+    "style": {
+      "title": "发票样式",
+      "hint": "所有单据都使用此样式。如需更改单个单据，请打开其预览。",
+      "toggles": {
+        "showLogo": "显示 Logo",
+        "showLogoHint": "在单据顶部打印你的 Logo。",
+        "useSymbol": "使用货币符号",
+        "useSymbolHint": "显示 $ 而不是 USD。",
+        "showRecipient": "显示客户信息",
+        "showRecipientHint": "打印客户名称和地址。",
+        "customAccentColor": "强调色",
+        "customAccentColorHint": "为标题和合计着色。"
+      }
+    },
+    "estimateValidDays": "有效期（天）",
     "dateFormat": "日期格式",
-    "pdfExportDir": "PDF 导出目录",
-    "requiredFields": "必填项",
+    "pdfExportDir": "导出文件夹",
+    "requiredFields": "表单字段",
     "sound": "提示音",
     "mute": "静音",
     "autoCheckUpdate": {
@@ -24,29 +215,35 @@
     },
     "currency": {
       "placement": "货币符号位置",
-      "afterAmount": "在金额之前",
-      "beforeAmount": "在金额之后",
-      "fraction": "小数",
+      "afterAmount": "在金额之后",
+      "beforeAmount": "在金额之前",
+      "fraction": "小数位数",
       "separator": "分隔符",
-      "commaDot": "逗号和句号",
-      "dotComma": "句号和逗号",
-      "spaceDot": "空格和句号"
+      "commaDot": "逗号和点",
+      "dotComma": "点和逗号",
+      "spaceDot": "空格和点"
     },
     "openPDFReader": "导出之后打开 PDF",
+    "theme": {
+      "name": "主题",
+      "system": "跟随系统",
+      "light": "浅色",
+      "dark": "深色"
+    },
     "language": {
       "name": "语言",
       "ar": "阿拉伯文",
       "cs": "捷克文",
       "da": "丹麦文",
-      "de": "德语",
+      "de": "德文",
       "el": "希腊文",
-      "en": "英语",
+      "en": "英文",
       "esES": "西班牙文",
-      "fr": "法语",
+      "fr": "法文",
       "id": "印度尼西亚文",
       "it": "意大利文",
       "ja": "日文",
-      "ko": "朝鲜语",
+      "ko": "韩文",
       "lt": "立陶宛文",
       "nl": "荷兰文",
       "ptBR": "葡萄牙文（巴西）",
@@ -57,10 +254,74 @@
       "tl": "他加禄文（菲律宾）",
       "tr": "土耳其文",
       "ur-PK": "乌尔都文（巴基斯坦）",
-      "vi": "越南语",
+      "vi": "越南文",
       "zh-CN": "中文（简体）",
       "zh-TW": "中文（繁体）"
     },
     "other": "其他"
+  },
+  "taxRates": {
+    "title": "税率",
+    "add": "添加税率",
+    "edit": "编辑税率",
+    "default": "默认",
+    "inactive": "已停用",
+    "setDefault": "设为默认",
+    "markInactive": "标记为停用",
+    "reactivate": "重新启用",
+    "delete": "删除",
+    "usedBy": "有 {{count}} 个项目正在使用此税率。改为将其停用？",
+    "hintSnapshot": "更改将应用于新的明细行。已保存的发票保留原税率。",
+    "hintAdvisor": "请咨询你的税务顾问适用哪个类别。",
+    "name": "名称",
+    "rate": "税率 %",
+    "category": "类别",
+    "reason": "免税原因",
+    "actionsFor": "{{name}} 的操作",
+    "categories": {
+      "S": {
+        "label": "标准税率",
+        "help": "常规增值税税率，例如 19% 或 20%。"
+      },
+      "Z": {
+        "label": "零税率",
+        "help": "应税，但税率为 0%。"
+      },
+      "E": {
+        "label": "免税",
+        "help": "依法免征增值税。需要填写原因。"
+      },
+      "AE": {
+        "label": "反向征收",
+        "help": "由买方缴纳增值税。需要填写原因和买方的增值税号。"
+      },
+      "K": {
+        "label": "欧盟内部供货",
+        "help": "向其他欧盟国家已注册增值税的买方供货。需要填写原因。"
+      },
+      "G": {
+        "label": "出口至欧盟以外",
+        "help": "出口不征收增值税。需要填写原因。"
+      },
+      "O": {
+        "label": "不属于增值税征收范围",
+        "help": "不需缴纳增值税，例如你未进行增值税登记。需要填写原因。"
+      }
+    },
+    "errors": {
+      "name": "请输入 1 到 40 个字符的名称。",
+      "rateStandard": "标准税率必须在 0 到 100% 之间。",
+      "rateZero": "此类别必须使用 0%。",
+      "reasonRequired": "请输入免税原因（不超过 200 个字符）。",
+      "duplicateId": "每个税率都需要唯一的 ID。",
+      "noDefault": "请将且仅将一个启用的税率设为默认。",
+      "empty": "请至少添加一个税率。"
+    }
+  },
+  "logo": {
+    "drop": "将 Logo 拖放到此处",
+    "choose": "选择 Logo…",
+    "replace": "替换…",
+    "remove": "移除 Logo"
   }
 }

@@ -13,7 +13,7 @@
     },
     "downloaded": {
       "title": "Update heruntergeladen",
-      "message": "Wollen Sie die Applikation beenden und jetzt aktualisieren?",
+      "message": "Möchten Sie die App jetzt beenden und aktualisieren?",
       "quitNow": "Jetzt beenden",
       "later": "Später"
     }
@@ -36,8 +36,8 @@
   },
   "validation": {
     "invoiceID": {
-      "title": "Ungültige Rechnungs-ID",
-      "message": "Rechnungs-ID darf nicht leer sein"
+      "title": "Ungültige Rechnungsnummer",
+      "message": "Die Rechnungsnummer darf nicht leer sein"
     },
     "recipient": {
       "empty": {
@@ -50,7 +50,7 @@
       },
       "email": {
         "title": "Ungültige E-Mail-Adresse",
-        "message": "Bitte wählen Sie eine andere E-Mail Adresse"
+        "message": "Bitte wählen Sie eine andere E-Mail-Adresse"
       }
     },
     "rows": {
@@ -60,11 +60,11 @@
       },
       "priceZero": {
         "title": "Ungültiger Preis",
-        "message": "Preis muss grösser als Null sein"
+        "message": "Der Preis muss größer als null sein"
       },
       "qtyZero": {
         "title": "Ungültige Menge",
-        "message": "Menge muss grösser als Null sein"
+        "message": "Die Menge muss größer als null sein"
       }
     },
     "dueDate": {
@@ -73,21 +73,21 @@
     },
     "currency": {
       "fraction": {
-        "title": "Ungültige Teilung",
-        "message": "Nachkommestelle muss gleich oder grösser als Null sein"
+        "title": "Ungültige Nachkommastellen",
+        "message": "Die Anzahl der Nachkommastellen muss null oder größer sein"
       }
     },
     "discount": {
       "title": "Ungültiger Rabatt",
-      "message": "Der Rabatt muss grösser als Null sein"
+      "message": "Der Rabatt muss größer als null sein"
     },
     "tax": {
       "title": "Ungültiger Steuersatz",
-      "message": "Steuerbetrag muss grösser als Null sein"
+      "message": "Der Steuersatz muss größer als null sein"
     },
     "note": {
       "title": "Ungültige Notiz",
-      "message": "Feld Notiz darf nicht leer sein"
+      "message": "Die Notiz darf nicht leer sein"
     }
   }
 }

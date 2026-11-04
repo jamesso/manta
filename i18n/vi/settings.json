@@ -1,9 +1,165 @@
 {
   "header": "Cài đặt",
+  "nav": {
+    "profile": "Hồ sơ",
+    "invoice": "Hóa đơn",
+    "appearance": "Giao diện",
+    "language": "Ngôn ngữ",
+    "export": "Xuất dữ liệu",
+    "updates": "Cập nhật",
+    "sounds": "Âm thanh"
+  },
+  "sections": {
+    "profile": {
+      "title": "Hồ sơ",
+      "description": "Tên và thông tin liên hệ của bạn hiển thị trên hóa đơn.",
+      "details": "Thông tin doanh nghiệp"
+    },
+    "invoice": {
+      "title": "Hóa đơn",
+      "description": "Đánh số, kiểu trình bày, tiền tệ, thuế và email cho chứng từ của bạn.",
+      "email": {
+        "title": "Mẫu email",
+        "tabInvoice": "Email hóa đơn",
+        "tabReminder": "Nhắc thanh toán",
+        "subject": "Tiêu đề",
+        "body": "Nội dung",
+        "placeholders": "Biến thay thế",
+        "preview": "Xem trước",
+        "lengthWarning": "Thư này khá dài. Ứng dụng thư có thể nhận được nội dung bị rút gọn.",
+        "reset": "Khôi phục mặc định",
+        "defaultBadge": "Mặc định",
+        "description": "Tiêu đề và nội dung cho email hóa đơn và email nhắc thanh toán."
+      },
+      "invoicesTitle": "Hóa đơn",
+      "requiredHint": "Các trường hiển thị khi bạn bắt đầu một chứng từ mới.",
+      "numberingTitle": "Đánh số"
+    },
+    "estimates": {
+      "title": "Báo giá"
+    },
+    "creditNotes": {
+      "title": "Giấy báo có"
+    },
+    "eInvoice": {
+      "title": "Hóa đơn điện tử",
+      "description": "Xuất XRechnung XML và Factur-X PDF từ bản xem trước.",
+      "disclaimer": "Manta cố gắng hết sức để tạo hóa đơn điện tử nhưng không đảm bảo tuân thủ pháp lý. Hãy kiểm tra các tệp và xác nhận với cố vấn thuế trước khi gửi.",
+      "enable": "Bật xuất hóa đơn điện tử",
+      "defaultFormat": "Định dạng mặc định",
+      "buyerReference": "Mã tham chiếu người mua",
+      "buyerReferenceHint": "Yêu cầu mã tham chiếu người mua (Leitweg-ID) cho khách hàng và ghi lên hóa đơn. XRechnung cần mã này.",
+      "confirmTitle": "Bật xuất hóa đơn điện tử",
+      "confirmAccept": "Tôi đã hiểu",
+      "formats": {
+        "xrechnung": "XRechnung XML (UBL)",
+        "facturx": "Factur-X (PDF)"
+      }
+    },
+    "appearance": {
+      "title": "Giao diện",
+      "description": "Chọn sáng, tối hoặc theo hệ thống."
+    },
+    "language": {
+      "title": "Ngôn ngữ",
+      "description": "Ngôn ngữ ứng dụng và cách hiển thị ngày tháng.",
+      "languageHint": "Dùng cho menu và hóa đơn mới.",
+      "dateFormatHint": "Cách hiển thị ngày trong danh sách và trên hóa đơn."
+    },
+    "export": {
+      "title": "Xuất dữ liệu",
+      "description": "Thư mục xuất PDF, sao lưu và xuất CSV.",
+      "chooseFolder": "Chọn thư mục",
+      "pdfTitle": "Xuất PDF",
+      "backupTitle": "Sao lưu",
+      "exportBackup": "Xuất bản sao lưu",
+      "exportBackupHint": "Lưu toàn bộ dữ liệu và cài đặt vào một tệp.",
+      "importBackupHint": "Thêm dữ liệu từ tệp sao lưu Manta.",
+      "csvTitle": "CSV",
+      "csvInvoices": "Hóa đơn",
+      "csvInvoicesHint": "Lưu tất cả hóa đơn thành tệp bảng tính."
+    },
+    "updates": {
+      "title": "Cập nhật",
+      "description": "Manta kiểm tra cập nhật khi khởi động.",
+      "check": "Kiểm tra cập nhật",
+      "manual": "Kiểm tra ngay",
+      "manualHint": "Tìm phiên bản mới của Manta."
+    },
+    "sounds": {
+      "title": "Âm thanh",
+      "description": "Âm báo khi bạn lưu hoặc xóa."
+    }
+  },
+  "errors": {
+    "taxAmount": "Nhập số từ 0 trở lên",
+    "fraction": "Nhập số nguyên từ 0 đến 20",
+    "numberingNext": "Nhập số nguyên từ 1 trở lên",
+    "numberingPadding": "Nhập số nguyên từ 0 đến 12",
+    "numberingPrefix": "Dùng tối đa 20 ký tự",
+    "importInProgress": "Đang nhập dữ liệu. Hãy thử lại khi hoàn tất.",
+    "profileInvalid": "Giá trị hồ sơ không hợp lệ",
+    "generalInvalid": "Giá trị cài đặt chung không hợp lệ",
+    "invoiceInvalid": "Giá trị cài đặt hóa đơn không hợp lệ",
+    "themeInvalid": "Chọn Theo hệ thống, Sáng hoặc Tối",
+    "languageInvalid": "Chọn một ngôn ngữ được hỗ trợ",
+    "soundInvalid": "Chọn một âm thanh được hỗ trợ",
+    "templateInvalid": "Chọn một mẫu hóa đơn được hỗ trợ",
+    "validDays": "Nhập số nguyên từ 1 đến 365",
+    "countryInvalid": "Chọn mã quốc gia hợp lệ",
+    "ibanInvalid": "Nhập IBAN hợp lệ",
+    "bicInvalid": "Nhập BIC hợp lệ",
+    "emailSubject": "Dùng một dòng, tối đa 200 ký tự",
+    "emailBody": "Dùng tối đa 1500 ký tự"
+  },
+  "backup": {
+    "export": "Xuất bản sao lưu…",
+    "import": "Nhập",
+    "exportCsv": "Xuất hóa đơn ra CSV…",
+    "autoHint": "Manta tự động sao lưu trước mỗi lần nhập.",
+    "exportSuccess": "Đã lưu bản sao lưu",
+    "csvSuccess": "Đã xuất CSV",
+    "showFile": "Hiện tệp",
+    "showSafety": "Hiện bản sao lưu an toàn",
+    "importTitle": "Nhập bản sao lưu",
+    "importing": "Đang nhập…",
+    "includeSettings": "Nhập cài đặt",
+    "modeSkip": "Giữ phiên bản của tôi",
+    "modeOverwrite": "Dùng phiên bản trong bản sao lưu",
+    "exportedOn": "Đã xuất ngày {{date}}",
+    "fromVersion": "Manta {{version}}",
+    "colInFile": "Trong tệp",
+    "colNew": "Mới",
+    "colExisting": "Đã có trong Manta",
+    "colSkipped": "Bỏ qua",
+    "rowInvoices": "Hóa đơn và báo giá",
+    "skippedHint": "Các bản ghi bị bỏ qua là bản ghi bị hỏng hoặc bị trùng lặp trong tệp. Manta sẽ không nhập chúng.",
+    "empty": "Bản sao lưu này không có bản ghi nào.",
+    "existingTitle": "Bản ghi đã có trong Manta",
+    "keepHint_other": "Giữ phiên bản hiện tại của {{count}} bản ghi.",
+    "replaceHint_other": "Thay {{count}} bản ghi bằng phiên bản trong bản sao lưu này.",
+    "settingsHint": "Thay hồ sơ doanh nghiệp, mặc định hóa đơn và tùy chọn ứng dụng.",
+    "noSettings": "Bản sao lưu này không có cài đặt.",
+    "creditWarnings": "{{count}} giấy báo có đã phát hành có cảnh báo dữ liệu (thiếu hóa đơn, lệch tiền tệ hoặc số tiền không hợp lệ). Chúng vẫn sẽ được nhập.",
+    "importSuccess": "Đã nhập {{added}} mục mới và thay thế {{overwritten}} mục. Bỏ qua {{skipped}}.",
+    "importFailedDocs": "Không thể ghi {{count}} mục.",
+    "batchFailed": "Dừng nhập {{batch}}: {{detail}}",
+    "settingsApplyFailed": "Áp dụng cài đặt thất bại cho: {{sections}}.",
+    "snapshotWarning": "Đã giữ bản sao lưu an toàn, nhưng dọn dẹp thất bại: {{detail}}",
+    "skippedSettings": "Chưa nhập cài đặt cho: {{sections}}.",
+    "errors": {
+      "invalidJson": "Tệp này không phải bản sao lưu hợp lệ.",
+      "wrongApp": "Tệp này không phải bản sao lưu Manta.",
+      "newerVersion": "Bản sao lưu này được tạo bởi phiên bản Manta mới hơn. Hãy cập nhật Manta rồi thử lại.",
+      "invalidFormat": "Tệp sao lưu này bị hỏng.",
+      "tooLarge": "Tệp này quá lớn (hơn 100 MB).",
+      "unsupportedData": "Bản sao lưu này chứa dữ liệu đính kèm không được hỗ trợ."
+    }
+  },
   "tabs": {
-    "profile": "Hồ sơ công ty",
-    "invoice": "Hoá đơn",
-    "general": "Tổng quát"
+    "profile": "Hồ sơ",
+    "invoice": "Hóa đơn",
+    "general": "Chung"
   },
   "fields": {
     "logo": {
@@ -11,37 +167,78 @@
       "hint": "Chấp nhận PNG, JPG & SVG (Khuyên dùng)"
     },
     "taxSettings": "Thiết lập thuế",
+    "taxId": "Mã số thuế",
+    "vatId": "Mã số VAT",
+    "legalName": "Tên pháp lý",
+    "legalNameHint": "Tên đã đăng ký; để trống để dùng tên công ty.",
+    "printedAddress": "Địa chỉ in (dùng khi địa chỉ có cấu trúc để trống)",
+    "postalAddress": {
+      "title": "Địa chỉ",
+      "street": "Đường",
+      "additional": "Dòng bổ sung",
+      "postcode": "Mã bưu chính",
+      "city": "Thành phố",
+      "region": "Vùng",
+      "country": "Quốc gia"
+    },
+    "bank": {
+      "title": "Tài khoản ngân hàng",
+      "accountName": "Chủ tài khoản",
+      "iban": "IBAN",
+      "bic": "BIC"
+    },
     "template": "Mẫu thiết kế",
+    "style": {
+      "title": "Kiểu hóa đơn",
+      "hint": "Mọi chứng từ dùng kiểu này. Để đổi kiểu cho một chứng từ, hãy mở bản xem trước của nó.",
+      "toggles": {
+        "showLogo": "Hiện logo",
+        "showLogoHint": "In logo của bạn ở đầu chứng từ.",
+        "useSymbol": "Dùng ký hiệu tiền tệ",
+        "useSymbolHint": "Hiện $ thay vì USD.",
+        "showRecipient": "Hiện thông tin khách hàng",
+        "showRecipientHint": "In tên và địa chỉ khách hàng.",
+        "customAccentColor": "Màu nhấn",
+        "customAccentColorHint": "Tô màu tiêu đề và phần tổng tiền."
+      }
+    },
+    "estimateValidDays": "Hiệu lực (ngày)",
     "dateFormat": "Định dạng ngày tháng",
     "pdfExportDir": "Thư mục xuất PDF",
-    "requiredFields": "Các trường bắt buộc",
+    "requiredFields": "Các trường biểu mẫu",
     "sound": "Âm thanh",
     "mute": "Tắt tiếng",
     "autoCheckUpdate": {
       "name": "Tự động kiểm tra cập nhật",
-      "daily": "Hàng ngày",
+      "daily": "Hàng ngày (Khuyên dùng)",
       "weekly": "Hàng tuần"
     },
     "currency": {
-      "placement": "Vị trí biểu tượng",
+      "placement": "Vị trí ký hiệu",
       "afterAmount": "Sau số tiền",
       "beforeAmount": "Trước số tiền",
-      "fraction": "Phân số thập phân",
+      "fraction": "Số chữ số thập phân",
       "separator": "Dấu ngăn cách",
       "commaDot": "Dấu phẩy & chấm",
       "dotComma": "Dấu chấm & phẩy",
       "spaceDot": "Dấu cách và chấm"
     },
-    "openPDFReader": "Mở file PDF sau khi xuất",
+    "openPDFReader": "Mở tệp PDF sau khi xuất",
+    "theme": {
+      "name": "Giao diện",
+      "system": "Theo hệ thống",
+      "light": "Sáng",
+      "dark": "Tối"
+    },
     "language": {
       "name": "Ngôn ngữ",
-      "ar": "Tiếng ả Rập",
+      "ar": "Tiếng Ả Rập",
       "cs": "Tiếng Séc",
       "da": "Tiếng Đan Mạch",
       "de": "Tiếng Đức",
       "el": "Tiếng Hy Lạp",
       "en": "Tiếng Anh",
-      "esES": "Spanish",
+      "esES": "Tiếng Tây Ban Nha",
       "fr": "Tiếng Pháp",
       "id": "Tiếng Indonesia",
       "it": "Tiếng Ý",
@@ -59,8 +256,72 @@
       "ur-PK": "Tiếng Urdu (Pakistan)",
       "vi": "Tiếng Việt",
       "zh-CN": "Tiếng Trung (Giản thể)",
-      "zh-TW": "Tiếng Trung (Phồn Thể)"
+      "zh-TW": "Tiếng Trung (Phồn thể)"
     },
     "other": "Khác"
+  },
+  "taxRates": {
+    "title": "Thuế suất",
+    "add": "Thêm thuế suất",
+    "edit": "Chỉnh sửa thuế suất",
+    "default": "Mặc định",
+    "inactive": "Ngừng dùng",
+    "setDefault": "Đặt làm mặc định",
+    "markInactive": "Đánh dấu ngừng dùng",
+    "reactivate": "Dùng lại",
+    "delete": "Xóa",
+    "usedBy": "Đang được {{count}} mặt hàng sử dụng. Đánh dấu ngừng dùng thay vì xóa?",
+    "hintSnapshot": "Thay đổi áp dụng cho dòng mới. Hóa đơn đã lưu giữ nguyên thuế suất.",
+    "hintAdvisor": "Hãy hỏi cố vấn thuế loại thuế nào áp dụng cho bạn.",
+    "name": "Tên",
+    "rate": "Thuế suất %",
+    "category": "Loại thuế",
+    "reason": "Lý do miễn thuế",
+    "actionsFor": "Tác vụ cho {{name}}",
+    "categories": {
+      "S": {
+        "label": "Thuế suất tiêu chuẩn",
+        "help": "Thuế suất VAT thông thường, ví dụ 19 % hoặc 20 %."
+      },
+      "Z": {
+        "label": "Thuế suất 0 %",
+        "help": "Chịu thuế, nhưng ở mức 0 %."
+      },
+      "E": {
+        "label": "Miễn thuế",
+        "help": "Được miễn VAT theo luật. Cần có lý do."
+      },
+      "AE": {
+        "label": "Thuế đảo ngược",
+        "help": "Người mua nộp VAT. Cần có lý do và mã số VAT của người mua."
+      },
+      "K": {
+        "label": "Cung ứng nội khối EU",
+        "help": "Hàng hóa bán cho người mua đã đăng ký VAT ở một nước EU khác. Cần có lý do."
+      },
+      "G": {
+        "label": "Xuất khẩu ngoài EU",
+        "help": "Không tính VAT cho hàng xuất khẩu. Cần có lý do."
+      },
+      "O": {
+        "label": "Ngoài phạm vi VAT",
+        "help": "Không chịu VAT, ví dụ khi bạn chưa đăng ký VAT. Cần có lý do."
+      }
+    },
+    "errors": {
+      "name": "Nhập tên dài từ 1 đến 40 ký tự.",
+      "rateStandard": "Thuế suất tiêu chuẩn phải từ 0 đến 100 %.",
+      "rateZero": "Loại thuế này phải dùng 0 %.",
+      "reasonRequired": "Nhập lý do miễn thuế (tối đa 200 ký tự).",
+      "duplicateId": "Mỗi thuế suất cần một id riêng.",
+      "noDefault": "Đánh dấu đúng một thuế suất đang dùng làm mặc định.",
+      "empty": "Thêm ít nhất một thuế suất."
+    }
+  },
+  "logo": {
+    "drop": "Thả logo vào đây",
+    "choose": "Chọn logo…",
+    "replace": "Thay thế…",
+    "remove": "Xóa logo"
   }
 }

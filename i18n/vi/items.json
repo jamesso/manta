@@ -1,0 +1,65 @@
+{
+  "header": "Mặt hàng",
+  "new": "Mặt hàng mới",
+  "search": {
+    "label": "Lọc mặt hàng",
+    "placeholder": "Lọc mặt hàng…"
+  },
+  "views": {
+    "active": "Đang dùng",
+    "archived": "Đã lưu trữ"
+  },
+  "columns": {
+    "name": "Tên",
+    "unit": "Đơn vị",
+    "unitPrice": "Đơn giá",
+    "actions": "Tác vụ"
+  },
+  "actions": {
+    "open": "Tác vụ cho {{name}}",
+    "edit": "Chỉnh sửa",
+    "archive": "Lưu trữ",
+    "unarchive": "Bỏ lưu trữ",
+    "delete": "Xóa"
+  },
+  "dialog": {
+    "newTitle": "Mặt hàng mới",
+    "editTitle": "Chỉnh sửa mặt hàng",
+    "name": "Tên",
+    "description": "Mô tả",
+    "descriptionHint": "Nội dung này được in trên hóa đơn. Nếu để trống, tên sẽ được in.",
+    "unitPrice": "Đơn giá",
+    "priceHint": "Dùng tiền tệ của hóa đơn.",
+    "unit": "Đơn vị",
+    "taxRate": "Thuế suất",
+    "defaultTaxRate": "Thuế suất mặc định",
+    "save": "Lưu",
+    "cancel": "Hủy"
+  },
+  "detail": {
+    "noDescription": "Không có mô tả. Tên sẽ được in trên hóa đơn."
+  },
+  "errors": {
+    "nameRequired": "Nhập tên.",
+    "nameTooLong": "Tên không được dài quá 120 ký tự.",
+    "nameTaken": "Đã có mặt hàng đang dùng tên này.",
+    "price": "Nhập đơn giá hợp lệ.",
+    "unit": "Chọn mã đơn vị hợp lệ."
+  },
+  "empty": {
+    "title": "Chưa có mặt hàng nào",
+    "description": "Lưu các sản phẩm và dịch vụ bạn thường bán, rồi chọn chúng khi thêm dòng vào hóa đơn.",
+    "noArchived": "Không có mặt hàng đã lưu trữ",
+    "noResultsFiltered": "Không có mặt hàng phù hợp"
+  },
+  "units": {
+    "C62": "Cái",
+    "HUR": "Giờ",
+    "DAY": "Ngày",
+    "MON": "Tháng",
+    "KGM": "Kilôgam",
+    "MTR": "Mét",
+    "LS": "Trọn gói"
+  },
+  "count_other": "{{count}} mặt hàng"
+}

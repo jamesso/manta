@@ -1,57 +1,82 @@
 {
   "header": {
     "name": "Recurring",
-    "new": "New recurring invoice"
+    "new": "New Recurring Invoice",
+    "count_one": "{{count}} recurring invoice",
+    "count_other": "{{count}} recurring invoices"
   },
   "empty": {
     "title": "No recurring invoices yet",
-    "description": "Manta creates drafts while the app is open. Nothing is sent automatically."
+    "description": "Manta creates drafts while the app is open. Nothing is sent automatically.",
+    "noResults": "No matching recurring invoices"
   },
   "columns": {
     "name": "Name",
     "client": "Client",
     "amount": "Amount",
     "interval": "Repeat",
-    "nextDate": "Next draft",
+    "nextDate": "Next Draft",
     "active": "Active",
     "actions": "Actions"
   },
   "interval": {
-    "weekly_one": "Weekly",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "quarterly": "Quarterly",
+    "yearly": "Yearly"
+  },
+  "repeatEvery": {
+    "weekly_one": "Every week",
     "weekly_other": "Every {{count}} weeks",
-    "monthly_one": "Monthly",
+    "monthly_one": "Every month",
     "monthly_other": "Every {{count}} months",
-    "quarterly_one": "Quarterly",
+    "quarterly_one": "Every quarter",
     "quarterly_other": "Every {{count}} quarters",
-    "yearly_one": "Yearly",
+    "yearly_one": "Every year",
     "yearly_other": "Every {{count}} years"
   },
   "status": {
     "paused": "Paused",
-    "ended": "Ended"
+    "ended": "Ended",
+    "active": "Active"
   },
   "actions": {
-    "open": "Open",
-    "editSchedule": "Edit schedule",
-    "editTemplate": "Edit template",
+    "open": "Recurring Invoice Actions",
+    "editSchedule": "Edit Schedule",
+    "editTemplate": "Edit Template",
     "pause": "Pause",
     "resume": "Resume",
     "delete": "Delete"
   },
   "sheet": {
-    "titleNew": "New recurring invoice",
-    "titleEdit": "Edit recurring invoice",
+    "titleNew": "New Recurring Invoice",
+    "titleEdit": "Edit Recurring Invoice",
+    "schedule": "Schedule",
     "name": "Name",
-    "every": "Repeat every",
+    "every": "Repeat Every",
     "interval": "Interval",
-    "startDate": "Start date",
-    "endDate": "End date (optional)",
+    "startDate": "Start Date",
+    "endDate": "End Date (Optional)",
+    "noEndDate": "No End Date",
+    "activeHint": "Paused templates create no drafts.",
     "active": "Active",
     "summary": "Summary",
-    "nextDates": "Next drafts:",
+    "client": "Client",
+    "items": "Items",
+    "itemsCount_one": "{{count}} item",
+    "itemsCount_other": "{{count}} items",
+    "amount": "Amount",
+    "nextDates": "Next Drafts",
     "createsToday": "The first draft will be created today when you save.",
     "save": "Save",
     "cancel": "Cancel"
+  },
+  "detail": {
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "noItems": "No line items in the template.",
+    "created": "Created Invoices",
+    "noneCreated": "No invoices created yet."
   },
   "errors": {
     "name": "Enter a name.",
@@ -72,5 +97,9 @@
     "deleted_other": "{{count}} recurring invoices deleted",
     "undo": "Undo",
     "restored": "Recurring invoice restored"
+  },
+  "search": {
+    "label": "Filter Recurring Invoices",
+    "placeholder": "Filter recurring…"
   }
 }

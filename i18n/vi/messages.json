@@ -1,16 +1,32 @@
 {
   "noContact": "Bạn chưa có bất kỳ thông tin khách hàng nào",
-  "noInvoice": "Bạn chưa tạo hoá đơn nào",
+  "noInvoice": "Bạn chưa tạo hóa đơn nào",
   "invoice": {
-    "saved": "Hoá đơn đã được lưu thành công",
-    "updated": "Hoá đơn đã được cập nhật thành công",
-    "deleted": "Hóa đơn đã được xóa thành công"
+    "saved": "Đã lưu hóa đơn thành công",
+    "updated": "Đã cập nhật hóa đơn thành công",
+    "deleted": "Hóa đơn đã được xóa thành công",
+    "draftSaved": "Đã lưu bản nháp"
+  },
+  "estimate": {
+    "saved": "Đã lưu báo giá",
+    "draftSaved": "Đã lưu báo giá dưới dạng bản nháp"
   },
   "contact": {
-    "saved": "Thông tin liên hệ đã được lưu thành công",
-    "deleted": "Thông tin liên hệ đã được xoá thành công"
+    "saved": "Đã lưu khách hàng",
+    "updated": "Đã cập nhật khách hàng",
+    "deleted": "Đã xóa khách hàng"
+  },
+  "item": {
+    "saved": "Đã lưu mặt hàng",
+    "updated": "Đã cập nhật mặt hàng",
+    "archived": "Đã lưu trữ mặt hàng",
+    "unarchived": "Đã đưa mặt hàng về trạng thái đang dùng",
+    "deleted_other": "Đã xóa {{count}} mặt hàng",
+    "deleteFailed": "Không thể xóa mặt hàng",
+    "undo": "Hoàn tác",
+    "restored": "Đã khôi phục mặt hàng"
   },
   "settings": {
-    "saved": "Tất cả cài đặt đã được lưu thành công"
+    "saved": "Đã lưu"
   }
 }

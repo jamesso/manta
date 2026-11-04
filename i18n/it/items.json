@@ -1,0 +1,67 @@
+{
+  "header": "Articoli",
+  "new": "Nuovo articolo",
+  "search": {
+    "label": "Filtra articoli",
+    "placeholder": "Filtra articoli…"
+  },
+  "views": {
+    "active": "Attivi",
+    "archived": "Archiviati"
+  },
+  "columns": {
+    "name": "Nome",
+    "unit": "Unità",
+    "unitPrice": "Prezzo unitario",
+    "actions": "Azioni"
+  },
+  "actions": {
+    "open": "Azioni per {{name}}",
+    "edit": "Modifica",
+    "archive": "Archivia",
+    "unarchive": "Ripristina",
+    "delete": "Elimina"
+  },
+  "dialog": {
+    "newTitle": "Nuovo articolo",
+    "editTitle": "Modifica articolo",
+    "name": "Nome",
+    "description": "Descrizione",
+    "descriptionHint": "Questo testo viene stampato in fattura. Se è vuoto, viene stampato il nome.",
+    "unitPrice": "Prezzo unitario",
+    "priceHint": "Usa la valuta della fattura.",
+    "unit": "Unità",
+    "taxRate": "Aliquota",
+    "defaultTaxRate": "Aliquota predefinita",
+    "save": "Salva",
+    "cancel": "Annulla"
+  },
+  "detail": {
+    "noDescription": "Nessuna descrizione. In fattura viene stampato il nome."
+  },
+  "errors": {
+    "nameRequired": "Inserisci un nome.",
+    "nameTooLong": "Il nome deve avere al massimo 120 caratteri.",
+    "nameTaken": "Un articolo attivo usa già questo nome.",
+    "price": "Inserisci un prezzo unitario valido.",
+    "unit": "Scegli un codice unità valido."
+  },
+  "empty": {
+    "title": "Ancora nessun articolo",
+    "description": "Salva i prodotti e i servizi che vendi spesso, poi sceglili quando aggiungi righe alle fatture.",
+    "noArchived": "Nessun articolo archiviato",
+    "noResultsFiltered": "Nessun articolo corrispondente"
+  },
+  "units": {
+    "C62": "Unità",
+    "HUR": "Ora",
+    "DAY": "Giorno",
+    "MON": "Mese",
+    "KGM": "Chilogrammo",
+    "MTR": "Metro",
+    "LS": "Forfait"
+  },
+  "count_one": "{{count}} articolo",
+  "count_many": "{{count}} articoli",
+  "count_other": "{{count}} articoli"
+}

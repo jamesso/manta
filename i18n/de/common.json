@@ -5,12 +5,89 @@
     "address": "Adresse",
     "email": "E-Mail",
     "phone": "Telefonnummer",
-    "website": "Webseite"
+    "website": "Website"
   },
   "save": "Speichern",
   "amount": "Betrag",
   "default": "Standard",
   "saveAsDefault": "Als Standard speichern?",
   "yes": "Ja",
-  "noThanks": "Nein, danke"
+  "noThanks": "Nein, danke",
+  "ok": "OK",
+  "cancel": "Abbrechen",
+  "close": "Schließen",
+  "edit": "Bearbeiten",
+  "delete": "Löschen",
+  "einvoice": {
+    "readyHint": "Bei der Musterprüfung wurden keine Probleme mit Profil oder Bankkonto gefunden.",
+    "copyClientDetails": "Kundendaten kopieren",
+    "fixGroups": {
+      "profile": "Profil",
+      "bank": "Bankkonto",
+      "client": "Kunde",
+      "invoice": "Rechnung",
+      "taxRates": "Steuersätze"
+    },
+    "issues": {
+      "DOC_TYPE_UNSUPPORTED": "Für Angebote sind keine E-Rechnungen verfügbar. Korrigieren Sie den Dokumenttyp der Rechnung.",
+      "NOT_FINAL": "Stellen Sie die Rechnung vor dem Export aus oder schließen Sie sie ab.",
+      "NUMBER_MISSING": "Geben Sie in der Rechnung eine Rechnungsnummer an.",
+      "CURRENCY_FRACTION_UNSUPPORTED": "Diese Währung hat mehr als zwei Nachkommastellen. Ändern Sie die Währung der Rechnung.",
+      "TAX_PER_LINE_REQUIRED": "Wechseln Sie zu Steuer pro Position und legen Sie unter Einstellungen › Rechnungen › Steuersätze für jede Zeile eine Kategorie fest.",
+      "CATEGORY_NOT_SUPPORTED": "Entfernen Sie nicht unterstützte Steuerkategorien unter Einstellungen › Rechnungen › Steuersätze.",
+      "RATE_CATEGORY_MISMATCH": "Korrigieren Sie die Kombinationen aus Steuersatz und Kategorie unter Einstellungen › Rechnungen › Steuersätze.",
+      "OUT_OF_SCOPE_MIXED": "Nicht steuerbare Umsätze können nicht mit anderen Kategorien kombiniert werden.",
+      "EXEMPTION_REASON_MISSING": "Geben Sie unter Einstellungen › Rechnungen › Steuersätze Befreiungsgründe an.",
+      "SELLER_NAME_MISSING": "Geben Sie unter Einstellungen › Profil einen rechtlichen Namen oder Firmennamen an.",
+      "SELLER_ADDRESS_INCOMPLETE": "Vervollständigen Sie die strukturierte Adresse unter Einstellungen › Profil › Adresse.",
+      "SELLER_COUNTRY_MISSING": "Geben Sie das Land unter Einstellungen › Profil › Adresse an.",
+      "SELLER_TAX_ID_MISSING": "Geben Sie unter Einstellungen › Profil eine Steuernummer oder USt-ID an.",
+      "SELLER_VAT_ID_REQUIRED": "Geben Sie unter Einstellungen › Profil eine USt-ID an.",
+      "BUYER_NAME_MISSING": "Geben Sie den Kundennamen unter Kunden an.",
+      "BUYER_COUNTRY_MISSING": "Geben Sie das Land des Kunden unter Kunden › Adresse an.",
+      "BUYER_ADDRESS_INCOMPLETE": "Geben Sie Postleitzahl und Ort des Kunden unter Kunden › Adresse an.",
+      "BUYER_VAT_ID_REQUIRED": "Hinterlegen Sie beim Kunden eine gültige USt-ID.",
+      "BUYER_VAT_ID_FORMAT": "Die Steuernummer des Kunden sieht nicht wie eine USt-ID aus.",
+      "DUE_DATE_MISSING": "Geben Sie in der Rechnung ein Fälligkeitsdatum an.",
+      "PAYMENT_ACCOUNT_MISSING": "Geben Sie eine IBAN unter Einstellungen › Profil › Bankkonto an.",
+      "IBAN_INVALID": "Korrigieren Sie die IBAN unter Einstellungen › Profil › Bankkonto.",
+      "BIC_INVALID": "Korrigieren Sie die BIC unter Einstellungen › Profil › Bankkonto.",
+      "BUYER_REFERENCE_MISSING": "Hinterlegen Sie beim Kunden eine Käuferreferenz (Leitweg-ID).",
+      "BUYER_REFERENCE_OFF": "XRechnung erfordert eine Käuferreferenz. Aktivieren Sie die Käuferreferenz in den E-Rechnungs-Einstellungen oder verwenden Sie Factur-X.",
+      "LEITWEG_CHECK_DIGITS": "Die Prüfziffern der Leitweg-ID beim Kunden scheinen falsch zu sein.",
+      "SELLER_CONTACT_INCOMPLETE": "Geben Sie unter Einstellungen › Profil Kontaktname, Telefonnummer und E-Mail an.",
+      "ELECTRONIC_ADDRESS_MISSING": "Geben Sie E-Mail-Adressen für Verkäufer und Käufer an.",
+      "CREDIT_NOTE_REFERENCE_MISSING": "Verknüpfen Sie die gutgeschriebene Rechnung mit der Gutschrift.",
+      "ARITHMETIC_MISMATCH": "Die Rechnungssummen entsprechen nicht den Regeln der EN 16931. Prüfen Sie Positionssteuern und Beträge."
+    }
+  },
+  "filters": {
+    "status": "Status",
+    "client": "Kunde",
+    "reset": "Zurücksetzen",
+    "clear": "Filter entfernen",
+    "noOptions": "Keine Treffer.",
+    "selected_one": "{{count}} ausgewählt",
+    "selected_other": "{{count}} ausgewählt",
+    "clearAll": "Filter entfernen",
+    "noResultsDescription": "Versuchen Sie eine andere Suche oder einen anderen Filter.",
+    "unit": "Einheit",
+    "balance": "Saldo"
+  },
+  "table": {
+    "selectAll": "Alle Zeilen auswählen",
+    "selectRow": "{{name}} auswählen",
+    "range": "{{first}}–{{last}} von {{total}}",
+    "rowsPerPage": "Zeilen pro Seite",
+    "page": "Seite {{page}} von {{count}}",
+    "previousPage": "Vorherige Seite",
+    "nextPage": "Nächste Seite"
+  },
+  "bulk": {
+    "label": "Sammelaktionen",
+    "selected_one": "{{count}} ausgewählt",
+    "selected_other": "{{count}} ausgewählt",
+    "clear": "Auswahl aufheben"
+  },
+  "client": "Kunde"
 }

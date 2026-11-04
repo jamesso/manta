@@ -8,34 +8,85 @@
       "bottom": "Bas"
     },
     "fontSize": "Taille du texte",
+    "logoSize": "Taille du logo",
     "toggle": {
-      "name": "Basculer",
+      "name": "Affichage",
       "logo": "Logo",
       "symbol": "Symbole",
       "recipient": "Destinataire"
     },
     "accentColor": {
-      "name": "Couleur secondaire",
-      "useCustom": "Couleur personnalisée"
+      "name": "Couleur d’accent",
+      "useCustom": "Couleur personnalisée",
+      "custom": "Couleur personnalisée"
     },
     "actions": {
       "name": "Actions",
       "savePDF": "Exporter en PDF",
-      "saveConfigs": "Sauvegarder"
+      "emailInvoice": "Envoyer la facture par email",
+      "sharePdf": "Partager le PDF…",
+      "saveConfigs": "Enregistrer les paramètres"
+    },
+    "einvoice": {
+      "title": "Facture électronique",
+      "ready": "Prête à exporter",
+      "problems": "{{count}} problèmes à corriger",
+      "exportXrechnung": "Exporter en XRechnung (XML)",
+      "exportFacturx": "Exporter en Factur-X (PDF)",
+      "disclaimer": "Validez les exports avant de les envoyer.",
+      "reveal": "Afficher dans le dossier",
+      "exportFailed": "Échec de l’export"
     }
+  },
+  "drawer": {
+    "title": "Aperçu {{number}}",
+    "style": "Style",
+    "defaultStyle": "Ce document utilise le style par défaut des paramètres.",
+    "ownStyle": "Ce document a son propre style.",
+    "saveStyle": "Enregistrer le style",
+    "useDefaults": "Utiliser le style par défaut",
+    "exported": "Fichier exporté",
+    "exportFailed": "Impossible d’exporter le PDF : {{reason}}"
   },
   "common": {
     "billedTo": "Facturé à",
     "chooseInvoiceToPreview": "Veuillez choisir une facture à visualiser",
-    "created": "Créé",
+    "created": "Date d’émission",
     "due": "Échéance",
     "invoice": "Facture",
-    "itemDescription": "Description de l'élement",
-    "notice": "Notice",
-    "order": "No",
+    "estimate": "Devis",
+    "creditNote": "Avoir",
+    "creditsInvoice": "Avoir sur la facture {{number}} du {{date}}",
+    "totalCredit": "Total de l’avoir",
+    "validUntil": "Valable jusqu’au",
+    "itemDescription": "Description de l’article",
+    "notice": "Remarque",
+    "order": "N°",
     "price": "Prix",
     "qty": "Quantité",
     "subtotal": "Sous-total",
-    "total": "Total"
+    "total": "Total",
+    "amountPaid": "Montant payé",
+    "balanceDue": "Solde dû",
+    "labelled": "{{label}} : {{value}}"
+  },
+  "tax": {
+    "taxId": "Numéro fiscal",
+    "vatId": "Numéro de TVA",
+    "recipientTaxId": "N° de TVA du client",
+    "on": "sur {{amount}}",
+    "category": {
+      "S": "TVA",
+      "Z": "TVA 0 %",
+      "E": "Exonéré de TVA",
+      "AE": "Autoliquidation",
+      "K": "Livraison intracommunautaire",
+      "G": "Exportation",
+      "O": "Hors champ de la TVA"
+    }
+  },
+  "einvoice": {
+    "bank": "Banque",
+    "buyerReference": "Référence acheteur"
   }
 }

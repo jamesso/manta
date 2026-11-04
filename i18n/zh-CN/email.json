@@ -1,0 +1,53 @@
+{
+  "defaults": {
+    "invoice": {
+      "subject": "来自 {company} 的发票 {number}",
+      "body": "{client}，你好：\n\n附件是金额为 {total} 的发票 {number}。截止日期：{dueDate}。\n\n感谢你的惠顾。\n\n{company}"
+    },
+    "reminder": {
+      "subject": "付款提醒：发票 {number}",
+      "body": "{client}，你好：\n\n温馨提醒，金额为 {total} 的发票 {number} 已于 {dueDate} 到期。未付余额为 {balance}。\n\n如果你已付款，请忽略此消息。\n\n此致\n{company}"
+    }
+  },
+  "vars": {
+    "noDueDate": "收到时"
+  },
+  "placeholders": {
+    "number": "发票编号",
+    "client": "客户名称",
+    "total": "发票总额",
+    "balance": "未付余额",
+    "dueDate": "截止日期",
+    "company": "你的公司名称"
+  },
+  "actions": {
+    "email": "通过邮件发送发票",
+    "reminder": "发送提醒",
+    "share": "分享 PDF…",
+    "markSent": "标记为已发送",
+    "markReminded": "标记提醒为已发送",
+    "copyFullMessage": "复制完整消息"
+  },
+  "toast": {
+    "opened": "已打开邮件，请从文件夹中附加 PDF",
+    "openedHint": "已在打开的文件夹中选中 {{fileName}}。",
+    "truncated": "消息过长，无法放入邮件链接。请使用“复制完整消息”复制全文。",
+    "failed": "无法准备邮件：{{reason}}",
+    "noMailApp": "无法打开邮件应用。PDF 已保存。",
+    "markedSent": "已标记为已发送",
+    "notSaved": "请先保存发票。",
+    "copied": "消息已复制"
+  },
+  "ask": {
+    "title": "{{client}} 的电子邮件地址",
+    "description": "输入电子邮件地址，即可在邮件应用中打开草稿。",
+    "label": "电子邮件",
+    "save": "将此地址保存到客户",
+    "confirm": "继续",
+    "invalid": "请输入有效的电子邮件地址"
+  },
+  "sheet": {
+    "sentOn": "已于 {{date}} 发送",
+    "remindedOn": "已于 {{date}} 发送提醒"
+  }
+}

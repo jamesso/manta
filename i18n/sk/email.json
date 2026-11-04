@@ -1,0 +1,53 @@
+{
+  "defaults": {
+    "invoice": {
+      "subject": "Faktúra {number} od {company}",
+      "body": "Dobrý deň, {client},\n\nv prílohe vám posielame faktúru {number} na sumu {total}. Dátum splatnosti: {dueDate}.\n\nĎakujeme za spoluprácu.\n\n{company}"
+    },
+    "reminder": {
+      "subject": "Pripomienka platby: faktúra {number}",
+      "body": "Dobrý deň, {client},\n\ndovoľujeme si vám pripomenúť, že faktúra {number} na sumu {total} bola splatná {dueDate}. Zostatok na úhradu je {balance}.\n\nAk ste už zaplatili, túto správu, prosím, ignorujte.\n\nS pozdravom\n{company}"
+    }
+  },
+  "vars": {
+    "noDueDate": "pri prijatí"
+  },
+  "placeholders": {
+    "number": "Číslo faktúry",
+    "client": "Meno klienta",
+    "total": "Celková suma faktúry",
+    "balance": "Zostatok na úhradu",
+    "dueDate": "Dátum splatnosti",
+    "company": "Názov vašej spoločnosti"
+  },
+  "actions": {
+    "email": "Poslať faktúru e-mailom",
+    "reminder": "Poslať pripomienku",
+    "share": "Zdieľať PDF…",
+    "markSent": "Označiť ako odoslané",
+    "markReminded": "Označiť pripomienku ako odoslanú",
+    "copyFullMessage": "Kopírovať celú správu"
+  },
+  "toast": {
+    "opened": "Pošta otvorená – priložte PDF z priečinka",
+    "openedHint": "Súbor {{fileName}} je vybraný v otvorenom priečinku.",
+    "truncated": "Správa bola pre e-mailový odkaz príliš dlhá. Celý text skopírujete pomocou Kopírovať celú správu.",
+    "failed": "E-mail sa nepodarilo pripraviť: {{reason}}",
+    "noMailApp": "Poštovú aplikáciu sa nepodarilo otvoriť. PDF je uložené.",
+    "markedSent": "Označené ako odoslané",
+    "notSaved": "Najprv faktúru uložte.",
+    "copied": "Správa skopírovaná"
+  },
+  "ask": {
+    "title": "E-mailová adresa pre {{client}}",
+    "description": "Zadajte e-mailovú adresu a otvorí sa poštová aplikácia s konceptom správy.",
+    "label": "E-mail",
+    "save": "Uložiť túto adresu ku klientovi",
+    "confirm": "Pokračovať",
+    "invalid": "Zadajte platnú e-mailovú adresu"
+  },
+  "sheet": {
+    "sentOn": "Odoslané {{date}}",
+    "remindedOn": "Pripomienka odoslaná {{date}}"
+  }
+}

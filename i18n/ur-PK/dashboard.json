@@ -1,0 +1,67 @@
+{
+  "heading": "ڈیش بورڈ",
+  "loading": "ڈیش بورڈ لوڈ ہو رہا ہے…",
+  "kpi": {
+    "outstanding": "واجب الادا",
+    "overdue": "زائد المیعاد",
+    "paidThisMonth": "اس ماہ وصول شدہ",
+    "creditedThisMonth": "کریڈٹ نوٹس: −{{amount}}",
+    "drafts": "ڈرافٹس",
+    "invoiceCount": "{{count}} انوائسز"
+  },
+  "currency": {
+    "label": "کرنسی"
+  },
+  "chart": {
+    "paid": "ادا شدہ",
+    "title": "پچھلے 6 ماہ کی ادائیگیاں",
+    "empty": "پچھلے 6 ماہ میں کوئی ادائیگی نہیں"
+  },
+  "needsAttention": {
+    "title": "توجہ طلب",
+    "empty": "کسی چیز پر توجہ کی ضرورت نہیں"
+  },
+  "recent": {
+    "title": "حالیہ انوائسز",
+    "empty": "ابھی کوئی انوائس نہیں",
+    "viewAll": "تمام انوائسز دیکھیں",
+    "newInvoice": "نئی انوائس"
+  },
+  "checklist": {
+    "heading": "Manta کے ساتھ آغاز کریں",
+    "progress": "{{total}} میں سے {{done}} مکمل",
+    "allDone": "سب کچھ تیار ہے",
+    "dismiss": "چیک لسٹ ہٹائیں",
+    "toastHidden": "چیک لسٹ چھپا دی گئی",
+    "undo": "واپس کریں",
+    "items": {
+      "profile": "اپنے کاروبار کا نام شامل کریں",
+      "logo": "اپنا لوگو شامل کریں",
+      "client": "اپنا پہلا کلائنٹ شامل کریں",
+      "invoice": "اپنی پہلی انوائس بنائیں",
+      "pdf": "اپنی پہلی PDF برآمد کریں"
+    },
+    "links": {
+      "profile": "کاروباری پروفائل میں ترمیم",
+      "logo": "لوگو اپ لوڈ کریں",
+      "client": "کلائنٹ شامل کریں",
+      "invoice": "نئی انوائس",
+      "pdf": "پیش نظارہ اور PDF برآمد"
+    },
+    "pdfHint": "پہلے انوائس بنائیں"
+  },
+  "greeting": {
+    "morning": "صبح بخیر",
+    "afternoon": "سہ پہر بخیر",
+    "evening": "شام بخیر",
+    "lead": "{{greeting}}، آپ کے پاس",
+    "and": "اور",
+    "clear": "{{greeting}}۔ سب کچھ اپ ٹو ڈیٹ ہے — کچھ بھی زائد المیعاد نہیں۔",
+    "overdue_one": "{{count}} زائد المیعاد انوائس",
+    "overdue_other": "{{count}} زائد المیعاد انوائسز",
+    "outstanding_one": "{{count}} ادائیگی کی منتظر",
+    "outstanding_other": "{{count}} ادائیگی کی منتظر",
+    "drafts_one": "{{count}} ڈرافٹ",
+    "drafts_other": "{{count}} ڈرافٹس"
+  }
+}

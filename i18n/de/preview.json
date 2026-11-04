@@ -7,22 +7,46 @@
       "middle": "Mitte",
       "bottom": "Unten"
     },
-    "fontSize": "Schriftgrösse",
+    "fontSize": "Schriftgröße",
+    "logoSize": "Logogröße",
     "toggle": {
-      "name": "Umschalten",
+      "name": "Anzeigen",
       "logo": "Logo",
       "symbol": "Symbol",
       "recipient": "Empfänger"
     },
     "accentColor": {
       "name": "Akzentfarbe",
-      "useCustom": "Eigene Farbe verwenden"
+      "useCustom": "Eigene Farbe verwenden",
+      "custom": "Eigene Farbe"
     },
     "actions": {
       "name": "Aktionen",
       "savePDF": "Als PDF exportieren",
-      "saveConfigs": "Konfiguration speichern"
+      "emailInvoice": "Rechnung per E-Mail senden",
+      "sharePdf": "PDF teilen …",
+      "saveConfigs": "Einstellungen speichern"
+    },
+    "einvoice": {
+      "title": "E-Rechnung",
+      "ready": "Bereit zum Export",
+      "problems": "{{count}} Probleme zu beheben",
+      "exportXrechnung": "XRechnung exportieren (XML)",
+      "exportFacturx": "Factur-X exportieren (PDF)",
+      "disclaimer": "Prüfen Sie Exporte vor dem Versand.",
+      "reveal": "Im Ordner anzeigen",
+      "exportFailed": "Export fehlgeschlagen"
     }
+  },
+  "drawer": {
+    "title": "Vorschau {{number}}",
+    "style": "Stil",
+    "defaultStyle": "Dieses Dokument verwendet den Standardstil aus den Einstellungen.",
+    "ownStyle": "Dieses Dokument hat einen eigenen Stil.",
+    "saveStyle": "Stil speichern",
+    "useDefaults": "Standardstil verwenden",
+    "exported": "Datei exportiert",
+    "exportFailed": "PDF konnte nicht exportiert werden: {{reason}}"
   },
   "common": {
     "billedTo": "Rechnungsempfänger",
@@ -30,12 +54,39 @@
     "created": "Erstellt",
     "due": "Fällig",
     "invoice": "Rechnung",
+    "estimate": "Angebot",
+    "creditNote": "Gutschrift",
+    "creditsInvoice": "Gutschrift zu Rechnung {{number}} vom {{date}}",
+    "totalCredit": "Gutschriftsbetrag",
+    "validUntil": "Gültig bis",
     "itemDescription": "Artikel-\/Leistungsbeschreibung",
     "notice": "Hinweis",
-    "order": "Nr",
+    "order": "Nr.",
     "price": "Preis",
     "qty": "Menge",
     "subtotal": "Zwischensumme",
-    "total": "Rechnungsbetrag"
+    "total": "Gesamtbetrag",
+    "amountPaid": "Bezahlter Betrag",
+    "balanceDue": "Offener Betrag",
+    "labelled": "{{label}}: {{value}}"
+  },
+  "tax": {
+    "taxId": "Steuernummer",
+    "vatId": "USt-ID",
+    "recipientTaxId": "USt-ID des Kunden",
+    "on": "auf {{amount}}",
+    "category": {
+      "S": "USt.",
+      "Z": "USt. 0 %",
+      "E": "Umsatzsteuerfrei",
+      "AE": "Umkehr der Steuerschuld",
+      "K": "Innergemeinschaftliche Lieferung",
+      "G": "Ausfuhrlieferung",
+      "O": "Nicht umsatzsteuerbar"
+    }
+  },
+  "einvoice": {
+    "bank": "Bank",
+    "buyerReference": "Käuferreferenz"
   }
 }

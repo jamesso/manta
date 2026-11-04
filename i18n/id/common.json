@@ -12,5 +12,80 @@
   "default": "Standar",
   "saveAsDefault": "Simpan sebagai Standar?",
   "yes": "Ya",
-  "noThanks": "Tidak, terima kasih"
+  "noThanks": "Tidak, terima kasih",
+  "ok": "OK",
+  "cancel": "Batal",
+  "close": "Tutup",
+  "edit": "Sunting",
+  "delete": "Hapus",
+  "einvoice": {
+    "readyHint": "Tidak ada masalah profil atau bank pada pemeriksaan contoh.",
+    "copyClientDetails": "Salin Detail Klien",
+    "fixGroups": {
+      "profile": "Profil",
+      "bank": "Rekening Bank",
+      "client": "Klien",
+      "invoice": "Faktur",
+      "taxRates": "Tarif Pajak"
+    },
+    "issues": {
+      "DOC_TYPE_UNSUPPORTED": "E-faktur tidak tersedia untuk penawaran. Perbaiki jenis dokumen pada faktur.",
+      "NOT_FINAL": "Terbitkan atau finalkan faktur sebelum diekspor.",
+      "NUMBER_MISSING": "Tambahkan nomor faktur pada faktur.",
+      "CURRENCY_FRACTION_UNSUPPORTED": "Mata uang ini menggunakan lebih dari dua angka desimal. Ganti mata uang pada faktur.",
+      "TAX_PER_LINE_REQUIRED": "Beralih ke pajak per baris dan tetapkan kategori di setiap baris di Pengaturan › Faktur › Tarif pajak.",
+      "CATEGORY_NOT_SUPPORTED": "Hapus kategori pajak yang tidak didukung di Pengaturan › Faktur › Tarif pajak.",
+      "RATE_CATEGORY_MISMATCH": "Perbaiki pasangan tarif dan kategori pajak di Pengaturan › Faktur › Tarif pajak.",
+      "OUT_OF_SCOPE_MIXED": "Pajak di luar cakupan tidak boleh dicampur dengan kategori lain.",
+      "EXEMPTION_REASON_MISSING": "Tambahkan alasan pembebasan di Pengaturan › Faktur › Tarif pajak.",
+      "SELLER_NAME_MISSING": "Tambahkan nama resmi atau nama perusahaan di Pengaturan › Profil.",
+      "SELLER_ADDRESS_INCOMPLETE": "Lengkapi alamat terstruktur di Pengaturan › Profil › Alamat.",
+      "SELLER_COUNTRY_MISSING": "Tambahkan negara di Pengaturan › Profil › Alamat.",
+      "SELLER_TAX_ID_MISSING": "Tambahkan ID pajak atau ID PPN di Pengaturan › Profil.",
+      "SELLER_VAT_ID_REQUIRED": "Tambahkan ID PPN di Pengaturan › Profil.",
+      "BUYER_NAME_MISSING": "Tambahkan nama klien di Klien.",
+      "BUYER_COUNTRY_MISSING": "Tambahkan negara klien di Klien › Alamat.",
+      "BUYER_ADDRESS_INCOMPLETE": "Tambahkan kode pos dan kota klien di Klien › Alamat.",
+      "BUYER_VAT_ID_REQUIRED": "Tambahkan ID PPN pembeli yang valid pada klien.",
+      "BUYER_VAT_ID_FORMAT": "ID pajak klien tidak tampak seperti ID PPN.",
+      "DUE_DATE_MISSING": "Tambahkan tanggal jatuh tempo pada faktur.",
+      "PAYMENT_ACCOUNT_MISSING": "Tambahkan IBAN bank di Pengaturan › Profil › Rekening bank.",
+      "IBAN_INVALID": "Perbaiki IBAN di Pengaturan › Profil › Rekening bank.",
+      "BIC_INVALID": "Perbaiki BIC di Pengaturan › Profil › Rekening bank.",
+      "BUYER_REFERENCE_MISSING": "Tambahkan referensi pembeli (Leitweg-ID) pada klien.",
+      "BUYER_REFERENCE_OFF": "XRechnung memerlukan referensi pembeli. Aktifkan Referensi Pembeli di pengaturan e-faktur, atau gunakan Factur-X.",
+      "LEITWEG_CHECK_DIGITS": "Digit pemeriksa Leitweg-ID pada klien tampaknya salah.",
+      "SELLER_CONTACT_INCOMPLETE": "Tambahkan nama kontak, telepon, dan email di Pengaturan › Profil.",
+      "ELECTRONIC_ADDRESS_MISSING": "Tambahkan alamat email penjual dan pembeli.",
+      "CREDIT_NOTE_REFERENCE_MISSING": "Tautkan faktur yang dikreditkan pada nota kredit.",
+      "ARITHMETIC_MISMATCH": "Total faktur tidak sesuai aturan EN 16931. Periksa pajak baris dan jumlahnya."
+    }
+  },
+  "filters": {
+    "status": "Status",
+    "client": "Klien",
+    "reset": "Atur Ulang",
+    "clear": "Hapus Filter",
+    "noOptions": "Tidak ada yang cocok.",
+    "selected_other": "{{count}} dipilih",
+    "clearAll": "Hapus Semua Filter",
+    "noResultsDescription": "Coba pencarian atau filter lain.",
+    "unit": "Satuan",
+    "balance": "Saldo"
+  },
+  "table": {
+    "selectAll": "Pilih Semua Baris",
+    "selectRow": "Pilih {{name}}",
+    "range": "{{first}}–{{last}} dari {{total}}",
+    "rowsPerPage": "Baris per Halaman",
+    "page": "Halaman {{page}} dari {{count}}",
+    "previousPage": "Halaman Sebelumnya",
+    "nextPage": "Halaman Berikutnya"
+  },
+  "bulk": {
+    "label": "Tindakan Massal",
+    "selected_other": "{{count}} dipilih",
+    "clear": "Hapus Pilihan"
+  },
+  "client": "Klien"
 }

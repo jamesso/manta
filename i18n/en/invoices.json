@@ -4,10 +4,10 @@
     "count_one": "{{count}} invoice",
     "count_other": "{{count}} invoices"
   },
-  "newInvoice": "New invoice",
+  "newInvoice": "New Invoice",
   "search": {
-    "label": "Search invoices",
-    "placeholder": "Search number, client or amount"
+    "label": "Filter Invoices",
+    "placeholder": "Filter invoices…"
   },
   "tabs": {
     "all": "All",
@@ -16,11 +16,11 @@
     "overdue": "Overdue",
     "paid": "Paid",
     "closed": "Closed",
-    "creditNotes": "Credit notes"
+    "creditNotes": "Credit Notes"
   },
   "columns": {
-    "select": "Select invoice {{number}}",
-    "selectAll": "Select all invoices",
+    "select": "Select Invoice {{number}}",
+    "selectAll": "Select All Invoices",
     "number": "Number",
     "client": "Client",
     "issued": "Issued",
@@ -41,30 +41,25 @@
     "overdueDays_other": "{{count}} days overdue"
   },
   "actions": {
-    "open": "Invoice actions",
-    "preview": "Preview / Export PDF",
+    "open": "Invoice Actions",
+    "preview": "Preview",
     "edit": "Edit",
     "duplicate": "Duplicate",
-    "makeRecurring": "Make recurring",
-    "createCreditNote": "Create credit note",
-    "recordPayment": "Record payment…",
-    "markPaidInFull": "Mark as paid in full",
-    "setStatus": "Set status",
+    "makeRecurring": "Make Recurring",
+    "createCreditNote": "Create Credit Note",
+    "recordPayment": "Record Payment…",
+    "markPaidInFull": "Mark as Paid in Full",
+    "setStatus": "Set Status",
     "delete": "Delete"
   },
   "bulk": {
-    "label": "Selected invoices",
-    "selected_one": "{{count}} selected",
-    "selected_other": "{{count}} selected",
-    "markPaidInFull": "Mark as paid in full",
-    "delete": "Delete",
-    "clear": "Clear selection"
+    "markPaidInFull": "Mark as Paid in Full"
   },
   "empty": {
     "title": "No invoices yet",
     "description": "Create your first invoice. It will show here.",
     "noResults": "No matching invoices",
-    "noResultsDescription": "Try another search or tab.",
+    "noResultsDescription": "Try another search or filter.",
     "clearFilters": "Clear filters"
   },
   "sheet": {
@@ -82,11 +77,11 @@
     "tax": "Tax",
     "total": "Total",
     "note": "Note",
-    "fromEstimate": "Created from estimate {{number}}",
+    "fromEstimate": "Created from Estimate {{number}}",
     "credited": "Credited",
-    "balanceDue": "Balance due",
-    "refundDue": "Refund due",
-    "creditNotes": "Credit notes",
+    "balanceDue": "Balance Due",
+    "refundDue": "Refund Due",
+    "creditNotes": "Credit Notes",
     "einvoiceTitle": "E-invoice"
   },
   "toast": {
@@ -98,7 +93,8 @@
     "restored_one": "Invoice restored",
     "restored_other": "{{count}} invoices restored",
     "updated_one": "Invoice updated",
-    "updated_other": "{{count}} invoices updated"
+    "updated_other": "{{count}} invoices updated",
+    "notFound": "Invoice not found"
   },
   "nav": {
     "overdueBadge_one": "{{count}} overdue invoice",
@@ -114,7 +110,7 @@
   "status": {
     "draft": "Draft",
     "pending": "Pending",
-    "partial": "Partially paid",
+    "partial": "Partially Paid",
     "overdue": "Overdue",
     "paid": "Paid",
     "refunded": "Refunded",
@@ -123,28 +119,29 @@
   "payments": {
     "title": "Payments",
     "empty": "No payments recorded.",
-    "amountPaid": "Amount paid",
-    "balanceDue": "Balance due",
-    "partiallyPaid": "Partially paid",
+    "amountPaid": "Amount Paid",
+    "balanceDue": "Balance Due",
+    "partiallyPaid": "Partially Paid",
     "balanceShort": "{{amount}} due",
-    "remove": "Remove payment of {{amount}} on {{date}}",
+    "remove": "Remove Payment of {{amount}} on {{date}}",
     "methods": {
-      "bank": "Bank transfer",
+      "bank": "Bank Transfer",
       "cash": "Cash",
+      "check": "Check",
       "card": "Card",
       "paypal": "PayPal",
       "other": "Other"
     },
     "dialog": {
-      "title": "Record payment",
+      "title": "Record Payment",
       "description": "Invoice {{number}} · Balance due {{balance}}",
       "amount": "Amount",
-      "payFull": "Pay full balance",
-      "date": "Payment date",
+      "payFull": "Pay Full Balance",
+      "date": "Payment Date",
       "method": "Method",
       "note": "Note",
       "notePlaceholder": "Reference or remark (optional)",
-      "submit": "Record payment",
+      "submit": "Record Payment",
       "cancel": "Cancel"
     },
     "errors": {
@@ -188,16 +185,16 @@
       "credits": "Credits"
     },
     "sheet": {
-      "title": "Credit note {{number}}",
-      "credits": "Credits invoice {{number}} of {{date}}",
-      "totalCredit": "Total credit"
+      "title": "Credit Note {{number}}",
+      "credits": "Credits Invoice {{number}} of {{date}}",
+      "totalCredit": "Total Credit"
     },
     "actions": {
       "issue": "Issue",
       "void": "Void",
       "edit": "Edit",
       "delete": "Delete",
-      "preview": "Preview / Export PDF"
+      "preview": "Preview"
     },
     "void": {
       "title": "Void credit note {{number}}?",
@@ -208,7 +205,13 @@
       "creditedMissing": "The credited invoice is missing.",
       "creditZero": "The credit amount must be more than 0.",
       "creditCurrency": "The credit note currency must match the invoice.",
-      "creditExceeds": "The credit is more than the amount you can still credit."
+      "creditExceeds": "The credit is more than the amount you can still credit.",
+      "syncFailed": "Credit note saved, but the invoice could not be updated.",
+      "updateFailed": "Could not update the credited invoice.",
+      "repairFailed": "Could not repair invoice status after credits.",
+      "notAllowed": "Cannot create credit note for this invoice.",
+      "void": "Credit note is void.",
+      "draftVoid": "Draft credit notes cannot be voided."
     },
     "toast": {
       "issued": "Credit note issued",
@@ -222,5 +225,9 @@
       "title": "No credit notes yet",
       "description": "Create a credit note from an invoice to see it here."
     }
+  },
+  "views": {
+    "invoices": "Invoices",
+    "creditNotes": "Credit Notes"
   }
 }

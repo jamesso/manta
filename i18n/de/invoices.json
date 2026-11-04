@@ -1,6 +1,104 @@
 {
   "header": {
-    "name": "Alle Rechnungen"
+    "name": "Rechnungen",
+    "count_one": "{{count}} Rechnung",
+    "count_other": "{{count}} Rechnungen"
+  },
+  "newInvoice": "Neue Rechnung",
+  "search": {
+    "label": "Rechnungen filtern",
+    "placeholder": "Rechnungen filtern …"
+  },
+  "tabs": {
+    "all": "Alle",
+    "draft": "Entwurf",
+    "outstanding": "Offen",
+    "overdue": "Überfällig",
+    "paid": "Bezahlt",
+    "closed": "Abgeschlossen",
+    "creditNotes": "Gutschriften"
+  },
+  "columns": {
+    "select": "Rechnung {{number}} auswählen",
+    "selectAll": "Alle Rechnungen auswählen",
+    "number": "Nummer",
+    "client": "Kunde",
+    "issued": "Ausgestellt",
+    "due": "Fällig",
+    "amount": "Betrag",
+    "status": "Status",
+    "actions": "Aktionen"
+  },
+  "number": {
+    "none": "Noch keine Nummer"
+  },
+  "due": {
+    "none": "Kein Fälligkeitsdatum",
+    "today": "Heute fällig",
+    "inDays_one": "Fällig in {{count}} Tag",
+    "inDays_other": "Fällig in {{count}} Tagen",
+    "overdueDays_one": "{{count}} Tag überfällig",
+    "overdueDays_other": "{{count}} Tage überfällig"
+  },
+  "actions": {
+    "open": "Rechnungsaktionen",
+    "preview": "Vorschau",
+    "edit": "Bearbeiten",
+    "duplicate": "Duplizieren",
+    "makeRecurring": "Wiederkehrend machen",
+    "createCreditNote": "Gutschrift erstellen",
+    "recordPayment": "Zahlung erfassen …",
+    "markPaidInFull": "Als vollständig bezahlt markieren",
+    "setStatus": "Status festlegen",
+    "delete": "Löschen"
+  },
+  "bulk": {
+    "markPaidInFull": "Als vollständig bezahlt markieren"
+  },
+  "empty": {
+    "title": "Noch keine Rechnungen",
+    "description": "Erstellen Sie Ihre erste Rechnung. Sie wird dann hier angezeigt.",
+    "noResults": "Keine passenden Rechnungen",
+    "noResultsDescription": "Versuchen Sie eine andere Suche oder einen anderen Filter.",
+    "clearFilters": "Filter entfernen"
+  },
+  "sheet": {
+    "title": "Rechnung {{number}}",
+    "client": "Kunde",
+    "issued": "Ausgestellt",
+    "due": "Fällig",
+    "currency": "Währung",
+    "items": "Positionen",
+    "description": "Beschreibung",
+    "quantity": "Menge",
+    "price": "Preis",
+    "subtotal": "Zwischensumme",
+    "discount": "Rabatt",
+    "tax": "Steuer",
+    "total": "Gesamt",
+    "note": "Notiz",
+    "fromEstimate": "Erstellt aus Angebot {{number}}",
+    "credited": "Gutgeschrieben",
+    "balanceDue": "Offener Betrag",
+    "refundDue": "Zu erstatten",
+    "creditNotes": "Gutschriften",
+    "einvoiceTitle": "E-Rechnung"
+  },
+  "toast": {
+    "deleted_one": "Rechnung gelöscht",
+    "deleted_other": "{{count}} Rechnungen gelöscht",
+    "deleteFailed_one": "{{count}} Rechnung konnte nicht gelöscht werden",
+    "deleteFailed_other": "{{count}} Rechnungen konnten nicht gelöscht werden",
+    "undo": "Rückgängig",
+    "restored_one": "Rechnung wiederhergestellt",
+    "restored_other": "{{count}} Rechnungen wiederhergestellt",
+    "updated_one": "Rechnung aktualisiert",
+    "updated_other": "{{count}} Rechnungen aktualisiert",
+    "notFound": "Rechnung nicht gefunden"
+  },
+  "nav": {
+    "overdueBadge_one": "{{count}} überfällige Rechnung",
+    "overdueBadge_other": "{{count}} überfällige Rechnungen"
   },
   "fields": {
     "client": "Kunde",
@@ -10,14 +108,126 @@
     "total": "Gesamtwert"
   },
   "status": {
+    "draft": "Entwurf",
     "pending": "Ausstehend",
+    "partial": "Teilweise bezahlt",
+    "overdue": "Überfällig",
     "paid": "Bezahlt",
     "refunded": "Erstattet",
     "cancelled": "Storniert"
+  },
+  "payments": {
+    "title": "Zahlungen",
+    "empty": "Keine Zahlungen erfasst.",
+    "amountPaid": "Bezahlter Betrag",
+    "balanceDue": "Offener Betrag",
+    "partiallyPaid": "Teilweise bezahlt",
+    "balanceShort": "{{amount}} offen",
+    "remove": "Zahlung von {{amount}} am {{date}} entfernen",
+    "methods": {
+      "bank": "Banküberweisung",
+      "cash": "Bargeld",
+      "check": "Scheck",
+      "card": "Karte",
+      "paypal": "PayPal",
+      "other": "Andere"
+    },
+    "dialog": {
+      "title": "Zahlung erfassen",
+      "description": "Rechnung {{number}} · Offener Betrag {{balance}}",
+      "amount": "Betrag",
+      "payFull": "Gesamten Betrag bezahlen",
+      "date": "Zahlungsdatum",
+      "method": "Zahlungsart",
+      "note": "Notiz",
+      "notePlaceholder": "Referenz oder Bemerkung (optional)",
+      "submit": "Zahlung erfassen",
+      "cancel": "Abbrechen"
+    },
+    "errors": {
+      "amountInvalid": "Geben Sie einen Betrag ein, zum Beispiel {{example}}.",
+      "amountPositive": "Der Betrag muss größer als 0 sein.",
+      "tooManyDecimals_zero": "Verwenden Sie nur ganze Zahlen.",
+      "tooManyDecimals_one": "Verwenden Sie höchstens {{count}} Dezimalstelle.",
+      "tooManyDecimals_other": "Verwenden Sie höchstens {{count}} Dezimalstellen.",
+      "overpayment": "Der Betrag ist höher als der offene Betrag ({{balance}}).",
+      "dateRequired": "Wählen Sie ein Zahlungsdatum.",
+      "dateFuture": "Das Zahlungsdatum darf nicht in der Zukunft liegen.",
+      "draft": "Entwürfe können keine Zahlungen erhalten. Speichern Sie zuerst die Rechnung.",
+      "closed": "Erstattete oder stornierte Rechnungen können keine Zahlungen erhalten. Setzen Sie den Status zuerst auf Ausstehend.",
+      "nothingDue": "Diese Rechnung hat keinen offenen Betrag.",
+      "duplicate": "Diese Zahlung ist bereits erfasst.",
+      "notFound": "Die Rechnung oder Zahlung wurde nicht gefunden.",
+      "draftWithPayments": "Eine Rechnung mit Zahlungen kann kein Entwurf werden. Entfernen Sie zuerst die Zahlungen."
+    },
+    "toast": {
+      "recorded_one": "Zahlung erfasst",
+      "recorded_other": "{{count}} Zahlungen erfasst",
+      "skipped_one": "{{count}} Rechnung übersprungen: {{reason}}",
+      "skipped_other": "{{count}} Rechnungen übersprungen: {{reason}}",
+      "removed": "Zahlung entfernt",
+      "undo": "Rückgängig",
+      "stillPaid": "Die Zahlungen decken den Gesamtbetrag, daher bleibt die Rechnung bezahlt."
+    }
   },
   "btns": {
     "view": "Ansehen",
     "edit": "Bearbeiten",
     "markAsPaid": "Als bezahlt markieren"
+  },
+  "creditNotes": {
+    "status": {
+      "draft": "Entwurf",
+      "issued": "Ausgestellt",
+      "void": "Storniert"
+    },
+    "columns": {
+      "credits": "Gutschrift zu"
+    },
+    "sheet": {
+      "title": "Gutschrift {{number}}",
+      "credits": "Gutschrift zu Rechnung {{number}} vom {{date}}",
+      "totalCredit": "Gutschriftsbetrag"
+    },
+    "actions": {
+      "issue": "Ausstellen",
+      "void": "Stornieren",
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "preview": "Vorschau"
+    },
+    "void": {
+      "title": "Gutschrift {{number}} stornieren?",
+      "description": "Dies kann nicht rückgängig gemacht werden. Der gutgeschriebene Betrag wird wieder der Rechnung zugerechnet.",
+      "confirm": "Stornieren"
+    },
+    "errors": {
+      "creditedMissing": "Die gutgeschriebene Rechnung fehlt.",
+      "creditZero": "Der Gutschriftsbetrag muss größer als 0 sein.",
+      "creditCurrency": "Die Währung der Gutschrift muss der Rechnung entsprechen.",
+      "creditExceeds": "Die Gutschrift übersteigt den noch gutschreibbaren Betrag.",
+      "syncFailed": "Gutschrift gespeichert, aber die Rechnung konnte nicht aktualisiert werden.",
+      "updateFailed": "Die gutgeschriebene Rechnung konnte nicht aktualisiert werden.",
+      "repairFailed": "Der Rechnungsstatus konnte nach den Gutschriften nicht korrigiert werden.",
+      "notAllowed": "Für diese Rechnung kann keine Gutschrift erstellt werden.",
+      "void": "Die Gutschrift ist storniert.",
+      "draftVoid": "Gutschrift-Entwürfe können nicht storniert werden."
+    },
+    "toast": {
+      "issued": "Gutschrift ausgestellt",
+      "voided": "Gutschrift storniert",
+      "hasCreditNotes_one": "Für diese Rechnung gibt es eine Gutschrift. Entfernen oder stornieren Sie sie zuerst.",
+      "hasCreditNotes_other": "Für diese Rechnung gibt es Gutschriften. Entfernen oder stornieren Sie diese zuerst.",
+      "issuedCreditNote_one": "Für diese Rechnung wurde eine Gutschrift ausgestellt.",
+      "issuedCreditNote_other": "Für diese Rechnung wurden Gutschriften ausgestellt."
+    },
+    "empty": {
+      "title": "Noch keine Gutschriften",
+      "description": "Erstellen Sie eine Gutschrift aus einer Rechnung, damit sie hier erscheint."
+    }
+  },
+  "views": {
+    "invoices": "Rechnungen",
+    "creditNotes": "Gutschriften"
   }
 }

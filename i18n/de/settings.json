@@ -1,5 +1,163 @@
 {
   "header": "Einstellungen",
+  "nav": {
+    "profile": "Profil",
+    "invoice": "Rechnungen",
+    "appearance": "Darstellung",
+    "language": "Sprache",
+    "export": "Exporte",
+    "updates": "Updates",
+    "sounds": "Töne"
+  },
+  "sections": {
+    "profile": {
+      "title": "Profil",
+      "description": "Ihr Name und Ihre Kontaktdaten erscheinen auf Rechnungen.",
+      "details": "Firmendaten"
+    },
+    "invoice": {
+      "title": "Rechnungen",
+      "description": "Nummerierung, Stil, Währung, Steuern und E-Mails für Ihre Dokumente.",
+      "email": {
+        "title": "E-Mail-Vorlagen",
+        "tabInvoice": "Rechnungs-E-Mail",
+        "tabReminder": "Zahlungserinnerung",
+        "subject": "Betreff",
+        "body": "Text",
+        "placeholders": "Platzhalter",
+        "preview": "Vorschau",
+        "lengthWarning": "Diese Nachricht ist lang. E-Mail-Programme erhalten eventuell einen gekürzten Text.",
+        "reset": "Auf Standard zurücksetzen",
+        "defaultBadge": "Standard",
+        "description": "Betreff und Text für Rechnungs- und Erinnerungs-E-Mails."
+      },
+      "invoicesTitle": "Rechnungen",
+      "requiredHint": "Die Felder, die beim Erstellen eines neuen Dokuments angezeigt werden.",
+      "numberingTitle": "Nummerierung"
+    },
+    "estimates": {
+      "title": "Angebote"
+    },
+    "creditNotes": {
+      "title": "Gutschriften"
+    },
+    "eInvoice": {
+      "title": "E-Rechnung",
+      "description": "XRechnung-XML und Factur-X-PDF aus der Vorschau exportieren.",
+      "disclaimer": "Manta erstellt E-Rechnungen nach bestem Wissen, garantiert aber keine rechtliche Konformität. Prüfen Sie die Dateien und stimmen Sie sie vor dem Versand mit Ihrer Steuerberatung ab.",
+      "enable": "E-Rechnungs-Export aktivieren",
+      "defaultFormat": "Standardformat",
+      "buyerReference": "Käuferreferenz",
+      "buyerReferenceHint": "Käuferreferenz (Leitweg-ID) bei Kunden abfragen und auf Rechnungen angeben. XRechnung erfordert sie.",
+      "confirmTitle": "E-Rechnungs-Export aktivieren",
+      "confirmAccept": "Verstanden",
+      "formats": {
+        "xrechnung": "XRechnung XML (UBL)",
+        "facturx": "Factur-X (PDF)"
+      }
+    },
+    "appearance": {
+      "title": "Darstellung",
+      "description": "Hell, dunkel oder wie im System."
+    },
+    "language": {
+      "title": "Sprache",
+      "description": "App-Sprache und Darstellung von Datumsangaben.",
+      "languageHint": "Wird für Menüs und neue Rechnungen verwendet.",
+      "dateFormatHint": "So werden Datumsangaben in Listen und auf Rechnungen angezeigt."
+    },
+    "export": {
+      "title": "Exporte",
+      "description": "PDF-Exportordner, Backups und CSV-Export.",
+      "chooseFolder": "Ordner auswählen",
+      "pdfTitle": "PDF-Export",
+      "backupTitle": "Backup",
+      "exportBackup": "Backup exportieren",
+      "exportBackupHint": "Alle Daten und Einstellungen in einer Datei sichern.",
+      "importBackupHint": "Daten aus einer Manta-Backup-Datei hinzufügen.",
+      "csvTitle": "CSV",
+      "csvInvoices": "Rechnungen",
+      "csvInvoicesHint": "Alle Rechnungen als Tabellendatei speichern."
+    },
+    "updates": {
+      "title": "Updates",
+      "description": "Manta sucht beim Start nach Updates.",
+      "check": "Nach Updates suchen",
+      "manual": "Jetzt suchen",
+      "manualHint": "Nach einer neuen Version von Manta suchen."
+    },
+    "sounds": {
+      "title": "Töne",
+      "description": "Benachrichtigungstöne beim Speichern oder Löschen."
+    }
+  },
+  "errors": {
+    "taxAmount": "Geben Sie eine Zahl ab 0 ein",
+    "fraction": "Geben Sie eine ganze Zahl von 0 bis 20 ein",
+    "numberingNext": "Geben Sie eine ganze Zahl ab 1 ein",
+    "numberingPadding": "Geben Sie eine ganze Zahl von 0 bis 12 ein",
+    "numberingPrefix": "Verwenden Sie höchstens 20 Zeichen",
+    "importInProgress": "Import läuft. Versuchen Sie es nach Abschluss erneut.",
+    "profileInvalid": "Die Profilangaben sind ungültig",
+    "generalInvalid": "Die allgemeinen Einstellungen sind ungültig",
+    "invoiceInvalid": "Die Rechnungseinstellungen sind ungültig",
+    "themeInvalid": "Wählen Sie System, Hell oder Dunkel",
+    "languageInvalid": "Wählen Sie eine unterstützte Sprache",
+    "soundInvalid": "Wählen Sie einen unterstützten Ton",
+    "templateInvalid": "Wählen Sie eine unterstützte Rechnungsvorlage",
+    "validDays": "Geben Sie eine ganze Zahl von 1 bis 365 ein",
+    "countryInvalid": "Wählen Sie einen gültigen Ländercode",
+    "ibanInvalid": "Geben Sie eine gültige IBAN ein",
+    "bicInvalid": "Geben Sie eine gültige BIC ein",
+    "emailSubject": "Verwenden Sie eine Zeile mit höchstens 200 Zeichen",
+    "emailBody": "Verwenden Sie höchstens 1500 Zeichen"
+  },
+  "backup": {
+    "export": "Backup exportieren …",
+    "import": "Importieren",
+    "exportCsv": "Rechnungen als CSV exportieren …",
+    "autoHint": "Manta erstellt vor jedem Import automatisch ein Backup.",
+    "exportSuccess": "Backup gespeichert",
+    "csvSuccess": "CSV exportiert",
+    "showFile": "Datei anzeigen",
+    "showSafety": "Sicherheitskopie anzeigen",
+    "importTitle": "Backup importieren",
+    "importing": "Wird importiert …",
+    "includeSettings": "Einstellungen importieren",
+    "modeSkip": "Meine Version behalten",
+    "modeOverwrite": "Version aus dem Backup verwenden",
+    "exportedOn": "Exportiert am {{date}}",
+    "fromVersion": "Manta {{version}}",
+    "colInFile": "In der Datei",
+    "colNew": "Neu",
+    "colExisting": "Bereits in Manta",
+    "colSkipped": "Übersprungen",
+    "rowInvoices": "Rechnungen & Angebote",
+    "skippedHint": "Übersprungene Einträge sind beschädigt oder doppelt in der Datei vorhanden. Manta importiert sie nicht.",
+    "empty": "Dieses Backup enthält keine Einträge.",
+    "existingTitle": "Bereits in Manta vorhandene Einträge",
+    "keepHint_one": "Aktuelle Version von {{count}} Eintrag behalten.",
+    "keepHint_other": "Aktuelle Version von {{count}} Einträgen behalten.",
+    "replaceHint_one": "{{count}} Eintrag durch die Version aus diesem Backup ersetzen.",
+    "replaceHint_other": "{{count}} Einträge durch die Version aus diesem Backup ersetzen.",
+    "settingsHint": "Firmenprofil, Rechnungsvorgaben und App-Einstellungen ersetzen.",
+    "noSettings": "Dieses Backup enthält keine Einstellungen.",
+    "creditWarnings": "{{count}} ausgestellte Gutschriften weisen Datenwarnungen auf (fehlende Rechnung, abweichende Währung oder ungültiger Betrag). Sie werden trotzdem importiert.",
+    "importSuccess": "{{added}} neue Einträge importiert und {{overwritten}} ersetzt. {{skipped}} übersprungen.",
+    "importFailedDocs": "{{count}} konnten nicht geschrieben werden.",
+    "batchFailed": "Import von {{batch}} abgebrochen: {{detail}}",
+    "settingsApplyFailed": "Einstellungen konnten nicht übernommen werden für: {{sections}}.",
+    "snapshotWarning": "Sicherheitskopie behalten, aber das Aufräumen ist fehlgeschlagen: {{detail}}",
+    "skippedSettings": "Nicht importierte Einstellungen: {{sections}}.",
+    "errors": {
+      "invalidJson": "Diese Datei ist kein gültiges Backup.",
+      "wrongApp": "Diese Datei ist kein Manta-Backup.",
+      "newerVersion": "Dieses Backup wurde mit einer neueren Version von Manta erstellt. Aktualisieren Sie Manta und versuchen Sie es erneut.",
+      "invalidFormat": "Diese Backup-Datei ist beschädigt.",
+      "tooLarge": "Diese Datei ist zu groß (mehr als 100 MB).",
+      "unsupportedData": "Dieses Backup enthält nicht unterstützte Anhangsdaten."
+    }
+  },
   "tabs": {
     "profile": "Profil",
     "invoice": "Rechnung",
@@ -10,11 +168,46 @@
       "name": "Logo",
       "hint": "Akzeptiert PNG, JPG & SVG (empfohlen)"
     },
-    "taxSettings": "Steuer-Einstellungen",
+    "taxSettings": "Steuereinstellungen",
+    "taxId": "Steuernummer",
+    "vatId": "USt-ID",
+    "legalName": "Rechtlicher Name",
+    "legalNameHint": "Eingetragener Name; leer lassen, um den Firmennamen zu verwenden.",
+    "printedAddress": "Gedruckte Adresse (wird verwendet, wenn die strukturierte Adresse leer ist)",
+    "postalAddress": {
+      "title": "Adresse",
+      "street": "Straße",
+      "additional": "Adresszusatz",
+      "postcode": "Postleitzahl",
+      "city": "Ort",
+      "region": "Region",
+      "country": "Land"
+    },
+    "bank": {
+      "title": "Bankkonto",
+      "accountName": "Kontoinhaber",
+      "iban": "IBAN",
+      "bic": "BIC"
+    },
     "template": "Vorlage",
+    "style": {
+      "title": "Rechnungsstil",
+      "hint": "Alle Dokumente verwenden diesen Stil. Um ein einzelnes Dokument zu ändern, öffnen Sie dessen Vorschau.",
+      "toggles": {
+        "showLogo": "Logo anzeigen",
+        "showLogoHint": "Ihr Logo oben auf dem Dokument drucken.",
+        "useSymbol": "Währungssymbol verwenden",
+        "useSymbolHint": "$ statt USD anzeigen.",
+        "showRecipient": "Kundendaten anzeigen",
+        "showRecipientHint": "Name und Adresse des Kunden drucken.",
+        "customAccentColor": "Akzentfarbe",
+        "customAccentColorHint": "Titel und Summen farbig hervorheben."
+      }
+    },
+    "estimateValidDays": "Gültig für (Tage)",
     "dateFormat": "Datumsformat",
     "pdfExportDir": "Verzeichnis für PDF-Exporte",
-    "requiredFields": "Pflichtfelder",
+    "requiredFields": "Formularfelder",
     "sound": "Ton",
     "mute": "Lautlos",
     "autoCheckUpdate": {
@@ -27,12 +220,18 @@
       "afterAmount": "Nach dem Betrag",
       "beforeAmount": "Vor dem Betrag",
       "fraction": "Nachkommastellen",
-      "separator": "Trennsymbol",
+      "separator": "Trennzeichen",
       "commaDot": "Komma & Punkt",
       "dotComma": "Punkt & Komma",
-      "spaceDot": "Leerschläge & Punkte"
+      "spaceDot": "Leerzeichen & Punkt"
     },
     "openPDFReader": "PDF nach Export öffnen",
+    "theme": {
+      "name": "Design",
+      "system": "System",
+      "light": "Hell",
+      "dark": "Dunkel"
+    },
     "language": {
       "name": "Sprache",
       "ar": "Arabisch",
@@ -47,20 +246,84 @@
       "it": "Italienisch",
       "ja": "Japanisch",
       "ko": "Koreanisch",
-      "lt": "Littauisch",
+      "lt": "Litauisch",
       "nl": "Niederländisch",
-      "ptBR": "Portugiesisch, Brasilianisch",
+      "ptBR": "Portugiesisch (Brasilien)",
       "ptPT": "Portugiesisch",
       "ru": "Russisch",
       "sk": "Slowakisch",
-      "th": "Thailändisch",
+      "th": "Thai",
       "tl": "Tagalog, Philippinen",
       "tr": "Türkisch",
       "ur-PK": "Urdu (Pakistan)",
       "vi": "Vietnamesisch",
-      "zh-CN": "Chinesisch (Vereinfacht)",
-      "zh-TW": "Chinesisch (Traditionell)"
+      "zh-CN": "Chinesisch (vereinfacht)",
+      "zh-TW": "Chinesisch (traditionell)"
     },
     "other": "Andere"
+  },
+  "taxRates": {
+    "title": "Steuersätze",
+    "add": "Steuersatz hinzufügen",
+    "edit": "Steuersatz bearbeiten",
+    "default": "Standard",
+    "inactive": "Inaktiv",
+    "setDefault": "Als Standard festlegen",
+    "markInactive": "Als inaktiv markieren",
+    "reactivate": "Reaktivieren",
+    "delete": "Löschen",
+    "usedBy": "Wird von {{count}} Artikeln verwendet. Stattdessen als inaktiv markieren?",
+    "hintSnapshot": "Änderungen gelten für neue Positionen. Gespeicherte Rechnungen behalten ihre Steuersätze.",
+    "hintAdvisor": "Fragen Sie Ihre Steuerberatung, welche Kategorie zutrifft.",
+    "name": "Name",
+    "rate": "Satz %",
+    "category": "Kategorie",
+    "reason": "Befreiungsgrund",
+    "actionsFor": "Aktionen für {{name}}",
+    "categories": {
+      "S": {
+        "label": "Normalsatz",
+        "help": "Der reguläre Umsatzsteuersatz, z. B. 19 % oder 20 %."
+      },
+      "Z": {
+        "label": "Nullsatz",
+        "help": "Steuerpflichtig, aber mit 0 %."
+      },
+      "E": {
+        "label": "Steuerbefreit",
+        "help": "Gesetzlich von der Umsatzsteuer befreit. Erfordert einen Befreiungsgrund."
+      },
+      "AE": {
+        "label": "Umkehr der Steuerschuld",
+        "help": "Der Käufer schuldet die Umsatzsteuer. Erfordert einen Befreiungsgrund und die USt-ID des Käufers."
+      },
+      "K": {
+        "label": "Innergemeinschaftliche Lieferung",
+        "help": "Waren an einen umsatzsteuerlich registrierten Käufer in einem anderen EU-Land. Erfordert einen Befreiungsgrund."
+      },
+      "G": {
+        "label": "Ausfuhr außerhalb der EU",
+        "help": "Auf die Ausfuhr wird keine Umsatzsteuer berechnet. Erfordert einen Befreiungsgrund."
+      },
+      "O": {
+        "label": "Nicht umsatzsteuerbar",
+        "help": "Unterliegt nicht der Umsatzsteuer, z. B. weil Sie nicht umsatzsteuerlich registriert sind. Erfordert einen Befreiungsgrund."
+      }
+    },
+    "errors": {
+      "name": "Geben Sie einen Namen mit 1 bis 40 Zeichen ein.",
+      "rateStandard": "Normalsätze müssen zwischen 0 und 100 % liegen.",
+      "rateZero": "Diese Kategorie muss 0 % verwenden.",
+      "reasonRequired": "Geben Sie einen Befreiungsgrund ein (höchstens 200 Zeichen).",
+      "duplicateId": "Jeder Steuersatz benötigt eine eindeutige ID.",
+      "noDefault": "Markieren Sie genau einen aktiven Steuersatz als Standard.",
+      "empty": "Fügen Sie mindestens einen Steuersatz hinzu."
+    }
+  },
+  "logo": {
+    "drop": "Logo hier ablegen",
+    "choose": "Logo auswählen …",
+    "replace": "Ersetzen …",
+    "remove": "Logo entfernen"
   }
 }

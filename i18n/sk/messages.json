@@ -1,16 +1,35 @@
 {
-  "noContact": "Zatiaľ nemáte žiadne kontakty",
+  "noContact": "Zatiaľ nemáte žiadnych klientov",
   "noInvoice": "Zatiaľ ste nevytvorili žiadne faktúry",
   "invoice": {
     "saved": "Faktúra bola úspešne uložená",
     "updated": "Faktúra bola úspešne aktualizovaná",
-    "deleted": "Faktúra bola úspešne vymazaná"
+    "deleted": "Faktúra bola úspešne odstránená",
+    "draftSaved": "Koncept uložený"
+  },
+  "estimate": {
+    "saved": "Cenová ponuka uložená",
+    "draftSaved": "Cenová ponuka uložená ako koncept"
   },
   "contact": {
-    "saved": "Kontakt bol úspešne uložený",
-    "deleted": "Kontakt bol úspešne odstránený"
+    "saved": "Klient uložený",
+    "updated": "Klient aktualizovaný",
+    "deleted": "Klient odstránený"
+  },
+  "item": {
+    "saved": "Položka uložená",
+    "updated": "Položka aktualizovaná",
+    "archived": "Položka archivovaná",
+    "unarchived": "Položka je opäť aktívna",
+    "deleted_one": "Položka odstránená",
+    "deleted_few": "{{count}} položky odstránené",
+    "deleted_many": "{{count}} položky odstránenej",
+    "deleted_other": "{{count}} položiek odstránených",
+    "deleteFailed": "Položku sa nepodarilo odstrániť",
+    "undo": "Späť",
+    "restored": "Položka obnovená"
   },
   "settings": {
-    "saved": "Všetky nastavenia boli úspešne uložené"
+    "saved": "Uložené"
   }
 }

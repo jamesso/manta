@@ -1,16 +1,31 @@
 {
+  "cancel": {
+    "label": "Batal",
+    "title": "Buang perubahan?",
+    "newMessage": "Dokumen ini belum disimpan. Data yang Anda masukkan akan hilang.",
+    "editMessage": "Perubahan yang belum disimpan akan hilang. Versi yang tersimpan tidak berubah.",
+    "confirm": "Buang",
+    "keep": "Lanjutkan Menyunting"
+  },
   "header": {
-    "new": "Buat Sebuah Faktur Baru",
+    "new": "Faktur Baru",
     "edit": "Sunting Faktur",
+    "newEstimate": "Penawaran Baru",
+    "editEstimate": "Sunting Penawaran",
+    "newCreditNote": "Nota Kredit Baru",
+    "editCreditNote": "Sunting Nota Kredit",
+    "template": "Templat Faktur Berulang",
     "btns": {
       "clear": "Bersihkan",
-      "update": "Pembaruan",
-      "saveAndPreview": "Simpan & Peninjauan"
+      "update": "Perbarui",
+      "saveAndPreview": "Simpan & Pratinjau",
+      "saveDraft": "Simpan Draf",
+      "issueCreditNote": "Terbitkan Nota Kredit"
     }
   },
   "settings": {
-    "name": "Pengaturan Bentuk",
-    "hint": "Perhatikan setiap bidang untuk membuatnya diperlukan dalam bentuk."
+    "name": "Pengaturan Formulir",
+    "hint": "Aktifkan bidang mana pun agar wajib diisi di formulir."
   },
   "fields": {
     "items": {
@@ -18,23 +33,41 @@
       "description": "Deskripsi",
       "price": "Harga",
       "quantity": "Kuantitas",
-      "add": "Tambahkan sebuah Item Baru"
+      "add": "Tambah Item Baru",
+      "amount": "Jumlah",
+      "reorder": "Ubah Urutan Item {{number}}",
+      "remove": "Hapus Item {{number}}",
+      "descriptionRow": "Deskripsi untuk item {{number}}",
+      "priceRow": "Harga untuk Item {{number}}",
+      "quantityRow": "Kuantitas untuk Item {{number}}",
+      "unit": "Satuan",
+      "saveAsItem": "Simpan Baris {{n}} sebagai Item",
+      "noMatch": "Tidak Ada Item Tersimpan yang Cocok",
+      "pickPlaceholder": "Pilih atau ketik…"
     },
     "recipient": {
       "name": "Penerima",
       "select": "Pilih",
-      "add": "Buat Baru"
+      "add": "Buat Baru",
+      "fullname": "Nama Lengkap",
+      "company": "Perusahaan",
+      "email": "Email",
+      "phone": "Telepon",
+      "pickPlaceholder": "Pilih klien atau ketik nama baru…",
+      "linked": "Klien tersimpan. Ketik nama lain untuk menambahkan klien baru.",
+      "noMatch": "Tidak Ada Klien yang Cocok",
+      "taxId": "ID Pajak / PPN"
     },
     "discount": {
       "name": "Diskon",
       "percentage": "Persentase",
-      "flat": "Tarif Tetap"
+      "flat": "Jumlah Tetap"
     },
     "dueDate": {
-      "name": "Batas Tanggal Terakhir",
-      "placeHolder": "Pilih sebuah tanggal kustom",
+      "name": "Jatuh Tempo",
+      "placeHolder": "Pilih tanggal kustom",
       "paymentTerms": {
-        "name": "Pilih sebuah jangka waktu pembayaran",
+        "name": "Pilih Jangka Waktu Pembayaran",
         "net7": {
           "label": "Net 7",
           "description": "Pembayaran tujuh hari setelah tanggal faktur"
@@ -55,15 +88,103 @@
           "label": "Net 90",
           "description": "Pembayaran 90 hari setelah tanggal faktur"
         }
-      }
+      },
+      "modeDate": "Tanggal",
+      "modeTerms": "Jangka Waktu Pembayaran",
+      "modeOffset": "Hari Setelah Terbit",
+      "offsetDays": "Hari Setelah Terbit",
+      "computed": "Jatuh tempo {{date}}"
     },
     "tax": {
       "name": "Pajak",
       "id": "ID Pajak",
       "method": "Metode",
-      "reverse": "Biaya Cadangan"
+      "reverse": "Reverse Charge",
+      "rate": "Pajak",
+      "rateRow": "Tarif Pajak untuk Item {{number}}",
+      "perLine": "Pajak per Baris",
+      "switchToLine": "Beralih ke Pajak per Baris",
+      "switchHint": "Total dihitung ulang dengan tarif pajak Anda.",
+      "on": "atas {{amount}}"
     },
     "note": "Catatan",
-    "currency": "Mata Uang"
+    "currency": "Mata Uang",
+    "issuedAt": "Tanggal Terbit",
+    "clearDate": "Hapus Tanggal",
+    "invoiceNumber": {
+      "label": "Nomor Faktur",
+      "hint": "Nomor berikutnya dari Pengaturan"
+    },
+    "estimateNumber": {
+      "label": "Nomor Penawaran",
+      "hint": "Nomor berikutnya dari Pengaturan"
+    },
+    "validUntil": "Berlaku Hingga"
+  },
+  "cards": {
+    "client": "Klien",
+    "details": "Detail",
+    "items": "Baris Item",
+    "adjustments": "Penyesuaian",
+    "notes": "Catatan"
+  },
+  "customize": {
+    "name": "Sesuaikan Bidang",
+    "saveAsDefault": "Simpan sebagai Standar"
+  },
+  "preview": {
+    "toggle": "Pratinjau",
+    "error": "Pratinjau tidak dapat ditampilkan.",
+    "overflow": "Faktur yang panjang mungkin terpotong di pratinjau langsung. Gunakan $t(form:header.btns.saveAndPreview) untuk halaman lengkap."
+  },
+  "footer": {
+    "saveTemplate": "Simpan Templat"
+  },
+  "totals": {
+    "subtotal": "Subtotal",
+    "discount": "Diskon",
+    "tax": "Pajak",
+    "total": "Total",
+    "amountPaid": "Jumlah Dibayar",
+    "balanceDue": "Sisa Tagihan"
+  },
+  "errors": {
+    "summary": "Perbaiki bidang yang ditandai.",
+    "noItems": "Tambahkan minimal satu item.",
+    "draftEmpty": "Tambahkan klien atau item sebelum menyimpan draf.",
+    "offsetDays": "Masukkan jumlah hari dari 0 hingga 365.",
+    "recipientRequired": "Pilih klien.",
+    "partialContactSave": "Faktur disimpan, tetapi kontak tidak dapat disimpan.",
+    "partialNumberingSave": "Faktur disimpan, tetapi nomor faktur berikutnya tidak dapat disimpan.",
+    "totalBelowPaid": "Total baru ({{total}}) lebih kecil dari jumlah yang sudah dibayar ({{paid}}). Hapus pembayaran terlebih dahulu.",
+    "currencyLocked": "Faktur ini sudah memiliki pembayaran. Mata uangnya tidak dapat diubah.",
+    "taxRateRequired": "Pilih tarif pajak untuk baris ini.",
+    "discountTooLarge": "Diskon terlalu besar untuk faktur ini.",
+    "exemptionReasonRequired": "Masukkan alasan pembebasan.",
+    "conflictingExemptionReasons": "Baris pajak dalam grup yang sama harus memiliki alasan pembebasan yang sama.",
+    "validUntilBeforeIssue": "Tanggal berlaku hingga harus sama dengan atau setelah tanggal terbit",
+    "creditedMissing": "Faktur yang dikreditkan tidak ditemukan.",
+    "creditZero": "Jumlah kredit harus lebih dari 0.",
+    "creditCurrency": "Mata uang nota kredit harus sama dengan faktur.",
+    "creditExceeds": "Kredit melebihi jumlah yang masih dapat dikreditkan.",
+    "belowCredited": "Total tidak boleh kurang dari pembayaran ditambah nota kredit yang diterbitkan.",
+    "creditOriginalNotCreditable": "Faktur ini tidak dapat menerima nota kredit dalam status saat ini."
+  },
+  "convertedFrom": "Dibuat dari Penawaran {{number}}",
+  "creditNote": {
+    "credits": "Mengkreditkan Faktur {{number}} tanggal {{date}}",
+    "remaining": "Sisa"
+  },
+  "numbering": {
+    "title": "Penomoran Faktur",
+    "prefix": "Awalan",
+    "next": "Nomor Berikutnya",
+    "padding": "Digit",
+    "format": "Format",
+    "formats": {
+      "sequential": "Nomor Berurutan",
+      "random": "ID Acak"
+    },
+    "sample": "Contoh: {{number}}"
   }
 }

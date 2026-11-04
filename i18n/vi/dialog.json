@@ -2,18 +2,18 @@
   "appUpdate": {
     "available": {
       "title": "Có bản cập nhật mới",
-      "message": "Bạn có muốn bắt đầu tải bản cập nhật luôn không?"
+      "message": "Bạn có muốn bắt đầu tải bản cập nhật ở chế độ nền không?"
     },
     "noUpdate": {
       "title": "Không có bản cập nhật mới",
       "message": "Bạn đang sử dụng phiên bản mới nhất của ứng dụng này"
     },
     "error": {
-      "title": "Đã xảy ra lỗi chưa xác định"
+      "title": "Đã xảy ra lỗi"
     },
     "downloaded": {
-      "title": "Cập nhật đã được tải xong",
-      "message": "Bạn có muốn thoát và nâng cấp ứng dụng luôn không?",
+      "title": "Đã tải xong bản cập nhật",
+      "message": "Bạn có muốn thoát và nâng cấp ứng dụng ngay bây giờ không?",
       "quitNow": "Thoát ngay",
       "later": "Để sau"
     }
@@ -22,27 +22,27 @@
     "title": "Không có quyền truy cập",
     "message": "Vui lòng chọn một thư mục khác"
   },
-  "errorBoundary": "Đã xảy ra lỗi chưa xác định",
+  "errorBoundary": "Đã xảy ra lỗi",
   "deleteInvoice": {
     "title": "Xóa bỏ hóa đơn này?",
-    "message": "Hóa đơn sẽ được xoá bỏ vĩnh viễn khỏi cơ sở dữ liệu"
+    "message": "Hóa đơn sẽ bị xóa vĩnh viễn khỏi cơ sở dữ liệu"
   },
   "deleteContact": {
     "title": "Xóa bỏ khách hàng này?",
     "message": "Khách hàng sẽ bị xóa vĩnh viễn khỏi cơ sở dữ liệu"
   },
   "fileTypeErr": {
-    "title": "Vui lòng chọn một file khác"
+    "title": "Vui lòng chọn một tệp khác"
   },
   "validation": {
     "invoiceID": {
-      "title": "Mã hoá đơn không hợp lệ",
-      "message": "Mã hoá đơn không được để trống"
+      "title": "Mã hóa đơn không hợp lệ",
+      "message": "Mã hóa đơn không được để trống"
     },
     "recipient": {
       "empty": {
-        "title": "Thông tin không hợp lệ",
-        "message": "Thông tin liên hệ không được để trống"
+        "title": "Khách hàng không hợp lệ",
+        "message": "Khách hàng không được để trống"
       },
       "requiredFields": {
         "title": "Các trường thông tin bắt buộc",
@@ -68,17 +68,17 @@
       }
     },
     "dueDate": {
-      "title": "Ngày không hợp lệ",
+      "title": "Hạn thanh toán không hợp lệ",
       "message": "Hãy chọn một ngày"
     },
     "currency": {
       "fraction": {
-        "title": "Phân số không hợp lệ",
-        "message": "Phân số thập phân phải bằng hoặc lớn hơn 0"
+        "title": "Số chữ số thập phân không hợp lệ",
+        "message": "Số chữ số thập phân phải lớn hơn hoặc bằng 0"
       }
     },
     "discount": {
-      "title": "Khuyến mãi không hợp lệ",
+      "title": "Giảm giá không hợp lệ",
       "message": "Số tiền giảm giá phải lớn hơn 0"
     },
     "tax": {
@@ -86,8 +86,8 @@
       "message": "Số tiền thuế phải lớn hơn 0"
     },
     "note": {
-      "title": "Chú thích không hợp lệ",
-      "message": "Nội dung chú thích không được để trống"
+      "title": "Ghi chú không hợp lệ",
+      "message": "Nội dung ghi chú không được để trống"
     }
   }
 }

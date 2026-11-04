@@ -1,0 +1,100 @@
+{
+  "nav": {
+    "newInvoice": "新建发票",
+    "search": "搜索",
+    "invoices": "发票",
+    "estimates": "报价单",
+    "recurring": "定期发票",
+    "clients": "客户",
+    "items": "项目",
+    "dashboard": "仪表板",
+    "settings": "设置",
+    "help": "帮助",
+    "shortcuts": "键盘快捷键",
+    "tutorial": "显示教程",
+    "learnMore": "了解更多",
+    "toggleSidebar": "切换侧边栏",
+    "searchPlaceholder": "搜索或跳转到…",
+    "library": "资料库"
+  },
+  "titles": {
+    "newInvoice": "新建发票",
+    "editInvoice": "编辑发票",
+    "newEstimate": "新建报价单",
+    "editEstimate": "编辑报价单",
+    "dashboard": "仪表板"
+  },
+  "update": {
+    "check": "检查更新",
+    "checking": "正在检查更新…",
+    "downloading": "正在下载更新 {{percent}}%"
+  },
+  "palette": {
+    "title": "命令面板",
+    "description": "搜索页面、发票、报价单、客户、项目和操作",
+    "placeholder": "输入命令或搜索…",
+    "empty": "未找到结果。",
+    "goTo": "跳转到",
+    "actions": "操作",
+    "newEstimate": "新建报价单",
+    "invoices": "发票",
+    "estimates": "报价单",
+    "clients": "客户",
+    "toggleTheme": "切换主题",
+    "themeChanged": "主题已设为{{theme}}",
+    "items": "项目",
+    "showAll": "在{{page}}中查看所有“{{query}}”"
+  },
+  "theme": {
+    "system": "跟随系统",
+    "light": "浅色",
+    "dark": "深色"
+  },
+  "shortcuts": {
+    "title": "键盘快捷键",
+    "groups": {
+      "general": "常规",
+      "invoice": "发票",
+      "go": "跳转",
+      "help": "帮助"
+    },
+    "items": {
+      "palette": "命令面板",
+      "sidebar": "切换侧边栏",
+      "settings": "设置",
+      "shortcuts": "键盘快捷键",
+      "checkUpdates": "检查更新",
+      "quit": "退出",
+      "newInvoice": "新建发票",
+      "save": "保存发票",
+      "reset": "重置表单",
+      "addItem": "添加明细行",
+      "toggleSettings": "切换表单设置",
+      "dueDate": "切换截止日期",
+      "currency": "切换币种",
+      "vat": "切换增值税",
+      "discount": "切换折扣",
+      "note": "切换备注",
+      "invoices": "发票",
+      "dashboard": "仪表板",
+      "clients": "客户",
+      "tutorial": "显示教程"
+    }
+  },
+  "newInvoice": {
+    "confirmTitle": "要停止编辑此发票吗？",
+    "confirmMessage": "此发票未保存的更改将会丢失。已保存的发票不会改变。",
+    "confirm": "新建发票",
+    "cancel": "继续编辑",
+    "template": {
+      "confirmTitle": "要停止编辑此定期模板吗？",
+      "confirmMessage": "此模板未保存的更改将会丢失。已保存的模板不会改变。"
+    }
+  },
+  "error": {
+    "title": "出现问题",
+    "message": "请在 GitHub 上报告此问题：https://github.com/jamesso/manta/issues",
+    "reload": "重新加载",
+    "details": "详细信息"
+  }
+}

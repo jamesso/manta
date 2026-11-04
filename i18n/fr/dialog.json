@@ -6,23 +6,23 @@
     },
     "noUpdate": {
       "title": "Aucune mise à jour disponible",
-      "message": "Vous utilisez la dernière version de l'application"
+      "message": "Vous utilisez la dernière version de l’application"
     },
     "error": {
-      "title": "Une erreur s'est produite"
+      "title": "Une erreur s’est produite"
     },
     "downloaded": {
       "title": "Mise à jour téléchargée",
-      "message": "Souhaitez-vous quitter et mettre l'application à jour maintenant ?",
+      "message": "Souhaitez-vous quitter et mettre l’application à jour maintenant ?",
       "quitNow": "Quitter maintenant",
       "later": "Plus tard"
     }
   },
   "noAccess": {
     "title": "Aucune autorisation d’accès",
-    "message": "Veuillez choisir un autre répertoire"
+    "message": "Veuillez choisir un autre dossier"
   },
-  "errorBoundary": "Une erreur s'est produite",
+  "errorBoundary": "Une erreur s’est produite",
   "deleteInvoice": {
     "title": "Supprimer cette facture ?",
     "message": "La facture sera supprimée définitivement"
@@ -36,13 +36,13 @@
   },
   "validation": {
     "invoiceID": {
-      "title": "ID de facture invalide",
-      "message": "ID de facture ne peut pas être vide"
+      "title": "Numéro de facture invalide",
+      "message": "Le numéro de facture ne peut pas être vide"
     },
     "recipient": {
       "empty": {
         "title": "Contact invalide",
-        "message": "Contact ne peut pas être vide"
+        "message": "Le contact ne peut pas être vide"
       },
       "requiredFields": {
         "title": "Champs requis",
@@ -73,8 +73,8 @@
     },
     "currency": {
       "fraction": {
-        "title": "Fraction non valide",
-        "message": "La Fraction décimale doit être supérieure ou égale à zéro"
+        "title": "Nombre de décimales invalide",
+        "message": "Le nombre de décimales doit être supérieur ou égal à zéro"
       }
     },
     "discount": {
@@ -83,11 +83,11 @@
     },
     "tax": {
       "title": "Taxe invalide",
-      "message": "Le montant de la TVA doit être supérieur à zéro"
+      "message": "Le montant de la taxe doit être supérieur à zéro"
     },
     "note": {
       "title": "Remarque non valide",
-      "message": "Le contenu des remarques ne peut pas être vide"
+      "message": "Le contenu de la remarque ne peut pas être vide"
     }
   }
 }

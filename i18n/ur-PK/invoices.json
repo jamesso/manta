@@ -1,23 +1,233 @@
 {
   "header": {
-    "name": "تمام انوائسز"
+    "name": "انوائسز",
+    "count_one": "{{count}} انوائس",
+    "count_other": "{{count}} انوائسز"
+  },
+  "newInvoice": "نئی انوائس",
+  "search": {
+    "label": "انوائسز فلٹر کریں",
+    "placeholder": "انوائسز فلٹر کریں…"
+  },
+  "tabs": {
+    "all": "تمام",
+    "draft": "ڈرافٹ",
+    "outstanding": "واجب الادا",
+    "overdue": "زائد المیعاد",
+    "paid": "ادا شدہ",
+    "closed": "بند",
+    "creditNotes": "کریڈٹ نوٹس"
+  },
+  "columns": {
+    "select": "انوائس {{number}} منتخب کریں",
+    "selectAll": "تمام انوائسز منتخب کریں",
+    "number": "نمبر",
+    "client": "کلائنٹ",
+    "issued": "جاری کردہ",
+    "due": "واجب الادا",
+    "amount": "رقم",
+    "status": "اسٹیٹس",
+    "actions": "افعال"
+  },
+  "number": {
+    "none": "ابھی کوئی نمبر نہیں"
+  },
+  "due": {
+    "none": "کوئی آخری تاریخ نہیں",
+    "today": "آج واجب الادا",
+    "inDays_one": "{{count}} دن میں واجب الادا",
+    "inDays_other": "{{count}} دن میں واجب الادا",
+    "overdueDays_one": "{{count}} دن زائد المیعاد",
+    "overdueDays_other": "{{count}} دن زائد المیعاد"
+  },
+  "actions": {
+    "open": "انوائس کے افعال",
+    "preview": "پیش نظارہ",
+    "edit": "ترمیم",
+    "duplicate": "نقل بنائیں",
+    "makeRecurring": "مکرر بنائیں",
+    "createCreditNote": "کریڈٹ نوٹ بنائیں",
+    "recordPayment": "ادائیگی درج کریں…",
+    "markPaidInFull": "مکمل ادا شدہ کے طور پر نشان زد کریں",
+    "setStatus": "اسٹیٹس مقرر کریں",
+    "delete": "حذف کریں"
+  },
+  "bulk": {
+    "markPaidInFull": "مکمل ادا شدہ کے طور پر نشان زد کریں"
+  },
+  "empty": {
+    "title": "ابھی کوئی انوائس نہیں",
+    "description": "اپنی پہلی انوائس بنائیں۔ وہ یہاں نظر آئے گی۔",
+    "noResults": "کوئی مماثل انوائس نہیں",
+    "noResultsDescription": "کوئی اور تلاش یا فلٹر آزمائیں۔",
+    "clearFilters": "فلٹرز صاف کریں"
+  },
+  "sheet": {
+    "title": "انوائس {{number}}",
+    "client": "کلائنٹ",
+    "issued": "جاری کردہ",
+    "due": "واجب الادا",
+    "currency": "کرنسی",
+    "items": "آئٹمز",
+    "description": "تفصیل",
+    "quantity": "مقدار",
+    "price": "قیمت",
+    "subtotal": "ذیلی میزان",
+    "discount": "رعایت",
+    "tax": "ٹیکس",
+    "total": "کل",
+    "note": "نوٹ",
+    "fromEstimate": "تخمینہ {{number}} سے بنائی گئی",
+    "credited": "کریڈٹ شدہ",
+    "balanceDue": "واجب الادا بقایا",
+    "refundDue": "واجب الادا رقم واپسی",
+    "creditNotes": "کریڈٹ نوٹس",
+    "einvoiceTitle": "ای انوائس"
+  },
+  "toast": {
+    "deleted_one": "انوائس حذف ہو گئی",
+    "deleted_other": "{{count}} انوائسز حذف ہو گئیں",
+    "deleteFailed_one": "{{count}} انوائس حذف نہیں ہو سکی",
+    "deleteFailed_other": "{{count}} انوائسز حذف نہیں ہو سکیں",
+    "undo": "واپس کریں",
+    "restored_one": "انوائس بحال ہو گئی",
+    "restored_other": "{{count}} انوائسز بحال ہو گئیں",
+    "updated_one": "انوائس اپ ڈیٹ ہو گئی",
+    "updated_other": "{{count}} انوائسز اپ ڈیٹ ہو گئیں",
+    "notFound": "انوائس نہیں ملی"
+  },
+  "nav": {
+    "overdueBadge_one": "{{count}} زائد المیعاد انوائس",
+    "overdueBadge_other": "{{count}} زائد المیعاد انوائسز"
   },
   "fields": {
     "client": "کلائنٹ",
-    "invoiceID": "انوئس آئی ڈی",
-    "createdDate": "پر بنایا گیا",
+    "invoiceID": "انوائس آئی ڈی",
+    "createdDate": "بنانے کی تاریخ",
     "dueDate": "آخری تاریخ",
-    "total": "کل مقدار"
+    "total": "کل رقم"
   },
   "status": {
-    "pending": "زیرالتوا",
+    "draft": "ڈرافٹ",
+    "pending": "زیر التوا",
+    "partial": "جزوی ادائیگی",
+    "overdue": "زائد المیعاد",
     "paid": "ادا شدہ",
-    "refunded": "واپس کر دیا گیا",
-    "cancelled": "کینسل شدہ"
+    "refunded": "واپس شدہ",
+    "cancelled": "منسوخ شدہ"
+  },
+  "payments": {
+    "title": "ادائیگیاں",
+    "empty": "کوئی ادائیگی درج نہیں۔",
+    "amountPaid": "ادا شدہ رقم",
+    "balanceDue": "واجب الادا بقایا",
+    "partiallyPaid": "جزوی ادائیگی",
+    "balanceShort": "{{amount}} واجب الادا",
+    "remove": "{{date}} کی {{amount}} کی ادائیگی ہٹائیں",
+    "methods": {
+      "bank": "بینک ٹرانسفر",
+      "cash": "نقد",
+      "check": "چیک",
+      "card": "کارڈ",
+      "paypal": "PayPal",
+      "other": "دیگر"
+    },
+    "dialog": {
+      "title": "ادائیگی درج کریں",
+      "description": "انوائس {{number}} · واجب الادا بقایا {{balance}}",
+      "amount": "رقم",
+      "payFull": "پورا بقایا ادا کریں",
+      "date": "ادائیگی کی تاریخ",
+      "method": "طریقہ",
+      "note": "نوٹ",
+      "notePlaceholder": "حوالہ یا تبصرہ (اختیاری)",
+      "submit": "ادائیگی درج کریں",
+      "cancel": "منسوخ کریں"
+    },
+    "errors": {
+      "amountInvalid": "رقم درج کریں، مثال کے طور پر {{example}}۔",
+      "amountPositive": "رقم 0 سے زیادہ ہونی چاہیے۔",
+      "tooManyDecimals_zero": "صرف پورے اعداد استعمال کریں۔",
+      "tooManyDecimals_one": "زیادہ سے زیادہ {{count}} اعشاری ہندسہ استعمال کریں۔",
+      "tooManyDecimals_other": "زیادہ سے زیادہ {{count}} اعشاری ہندسے استعمال کریں۔",
+      "overpayment": "رقم واجب الادا بقایا ({{balance}}) سے زیادہ ہے۔",
+      "dateRequired": "ادائیگی کی تاریخ منتخب کریں۔",
+      "dateFuture": "ادائیگی کی تاریخ مستقبل کی نہیں ہو سکتی۔",
+      "draft": "ڈرافٹ پر ادائیگی درج نہیں ہو سکتی۔ پہلے انوائس محفوظ کریں۔",
+      "closed": "واپس شدہ یا منسوخ شدہ انوائسز پر ادائیگی درج نہیں ہو سکتی۔ پہلے اسٹیٹس کو زیر التوا پر سیٹ کریں۔",
+      "nothingDue": "اس انوائس پر کوئی بقایا واجب الادا نہیں۔",
+      "duplicate": "یہ ادائیگی پہلے سے درج ہے۔",
+      "notFound": "انوائس یا ادائیگی نہیں ملی۔",
+      "draftWithPayments": "ادائیگیوں والی انوائس ڈرافٹ نہیں بن سکتی۔ پہلے ادائیگیاں ہٹائیں۔"
+    },
+    "toast": {
+      "recorded_one": "ادائیگی درج ہو گئی",
+      "recorded_other": "{{count}} ادائیگیاں درج ہو گئیں",
+      "skipped_one": "{{count}} انوائس چھوڑ دی گئی: {{reason}}",
+      "skipped_other": "{{count}} انوائسز چھوڑ دی گئیں: {{reason}}",
+      "removed": "ادائیگی ہٹا دی گئی",
+      "undo": "واپس کریں",
+      "stillPaid": "ادائیگیاں کل رقم پوری کرتی ہیں، اس لیے انوائس ادا شدہ رہے گی۔"
+    }
   },
   "btns": {
     "view": "دیکھیں",
     "edit": "ترمیم",
-    "markAsPaid": "اداشدہ کے طور پر نشان زدہ کریں"
+    "markAsPaid": "ادا شدہ کے طور پر نشان زد کریں"
+  },
+  "creditNotes": {
+    "status": {
+      "draft": "ڈرافٹ",
+      "issued": "جاری شدہ",
+      "void": "کالعدم"
+    },
+    "columns": {
+      "credits": "کریڈٹ برائے"
+    },
+    "sheet": {
+      "title": "کریڈٹ نوٹ {{number}}",
+      "credits": "انوائس {{number}} مورخہ {{date}} کا کریڈٹ",
+      "totalCredit": "کل کریڈٹ"
+    },
+    "actions": {
+      "issue": "جاری کریں",
+      "void": "کالعدم کریں",
+      "edit": "ترمیم",
+      "delete": "حذف کریں",
+      "preview": "پیش نظارہ"
+    },
+    "void": {
+      "title": "کریڈٹ نوٹ {{number}} کالعدم کریں؟",
+      "description": "یہ عمل واپس نہیں ہو سکتا۔ کریڈٹ کی گئی رقم انوائس پر واپس چلی جائے گی۔",
+      "confirm": "کالعدم کریں"
+    },
+    "errors": {
+      "creditedMissing": "کریڈٹ کی جانے والی انوائس موجود نہیں۔",
+      "creditZero": "کریڈٹ کی رقم 0 سے زیادہ ہونی چاہیے۔",
+      "creditCurrency": "کریڈٹ نوٹ کی کرنسی انوائس جیسی ہونی چاہیے۔",
+      "creditExceeds": "کریڈٹ اس رقم سے زیادہ ہے جو ابھی کریڈٹ کی جا سکتی ہے۔",
+      "syncFailed": "کریڈٹ نوٹ محفوظ ہو گیا، لیکن انوائس اپ ڈیٹ نہیں ہو سکی۔",
+      "updateFailed": "کریڈٹ شدہ انوائس اپ ڈیٹ نہیں ہو سکی۔",
+      "repairFailed": "کریڈٹ کے بعد انوائس کا اسٹیٹس درست نہیں ہو سکا۔",
+      "notAllowed": "اس انوائس کے لیے کریڈٹ نوٹ نہیں بنایا جا سکتا۔",
+      "void": "یہ کریڈٹ نوٹ کالعدم ہے۔",
+      "draftVoid": "ڈرافٹ کریڈٹ نوٹ کالعدم نہیں کیے جا سکتے۔"
+    },
+    "toast": {
+      "issued": "کریڈٹ نوٹ جاری ہو گیا",
+      "voided": "کریڈٹ نوٹ کالعدم ہو گیا",
+      "hasCreditNotes_one": "اس انوائس کا ایک کریڈٹ نوٹ ہے۔ پہلے اسے ہٹائیں یا کالعدم کریں۔",
+      "hasCreditNotes_other": "اس انوائس کے کریڈٹ نوٹس ہیں۔ پہلے انہیں ہٹائیں یا کالعدم کریں۔",
+      "issuedCreditNote_one": "اس انوائس کا ایک جاری شدہ کریڈٹ نوٹ ہے۔",
+      "issuedCreditNote_other": "اس انوائس کے جاری شدہ کریڈٹ نوٹس ہیں۔"
+    },
+    "empty": {
+      "title": "ابھی کوئی کریڈٹ نوٹ نہیں",
+      "description": "یہاں دیکھنے کے لیے کسی انوائس سے کریڈٹ نوٹ بنائیں۔"
+    }
+  },
+  "views": {
+    "invoices": "انوائسز",
+    "creditNotes": "کریڈٹ نوٹس"
   }
 }

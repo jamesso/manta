@@ -4,7 +4,7 @@
     "company": "公司",
     "address": "地址",
     "email": "电子邮件",
-    "phone": "电话号码",
+    "phone": "电话",
     "website": "网站"
   },
   "save": "保存",
@@ -12,5 +12,80 @@
   "default": "默认",
   "saveAsDefault": "保存为默认？",
   "yes": "是",
-  "noThanks": "不，谢谢"
+  "noThanks": "不，谢谢",
+  "ok": "确定",
+  "cancel": "取消",
+  "close": "关闭",
+  "edit": "编辑",
+  "delete": "删除",
+  "einvoice": {
+    "readyHint": "样本检查未发现个人资料或银行账户问题。",
+    "copyClientDetails": "复制客户详情",
+    "fixGroups": {
+      "profile": "个人资料",
+      "bank": "银行账户",
+      "client": "客户",
+      "invoice": "发票",
+      "taxRates": "税率"
+    },
+    "issues": {
+      "DOC_TYPE_UNSUPPORTED": "报价单不支持电子发票。请修改发票的单据类型。",
+      "NOT_FINAL": "导出前请先开具或定稿发票。",
+      "NUMBER_MISSING": "请为发票添加发票编号。",
+      "CURRENCY_FRACTION_UNSUPPORTED": "此币种的小数位超过两位。请更改发票的币种。",
+      "TAX_PER_LINE_REQUIRED": "请在 设置 › 发票 › 税率 中切换为按行计税，并为每一行设置类别。",
+      "CATEGORY_NOT_SUPPORTED": "请在 设置 › 发票 › 税率 中删除不支持的税务类别。",
+      "RATE_CATEGORY_MISMATCH": "请在 设置 › 发票 › 税率 中修正税率与类别的对应关系。",
+      "OUT_OF_SCOPE_MIXED": "不征税项目不能与其他类别混用。",
+      "EXEMPTION_REASON_MISSING": "请在 设置 › 发票 › 税率 中添加免税原因。",
+      "SELLER_NAME_MISSING": "请在 设置 › 个人资料 中添加法定名称或公司名称。",
+      "SELLER_ADDRESS_INCOMPLETE": "请在 设置 › 个人资料 › 地址 中填写完整的结构化地址。",
+      "SELLER_COUNTRY_MISSING": "请在 设置 › 个人资料 › 地址 中添加国家/地区。",
+      "SELLER_TAX_ID_MISSING": "请在 设置 › 个人资料 中添加税号或增值税号。",
+      "SELLER_VAT_ID_REQUIRED": "请在 设置 › 个人资料 中添加增值税号。",
+      "BUYER_NAME_MISSING": "请在“客户”中添加客户名称。",
+      "BUYER_COUNTRY_MISSING": "请在 客户 › 地址 中添加客户所在国家/地区。",
+      "BUYER_ADDRESS_INCOMPLETE": "请在 客户 › 地址 中添加客户的邮政编码和城市。",
+      "BUYER_VAT_ID_REQUIRED": "请为客户添加有效的买方增值税号。",
+      "BUYER_VAT_ID_FORMAT": "客户的税号看起来不是增值税号。",
+      "DUE_DATE_MISSING": "请为发票添加截止日期。",
+      "PAYMENT_ACCOUNT_MISSING": "请在 设置 › 个人资料 › 银行账户 中添加银行 IBAN。",
+      "IBAN_INVALID": "请在 设置 › 个人资料 › 银行账户 中修正 IBAN。",
+      "BIC_INVALID": "请在 设置 › 个人资料 › 银行账户 中修正 BIC。",
+      "BUYER_REFERENCE_MISSING": "请为客户添加买方参考号（Leitweg-ID）。",
+      "BUYER_REFERENCE_OFF": "XRechnung 需要买方参考号。请在电子发票设置中开启“买方参考号”，或改用 Factur-X。",
+      "LEITWEG_CHECK_DIGITS": "客户的 Leitweg-ID 校验位似乎有误。",
+      "SELLER_CONTACT_INCOMPLETE": "请在 设置 › 个人资料 中添加联系人姓名、电话和电子邮件。",
+      "ELECTRONIC_ADDRESS_MISSING": "请添加卖方和买方的电子邮件地址。",
+      "CREDIT_NOTE_REFERENCE_MISSING": "请在贷项通知单上关联被冲销的发票。",
+      "ARITHMETIC_MISMATCH": "发票合计不符合 EN 16931 规则。请检查行税额和金额。"
+    }
+  },
+  "filters": {
+    "status": "状态",
+    "client": "客户",
+    "reset": "重置",
+    "clear": "清除筛选",
+    "noOptions": "无匹配项。",
+    "selected_other": "已选 {{count}} 项",
+    "clearAll": "清除所有筛选",
+    "noResultsDescription": "请尝试其他搜索或筛选条件。",
+    "unit": "单位",
+    "balance": "余额"
+  },
+  "table": {
+    "selectAll": "选择所有行",
+    "selectRow": "选择{{name}}",
+    "range": "第 {{first}}–{{last}} 项，共 {{total}} 项",
+    "rowsPerPage": "每页行数",
+    "page": "第 {{page}} 页，共 {{count}} 页",
+    "previousPage": "上一页",
+    "nextPage": "下一页"
+  },
+  "bulk": {
+    "label": "批量操作",
+    "selected_other": "已选 {{count}} 项",
+    "clear": "取消选择"
+  },
+  "client": "客户"
 }

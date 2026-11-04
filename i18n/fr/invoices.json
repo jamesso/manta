@@ -1,23 +1,246 @@
 {
   "header": {
-    "name": "Toutes les factures"
+    "name": "Factures",
+    "count_one": "{{count}} facture",
+    "count_many": "{{count}} factures",
+    "count_other": "{{count}} factures"
+  },
+  "newInvoice": "Nouvelle facture",
+  "search": {
+    "label": "Filtrer les factures",
+    "placeholder": "Filtrer les factures…"
+  },
+  "tabs": {
+    "all": "Toutes",
+    "draft": "Brouillons",
+    "outstanding": "Impayées",
+    "overdue": "En retard",
+    "paid": "Payées",
+    "closed": "Clôturées",
+    "creditNotes": "Avoirs"
+  },
+  "columns": {
+    "select": "Sélectionner la facture {{number}}",
+    "selectAll": "Sélectionner toutes les factures",
+    "number": "Numéro",
+    "client": "Client",
+    "issued": "Émise le",
+    "due": "Échéance",
+    "amount": "Montant",
+    "status": "Statut",
+    "actions": "Actions"
+  },
+  "number": {
+    "none": "Pas encore de numéro"
+  },
+  "due": {
+    "none": "Aucune échéance",
+    "today": "Échéance aujourd’hui",
+    "inDays_one": "Échéance dans {{count}} jour",
+    "inDays_many": "Échéance dans {{count}} jours",
+    "inDays_other": "Échéance dans {{count}} jours",
+    "overdueDays_one": "En retard de {{count}} jour",
+    "overdueDays_many": "En retard de {{count}} jours",
+    "overdueDays_other": "En retard de {{count}} jours"
+  },
+  "actions": {
+    "open": "Actions de la facture",
+    "preview": "Aperçu",
+    "edit": "Modifier",
+    "duplicate": "Dupliquer",
+    "makeRecurring": "Rendre récurrente",
+    "createCreditNote": "Créer un avoir",
+    "recordPayment": "Enregistrer un paiement…",
+    "markPaidInFull": "Marquer comme entièrement payée",
+    "setStatus": "Changer le statut",
+    "delete": "Supprimer"
+  },
+  "bulk": {
+    "markPaidInFull": "Marquer comme entièrement payées"
+  },
+  "empty": {
+    "title": "Aucune facture pour le moment",
+    "description": "Créez votre première facture. Elle s’affichera ici.",
+    "noResults": "Aucune facture correspondante",
+    "noResultsDescription": "Essayez une autre recherche ou un autre filtre.",
+    "clearFilters": "Effacer les filtres"
+  },
+  "sheet": {
+    "title": "Facture {{number}}",
+    "client": "Client",
+    "issued": "Émise le",
+    "due": "Échéance",
+    "currency": "Devise",
+    "items": "Articles",
+    "description": "Description",
+    "quantity": "Qté",
+    "price": "Prix",
+    "subtotal": "Sous-total",
+    "discount": "Remise",
+    "tax": "Taxe",
+    "total": "Total",
+    "note": "Remarque",
+    "fromEstimate": "Créée à partir du devis {{number}}",
+    "credited": "Crédité",
+    "balanceDue": "Solde dû",
+    "refundDue": "Remboursement dû",
+    "creditNotes": "Avoirs",
+    "einvoiceTitle": "Facture électronique"
+  },
+  "toast": {
+    "deleted_one": "Facture supprimée",
+    "deleted_many": "{{count}} factures supprimées",
+    "deleted_other": "{{count}} factures supprimées",
+    "deleteFailed_one": "{{count}} facture n’a pas pu être supprimée",
+    "deleteFailed_many": "{{count}} factures n’ont pas pu être supprimées",
+    "deleteFailed_other": "{{count}} factures n’ont pas pu être supprimées",
+    "undo": "Annuler",
+    "restored_one": "Facture restaurée",
+    "restored_many": "{{count}} factures restaurées",
+    "restored_other": "{{count}} factures restaurées",
+    "updated_one": "Facture mise à jour",
+    "updated_many": "{{count}} factures mises à jour",
+    "updated_other": "{{count}} factures mises à jour",
+    "notFound": "Facture introuvable"
+  },
+  "nav": {
+    "overdueBadge_one": "{{count}} facture en retard",
+    "overdueBadge_many": "{{count}} factures en retard",
+    "overdueBadge_other": "{{count}} factures en retard"
   },
   "fields": {
     "client": "Client",
-    "invoiceID": "Numero de la facture",
+    "invoiceID": "Numéro de facture",
     "createdDate": "Créée le",
     "dueDate": "Échéance",
-    "total": "Valeur Totale"
+    "total": "Montant total"
   },
   "status": {
+    "draft": "Brouillon",
     "pending": "En attente",
+    "partial": "Partiellement payée",
+    "overdue": "En retard",
     "paid": "Payée",
     "refunded": "Remboursée",
     "cancelled": "Annulée"
+  },
+  "payments": {
+    "title": "Paiements",
+    "empty": "Aucun paiement enregistré.",
+    "amountPaid": "Montant payé",
+    "balanceDue": "Solde dû",
+    "partiallyPaid": "Partiellement payée",
+    "balanceShort": "{{amount}} dû",
+    "remove": "Supprimer le paiement de {{amount}} du {{date}}",
+    "methods": {
+      "bank": "Virement bancaire",
+      "cash": "Espèces",
+      "check": "Chèque",
+      "card": "Carte",
+      "paypal": "PayPal",
+      "other": "Autre"
+    },
+    "dialog": {
+      "title": "Enregistrer un paiement",
+      "description": "Facture {{number}} · Solde dû {{balance}}",
+      "amount": "Montant",
+      "payFull": "Payer le solde total",
+      "date": "Date du paiement",
+      "method": "Moyen de paiement",
+      "note": "Note",
+      "notePlaceholder": "Référence ou remarque (facultatif)",
+      "submit": "Enregistrer le paiement",
+      "cancel": "Annuler"
+    },
+    "errors": {
+      "amountInvalid": "Saisissez un montant, par exemple {{example}}.",
+      "amountPositive": "Le montant doit être supérieur à 0.",
+      "tooManyDecimals_zero": "Utilisez uniquement des nombres entiers.",
+      "tooManyDecimals_one": "Utilisez au plus {{count}} décimale.",
+      "tooManyDecimals_many": "Utilisez au plus {{count}} décimales.",
+      "tooManyDecimals_other": "Utilisez au plus {{count}} décimales.",
+      "overpayment": "Le montant dépasse le solde dû ({{balance}}).",
+      "dateRequired": "Choisissez une date de paiement.",
+      "dateFuture": "La date de paiement ne peut pas être dans le futur.",
+      "draft": "Les brouillons ne peuvent pas recevoir de paiements. Enregistrez d’abord la facture.",
+      "closed": "Les factures remboursées ou annulées ne peuvent pas recevoir de paiements. Passez d’abord le statut à En attente.",
+      "nothingDue": "Cette facture n’a aucun solde dû.",
+      "duplicate": "Ce paiement est déjà enregistré.",
+      "notFound": "La facture ou le paiement est introuvable.",
+      "draftWithPayments": "Une facture avec des paiements ne peut pas redevenir un brouillon. Supprimez d’abord les paiements."
+    },
+    "toast": {
+      "recorded_one": "Paiement enregistré",
+      "recorded_many": "{{count}} paiements enregistrés",
+      "recorded_other": "{{count}} paiements enregistrés",
+      "skipped_one": "{{count}} facture ignorée : {{reason}}",
+      "skipped_many": "{{count}} factures ignorées : {{reason}}",
+      "skipped_other": "{{count}} factures ignorées : {{reason}}",
+      "removed": "Paiement supprimé",
+      "undo": "Annuler",
+      "stillPaid": "Les paiements couvrent le total, la facture reste donc payée."
+    }
   },
   "btns": {
     "view": "Visualiser",
     "edit": "Modifier",
     "markAsPaid": "Marquer comme payée"
+  },
+  "creditNotes": {
+    "status": {
+      "draft": "Brouillon",
+      "issued": "Émis",
+      "void": "Annulé"
+    },
+    "columns": {
+      "credits": "Facture créditée"
+    },
+    "sheet": {
+      "title": "Avoir {{number}}",
+      "credits": "Avoir sur la facture {{number}} du {{date}}",
+      "totalCredit": "Total de l’avoir"
+    },
+    "actions": {
+      "issue": "Émettre",
+      "void": "Annuler l’avoir",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "preview": "Aperçu"
+    },
+    "void": {
+      "title": "Annuler l’avoir {{number}} ?",
+      "description": "Cette action est irréversible. Le montant crédité est réimputé à la facture.",
+      "confirm": "Annuler l’avoir"
+    },
+    "errors": {
+      "creditedMissing": "La facture concernée par l’avoir est introuvable.",
+      "creditZero": "Le montant de l’avoir doit être supérieur à 0.",
+      "creditCurrency": "La devise de l’avoir doit être celle de la facture.",
+      "creditExceeds": "L’avoir dépasse le montant encore créditable.",
+      "syncFailed": "Avoir enregistré, mais la facture n’a pas pu être mise à jour.",
+      "updateFailed": "Impossible de mettre à jour la facture créditée.",
+      "repairFailed": "Impossible de corriger le statut de la facture après les avoirs.",
+      "notAllowed": "Impossible de créer un avoir pour cette facture.",
+      "void": "Cet avoir est annulé.",
+      "draftVoid": "Les avoirs en brouillon ne peuvent pas être annulés."
+    },
+    "toast": {
+      "issued": "Avoir émis",
+      "voided": "Avoir annulé",
+      "hasCreditNotes_one": "Cette facture a un avoir. Supprimez-le ou annulez-le d’abord.",
+      "hasCreditNotes_many": "Cette facture a des avoirs. Supprimez-les ou annulez-les d’abord.",
+      "hasCreditNotes_other": "Cette facture a des avoirs. Supprimez-les ou annulez-les d’abord.",
+      "issuedCreditNote_one": "Cette facture a un avoir émis.",
+      "issuedCreditNote_many": "Cette facture a des avoirs émis.",
+      "issuedCreditNote_other": "Cette facture a des avoirs émis."
+    },
+    "empty": {
+      "title": "Aucun avoir pour le moment",
+      "description": "Créez un avoir à partir d’une facture pour le voir ici."
+    }
+  },
+  "views": {
+    "invoices": "Factures",
+    "creditNotes": "Avoirs"
   }
 }

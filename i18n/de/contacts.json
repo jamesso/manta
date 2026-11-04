@@ -1,9 +1,70 @@
 {
-  "header": "Alle Kontakte",
+  "header": "Kunden",
   "fields": {
     "contact": "Kontakt",
     "email": "E-Mail",
     "phone": "Telefon",
-    "actions": "Aktionen"
+    "actions": "Aktionen",
+    "nameCompany": "Name / Firma",
+    "invoices": "Rechnungen",
+    "outstanding": "Offen",
+    "taxId": "Steuernummer / USt-ID",
+    "buyerReference": "Käuferreferenz (Leitweg-ID)",
+    "buyerReferenceHint": "Erforderlich für öffentliche Auftraggeber in Deutschland.",
+    "buyerReferenceWarning": "Die Prüfziffern dieser Leitweg-ID scheinen falsch zu sein.",
+    "addressTitle": "Adresse"
+  },
+  "searchPlaceholder": "Kunden filtern …",
+  "newClient": "Neuer Kunde",
+  "empty": {
+    "title": "Noch keine Kunden",
+    "description": "Kunden werden beim Erstellen einer Rechnung gespeichert. Sie können aber auch jetzt einen hinzufügen.",
+    "noResultsFiltered": "Keine passenden Kunden"
+  },
+  "editor": {
+    "createTitle": "Neuer Kunde",
+    "editTitle": "Kunde bearbeiten",
+    "hint": "Änderungen gelten für neue Rechnungen. Bestehende Rechnungen behalten die Angaben, mit denen sie erstellt wurden.",
+    "fullname": "Vollständiger Name",
+    "company": "Firma",
+    "email": "E-Mail",
+    "phone": "Telefon",
+    "save": "Speichern"
+  },
+  "detail": {
+    "outstanding": "Offen",
+    "noInvoices": "Noch keine Rechnungen für diesen Kunden.",
+    "newInvoice": "Neue Rechnung",
+    "edit": "Bearbeiten"
+  },
+  "actions": {
+    "newInvoice": "Neue Rechnung",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "menuLabel": "Aktionen für {{name}}"
+  },
+  "toast": {
+    "deleted": "Kunde gelöscht",
+    "deleted_one": "{{count}} Kunde gelöscht",
+    "deleted_other": "{{count}} Kunden gelöscht",
+    "undo": "Rückgängig",
+    "restored": "Kunde wiederhergestellt",
+    "restored_one": "{{count}} Kunde wiederhergestellt",
+    "restored_other": "{{count}} Kunden wiederhergestellt",
+    "deleteFailed": "{{count}} konnten nicht gelöscht werden"
+  },
+  "errors": {
+    "fullnameRequired": "Geben Sie einen vollständigen Namen ein",
+    "emailRequired": "Geben Sie eine E-Mail-Adresse ein",
+    "emailInvalid": "Geben Sie eine gültige E-Mail-Adresse ein",
+    "countryInvalid": "Wählen Sie einen gültigen Ländercode"
+  },
+  "searchLabel": "Kunden filtern",
+  "count_one": "{{count}} Kunde",
+  "count_other": "{{count}} Kunden",
+  "balance": {
+    "outstanding": "Offen",
+    "settled": "Beglichen",
+    "noInvoices": "Keine Rechnungen"
   }
 }

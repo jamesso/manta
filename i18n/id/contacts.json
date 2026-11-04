@@ -1,9 +1,67 @@
 {
-  "header": "Semua Kontak",
+  "header": "Klien",
   "fields": {
     "contact": "Kontak",
-    "email": "Surel",
+    "email": "Email",
     "phone": "Telepon",
-    "actions": "Tindakan"
+    "actions": "Tindakan",
+    "nameCompany": "Nama / Perusahaan",
+    "invoices": "Faktur",
+    "outstanding": "Belum Dibayar",
+    "taxId": "ID Pajak / PPN",
+    "buyerReference": "Referensi Pembeli (Leitweg-ID)",
+    "buyerReferenceHint": "Wajib untuk pembeli sektor publik Jerman.",
+    "buyerReferenceWarning": "Digit pemeriksa pada Leitweg-ID ini tampaknya salah.",
+    "addressTitle": "Alamat"
+  },
+  "searchPlaceholder": "Saring klien…",
+  "newClient": "Klien Baru",
+  "empty": {
+    "title": "Belum ada klien",
+    "description": "Klien disimpan saat Anda membuat faktur, atau Anda dapat menambahkannya sekarang.",
+    "noResultsFiltered": "Tidak ada klien yang cocok"
+  },
+  "editor": {
+    "createTitle": "Klien Baru",
+    "editTitle": "Sunting Klien",
+    "hint": "Perubahan berlaku untuk faktur baru. Faktur yang sudah ada tetap memakai detail saat dibuat.",
+    "fullname": "Nama Lengkap",
+    "company": "Perusahaan",
+    "email": "Email",
+    "phone": "Telepon",
+    "save": "Simpan"
+  },
+  "detail": {
+    "outstanding": "Belum Dibayar",
+    "noInvoices": "Belum ada faktur untuk klien ini.",
+    "newInvoice": "Faktur Baru",
+    "edit": "Sunting"
+  },
+  "actions": {
+    "newInvoice": "Faktur Baru",
+    "edit": "Sunting",
+    "delete": "Hapus",
+    "menuLabel": "Tindakan untuk {{name}}"
+  },
+  "toast": {
+    "deleted": "Klien dihapus",
+    "deleted_other": "{{count}} klien dihapus",
+    "undo": "Urungkan",
+    "restored": "Klien dipulihkan",
+    "restored_other": "{{count}} klien dipulihkan",
+    "deleteFailed": "{{count}} tidak dapat dihapus"
+  },
+  "errors": {
+    "fullnameRequired": "Masukkan nama lengkap",
+    "emailRequired": "Masukkan alamat email",
+    "emailInvalid": "Masukkan alamat email yang valid",
+    "countryInvalid": "Pilih kode negara yang valid"
+  },
+  "searchLabel": "Saring Klien",
+  "count_other": "{{count}} klien",
+  "balance": {
+    "outstanding": "Belum Dibayar",
+    "settled": "Lunas",
+    "noInvoices": "Tidak Ada Faktur"
   }
 }

@@ -1,0 +1,100 @@
+{
+  "nav": {
+    "newInvoice": "Faktur Baru",
+    "search": "Cari",
+    "invoices": "Faktur",
+    "estimates": "Penawaran",
+    "recurring": "Berulang",
+    "clients": "Klien",
+    "items": "Item",
+    "dashboard": "Dasbor",
+    "settings": "Pengaturan",
+    "help": "Bantuan",
+    "shortcuts": "Pintasan Keyboard",
+    "tutorial": "Tampilkan Tutorial",
+    "learnMore": "Pelajari Lebih Lanjut",
+    "toggleSidebar": "Tampilkan/Sembunyikan Bilah Sisi",
+    "searchPlaceholder": "Cari atau lompat ke…",
+    "library": "Pustaka"
+  },
+  "titles": {
+    "newInvoice": "Faktur Baru",
+    "editInvoice": "Sunting Faktur",
+    "newEstimate": "Penawaran Baru",
+    "editEstimate": "Sunting Penawaran",
+    "dashboard": "Dasbor"
+  },
+  "update": {
+    "check": "Periksa Pembaruan",
+    "checking": "Memeriksa pembaruan…",
+    "downloading": "Mengunduh pembaruan {{percent}}%"
+  },
+  "palette": {
+    "title": "Palet Perintah",
+    "description": "Cari halaman, faktur, penawaran, klien, item, dan tindakan",
+    "placeholder": "Ketik perintah atau cari…",
+    "empty": "Tidak ada hasil.",
+    "goTo": "Buka",
+    "actions": "Tindakan",
+    "newEstimate": "Penawaran Baru",
+    "invoices": "Faktur",
+    "estimates": "Penawaran",
+    "clients": "Klien",
+    "toggleTheme": "Ganti Tema",
+    "themeChanged": "Tema diatur ke {{theme}}",
+    "items": "Item",
+    "showAll": "Lihat Semua “{{query}}” di {{page}}"
+  },
+  "theme": {
+    "system": "Sistem",
+    "light": "Terang",
+    "dark": "Gelap"
+  },
+  "shortcuts": {
+    "title": "Pintasan Keyboard",
+    "groups": {
+      "general": "Umum",
+      "invoice": "Faktur",
+      "go": "Navigasi",
+      "help": "Bantuan"
+    },
+    "items": {
+      "palette": "Palet Perintah",
+      "sidebar": "Tampilkan/Sembunyikan Bilah Sisi",
+      "settings": "Pengaturan",
+      "shortcuts": "Pintasan Keyboard",
+      "checkUpdates": "Periksa Pembaruan",
+      "quit": "Keluar",
+      "newInvoice": "Faktur Baru",
+      "save": "Simpan Faktur",
+      "reset": "Atur Ulang Formulir",
+      "addItem": "Tambah Baris Item",
+      "toggleSettings": "Tampilkan/Sembunyikan Pengaturan Formulir",
+      "dueDate": "Aktifkan/Nonaktifkan Jatuh Tempo",
+      "currency": "Aktifkan/Nonaktifkan Mata Uang",
+      "vat": "Aktifkan/Nonaktifkan PPN",
+      "discount": "Aktifkan/Nonaktifkan Diskon",
+      "note": "Aktifkan/Nonaktifkan Catatan",
+      "invoices": "Faktur",
+      "dashboard": "Dasbor",
+      "clients": "Klien",
+      "tutorial": "Tampilkan Tutorial"
+    }
+  },
+  "newInvoice": {
+    "confirmTitle": "Berhenti menyunting faktur ini?",
+    "confirmMessage": "Perubahan yang belum disimpan pada faktur ini akan hilang. Faktur yang tersimpan tidak berubah.",
+    "confirm": "Mulai Faktur Baru",
+    "cancel": "Lanjutkan Menyunting",
+    "template": {
+      "confirmTitle": "Berhenti menyunting templat berulang ini?",
+      "confirmMessage": "Perubahan yang belum disimpan pada templat ini akan hilang. Templat yang tersimpan tidak berubah."
+    }
+  },
+  "error": {
+    "title": "Terjadi kesalahan",
+    "message": "Silakan laporkan di GitHub: https://github.com/jamesso/manta/issues",
+    "reload": "Muat Ulang",
+    "details": "Detail"
+  }
+}

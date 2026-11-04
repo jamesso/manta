@@ -1,0 +1,53 @@
+{
+  "defaults": {
+    "invoice": {
+      "subject": "Hóa đơn {number} từ {company}",
+      "body": "Xin chào {client},\n\nĐính kèm là hóa đơn {number} với số tiền {total}. Hạn thanh toán: {dueDate}.\n\nCảm ơn quý khách đã hợp tác.\n\n{company}"
+    },
+    "reminder": {
+      "subject": "Nhắc thanh toán: hóa đơn {number}",
+      "body": "Xin chào {client},\n\nXin nhắc quý khách rằng hóa đơn {number} với số tiền {total} đã đến hạn vào {dueDate}. Số dư còn nợ là {balance}.\n\nNếu quý khách đã thanh toán, vui lòng bỏ qua thư này.\n\nTrân trọng,\n{company}"
+    }
+  },
+  "vars": {
+    "noDueDate": "khi nhận hóa đơn"
+  },
+  "placeholders": {
+    "number": "Số hóa đơn",
+    "client": "Tên khách hàng",
+    "total": "Tổng tiền hóa đơn",
+    "balance": "Số dư còn nợ",
+    "dueDate": "Hạn thanh toán",
+    "company": "Tên công ty của bạn"
+  },
+  "actions": {
+    "email": "Gửi hóa đơn qua email",
+    "reminder": "Gửi lời nhắc",
+    "share": "Chia sẻ PDF…",
+    "markSent": "Đánh dấu đã gửi",
+    "markReminded": "Đánh dấu đã gửi lời nhắc",
+    "copyFullMessage": "Sao chép toàn bộ thư"
+  },
+  "toast": {
+    "opened": "Đã mở ứng dụng thư — hãy đính kèm PDF từ thư mục",
+    "openedHint": "{{fileName}} đã được chọn trong thư mục vừa mở.",
+    "truncated": "Thư quá dài cho liên kết mail. Hãy dùng Sao chép toàn bộ thư để sao chép đầy đủ nội dung.",
+    "failed": "Không thể chuẩn bị email: {{reason}}",
+    "noMailApp": "Không thể mở ứng dụng thư. PDF đã được lưu.",
+    "markedSent": "Đã đánh dấu là đã gửi",
+    "notSaved": "Hãy lưu hóa đơn trước.",
+    "copied": "Đã sao chép thư"
+  },
+  "ask": {
+    "title": "Địa chỉ email của {{client}}",
+    "description": "Nhập địa chỉ email để mở ứng dụng thư với một thư nháp.",
+    "label": "Email",
+    "save": "Lưu địa chỉ này cho khách hàng",
+    "confirm": "Tiếp tục",
+    "invalid": "Nhập địa chỉ email hợp lệ"
+  },
+  "sheet": {
+    "sentOn": "Đã gửi ngày {{date}}",
+    "remindedOn": "Đã gửi lời nhắc ngày {{date}}"
+  }
+}

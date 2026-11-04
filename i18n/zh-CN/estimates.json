@@ -1,0 +1,66 @@
+{
+  "header": {
+    "name": "报价单",
+    "count_other": "{{count}} 份报价单"
+  },
+  "newEstimate": "新建报价单",
+  "search": {
+    "label": "筛选报价单",
+    "placeholder": "筛选报价单…"
+  },
+  "tabs": {
+    "all": "全部",
+    "draft": "草稿",
+    "sent": "已发送",
+    "accepted": "已接受",
+    "declined": "已拒绝",
+    "expired": "已过期",
+    "converted": "已转换"
+  },
+  "status": {
+    "sent": "已发送",
+    "accepted": "已接受",
+    "declined": "已拒绝",
+    "expired": "已过期",
+    "converted": "已转换"
+  },
+  "columns": {
+    "number": "编号",
+    "client": "客户",
+    "issued": "开具日期",
+    "validUntil": "有效期至",
+    "amount": "金额",
+    "status": "状态",
+    "actions": "操作"
+  },
+  "valid": {
+    "today": "今天到期",
+    "inDays_other": "剩余 {{count}} 天有效",
+    "expiredDays_other": "已过期 {{count}} 天"
+  },
+  "actions": {
+    "open": "报价单操作",
+    "edit": "编辑",
+    "duplicate": "复制",
+    "markSent": "标记为已发送",
+    "markAccepted": "标记为已接受",
+    "markDeclined": "标记为已拒绝",
+    "convert": "转换为发票",
+    "openInvoice": "打开发票",
+    "preview": "预览",
+    "delete": "删除"
+  },
+  "empty": {
+    "title": "还没有报价单",
+    "description": "创建报价单，客户接受后即可将其转换为发票。",
+    "noResults": "没有匹配的报价单",
+    "clearFilters": "清除筛选"
+  },
+  "toast": {
+    "converted": "报价单 {{number}} 已转换",
+    "alreadyConverted": "此报价单已转换为发票",
+    "notFound": "此报价单已不存在",
+    "linkFailed": "发票已保存，但无法将报价单标记为已转换",
+    "deleted_other": "已删除 {{count}} 份报价单"
+  }
+}

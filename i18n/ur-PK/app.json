@@ -1,0 +1,100 @@
+{
+  "nav": {
+    "newInvoice": "نئی انوائس",
+    "search": "تلاش",
+    "invoices": "انوائسز",
+    "estimates": "تخمینے",
+    "recurring": "مکرر",
+    "clients": "کلائنٹس",
+    "items": "آئٹمز",
+    "dashboard": "ڈیش بورڈ",
+    "settings": "ترتیبات",
+    "help": "مدد",
+    "shortcuts": "کی بورڈ شارٹ کٹس",
+    "tutorial": "رہنمائی دکھائیں",
+    "learnMore": "مزید جانیں",
+    "toggleSidebar": "سائیڈبار دکھائیں/چھپائیں",
+    "searchPlaceholder": "تلاش کریں یا کہیں جائیں…",
+    "library": "لائبریری"
+  },
+  "titles": {
+    "newInvoice": "نئی انوائس",
+    "editInvoice": "انوائس میں ترمیم",
+    "newEstimate": "نیا تخمینہ",
+    "editEstimate": "تخمینے میں ترمیم",
+    "dashboard": "ڈیش بورڈ"
+  },
+  "update": {
+    "check": "اپ ڈیٹ چیک کریں",
+    "checking": "اپ ڈیٹ چیک ہو رہی ہے…",
+    "downloading": "اپ ڈیٹ ڈاؤن لوڈ ہو رہی ہے {{percent}}%"
+  },
+  "palette": {
+    "title": "کمانڈ پیلیٹ",
+    "description": "صفحات، انوائسز، تخمینے، کلائنٹس، آئٹمز اور افعال تلاش کریں",
+    "placeholder": "کمانڈ لکھیں یا تلاش کریں…",
+    "empty": "کوئی نتیجہ نہیں ملا۔",
+    "goTo": "یہاں جائیں",
+    "actions": "افعال",
+    "newEstimate": "نیا تخمینہ",
+    "invoices": "انوائسز",
+    "estimates": "تخمینے",
+    "clients": "کلائنٹس",
+    "toggleTheme": "تھیم تبدیل کریں",
+    "themeChanged": "تھیم {{theme}} پر سیٹ ہو گئی",
+    "items": "آئٹمز",
+    "showAll": "{{page}} میں “{{query}}” کے تمام نتائج دیکھیں"
+  },
+  "theme": {
+    "system": "سسٹم",
+    "light": "روشن",
+    "dark": "تاریک"
+  },
+  "shortcuts": {
+    "title": "کی بورڈ شارٹ کٹس",
+    "groups": {
+      "general": "عمومی",
+      "invoice": "انوائس",
+      "go": "جائیں",
+      "help": "مدد"
+    },
+    "items": {
+      "palette": "کمانڈ پیلیٹ",
+      "sidebar": "سائیڈبار دکھائیں/چھپائیں",
+      "settings": "ترتیبات",
+      "shortcuts": "کی بورڈ شارٹ کٹس",
+      "checkUpdates": "اپ ڈیٹ چیک کریں",
+      "quit": "بند کریں",
+      "newInvoice": "نئی انوائس",
+      "save": "انوائس محفوظ کریں",
+      "reset": "فارم ری سیٹ کریں",
+      "addItem": "لائن آئٹم شامل کریں",
+      "toggleSettings": "فارم کی ترتیبات دکھائیں/چھپائیں",
+      "dueDate": "آخری تاریخ آن/آف",
+      "currency": "کرنسی آن/آف",
+      "vat": "VAT آن/آف",
+      "discount": "رعایت آن/آف",
+      "note": "نوٹ آن/آف",
+      "invoices": "انوائسز",
+      "dashboard": "ڈیش بورڈ",
+      "clients": "کلائنٹس",
+      "tutorial": "رہنمائی دکھائیں"
+    }
+  },
+  "newInvoice": {
+    "confirmTitle": "اس انوائس میں ترمیم روک دیں؟",
+    "confirmMessage": "اس انوائس کی غیر محفوظ تبدیلیاں ضائع ہو جائیں گی۔ محفوظ شدہ انوائس میں کوئی تبدیلی نہیں ہو گی۔",
+    "confirm": "نئی انوائس شروع کریں",
+    "cancel": "ترمیم جاری رکھیں",
+    "template": {
+      "confirmTitle": "اس مکرر سانچے میں ترمیم روک دیں؟",
+      "confirmMessage": "اس سانچے کی غیر محفوظ تبدیلیاں ضائع ہو جائیں گی۔ محفوظ شدہ سانچے میں کوئی تبدیلی نہیں ہو گی۔"
+    }
+  },
+  "error": {
+    "title": "کچھ غلط ہو گیا",
+    "message": "براہ کرم GitHub پر اس کی اطلاع دیں: https://github.com/jamesso/manta/issues",
+    "reload": "دوبارہ لوڈ کریں",
+    "details": "تفصیلات"
+  }
+}

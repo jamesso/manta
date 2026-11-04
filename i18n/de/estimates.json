@@ -1,0 +1,70 @@
+{
+  "header": {
+    "name": "Angebote",
+    "count_one": "{{count}} Angebot",
+    "count_other": "{{count}} Angebote"
+  },
+  "newEstimate": "Neues Angebot",
+  "search": {
+    "label": "Angebote filtern",
+    "placeholder": "Angebote filtern …"
+  },
+  "tabs": {
+    "all": "Alle",
+    "draft": "Entwurf",
+    "sent": "Gesendet",
+    "accepted": "Angenommen",
+    "declined": "Abgelehnt",
+    "expired": "Abgelaufen",
+    "converted": "Umgewandelt"
+  },
+  "status": {
+    "sent": "Gesendet",
+    "accepted": "Angenommen",
+    "declined": "Abgelehnt",
+    "expired": "Abgelaufen",
+    "converted": "Umgewandelt"
+  },
+  "columns": {
+    "number": "Nummer",
+    "client": "Kunde",
+    "issued": "Ausgestellt",
+    "validUntil": "Gültig bis",
+    "amount": "Betrag",
+    "status": "Status",
+    "actions": "Aktionen"
+  },
+  "valid": {
+    "today": "Nur heute gültig",
+    "inDays_one": "Noch {{count}} Tag gültig",
+    "inDays_other": "Noch {{count}} Tage gültig",
+    "expiredDays_one": "Vor {{count}} Tag abgelaufen",
+    "expiredDays_other": "Vor {{count}} Tagen abgelaufen"
+  },
+  "actions": {
+    "open": "Angebotsaktionen",
+    "edit": "Bearbeiten",
+    "duplicate": "Duplizieren",
+    "markSent": "Als gesendet markieren",
+    "markAccepted": "Als angenommen markieren",
+    "markDeclined": "Als abgelehnt markieren",
+    "convert": "In Rechnung umwandeln",
+    "openInvoice": "Rechnung öffnen",
+    "preview": "Vorschau",
+    "delete": "Löschen"
+  },
+  "empty": {
+    "title": "Noch keine Angebote",
+    "description": "Erstellen Sie ein Angebot und wandeln Sie es in eine Rechnung um, sobald der Kunde zustimmt.",
+    "noResults": "Keine passenden Angebote",
+    "clearFilters": "Filter entfernen"
+  },
+  "toast": {
+    "converted": "Angebot {{number}} umgewandelt",
+    "alreadyConverted": "Dieses Angebot wurde bereits in eine Rechnung umgewandelt",
+    "notFound": "Dieses Angebot existiert nicht mehr",
+    "linkFailed": "Die Rechnung wurde gespeichert, aber das Angebot konnte nicht als umgewandelt markiert werden",
+    "deleted_one": "Angebot gelöscht",
+    "deleted_other": "{{count}} Angebote gelöscht"
+  }
+}

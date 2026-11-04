@@ -1,0 +1,64 @@
+{
+  "heading": "Tổng quan",
+  "loading": "Đang tải tổng quan…",
+  "kpi": {
+    "outstanding": "Chưa thanh toán",
+    "overdue": "Quá hạn",
+    "paidThisMonth": "Đã thu tháng này",
+    "creditedThisMonth": "Giấy báo có: −{{amount}}",
+    "drafts": "Bản nháp",
+    "invoiceCount": "{{count}} hóa đơn"
+  },
+  "currency": {
+    "label": "Tiền tệ"
+  },
+  "chart": {
+    "paid": "Đã thanh toán",
+    "title": "Thanh toán trong 6 tháng qua",
+    "empty": "Không có khoản thanh toán nào trong 6 tháng qua"
+  },
+  "needsAttention": {
+    "title": "Cần chú ý",
+    "empty": "Không có gì cần chú ý"
+  },
+  "recent": {
+    "title": "Hóa đơn gần đây",
+    "empty": "Chưa có hóa đơn nào",
+    "viewAll": "Xem tất cả hóa đơn",
+    "newInvoice": "Hóa đơn mới"
+  },
+  "checklist": {
+    "heading": "Bắt đầu với Manta",
+    "progress": "Đã xong {{done}}/{{total}}",
+    "allDone": "Bạn đã sẵn sàng",
+    "dismiss": "Ẩn danh sách việc cần làm",
+    "toastHidden": "Đã ẩn danh sách việc cần làm",
+    "undo": "Hoàn tác",
+    "items": {
+      "profile": "Thêm tên doanh nghiệp",
+      "logo": "Thêm logo",
+      "client": "Thêm khách hàng đầu tiên",
+      "invoice": "Tạo hóa đơn đầu tiên",
+      "pdf": "Xuất PDF đầu tiên"
+    },
+    "links": {
+      "profile": "Chỉnh sửa hồ sơ doanh nghiệp",
+      "logo": "Tải logo lên",
+      "client": "Thêm khách hàng",
+      "invoice": "Hóa đơn mới",
+      "pdf": "Xem trước và xuất PDF"
+    },
+    "pdfHint": "Hãy tạo hóa đơn trước"
+  },
+  "greeting": {
+    "morning": "Chào buổi sáng",
+    "afternoon": "Chào buổi chiều",
+    "evening": "Chào buổi tối",
+    "lead": "{{greeting}}, bạn có",
+    "and": "và",
+    "clear": "{{greeting}}. Bạn đã xử lý xong mọi việc — không có gì quá hạn.",
+    "overdue_other": "{{count}} hóa đơn quá hạn",
+    "outstanding_other": "{{count}} hóa đơn chờ thanh toán",
+    "drafts_other": "{{count}} bản nháp"
+  }
+}

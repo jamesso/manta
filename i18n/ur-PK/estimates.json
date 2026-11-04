@@ -1,0 +1,70 @@
+{
+  "header": {
+    "name": "تخمینے",
+    "count_one": "{{count}} تخمینہ",
+    "count_other": "{{count}} تخمینے"
+  },
+  "newEstimate": "نیا تخمینہ",
+  "search": {
+    "label": "تخمینے فلٹر کریں",
+    "placeholder": "تخمینے فلٹر کریں…"
+  },
+  "tabs": {
+    "all": "تمام",
+    "draft": "ڈرافٹ",
+    "sent": "بھیجے گئے",
+    "accepted": "منظور شدہ",
+    "declined": "مسترد شدہ",
+    "expired": "میعاد ختم",
+    "converted": "تبدیل شدہ"
+  },
+  "status": {
+    "sent": "بھیجا گیا",
+    "accepted": "منظور شدہ",
+    "declined": "مسترد شدہ",
+    "expired": "میعاد ختم",
+    "converted": "تبدیل شدہ"
+  },
+  "columns": {
+    "number": "نمبر",
+    "client": "کلائنٹ",
+    "issued": "جاری کردہ",
+    "validUntil": "مؤثر تا",
+    "amount": "رقم",
+    "status": "اسٹیٹس",
+    "actions": "افعال"
+  },
+  "valid": {
+    "today": "آج تک مؤثر",
+    "inDays_one": "مزید {{count}} دن مؤثر",
+    "inDays_other": "مزید {{count}} دن مؤثر",
+    "expiredDays_one": "{{count}} دن پہلے میعاد ختم",
+    "expiredDays_other": "{{count}} دن پہلے میعاد ختم"
+  },
+  "actions": {
+    "open": "تخمینے کے افعال",
+    "edit": "ترمیم",
+    "duplicate": "نقل بنائیں",
+    "markSent": "بھیجا گیا کے طور پر نشان زد کریں",
+    "markAccepted": "منظور شدہ کے طور پر نشان زد کریں",
+    "markDeclined": "مسترد شدہ کے طور پر نشان زد کریں",
+    "convert": "انوائس میں تبدیل کریں",
+    "openInvoice": "انوائس کھولیں",
+    "preview": "پیش نظارہ",
+    "delete": "حذف کریں"
+  },
+  "empty": {
+    "title": "ابھی کوئی تخمینہ نہیں",
+    "description": "تخمینہ بنائیں۔ کلائنٹ کے منظور کرنے پر اسے انوائس میں تبدیل کریں۔",
+    "noResults": "کوئی مماثل تخمینہ نہیں",
+    "clearFilters": "فلٹرز صاف کریں"
+  },
+  "toast": {
+    "converted": "تخمینہ {{number}} تبدیل ہو گیا",
+    "alreadyConverted": "یہ تخمینہ پہلے ہی انوائس میں تبدیل ہو چکا ہے",
+    "notFound": "یہ تخمینہ اب موجود نہیں",
+    "linkFailed": "انوائس محفوظ ہو گئی، لیکن تخمینے کو تبدیل شدہ کے طور پر نشان زد نہیں کیا جا سکا",
+    "deleted_one": "تخمینہ حذف ہو گیا",
+    "deleted_other": "{{count}} تخمینے حذف ہو گئے"
+  }
+}

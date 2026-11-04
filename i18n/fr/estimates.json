@@ -1,0 +1,74 @@
+{
+  "header": {
+    "name": "Devis",
+    "count_one": "{{count}} devis",
+    "count_many": "{{count}} devis",
+    "count_other": "{{count}} devis"
+  },
+  "newEstimate": "Nouveau devis",
+  "search": {
+    "label": "Filtrer les devis",
+    "placeholder": "Filtrer les devis…"
+  },
+  "tabs": {
+    "all": "Tous",
+    "draft": "Brouillons",
+    "sent": "Envoyés",
+    "accepted": "Acceptés",
+    "declined": "Refusés",
+    "expired": "Expirés",
+    "converted": "Convertis"
+  },
+  "status": {
+    "sent": "Envoyé",
+    "accepted": "Accepté",
+    "declined": "Refusé",
+    "expired": "Expiré",
+    "converted": "Converti"
+  },
+  "columns": {
+    "number": "Numéro",
+    "client": "Client",
+    "issued": "Émis le",
+    "validUntil": "Valable jusqu’au",
+    "amount": "Montant",
+    "status": "Statut",
+    "actions": "Actions"
+  },
+  "valid": {
+    "today": "Valable jusqu’à aujourd’hui",
+    "inDays_one": "Encore valable {{count}} jour",
+    "inDays_many": "Encore valable {{count}} jours",
+    "inDays_other": "Encore valable {{count}} jours",
+    "expiredDays_one": "Expiré depuis {{count}} jour",
+    "expiredDays_many": "Expiré depuis {{count}} jours",
+    "expiredDays_other": "Expiré depuis {{count}} jours"
+  },
+  "actions": {
+    "open": "Actions du devis",
+    "edit": "Modifier",
+    "duplicate": "Dupliquer",
+    "markSent": "Marquer comme envoyé",
+    "markAccepted": "Marquer comme accepté",
+    "markDeclined": "Marquer comme refusé",
+    "convert": "Convertir en facture",
+    "openInvoice": "Ouvrir la facture",
+    "preview": "Aperçu",
+    "delete": "Supprimer"
+  },
+  "empty": {
+    "title": "Aucun devis pour le moment",
+    "description": "Créez un devis, puis convertissez-le en facture lorsque le client l’accepte.",
+    "noResults": "Aucun devis correspondant",
+    "clearFilters": "Effacer les filtres"
+  },
+  "toast": {
+    "converted": "Devis {{number}} converti",
+    "alreadyConverted": "Ce devis a déjà été converti en facture",
+    "notFound": "Ce devis n’existe plus",
+    "linkFailed": "La facture est enregistrée, mais le devis n’a pas pu être marqué comme converti",
+    "deleted_one": "Devis supprimé",
+    "deleted_many": "{{count}} devis supprimés",
+    "deleted_other": "{{count}} devis supprimés"
+  }
+}

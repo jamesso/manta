@@ -1,9 +1,70 @@
 {
-  "header": "تمام روابط",
+  "header": "کلائنٹس",
   "fields": {
     "contact": "رابطہ",
     "email": "ای میل",
     "phone": "فون",
-    "actions": "افعال"
+    "actions": "افعال",
+    "nameCompany": "نام / کمپنی",
+    "invoices": "انوائسز",
+    "outstanding": "واجب الادا",
+    "taxId": "ٹیکس / VAT آئی ڈی",
+    "buyerReference": "خریدار کا حوالہ (Leitweg-ID)",
+    "buyerReferenceHint": "جرمن سرکاری شعبے کے خریداروں کے لیے ضروری۔",
+    "buyerReferenceWarning": "اس Leitweg-ID کے چیک ہندسے غلط لگتے ہیں۔",
+    "addressTitle": "پتہ"
+  },
+  "searchPlaceholder": "کلائنٹس فلٹر کریں…",
+  "newClient": "نیا کلائنٹ",
+  "empty": {
+    "title": "ابھی کوئی کلائنٹ نہیں",
+    "description": "انوائس بنانے پر کلائنٹس محفوظ ہو جاتے ہیں، یا آپ ابھی ایک شامل کر سکتے ہیں۔",
+    "noResultsFiltered": "کوئی مماثل کلائنٹ نہیں"
+  },
+  "editor": {
+    "createTitle": "نیا کلائنٹ",
+    "editTitle": "کلائنٹ میں ترمیم",
+    "hint": "تبدیلیاں نئی انوائسز پر لاگو ہوں گی۔ موجودہ انوائسز میں وہی تفصیلات رہیں گی جن کے ساتھ وہ بنائی گئی تھیں۔",
+    "fullname": "پورا نام",
+    "company": "کمپنی",
+    "email": "ای میل",
+    "phone": "فون",
+    "save": "محفوظ کریں"
+  },
+  "detail": {
+    "outstanding": "واجب الادا",
+    "noInvoices": "اس کلائنٹ کی ابھی کوئی انوائس نہیں۔",
+    "newInvoice": "نئی انوائس",
+    "edit": "ترمیم"
+  },
+  "actions": {
+    "newInvoice": "نئی انوائس",
+    "edit": "ترمیم",
+    "delete": "حذف کریں",
+    "menuLabel": "{{name}} کے افعال"
+  },
+  "toast": {
+    "deleted": "کلائنٹ حذف ہو گیا",
+    "deleted_one": "{{count}} کلائنٹ حذف ہو گیا",
+    "deleted_other": "{{count}} کلائنٹس حذف ہو گئے",
+    "undo": "واپس کریں",
+    "restored": "کلائنٹ بحال ہو گیا",
+    "restored_one": "{{count}} کلائنٹ بحال ہو گیا",
+    "restored_other": "{{count}} کلائنٹس بحال ہو گئے",
+    "deleteFailed": "{{count}} حذف نہیں ہو سکے"
+  },
+  "errors": {
+    "fullnameRequired": "پورا نام درج کریں",
+    "emailRequired": "ای میل پتہ درج کریں",
+    "emailInvalid": "درست ای میل پتہ درج کریں",
+    "countryInvalid": "درست ملکی کوڈ منتخب کریں"
+  },
+  "searchLabel": "کلائنٹس فلٹر کریں",
+  "count_one": "{{count}} کلائنٹ",
+  "count_other": "{{count}} کلائنٹس",
+  "balance": {
+    "outstanding": "واجب الادا",
+    "settled": "مکمل ادا شدہ",
+    "noInvoices": "کوئی انوائس نہیں"
   }
 }

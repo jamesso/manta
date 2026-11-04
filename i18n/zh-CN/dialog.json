@@ -12,7 +12,7 @@
       "title": "发生错误"
     },
     "downloaded": {
-      "title": "已经成功下载更新",
+      "title": "更新已下载",
       "message": "是否要立即退出程序并升级？",
       "quitNow": "立即退出",
       "later": "稍后"
@@ -24,7 +24,7 @@
   },
   "errorBoundary": "发生错误",
   "deleteInvoice": {
-    "title": "要删除这个发票吗？",
+    "title": "要删除此发票吗？",
     "message": "该发票将从数据库中永久删除"
   },
   "deleteContact": {
@@ -50,12 +50,12 @@
       },
       "email": {
         "title": "无效的电子邮件",
-        "message": "请选择另外一个电子邮件"
+        "message": "请使用其他电子邮件地址"
       }
     },
     "rows": {
       "emptyDescription": {
-        "title": "无效简介",
+        "title": "无效的简介",
         "message": "简介不能为空"
       },
       "priceZero": {
@@ -73,13 +73,13 @@
     },
     "currency": {
       "fraction": {
-        "title": "无效的分数",
-        "message": "小数必须大于等于零"
+        "title": "无效的小数位数",
+        "message": "小数位数必须大于或等于零"
       }
     },
     "discount": {
       "title": "无效的折扣",
-      "message": "打折比例必须大于零"
+      "message": "折扣必须大于零"
     },
     "tax": {
       "title": "无效的税费",

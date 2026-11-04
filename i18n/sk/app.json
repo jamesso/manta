@@ -1,0 +1,100 @@
+{
+  "nav": {
+    "newInvoice": "Nová faktúra",
+    "search": "Hľadať",
+    "invoices": "Faktúry",
+    "estimates": "Cenové ponuky",
+    "recurring": "Opakované",
+    "clients": "Klienti",
+    "items": "Položky",
+    "dashboard": "Prehľad",
+    "settings": "Nastavenia",
+    "help": "Pomocník",
+    "shortcuts": "Klávesové skratky",
+    "tutorial": "Zobraziť návod",
+    "learnMore": "Ďalšie informácie",
+    "toggleSidebar": "Prepnúť bočný panel",
+    "searchPlaceholder": "Hľadať alebo prejsť na…",
+    "library": "Knižnica"
+  },
+  "titles": {
+    "newInvoice": "Nová faktúra",
+    "editInvoice": "Upraviť faktúru",
+    "newEstimate": "Nová cenová ponuka",
+    "editEstimate": "Upraviť cenovú ponuku",
+    "dashboard": "Prehľad"
+  },
+  "update": {
+    "check": "Skontrolovať aktualizácie",
+    "checking": "Kontrolujú sa aktualizácie…",
+    "downloading": "Sťahuje sa aktualizácia {{percent}} %"
+  },
+  "palette": {
+    "title": "Paleta príkazov",
+    "description": "Hľadajte stránky, faktúry, cenové ponuky, klientov, položky a akcie",
+    "placeholder": "Zadajte príkaz alebo hľadajte…",
+    "empty": "Nenašli sa žiadne výsledky.",
+    "goTo": "Prejsť na",
+    "actions": "Akcie",
+    "newEstimate": "Nová cenová ponuka",
+    "invoices": "Faktúry",
+    "estimates": "Cenové ponuky",
+    "clients": "Klienti",
+    "toggleTheme": "Prepnúť motív",
+    "themeChanged": "Motív: {{theme}}",
+    "items": "Položky",
+    "showAll": "Zobraziť všetko pre „{{query}}“ v sekcii {{page}}"
+  },
+  "theme": {
+    "system": "Systém",
+    "light": "Svetlý",
+    "dark": "Tmavý"
+  },
+  "shortcuts": {
+    "title": "Klávesové skratky",
+    "groups": {
+      "general": "Všeobecné",
+      "invoice": "Faktúra",
+      "go": "Prejsť",
+      "help": "Pomocník"
+    },
+    "items": {
+      "palette": "Paleta príkazov",
+      "sidebar": "Prepnúť bočný panel",
+      "settings": "Nastavenia",
+      "shortcuts": "Klávesové skratky",
+      "checkUpdates": "Skontrolovať aktualizácie",
+      "quit": "Ukončiť",
+      "newInvoice": "Nová faktúra",
+      "save": "Uložiť faktúru",
+      "reset": "Obnoviť formulár",
+      "addItem": "Pridať položku",
+      "toggleSettings": "Prepnúť nastavenia formulára",
+      "dueDate": "Prepnúť dátum splatnosti",
+      "currency": "Prepnúť menu",
+      "vat": "Prepnúť DPH",
+      "discount": "Prepnúť zľavu",
+      "note": "Prepnúť poznámku",
+      "invoices": "Faktúry",
+      "dashboard": "Prehľad",
+      "clients": "Klienti",
+      "tutorial": "Zobraziť návod"
+    }
+  },
+  "newInvoice": {
+    "confirmTitle": "Prestať upravovať túto faktúru?",
+    "confirmMessage": "Neuložené zmeny tejto faktúry sa stratia. Uložená faktúra sa nezmení.",
+    "confirm": "Začať novú faktúru",
+    "cancel": "Pokračovať v úpravách",
+    "template": {
+      "confirmTitle": "Prestať upravovať túto šablónu opakovanej faktúry?",
+      "confirmMessage": "Neuložené zmeny tejto šablóny sa stratia. Uložená šablóna sa nezmení."
+    }
+  },
+  "error": {
+    "title": "Niečo sa pokazilo",
+    "message": "Nahláste to, prosím, na GitHube: https://github.com/jamesso/manta/issues",
+    "reload": "Znova načítať",
+    "details": "Podrobnosti"
+  }
+}

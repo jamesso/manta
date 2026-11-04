@@ -1,0 +1,64 @@
+{
+  "heading": "仪表板",
+  "loading": "正在加载仪表板…",
+  "kpi": {
+    "outstanding": "未付",
+    "overdue": "逾期",
+    "paidThisMonth": "本月已付",
+    "creditedThisMonth": "贷项通知单：−{{amount}}",
+    "drafts": "草稿",
+    "invoiceCount": "{{count}} 张发票"
+  },
+  "currency": {
+    "label": "币种"
+  },
+  "chart": {
+    "paid": "已付款",
+    "title": "最近 6 个月的付款",
+    "empty": "最近 6 个月没有付款"
+  },
+  "needsAttention": {
+    "title": "需要关注",
+    "empty": "暂无需要关注的事项"
+  },
+  "recent": {
+    "title": "最近的发票",
+    "empty": "还没有发票",
+    "viewAll": "查看所有发票",
+    "newInvoice": "新建发票"
+  },
+  "checklist": {
+    "heading": "开始使用 Manta",
+    "progress": "已完成 {{done}}/{{total}}",
+    "allDone": "一切就绪",
+    "dismiss": "关闭清单",
+    "toastHidden": "清单已隐藏",
+    "undo": "撤销",
+    "items": {
+      "profile": "添加你的企业名称",
+      "logo": "添加你的 Logo",
+      "client": "添加第一个客户",
+      "invoice": "创建第一张发票",
+      "pdf": "导出第一个 PDF"
+    },
+    "links": {
+      "profile": "编辑企业资料",
+      "logo": "上传 Logo",
+      "client": "添加客户",
+      "invoice": "新建发票",
+      "pdf": "预览并导出 PDF"
+    },
+    "pdfHint": "请先创建一张发票"
+  },
+  "greeting": {
+    "morning": "早上好",
+    "afternoon": "下午好",
+    "evening": "晚上好",
+    "lead": "{{greeting}}，你有",
+    "and": "和",
+    "clear": "{{greeting}}。一切已处理完毕，没有逾期发票。",
+    "overdue_other": "{{count}} 张逾期发票",
+    "outstanding_other": "{{count}} 张待付款",
+    "drafts_other": "{{count}} 份草稿"
+  }
+}

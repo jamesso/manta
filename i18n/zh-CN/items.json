@@ -1,0 +1,65 @@
+{
+  "header": "项目",
+  "new": "新建项目",
+  "search": {
+    "label": "筛选项目",
+    "placeholder": "筛选项目…"
+  },
+  "views": {
+    "active": "使用中",
+    "archived": "已归档"
+  },
+  "columns": {
+    "name": "名称",
+    "unit": "单位",
+    "unitPrice": "单价",
+    "actions": "操作"
+  },
+  "actions": {
+    "open": "{{name}} 的操作",
+    "edit": "编辑",
+    "archive": "归档",
+    "unarchive": "取消归档",
+    "delete": "删除"
+  },
+  "dialog": {
+    "newTitle": "新建项目",
+    "editTitle": "编辑项目",
+    "name": "名称",
+    "description": "简介",
+    "descriptionHint": "此文本会打印在发票上。留空则打印名称。",
+    "unitPrice": "单价",
+    "priceHint": "使用发票的币种。",
+    "unit": "单位",
+    "taxRate": "税率",
+    "defaultTaxRate": "默认税率",
+    "save": "保存",
+    "cancel": "取消"
+  },
+  "detail": {
+    "noDescription": "无简介。发票上将打印名称。"
+  },
+  "errors": {
+    "nameRequired": "请输入名称。",
+    "nameTooLong": "名称不能超过 120 个字符。",
+    "nameTaken": "已有使用中的项目使用此名称。",
+    "price": "请输入有效的单价。",
+    "unit": "请选择有效的单位代码。"
+  },
+  "empty": {
+    "title": "还没有项目",
+    "description": "保存你常售的产品和服务，添加发票明细时即可直接选择。",
+    "noArchived": "没有已归档的项目",
+    "noResultsFiltered": "没有匹配的项目"
+  },
+  "units": {
+    "C62": "个",
+    "HUR": "小时",
+    "DAY": "天",
+    "MON": "月",
+    "KGM": "千克",
+    "MTR": "米",
+    "LS": "一次性总价"
+  },
+  "count_other": "{{count}} 个项目"
+}

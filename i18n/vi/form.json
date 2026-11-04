@@ -1,69 +1,190 @@
 {
+  "cancel": {
+    "label": "Hủy",
+    "title": "Bỏ các thay đổi?",
+    "newMessage": "Chứng từ này chưa được lưu. Nội dung bạn đã nhập sẽ bị mất.",
+    "editMessage": "Các thay đổi chưa lưu sẽ bị mất. Phiên bản đã lưu không thay đổi.",
+    "confirm": "Bỏ thay đổi",
+    "keep": "Tiếp tục chỉnh sửa"
+  },
   "header": {
-    "new": "Tạo một hóa đơn mới",
-    "edit": "Chỉnh sửa hoá đơn",
+    "new": "Hóa đơn mới",
+    "edit": "Chỉnh sửa hóa đơn",
+    "newEstimate": "Báo giá mới",
+    "editEstimate": "Chỉnh sửa báo giá",
+    "newCreditNote": "Giấy báo có mới",
+    "editCreditNote": "Chỉnh sửa giấy báo có",
+    "template": "Mẫu hóa đơn định kỳ",
     "btns": {
       "clear": "Làm lại",
-      "update": "Lưu Thay Đổi",
-      "saveAndPreview": "Lưu và Hiển thị"
+      "update": "Cập nhật",
+      "saveAndPreview": "Lưu và xem trước",
+      "saveDraft": "Lưu nháp",
+      "issueCreditNote": "Phát hành giấy báo có"
     }
   },
   "settings": {
-    "name": "Thay Đổi Trường Thông Tin",
-    "hint": "Click để ẩn hoặc hiện các trường thông tin khác."
+    "name": "Cài đặt biểu mẫu",
+    "hint": "Bật/tắt một trường để đặt trường đó là bắt buộc trong biểu mẫu."
   },
   "fields": {
     "items": {
-      "name": "Sản Phẩm/Dịch Vụ",
-      "description": "Mô Tả",
+      "name": "Sản phẩm/Dịch vụ",
+      "description": "Mô tả",
       "price": "Giá",
-      "quantity": "Số Lượng",
-      "add": "Thêm mới"
+      "quantity": "Số lượng",
+      "add": "Thêm mục mới",
+      "amount": "Thành tiền",
+      "reorder": "Sắp xếp lại mục {{number}}",
+      "remove": "Xóa mục {{number}}",
+      "descriptionRow": "Mô tả cho mục {{number}}",
+      "priceRow": "Giá cho mục {{number}}",
+      "quantityRow": "Số lượng cho mục {{number}}",
+      "unit": "Đơn vị",
+      "saveAsItem": "Lưu dòng {{n}} thành mặt hàng",
+      "noMatch": "Không có mặt hàng đã lưu nào phù hợp",
+      "pickPlaceholder": "Chọn hoặc nhập…"
     },
     "recipient": {
       "name": "Người nhận",
-      "select": "Lựa Chọn",
-      "add": "Tạo mới"
+      "select": "Chọn",
+      "add": "Tạo mới",
+      "fullname": "Họ và tên",
+      "company": "Công ty",
+      "email": "Email",
+      "phone": "Điện thoại",
+      "pickPlaceholder": "Chọn khách hàng hoặc nhập tên mới…",
+      "linked": "Khách hàng đã lưu. Nhập tên khác để thêm khách hàng mới.",
+      "noMatch": "Không có khách hàng phù hợp",
+      "taxId": "Mã số thuế / VAT"
     },
     "discount": {
-      "name": "Khuyễn mãi",
+      "name": "Giảm giá",
       "percentage": "Phần trăm",
-      "flat": "Trừ thẳng"
+      "flat": "Số tiền cố định"
     },
     "dueDate": {
       "name": "Hạn thanh toán",
       "placeHolder": "Chọn ngày",
       "paymentTerms": {
-        "name": "Chọn một hạn thanh toán",
+        "name": "Chọn điều khoản thanh toán",
         "net7": {
           "label": "Net 7",
-          "description": "Thanh toán sau 7 ngày hoá đơn được tạo"
+          "description": "Thanh toán 7 ngày sau ngày lập hóa đơn"
         },
         "net10": {
           "label": "Net 10",
-          "description": "Thanh toán sau 10 ngày hoá đơn được tạo"
+          "description": "Thanh toán 10 ngày sau ngày lập hóa đơn"
         },
         "net30": {
           "label": "Net 30",
-          "description": "Thanh toán sau 30 ngày hoá đơn được tạo"
+          "description": "Thanh toán 30 ngày sau ngày lập hóa đơn"
         },
         "net60": {
           "label": "Net 60",
-          "description": "Thanh toán sau 60 ngày hoá đơn được tạo"
+          "description": "Thanh toán 60 ngày sau ngày lập hóa đơn"
         },
         "net90": {
           "label": "Net 90",
-          "description": "Thanh toán sau 90 ngày hoá đơn được tạo"
+          "description": "Thanh toán 90 ngày sau ngày lập hóa đơn"
         }
-      }
+      },
+      "modeDate": "Ngày",
+      "modeTerms": "Điều khoản thanh toán",
+      "modeOffset": "Số ngày sau khi lập",
+      "offsetDays": "Số ngày sau khi lập",
+      "computed": "Hạn {{date}}"
     },
     "tax": {
       "name": "Thuế",
-      "id": "Mã Số Thuế",
+      "id": "Mã số thuế",
       "method": "Phương thức",
-      "reverse": "Đảo ngược phí"
+      "reverse": "Thuế đảo ngược",
+      "rate": "Thuế",
+      "rateRow": "Thuế suất cho mục {{number}}",
+      "perLine": "Thuế theo từng dòng",
+      "switchToLine": "Chuyển sang thuế theo từng dòng",
+      "switchHint": "Tổng tiền được tính lại theo thuế suất của bạn.",
+      "on": "trên {{amount}}"
     },
     "note": "Ghi chú",
-    "currency": "Tiền tệ"
+    "currency": "Tiền tệ",
+    "issuedAt": "Ngày lập",
+    "clearDate": "Xóa ngày",
+    "invoiceNumber": {
+      "label": "Số hóa đơn",
+      "hint": "Số tiếp theo từ Cài đặt"
+    },
+    "estimateNumber": {
+      "label": "Số báo giá",
+      "hint": "Số tiếp theo từ Cài đặt"
+    },
+    "validUntil": "Hiệu lực đến"
+  },
+  "cards": {
+    "client": "Khách hàng",
+    "details": "Chi tiết",
+    "items": "Dòng hàng",
+    "adjustments": "Điều chỉnh",
+    "notes": "Ghi chú"
+  },
+  "customize": {
+    "name": "Tùy chỉnh trường thông tin",
+    "saveAsDefault": "Lưu làm mặc định"
+  },
+  "preview": {
+    "toggle": "Xem trước",
+    "error": "Không thể hiển thị bản xem trước.",
+    "overflow": "Hóa đơn dài có thể bị cắt trong bản xem trước trực tiếp. Hãy dùng $t(form:header.btns.saveAndPreview) để xem toàn trang."
+  },
+  "footer": {
+    "saveTemplate": "Lưu mẫu"
+  },
+  "totals": {
+    "subtotal": "Tổng phụ",
+    "discount": "Giảm giá",
+    "tax": "Thuế",
+    "total": "Tổng cộng",
+    "amountPaid": "Số tiền đã trả",
+    "balanceDue": "Số dư còn nợ"
+  },
+  "errors": {
+    "summary": "Vui lòng sửa các trường được đánh dấu.",
+    "noItems": "Thêm ít nhất một mặt hàng.",
+    "draftEmpty": "Thêm khách hàng hoặc mặt hàng trước khi lưu nháp.",
+    "offsetDays": "Nhập số ngày từ 0 đến 365.",
+    "recipientRequired": "Chọn một khách hàng.",
+    "partialContactSave": "Đã lưu hóa đơn, nhưng không thể lưu thông tin liên hệ.",
+    "partialNumberingSave": "Đã lưu hóa đơn, nhưng không thể lưu số hóa đơn tiếp theo.",
+    "totalBelowPaid": "Tổng mới ({{total}}) nhỏ hơn số tiền đã trả ({{paid}}). Hãy xóa một khoản thanh toán trước.",
+    "currencyLocked": "Hóa đơn này đã có thanh toán. Bạn không thể đổi tiền tệ.",
+    "taxRateRequired": "Chọn thuế suất cho dòng này.",
+    "discountTooLarge": "Mức giảm giá quá lớn so với hóa đơn này.",
+    "exemptionReasonRequired": "Nhập lý do miễn thuế.",
+    "conflictingExemptionReasons": "Các dòng thuế trong cùng nhóm phải có cùng lý do miễn thuế.",
+    "validUntilBeforeIssue": "Ngày hiệu lực phải bằng hoặc sau ngày lập",
+    "creditedMissing": "Không tìm thấy hóa đơn được ghi có.",
+    "creditZero": "Số tiền ghi có phải lớn hơn 0.",
+    "creditCurrency": "Tiền tệ của giấy báo có phải trùng với hóa đơn.",
+    "creditExceeds": "Số tiền ghi có vượt quá số tiền còn có thể ghi có.",
+    "belowCredited": "Tổng không được nhỏ hơn các khoản thanh toán cộng với giấy báo có đã phát hành.",
+    "creditOriginalNotCreditable": "Hóa đơn này không thể nhận giấy báo có ở trạng thái hiện tại."
+  },
+  "convertedFrom": "Tạo từ báo giá {{number}}",
+  "creditNote": {
+    "credits": "Ghi có cho hóa đơn {{number}} ngày {{date}}",
+    "remaining": "Còn lại"
+  },
+  "numbering": {
+    "title": "Đánh số hóa đơn",
+    "prefix": "Tiền tố",
+    "next": "Số tiếp theo",
+    "padding": "Số chữ số",
+    "format": "Định dạng",
+    "formats": {
+      "sequential": "Số tuần tự",
+      "random": "Mã ngẫu nhiên"
+    },
+    "sample": "Ví dụ: {{number}}"
   }
 }

@@ -1,0 +1,97 @@
+{
+  "header": {
+    "name": "Berulang",
+    "new": "Faktur Berulang Baru",
+    "count_other": "{{count}} faktur berulang"
+  },
+  "empty": {
+    "title": "Belum ada faktur berulang",
+    "description": "Manta membuat draf selama aplikasi terbuka. Tidak ada yang dikirim secara otomatis.",
+    "noResults": "Tidak ada faktur berulang yang cocok"
+  },
+  "columns": {
+    "name": "Nama",
+    "client": "Klien",
+    "amount": "Jumlah",
+    "interval": "Ulangi",
+    "nextDate": "Draf Berikutnya",
+    "active": "Aktif",
+    "actions": "Tindakan"
+  },
+  "interval": {
+    "weekly": "Mingguan",
+    "monthly": "Bulanan",
+    "quarterly": "Kuartalan",
+    "yearly": "Tahunan"
+  },
+  "repeatEvery": {
+    "weekly_other": "Setiap {{count}} minggu",
+    "monthly_other": "Setiap {{count}} bulan",
+    "quarterly_other": "Setiap {{count}} kuartal",
+    "yearly_other": "Setiap {{count}} tahun"
+  },
+  "status": {
+    "paused": "Dijeda",
+    "ended": "Berakhir",
+    "active": "Aktif"
+  },
+  "actions": {
+    "open": "Tindakan Faktur Berulang",
+    "editSchedule": "Sunting Jadwal",
+    "editTemplate": "Sunting Templat",
+    "pause": "Jeda",
+    "resume": "Lanjutkan",
+    "delete": "Hapus"
+  },
+  "sheet": {
+    "titleNew": "Faktur Berulang Baru",
+    "titleEdit": "Sunting Faktur Berulang",
+    "schedule": "Jadwal",
+    "name": "Nama",
+    "every": "Ulangi Setiap",
+    "interval": "Interval",
+    "startDate": "Tanggal Mulai",
+    "endDate": "Tanggal Berakhir (Opsional)",
+    "noEndDate": "Tanpa Tanggal Berakhir",
+    "activeHint": "Templat yang dijeda tidak membuat draf.",
+    "active": "Aktif",
+    "summary": "Ringkasan",
+    "client": "Klien",
+    "items": "Item",
+    "itemsCount_other": "{{count}} item",
+    "amount": "Jumlah",
+    "nextDates": "Draf Berikutnya",
+    "createsToday": "Draf pertama akan dibuat hari ini saat Anda menyimpan.",
+    "save": "Simpan",
+    "cancel": "Batal"
+  },
+  "detail": {
+    "startDate": "Tanggal Mulai",
+    "endDate": "Tanggal Berakhir",
+    "noItems": "Tidak ada baris item di templat.",
+    "created": "Faktur yang Dibuat",
+    "noneCreated": "Belum ada faktur yang dibuat."
+  },
+  "errors": {
+    "name": "Masukkan nama.",
+    "every": "Masukkan angka dari 1 hingga 99.",
+    "interval": "Pilih interval.",
+    "startDate": "Pilih tanggal mulai yang valid.",
+    "endDate": "Tanggal berakhir harus sama dengan atau setelah tanggal mulai.",
+    "template": "Tambahkan klien dan minimal satu baris item di templat."
+  },
+  "toast": {
+    "created_other": "{{count}} faktur berulang dibuat sebagai draf",
+    "viewDrafts": "Lihat draf",
+    "capped": "Draf lainnya masih menunggu untuk: {{names}}",
+    "runFailed": "Proses faktur berulang gagal",
+    "saved": "Faktur berulang disimpan",
+    "deleted_other": "{{count}} faktur berulang dihapus",
+    "undo": "Urungkan",
+    "restored": "Faktur berulang dipulihkan"
+  },
+  "search": {
+    "label": "Saring Faktur Berulang",
+    "placeholder": "Saring faktur berulang…"
+  }
+}

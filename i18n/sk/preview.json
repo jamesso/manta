@@ -4,38 +4,89 @@
     "alignment": {
       "name": "Zarovnanie",
       "top": "Hore",
-      "middle": "Na stred",
+      "middle": "V strede",
       "bottom": "Dole"
     },
     "fontSize": "Veľkosť písma",
+    "logoSize": "Veľkosť loga",
     "toggle": {
-      "name": "Prepnúť",
+      "name": "Prepínače",
       "logo": "Logo",
       "symbol": "Symbol",
       "recipient": "Príjemca"
     },
     "accentColor": {
       "name": "Farba zvýraznenia",
-      "useCustom": "Použiť vlastnú"
+      "useCustom": "Použiť vlastnú",
+      "custom": "Vlastná farba"
     },
     "actions": {
       "name": "Akcie",
       "savePDF": "Exportovať do PDF",
+      "emailInvoice": "Poslať faktúru e-mailom",
+      "sharePdf": "Zdieľať PDF…",
       "saveConfigs": "Uložiť nastavenia"
+    },
+    "einvoice": {
+      "title": "E-faktúra",
+      "ready": "Pripravené na export",
+      "problems": "Problémy na opravu: {{count}}",
+      "exportXrechnung": "Exportovať XRechnung (XML)",
+      "exportFacturx": "Exportovať Factur-X (PDF)",
+      "disclaimer": "Pred odoslaním exporty overte.",
+      "reveal": "Zobraziť v priečinku",
+      "exportFailed": "Export zlyhal"
     }
   },
+  "drawer": {
+    "title": "Ukážka {{number}}",
+    "style": "Štýl",
+    "defaultStyle": "Tento doklad používa predvolený štýl z nastavení.",
+    "ownStyle": "Tento doklad má vlastný štýl.",
+    "saveStyle": "Uložiť štýl",
+    "useDefaults": "Použiť predvolený štýl",
+    "exported": "Súbor exportovaný",
+    "exportFailed": "PDF sa nepodarilo exportovať: {{reason}}"
+  },
   "common": {
-    "billedTo": "Fakturované",
-    "chooseInvoiceToPreview": "Vyberte faktúru na ukážku",
-    "created": "Vytvorené",
-    "due": "Termín",
+    "billedTo": "Odberateľ",
+    "chooseInvoiceToPreview": "Vyberte faktúru na zobrazenie ukážky",
+    "created": "Vystavené",
+    "due": "Splatnosť",
     "invoice": "Faktúra",
+    "estimate": "Cenová ponuka",
+    "creditNote": "Dobropis",
+    "creditsInvoice": "Dobropis k faktúre {{number}} zo dňa {{date}}",
+    "totalCredit": "Celková suma dobropisu",
+    "validUntil": "Platná do",
     "itemDescription": "Popis položky",
-    "notice": "Oznámenie",
-    "order": "Nie",
+    "notice": "Poznámka",
+    "order": "Č.",
     "price": "Cena",
     "qty": "Množstvo",
     "subtotal": "Medzisúčet",
-    "total": "Celkom"
+    "total": "Celkom",
+    "amountPaid": "Zaplatená suma",
+    "balanceDue": "Zostatok na úhradu",
+    "labelled": "{{label}}: {{value}}"
+  },
+  "tax": {
+    "taxId": "DIČ",
+    "vatId": "IČ DPH",
+    "recipientTaxId": "IČ DPH klienta",
+    "on": "z {{amount}}",
+    "category": {
+      "S": "DPH",
+      "Z": "DPH 0 %",
+      "E": "Oslobodené od DPH",
+      "AE": "Prenesenie daňovej povinnosti",
+      "K": "Dodanie tovaru v rámci EÚ",
+      "G": "Vývoz",
+      "O": "Nepodlieha DPH"
+    }
+  },
+  "einvoice": {
+    "bank": "Banka",
+    "buyerReference": "Referencia odberateľa"
   }
 }

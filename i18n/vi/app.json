@@ -1,0 +1,100 @@
+{
+  "nav": {
+    "newInvoice": "Hóa đơn mới",
+    "search": "Tìm kiếm",
+    "invoices": "Hóa đơn",
+    "estimates": "Báo giá",
+    "recurring": "Định kỳ",
+    "clients": "Khách hàng",
+    "items": "Mặt hàng",
+    "dashboard": "Tổng quan",
+    "settings": "Cài đặt",
+    "help": "Trợ giúp",
+    "shortcuts": "Phím tắt",
+    "tutorial": "Xem hướng dẫn",
+    "learnMore": "Tìm hiểu thêm",
+    "toggleSidebar": "Ẩn/hiện thanh bên",
+    "searchPlaceholder": "Tìm kiếm hoặc chuyển đến…",
+    "library": "Thư viện"
+  },
+  "titles": {
+    "newInvoice": "Hóa đơn mới",
+    "editInvoice": "Chỉnh sửa hóa đơn",
+    "newEstimate": "Báo giá mới",
+    "editEstimate": "Chỉnh sửa báo giá",
+    "dashboard": "Tổng quan"
+  },
+  "update": {
+    "check": "Kiểm tra cập nhật",
+    "checking": "Đang kiểm tra cập nhật…",
+    "downloading": "Đang tải bản cập nhật {{percent}}%"
+  },
+  "palette": {
+    "title": "Bảng lệnh",
+    "description": "Tìm trang, hóa đơn, báo giá, khách hàng, mặt hàng và tác vụ",
+    "placeholder": "Nhập lệnh hoặc tìm kiếm…",
+    "empty": "Không tìm thấy kết quả.",
+    "goTo": "Đi đến",
+    "actions": "Tác vụ",
+    "newEstimate": "Báo giá mới",
+    "invoices": "Hóa đơn",
+    "estimates": "Báo giá",
+    "clients": "Khách hàng",
+    "toggleTheme": "Đổi giao diện",
+    "themeChanged": "Đã chuyển giao diện sang {{theme}}",
+    "items": "Mặt hàng",
+    "showAll": "Xem tất cả “{{query}}” trong {{page}}"
+  },
+  "theme": {
+    "system": "Theo hệ thống",
+    "light": "Sáng",
+    "dark": "Tối"
+  },
+  "shortcuts": {
+    "title": "Phím tắt",
+    "groups": {
+      "general": "Chung",
+      "invoice": "Hóa đơn",
+      "go": "Đi đến",
+      "help": "Trợ giúp"
+    },
+    "items": {
+      "palette": "Bảng lệnh",
+      "sidebar": "Ẩn/hiện thanh bên",
+      "settings": "Cài đặt",
+      "shortcuts": "Phím tắt",
+      "checkUpdates": "Kiểm tra cập nhật",
+      "quit": "Thoát",
+      "newInvoice": "Hóa đơn mới",
+      "save": "Lưu hóa đơn",
+      "reset": "Làm lại biểu mẫu",
+      "addItem": "Thêm dòng hàng",
+      "toggleSettings": "Ẩn/hiện cài đặt biểu mẫu",
+      "dueDate": "Bật/tắt hạn thanh toán",
+      "currency": "Bật/tắt tiền tệ",
+      "vat": "Bật/tắt VAT",
+      "discount": "Bật/tắt giảm giá",
+      "note": "Bật/tắt ghi chú",
+      "invoices": "Hóa đơn",
+      "dashboard": "Tổng quan",
+      "clients": "Khách hàng",
+      "tutorial": "Xem hướng dẫn"
+    }
+  },
+  "newInvoice": {
+    "confirmTitle": "Dừng chỉnh sửa hóa đơn này?",
+    "confirmMessage": "Các thay đổi chưa lưu của hóa đơn này sẽ bị mất. Hóa đơn đã lưu không thay đổi.",
+    "confirm": "Tạo hóa đơn mới",
+    "cancel": "Tiếp tục chỉnh sửa",
+    "template": {
+      "confirmTitle": "Dừng chỉnh sửa mẫu định kỳ này?",
+      "confirmMessage": "Các thay đổi chưa lưu của mẫu này sẽ bị mất. Mẫu đã lưu không thay đổi."
+    }
+  },
+  "error": {
+    "title": "Đã xảy ra lỗi",
+    "message": "Vui lòng báo lỗi này trên GitHub: https://github.com/jamesso/manta/issues",
+    "reload": "Tải lại",
+    "details": "Chi tiết"
+  }
+}

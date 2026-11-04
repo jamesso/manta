@@ -1,0 +1,65 @@
+{
+  "header": "Item",
+  "new": "Item Baru",
+  "search": {
+    "label": "Saring Item",
+    "placeholder": "Saring item…"
+  },
+  "views": {
+    "active": "Aktif",
+    "archived": "Diarsipkan"
+  },
+  "columns": {
+    "name": "Nama",
+    "unit": "Satuan",
+    "unitPrice": "Harga Satuan",
+    "actions": "Tindakan"
+  },
+  "actions": {
+    "open": "Tindakan untuk {{name}}",
+    "edit": "Sunting",
+    "archive": "Arsipkan",
+    "unarchive": "Batalkan Arsip",
+    "delete": "Hapus"
+  },
+  "dialog": {
+    "newTitle": "Item Baru",
+    "editTitle": "Sunting Item",
+    "name": "Nama",
+    "description": "Deskripsi",
+    "descriptionHint": "Teks ini dicetak pada faktur. Jika kosong, nama yang dicetak.",
+    "unitPrice": "Harga Satuan",
+    "priceHint": "Menggunakan mata uang faktur.",
+    "unit": "Satuan",
+    "taxRate": "Tarif Pajak",
+    "defaultTaxRate": "Tarif Standar",
+    "save": "Simpan",
+    "cancel": "Batal"
+  },
+  "detail": {
+    "noDescription": "Tanpa deskripsi. Nama dicetak pada faktur."
+  },
+  "errors": {
+    "nameRequired": "Masukkan nama.",
+    "nameTooLong": "Nama maksimal 120 karakter.",
+    "nameTaken": "Nama ini sudah digunakan oleh item aktif.",
+    "price": "Masukkan harga satuan yang valid.",
+    "unit": "Pilih kode satuan yang valid."
+  },
+  "empty": {
+    "title": "Belum ada item",
+    "description": "Simpan produk dan layanan yang sering Anda jual, lalu pilih saat menambahkan baris faktur.",
+    "noArchived": "Tidak ada item yang diarsipkan",
+    "noResultsFiltered": "Tidak ada item yang cocok"
+  },
+  "units": {
+    "C62": "Unit",
+    "HUR": "Jam",
+    "DAY": "Hari",
+    "MON": "Bulan",
+    "KGM": "Kilogram",
+    "MTR": "Meter",
+    "LS": "Borongan"
+  },
+  "count_other": "{{count}} item"
+}

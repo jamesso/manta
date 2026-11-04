@@ -1,41 +1,92 @@
 {
   "sidebar": {
-    "template": "Template",
+    "template": "Templat",
     "alignment": {
-      "name": "Penjajaran",
+      "name": "Perataan",
       "top": "Atas",
       "middle": "Tengah",
       "bottom": "Bawah"
     },
     "fontSize": "Ukuran Huruf",
+    "logoSize": "Ukuran Logo",
     "toggle": {
-      "name": "Tombol Alih",
+      "name": "Tampilkan",
       "logo": "Logo",
       "symbol": "Simbol",
       "recipient": "Penerima"
     },
     "accentColor": {
       "name": "Warna Aksen",
-      "useCustom": "Gunakan Custom"
+      "useCustom": "Gunakan Warna Kustom",
+      "custom": "Warna Kustom"
     },
     "actions": {
       "name": "Tindakan",
       "savePDF": "Ekspor PDF",
-      "saveConfigs": "Simpan Konfigurasi"
+      "emailInvoice": "Kirim Faktur via Email",
+      "sharePdf": "Bagikan PDF…",
+      "saveConfigs": "Simpan Pengaturan"
+    },
+    "einvoice": {
+      "title": "E-faktur",
+      "ready": "Siap Diekspor",
+      "problems": "{{count}} masalah perlu diperbaiki",
+      "exportXrechnung": "Ekspor XRechnung (XML)",
+      "exportFacturx": "Ekspor Factur-X (PDF)",
+      "disclaimer": "Validasi hasil ekspor sebelum dikirim.",
+      "reveal": "Tampilkan di Folder",
+      "exportFailed": "Ekspor gagal"
     }
   },
+  "drawer": {
+    "title": "Pratinjau {{number}}",
+    "style": "Gaya",
+    "defaultStyle": "Dokumen ini menggunakan gaya standar dari Pengaturan.",
+    "ownStyle": "Dokumen ini memiliki gaya sendiri.",
+    "saveStyle": "Simpan Gaya",
+    "useDefaults": "Gunakan Gaya Standar",
+    "exported": "Berkas Diekspor",
+    "exportFailed": "Tidak dapat mengekspor PDF: {{reason}}"
+  },
   "common": {
-    "billedTo": "Ditagih Ke",
-    "chooseInvoiceToPreview": "Silahkan pilih sebuah faktur untuk pratinjau",
+    "billedTo": "Ditagihkan Kepada",
+    "chooseInvoiceToPreview": "Silakan pilih faktur untuk dipratinjau",
     "created": "Dibuat",
-    "due": "Batas Waktu",
+    "due": "Jatuh Tempo",
     "invoice": "Faktur",
+    "estimate": "Penawaran",
+    "creditNote": "Nota kredit",
+    "creditsInvoice": "Mengkreditkan Faktur {{number}} tanggal {{date}}",
+    "totalCredit": "Total Kredit",
+    "validUntil": "Berlaku Hingga",
     "itemDescription": "Deskripsi Item",
     "notice": "Pemberitahuan",
     "order": "Nomor",
     "price": "Harga",
     "qty": "Kuantitas",
     "subtotal": "Subtotal",
-    "total": "Total"
+    "total": "Total",
+    "amountPaid": "Jumlah Dibayar",
+    "balanceDue": "Sisa Tagihan",
+    "labelled": "{{label}}: {{value}}"
+  },
+  "tax": {
+    "taxId": "ID Pajak",
+    "vatId": "ID PPN",
+    "recipientTaxId": "ID PPN Klien",
+    "on": "atas {{amount}}",
+    "category": {
+      "S": "PPN",
+      "Z": "PPN 0 %",
+      "E": "Bebas PPN",
+      "AE": "Reverse Charge",
+      "K": "Pengiriman Intra-Komunitas",
+      "G": "Ekspor",
+      "O": "Di Luar Cakupan PPN"
+    }
+  },
+  "einvoice": {
+    "bank": "Bank",
+    "buyerReference": "Referensi Pembeli"
   }
 }

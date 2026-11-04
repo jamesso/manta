@@ -1,5 +1,165 @@
 {
   "header": "Impostazioni",
+  "nav": {
+    "profile": "Profilo",
+    "invoice": "Fatture",
+    "appearance": "Aspetto",
+    "language": "Lingue",
+    "export": "Esportazioni",
+    "updates": "Aggiornamenti",
+    "sounds": "Suoni"
+  },
+  "sections": {
+    "profile": {
+      "title": "Profilo",
+      "description": "Il tuo nome e i tuoi recapiti appaiono sulle fatture.",
+      "details": "Dati aziendali"
+    },
+    "invoice": {
+      "title": "Fatture",
+      "description": "Numerazione, stile, valuta, imposte ed email per i tuoi documenti.",
+      "email": {
+        "title": "Modelli email",
+        "tabInvoice": "Email fattura",
+        "tabReminder": "Promemoria di pagamento",
+        "subject": "Oggetto",
+        "body": "Testo",
+        "placeholders": "Segnaposto",
+        "preview": "Anteprima",
+        "lengthWarning": "Questo messaggio è lungo. Le app di posta potrebbero riceverne una versione abbreviata.",
+        "reset": "Ripristina predefinito",
+        "defaultBadge": "Predefinito",
+        "description": "Oggetto e testo delle email di fattura e di promemoria."
+      },
+      "invoicesTitle": "Fatture",
+      "requiredHint": "I campi mostrati quando inizi un nuovo documento.",
+      "numberingTitle": "Numerazione"
+    },
+    "estimates": {
+      "title": "Preventivi"
+    },
+    "creditNotes": {
+      "title": "Note di credito"
+    },
+    "eInvoice": {
+      "title": "Fattura elettronica",
+      "description": "Esporta XRechnung XML e Factur-X PDF dall'anteprima.",
+      "disclaimer": "Manta crea le fatture elettroniche al meglio delle sue capacità, ma non garantisce la conformità legale. Convalida i file e verificali con il tuo consulente fiscale prima di inviarli.",
+      "enable": "Attiva esportazione fattura elettronica",
+      "defaultFormat": "Formato predefinito",
+      "buyerReference": "Riferimento acquirente",
+      "buyerReferenceHint": "Richiedi un riferimento acquirente (Leitweg-ID) per i clienti e riportalo sulle fatture. È necessario per XRechnung.",
+      "confirmTitle": "Attiva esportazione fattura elettronica",
+      "confirmAccept": "Ho capito",
+      "formats": {
+        "xrechnung": "XRechnung XML (UBL)",
+        "facturx": "Factur-X (PDF)"
+      }
+    },
+    "appearance": {
+      "title": "Aspetto",
+      "description": "Scegli chiaro, scuro o come il sistema."
+    },
+    "language": {
+      "title": "Lingue",
+      "description": "Lingua dell'app e formato delle date.",
+      "languageHint": "Usata per i menu e le nuove fatture.",
+      "dateFormatHint": "Come vengono mostrate le date negli elenchi e sulle fatture."
+    },
+    "export": {
+      "title": "Esportazioni",
+      "description": "Cartella di esportazione PDF, backup ed esportazione CSV.",
+      "chooseFolder": "Scegli cartella",
+      "pdfTitle": "Esportazione PDF",
+      "backupTitle": "Backup",
+      "exportBackup": "Esporta backup",
+      "exportBackupHint": "Salva tutti i tuoi dati e le impostazioni in un unico file.",
+      "importBackupHint": "Aggiungi dati da un file di backup di Manta.",
+      "csvTitle": "CSV",
+      "csvInvoices": "Fatture",
+      "csvInvoicesHint": "Salva tutte le fatture in un foglio di calcolo."
+    },
+    "updates": {
+      "title": "Aggiornamenti",
+      "description": "Manta controlla gli aggiornamenti all'avvio.",
+      "check": "Controlla aggiornamenti",
+      "manual": "Controlla ora",
+      "manualHint": "Cerca una nuova versione di Manta."
+    },
+    "sounds": {
+      "title": "Suoni",
+      "description": "Suoni di notifica quando salvi o elimini."
+    }
+  },
+  "errors": {
+    "taxAmount": "Inserisci un numero pari o superiore a 0",
+    "fraction": "Inserisci un numero intero da 0 a 20",
+    "numberingNext": "Inserisci un numero intero pari o superiore a 1",
+    "numberingPadding": "Inserisci un numero intero da 0 a 12",
+    "numberingPrefix": "Usa al massimo 20 caratteri",
+    "importInProgress": "Importazione in corso. Riprova al termine.",
+    "profileInvalid": "I valori del profilo non sono validi",
+    "generalInvalid": "I valori delle impostazioni generali non sono validi",
+    "invoiceInvalid": "I valori delle impostazioni fattura non sono validi",
+    "themeInvalid": "Scegli Sistema, Chiaro o Scuro",
+    "languageInvalid": "Scegli una lingua supportata",
+    "soundInvalid": "Scegli un suono supportato",
+    "templateInvalid": "Scegli un modello di fattura supportato",
+    "validDays": "Inserisci un numero intero da 1 a 365",
+    "countryInvalid": "Scegli un codice paese valido",
+    "ibanInvalid": "Inserisci un IBAN valido",
+    "bicInvalid": "Inserisci un BIC valido",
+    "emailSubject": "Usa una sola riga di massimo 200 caratteri",
+    "emailBody": "Usa al massimo 1500 caratteri"
+  },
+  "backup": {
+    "export": "Esporta backup…",
+    "import": "Importa",
+    "exportCsv": "Esporta fatture in CSV…",
+    "autoHint": "Manta salva un backup automatico prima di ogni importazione.",
+    "exportSuccess": "Backup salvato",
+    "csvSuccess": "CSV esportato",
+    "showFile": "Mostra file",
+    "showSafety": "Mostra backup di sicurezza",
+    "importTitle": "Importa backup",
+    "importing": "Importazione…",
+    "includeSettings": "Importa impostazioni",
+    "modeSkip": "Mantieni la mia versione",
+    "modeOverwrite": "Usa la versione del backup",
+    "exportedOn": "Esportato il {{date}}",
+    "fromVersion": "Manta {{version}}",
+    "colInFile": "Nel file",
+    "colNew": "Nuovi",
+    "colExisting": "Già in Manta",
+    "colSkipped": "Saltati",
+    "rowInvoices": "Fatture e preventivi",
+    "skippedHint": "I record saltati sono danneggiati o presenti due volte nel file. Manta non li importerà.",
+    "empty": "Questo backup non contiene record.",
+    "existingTitle": "Record già presenti in Manta",
+    "keepHint_one": "Mantieni la versione attuale di {{count}} record.",
+    "keepHint_many": "Mantieni la versione attuale di {{count}} record.",
+    "keepHint_other": "Mantieni la versione attuale di {{count}} record.",
+    "replaceHint_one": "Sostituisci {{count}} record con la versione di questo backup.",
+    "replaceHint_many": "Sostituisci {{count}} record con la versione di questo backup.",
+    "replaceHint_other": "Sostituisci {{count}} record con la versione di questo backup.",
+    "settingsHint": "Sostituisce il profilo aziendale, le impostazioni predefinite delle fatture e le preferenze dell'app.",
+    "noSettings": "Questo backup non contiene impostazioni.",
+    "creditWarnings": "{{count}} note di credito emesse presentano avvisi sui dati (fattura mancante, valuta non corrispondente o importo non valido). Verranno comunque importate.",
+    "importSuccess": "Importati {{added}} nuovi elementi e sostituiti {{overwritten}}. Saltati {{skipped}}.",
+    "importFailedDocs": "Impossibile scriverne {{count}}.",
+    "batchFailed": "Importazione di {{batch}} interrotta: {{detail}}",
+    "settingsApplyFailed": "Impostazioni non applicate per: {{sections}}.",
+    "snapshotWarning": "Backup di sicurezza conservato, ma la pulizia non è riuscita: {{detail}}",
+    "skippedSettings": "Impostazioni non importate per: {{sections}}.",
+    "errors": {
+      "invalidJson": "Questo file non è un backup valido.",
+      "wrongApp": "Questo file non è un backup di Manta.",
+      "newerVersion": "Questo backup è stato creato con una versione più recente di Manta. Aggiorna Manta e riprova.",
+      "invalidFormat": "Questo file di backup è danneggiato.",
+      "tooLarge": "Questo file è troppo grande (più di 100 MB).",
+      "unsupportedData": "Questo backup contiene allegati non supportati."
+    }
+  },
   "tabs": {
     "profile": "Profilo",
     "invoice": "Fattura",
@@ -8,31 +168,72 @@
   "fields": {
     "logo": {
       "name": "Logo",
-      "hint": "Accetta PNG, JPG e SVG (raccomandato)"
+      "hint": "Accetta PNG, JPG e SVG (consigliato)"
     },
-    "taxSettings": "Impostazioni Fiscali",
-    "template": "Template",
-    "dateFormat": "Formato della Data",
-    "pdfExportDir": "Cartella di Esportazione PDF",
-    "requiredFields": "Campi Obbligatori",
+    "taxSettings": "Impostazioni fiscali",
+    "taxId": "Codice fiscale",
+    "vatId": "Partita IVA",
+    "legalName": "Ragione sociale",
+    "legalNameHint": "Denominazione registrata; lascia vuoto per usare il nome dell'azienda.",
+    "printedAddress": "Indirizzo stampato (usato quando l'indirizzo strutturato è vuoto)",
+    "postalAddress": {
+      "title": "Indirizzo",
+      "street": "Via",
+      "additional": "Riga aggiuntiva",
+      "postcode": "CAP",
+      "city": "Città",
+      "region": "Provincia/Regione",
+      "country": "Paese"
+    },
+    "bank": {
+      "title": "Conto bancario",
+      "accountName": "Intestatario",
+      "iban": "IBAN",
+      "bic": "BIC"
+    },
+    "template": "Modello",
+    "style": {
+      "title": "Stile fattura",
+      "hint": "Tutti i documenti usano questo stile. Per modificarne uno solo, apri la sua anteprima.",
+      "toggles": {
+        "showLogo": "Mostra logo",
+        "showLogoHint": "Stampa il tuo logo in cima al documento.",
+        "useSymbol": "Usa simbolo di valuta",
+        "useSymbolHint": "Mostra $ invece di USD.",
+        "showRecipient": "Mostra dati cliente",
+        "showRecipientHint": "Stampa nome e indirizzo del cliente.",
+        "customAccentColor": "Colore principale",
+        "customAccentColorHint": "Colora il titolo e i totali."
+      }
+    },
+    "estimateValidDays": "Validità (giorni)",
+    "dateFormat": "Formato data",
+    "pdfExportDir": "Cartella di esportazione PDF",
+    "requiredFields": "Campi del modulo",
     "sound": "Suono",
-    "mute": "Muto",
+    "mute": "Disattiva suoni",
     "autoCheckUpdate": {
-      "name": "Controllo Automatico degli Aggiornamenti",
-      "daily": "Tutti i giorni (raccomandato)",
+      "name": "Controllo automatico degli aggiornamenti",
+      "daily": "Ogni giorno (consigliato)",
       "weekly": "Ogni settimana"
     },
     "currency": {
-      "placement": "Posizione del segno",
+      "placement": "Posizione del simbolo",
       "afterAmount": "Dopo l'importo",
       "beforeAmount": "Prima dell'importo",
-      "fraction": "Frazione Decimale",
+      "fraction": "Cifre decimali",
       "separator": "Separatore",
-      "commaDot": "Virgola & Punto",
-      "dotComma": "Punto & Virgola",
-      "spaceDot": "Spazio & Punto"
+      "commaDot": "Virgola / punto",
+      "dotComma": "Punto / virgola",
+      "spaceDot": "Spazio / punto"
     },
     "openPDFReader": "Apri PDF dopo l'esportazione",
+    "theme": {
+      "name": "Tema",
+      "system": "Sistema",
+      "light": "Chiaro",
+      "dark": "Scuro"
+    },
     "language": {
       "name": "Lingua",
       "ar": "Arabo",
@@ -49,18 +250,82 @@
       "ko": "Coreano",
       "lt": "Lituano",
       "nl": "Olandese",
-      "ptBR": "Portoghese, Brasiliano",
+      "ptBR": "Portoghese (Brasile)",
       "ptPT": "Portoghese",
       "ru": "Russo",
       "sk": "Slovacco",
       "th": "Tailandese",
-      "tl": "Tagalog, Filippine",
+      "tl": "Tagalog (Filippine)",
       "tr": "Turco",
       "ur-PK": "Urdu (Pakistan)",
       "vi": "Vietnamita",
-      "zh-CN": "Cinese (Semplificato)",
-      "zh-TW": "Cinese (Tradizionale)"
+      "zh-CN": "Cinese (semplificato)",
+      "zh-TW": "Cinese (tradizionale)"
     },
     "other": "Altro"
+  },
+  "taxRates": {
+    "title": "Aliquote fiscali",
+    "add": "Aggiungi aliquota",
+    "edit": "Modifica aliquota",
+    "default": "Predefinita",
+    "inactive": "Inattiva",
+    "setDefault": "Imposta come predefinita",
+    "markInactive": "Segna come inattiva",
+    "reactivate": "Riattiva",
+    "delete": "Elimina",
+    "usedBy": "Usata da {{count}} articoli. Vuoi invece segnarla come inattiva?",
+    "hintSnapshot": "Le modifiche si applicano alle nuove righe. Le fatture salvate mantengono le loro aliquote.",
+    "hintAdvisor": "Chiedi al tuo consulente fiscale quale categoria si applica.",
+    "name": "Nome",
+    "rate": "Aliquota %",
+    "category": "Categoria",
+    "reason": "Motivo di esenzione",
+    "actionsFor": "Azioni per {{name}}",
+    "categories": {
+      "S": {
+        "label": "Aliquota ordinaria",
+        "help": "L'aliquota IVA normale, ad esempio 22 % o 20 %."
+      },
+      "Z": {
+        "label": "Aliquota zero",
+        "help": "Imponibile, ma allo 0 %."
+      },
+      "E": {
+        "label": "Esente",
+        "help": "Esente IVA per legge. Richiede un motivo."
+      },
+      "AE": {
+        "label": "Inversione contabile",
+        "help": "L'IVA è a carico dell'acquirente. Richiede un motivo e la partita IVA dell'acquirente."
+      },
+      "K": {
+        "label": "Cessione intracomunitaria",
+        "help": "Beni ceduti a un acquirente con partita IVA in un altro paese UE. Richiede un motivo."
+      },
+      "G": {
+        "label": "Esportazione extra UE",
+        "help": "Sull'esportazione non si applica l'IVA. Richiede un motivo."
+      },
+      "O": {
+        "label": "Fuori campo IVA",
+        "help": "Non soggetto a IVA, ad esempio se non hai una partita IVA. Richiede un motivo."
+      }
+    },
+    "errors": {
+      "name": "Inserisci un nome da 1 a 40 caratteri.",
+      "rateStandard": "Le aliquote ordinarie devono essere comprese tra 0 e 100 %.",
+      "rateZero": "Questa categoria deve usare lo 0 %.",
+      "reasonRequired": "Inserisci un motivo di esenzione (massimo 200 caratteri).",
+      "duplicateId": "Ogni aliquota deve avere un ID univoco.",
+      "noDefault": "Imposta esattamente un'aliquota attiva come predefinita.",
+      "empty": "Aggiungi almeno un'aliquota."
+    }
+  },
+  "logo": {
+    "drop": "Trascina qui il logo",
+    "choose": "Scegli logo…",
+    "replace": "Sostituisci…",
+    "remove": "Rimuovi logo"
   }
 }

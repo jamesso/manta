@@ -1,0 +1,53 @@
+{
+  "defaults": {
+    "invoice": {
+      "subject": "Rechnung {number} von {company}",
+      "body": "Guten Tag {client},\n\nanbei erhalten Sie die Rechnung {number} über {total}. Fällig: {dueDate}.\n\nVielen Dank für Ihren Auftrag.\n\n{company}"
+    },
+    "reminder": {
+      "subject": "Zahlungserinnerung: Rechnung {number}",
+      "body": "Guten Tag {client},\n\nwir möchten Sie freundlich daran erinnern, dass die Rechnung {number} über {total} am {dueDate} fällig war. Der offene Betrag beläuft sich auf {balance}.\n\nFalls Sie bereits bezahlt haben, betrachten Sie diese Nachricht bitte als gegenstandslos.\n\nFreundliche Grüße\n{company}"
+    }
+  },
+  "vars": {
+    "noDueDate": "bei Erhalt"
+  },
+  "placeholders": {
+    "number": "Rechnungsnummer",
+    "client": "Kundenname",
+    "total": "Rechnungsbetrag",
+    "balance": "Offener Betrag",
+    "dueDate": "Fälligkeitsdatum",
+    "company": "Ihr Firmenname"
+  },
+  "actions": {
+    "email": "Rechnung per E-Mail senden",
+    "reminder": "Erinnerung senden",
+    "share": "PDF teilen …",
+    "markSent": "Als gesendet markieren",
+    "markReminded": "Erinnerung als gesendet markieren",
+    "copyFullMessage": "Ganze Nachricht kopieren"
+  },
+  "toast": {
+    "opened": "E-Mail geöffnet – hängen Sie das PDF aus dem Ordner an",
+    "openedHint": "{{fileName}} ist im geöffneten Ordner ausgewählt.",
+    "truncated": "Die Nachricht war zu lang für einen Mail-Link. Kopieren Sie den vollständigen Text mit „Ganze Nachricht kopieren“.",
+    "failed": "E-Mail konnte nicht vorbereitet werden: {{reason}}",
+    "noMailApp": "Ihr E-Mail-Programm konnte nicht geöffnet werden. Das PDF wurde gespeichert.",
+    "markedSent": "Als gesendet markiert",
+    "notSaved": "Speichern Sie zuerst die Rechnung.",
+    "copied": "Nachricht kopiert"
+  },
+  "ask": {
+    "title": "E-Mail-Adresse für {{client}}",
+    "description": "Geben Sie eine E-Mail-Adresse ein, um Ihr E-Mail-Programm mit einem Nachrichtenentwurf zu öffnen.",
+    "label": "E-Mail",
+    "save": "Diese Adresse beim Kunden speichern",
+    "confirm": "Weiter",
+    "invalid": "Geben Sie eine gültige E-Mail-Adresse ein"
+  },
+  "sheet": {
+    "sentOn": "Gesendet am {{date}}",
+    "remindedOn": "Erinnerung gesendet am {{date}}"
+  }
+}

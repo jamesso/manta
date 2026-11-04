@@ -1,9 +1,76 @@
 {
-  "header": "Všetky kontakty",
+  "header": "Klienti",
   "fields": {
     "contact": "Kontakt",
     "email": "E-mail",
     "phone": "Telefón",
-    "actions": "Akcie"
+    "actions": "Akcie",
+    "nameCompany": "Meno / spoločnosť",
+    "invoices": "Faktúry",
+    "outstanding": "Neuhradené",
+    "taxId": "DIČ / IČ DPH",
+    "buyerReference": "Referencia odberateľa (Leitweg-ID)",
+    "buyerReferenceHint": "Vyžadujú ju nemeckí odberatelia z verejného sektora.",
+    "buyerReferenceWarning": "Kontrolné číslice tohto Leitweg-ID vyzerajú nesprávne.",
+    "addressTitle": "Adresa"
+  },
+  "searchPlaceholder": "Filtrovať klientov…",
+  "newClient": "Nový klient",
+  "empty": {
+    "title": "Zatiaľ žiadni klienti",
+    "description": "Klienti sa uložia pri vytvorení faktúry, alebo môžete klienta pridať hneď teraz.",
+    "noResultsFiltered": "Žiadni zodpovedajúci klienti"
+  },
+  "editor": {
+    "createTitle": "Nový klient",
+    "editTitle": "Upraviť klienta",
+    "hint": "Zmeny sa prejavia na nových faktúrach. Existujúce faktúry si ponechajú údaje, s ktorými boli vytvorené.",
+    "fullname": "Celé meno",
+    "company": "Spoločnosť",
+    "email": "E-mail",
+    "phone": "Telefón",
+    "save": "Uložiť"
+  },
+  "detail": {
+    "outstanding": "Neuhradené",
+    "noInvoices": "Tento klient zatiaľ nemá žiadne faktúry.",
+    "newInvoice": "Nová faktúra",
+    "edit": "Upraviť"
+  },
+  "actions": {
+    "newInvoice": "Nová faktúra",
+    "edit": "Upraviť",
+    "delete": "Odstrániť",
+    "menuLabel": "Akcie pre {{name}}"
+  },
+  "toast": {
+    "deleted": "Klient odstránený",
+    "deleted_one": "{{count}} klient odstránený",
+    "deleted_few": "{{count}} klienti odstránení",
+    "deleted_many": "{{count}} klienta odstráneného",
+    "deleted_other": "{{count}} klientov odstránených",
+    "undo": "Späť",
+    "restored": "Klient obnovený",
+    "restored_one": "{{count}} klient obnovený",
+    "restored_few": "{{count}} klienti obnovení",
+    "restored_many": "{{count}} klienta obnoveného",
+    "restored_other": "{{count}} klientov obnovených",
+    "deleteFailed": "Nepodarilo sa odstrániť: {{count}}"
+  },
+  "errors": {
+    "fullnameRequired": "Zadajte celé meno",
+    "emailRequired": "Zadajte e-mailovú adresu",
+    "emailInvalid": "Zadajte platnú e-mailovú adresu",
+    "countryInvalid": "Vyberte platný kód krajiny"
+  },
+  "searchLabel": "Filtrovať klientov",
+  "count_one": "{{count}} klient",
+  "count_few": "{{count}} klienti",
+  "count_many": "{{count}} klienta",
+  "count_other": "{{count}} klientov",
+  "balance": {
+    "outstanding": "Neuhradené",
+    "settled": "Uhradené",
+    "noInvoices": "Bez faktúr"
   }
 }

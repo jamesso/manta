@@ -4,13 +4,30 @@
   "invoice": {
     "saved": "Rechnung erfolgreich gespeichert",
     "updated": "Rechnung wurde erfolgreich aktualisiert",
-    "deleted": "Rechnung wurde erfolgreich gelöscht"
+    "deleted": "Rechnung wurde erfolgreich gelöscht",
+    "draftSaved": "Entwurf gespeichert"
+  },
+  "estimate": {
+    "saved": "Angebot gespeichert",
+    "draftSaved": "Angebot als Entwurf gespeichert"
   },
   "contact": {
-    "saved": "Kontakt erfolgreich gespeichert",
-    "deleted": "Kontakt erfolgreich gelöscht"
+    "saved": "Kunde gespeichert",
+    "updated": "Kunde aktualisiert",
+    "deleted": "Kunde gelöscht"
+  },
+  "item": {
+    "saved": "Artikel gespeichert",
+    "updated": "Artikel aktualisiert",
+    "archived": "Artikel archiviert",
+    "unarchived": "Artikel wieder aktiv",
+    "deleted_one": "Artikel gelöscht",
+    "deleted_other": "{{count}} Artikel gelöscht",
+    "deleteFailed": "Der Artikel konnte nicht gelöscht werden",
+    "undo": "Rückgängig",
+    "restored": "Artikel wiederhergestellt"
   },
   "settings": {
-    "saved": "Alle Einstellungen wurden erfolgreich gespeichert"
+    "saved": "Gespeichert"
   }
 }

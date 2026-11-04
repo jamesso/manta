@@ -4,13 +4,31 @@
   "invoice": {
     "saved": "Fattura salvata correttamente",
     "updated": "Fattura aggiornata correttamente",
-    "deleted": "Fattura eliminata con successo"
+    "deleted": "Fattura eliminata con successo",
+    "draftSaved": "Bozza salvata"
+  },
+  "estimate": {
+    "saved": "Preventivo salvato",
+    "draftSaved": "Preventivo salvato come bozza"
   },
   "contact": {
-    "saved": "Contatto salvato correttamente",
-    "deleted": "Contatto eliminato con successo"
+    "saved": "Cliente salvato",
+    "updated": "Cliente aggiornato",
+    "deleted": "Cliente eliminato"
+  },
+  "item": {
+    "saved": "Articolo salvato",
+    "updated": "Articolo aggiornato",
+    "archived": "Articolo archiviato",
+    "unarchived": "Articolo riportato tra gli attivi",
+    "deleted_one": "Articolo eliminato",
+    "deleted_many": "{{count}} articoli eliminati",
+    "deleted_other": "{{count}} articoli eliminati",
+    "deleteFailed": "Impossibile eliminare l'articolo",
+    "undo": "Annulla",
+    "restored": "Articolo ripristinato"
   },
   "settings": {
-    "saved": "Tutte le impostazioni sono state salvate correttamente"
+    "saved": "Impostazioni salvate"
   }
 }

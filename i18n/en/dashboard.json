@@ -4,8 +4,8 @@
   "kpi": {
     "outstanding": "Outstanding",
     "overdue": "Overdue",
-    "paidThisMonth": "Paid this month",
-    "creditedThisMonth": "Credit notes: −{{amount}}",
+    "paidThisMonth": "Paid This Month",
+    "creditedThisMonth": "Credit Notes: −{{amount}}",
     "drafts": "Drafts",
     "invoiceCount": "{{count}} invoices"
   },
@@ -14,39 +14,39 @@
   },
   "chart": {
     "paid": "Paid",
-    "title": "Payments in the last 6 months",
+    "title": "Payments in the Last 6 Months",
     "empty": "No payments in the last 6 months"
   },
   "needsAttention": {
-    "title": "Needs attention",
+    "title": "Needs Attention",
     "empty": "Nothing needs attention"
   },
   "recent": {
-    "title": "Recent invoices",
+    "title": "Recent Invoices",
     "empty": "No invoices yet",
-    "viewAll": "View all invoices",
-    "newInvoice": "New invoice"
+    "viewAll": "View All Invoices",
+    "newInvoice": "New Invoice"
   },
   "checklist": {
     "heading": "Get started with Manta",
     "progress": "{{done}} of {{total}} done",
     "allDone": "You're all set",
-    "dismiss": "Dismiss checklist",
+    "dismiss": "Dismiss Checklist",
     "toastHidden": "Checklist hidden",
     "undo": "Undo",
     "items": {
-      "profile": "Add your business name",
-      "logo": "Add your logo",
-      "client": "Add your first client",
-      "invoice": "Create your first invoice",
-      "pdf": "Export your first PDF"
+      "profile": "Add Your Business Name",
+      "logo": "Add Your Logo",
+      "client": "Add Your First Client",
+      "invoice": "Create Your First Invoice",
+      "pdf": "Export Your First PDF"
     },
     "links": {
-      "profile": "Edit business profile",
-      "logo": "Upload logo",
-      "client": "Add client",
-      "invoice": "New invoice",
-      "pdf": "Preview and export PDF"
+      "profile": "Edit Business Profile",
+      "logo": "Upload Logo",
+      "client": "Add Client",
+      "invoice": "New Invoice",
+      "pdf": "Preview and Export PDF"
     },
     "pdfHint": "Create an invoice first"
   },

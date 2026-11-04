@@ -1,23 +1,220 @@
 {
   "header": {
-    "name": "Semua Faktur"
+    "name": "Semua Faktur",
+    "count_other": "{{count}} faktur"
+  },
+  "newInvoice": "Faktur Baru",
+  "search": {
+    "label": "Saring Faktur",
+    "placeholder": "Saring faktur…"
+  },
+  "tabs": {
+    "all": "Semua",
+    "draft": "Draf",
+    "outstanding": "Belum Dibayar",
+    "overdue": "Lewat Jatuh Tempo",
+    "paid": "Dibayar",
+    "closed": "Ditutup",
+    "creditNotes": "Nota Kredit"
+  },
+  "columns": {
+    "select": "Pilih Faktur {{number}}",
+    "selectAll": "Pilih Semua Faktur",
+    "number": "Nomor",
+    "client": "Klien",
+    "issued": "Diterbitkan",
+    "due": "Jatuh Tempo",
+    "amount": "Jumlah",
+    "status": "Status",
+    "actions": "Tindakan"
+  },
+  "number": {
+    "none": "Belum ada nomor"
+  },
+  "due": {
+    "none": "Tanpa jatuh tempo",
+    "today": "Jatuh tempo hari ini",
+    "inDays_other": "Jatuh tempo dalam {{count}} hari",
+    "overdueDays_other": "Lewat {{count}} hari"
+  },
+  "actions": {
+    "open": "Tindakan Faktur",
+    "preview": "Pratinjau",
+    "edit": "Sunting",
+    "duplicate": "Duplikat",
+    "makeRecurring": "Jadikan Berulang",
+    "createCreditNote": "Buat Nota Kredit",
+    "recordPayment": "Catat Pembayaran…",
+    "markPaidInFull": "Tandai sebagai Lunas",
+    "setStatus": "Atur Status",
+    "delete": "Hapus"
+  },
+  "bulk": {
+    "markPaidInFull": "Tandai sebagai Lunas"
+  },
+  "empty": {
+    "title": "Belum ada faktur",
+    "description": "Buat faktur pertama Anda. Faktur akan muncul di sini.",
+    "noResults": "Tidak ada faktur yang cocok",
+    "noResultsDescription": "Coba pencarian atau filter lain.",
+    "clearFilters": "Hapus filter"
+  },
+  "sheet": {
+    "title": "Faktur {{number}}",
+    "client": "Klien",
+    "issued": "Diterbitkan",
+    "due": "Jatuh Tempo",
+    "currency": "Mata Uang",
+    "items": "Item",
+    "description": "Deskripsi",
+    "quantity": "Kuantitas",
+    "price": "Harga",
+    "subtotal": "Subtotal",
+    "discount": "Diskon",
+    "tax": "Pajak",
+    "total": "Total",
+    "note": "Catatan",
+    "fromEstimate": "Dibuat dari Penawaran {{number}}",
+    "credited": "Dikreditkan",
+    "balanceDue": "Sisa Tagihan",
+    "refundDue": "Pengembalian Dana",
+    "creditNotes": "Nota Kredit",
+    "einvoiceTitle": "E-faktur"
+  },
+  "toast": {
+    "deleted_other": "{{count}} faktur dihapus",
+    "deleteFailed_other": "{{count}} faktur tidak dapat dihapus",
+    "undo": "Urungkan",
+    "restored_other": "{{count}} faktur dipulihkan",
+    "updated_other": "{{count}} faktur diperbarui",
+    "notFound": "Faktur tidak ditemukan"
+  },
+  "nav": {
+    "overdueBadge_other": "{{count}} faktur lewat jatuh tempo"
   },
   "fields": {
     "client": "Klien",
-    "invoiceID": "ID Fraktur",
+    "invoiceID": "ID Faktur",
     "createdDate": "Dibuat Pada",
-    "dueDate": "Batas Tanggal Terakhir",
+    "dueDate": "Jatuh Tempo",
     "total": "Nilai Total"
   },
   "status": {
-    "pending": "Menunda",
+    "draft": "Draf",
+    "pending": "Tertunda",
+    "partial": "Dibayar Sebagian",
+    "overdue": "Lewat Jatuh Tempo",
     "paid": "Dibayar",
     "refunded": "Dana dikembalikan",
     "cancelled": "Dibatalkan"
   },
+  "payments": {
+    "title": "Pembayaran",
+    "empty": "Belum ada pembayaran yang dicatat.",
+    "amountPaid": "Jumlah Dibayar",
+    "balanceDue": "Sisa Tagihan",
+    "partiallyPaid": "Dibayar Sebagian",
+    "balanceShort": "Sisa {{amount}}",
+    "remove": "Hapus Pembayaran {{amount}} pada {{date}}",
+    "methods": {
+      "bank": "Transfer Bank",
+      "cash": "Tunai",
+      "check": "Cek",
+      "card": "Kartu",
+      "paypal": "PayPal",
+      "other": "Lainnya"
+    },
+    "dialog": {
+      "title": "Catat Pembayaran",
+      "description": "Faktur {{number}} · Sisa tagihan {{balance}}",
+      "amount": "Jumlah",
+      "payFull": "Bayar Seluruh Sisa",
+      "date": "Tanggal Pembayaran",
+      "method": "Metode",
+      "note": "Catatan",
+      "notePlaceholder": "Referensi atau keterangan (opsional)",
+      "submit": "Catat Pembayaran",
+      "cancel": "Batal"
+    },
+    "errors": {
+      "amountInvalid": "Masukkan jumlah, misalnya {{example}}.",
+      "amountPositive": "Jumlah harus lebih dari 0.",
+      "tooManyDecimals_zero": "Gunakan bilangan bulat saja.",
+      "tooManyDecimals_other": "Gunakan paling banyak {{count}} angka desimal.",
+      "overpayment": "Jumlah melebihi sisa tagihan ({{balance}}).",
+      "dateRequired": "Pilih tanggal pembayaran.",
+      "dateFuture": "Tanggal pembayaran tidak boleh di masa depan.",
+      "draft": "Draf tidak dapat menerima pembayaran. Simpan faktur terlebih dahulu.",
+      "closed": "Faktur yang dikembalikan dananya atau dibatalkan tidak dapat menerima pembayaran. Ubah status ke Tertunda terlebih dahulu.",
+      "nothingDue": "Faktur ini tidak memiliki sisa tagihan.",
+      "duplicate": "Pembayaran ini sudah dicatat.",
+      "notFound": "Faktur atau pembayaran tidak ditemukan.",
+      "draftWithPayments": "Faktur dengan pembayaran tidak dapat menjadi draf. Hapus pembayaran terlebih dahulu."
+    },
+    "toast": {
+      "recorded_other": "{{count}} pembayaran dicatat",
+      "skipped_other": "{{count}} faktur dilewati: {{reason}}",
+      "removed": "Pembayaran dihapus",
+      "undo": "Urungkan",
+      "stillPaid": "Pembayaran menutupi total, jadi faktur tetap Lunas."
+    }
+  },
   "btns": {
-    "view": "Melihat",
+    "view": "Lihat",
     "edit": "Sunting",
     "markAsPaid": "Tandai sebagai Dibayar"
+  },
+  "creditNotes": {
+    "status": {
+      "draft": "Draf",
+      "issued": "Diterbitkan",
+      "void": "Dibatalkan"
+    },
+    "columns": {
+      "credits": "Mengkreditkan"
+    },
+    "sheet": {
+      "title": "Nota Kredit {{number}}",
+      "credits": "Mengkreditkan Faktur {{number}} tanggal {{date}}",
+      "totalCredit": "Total Kredit"
+    },
+    "actions": {
+      "issue": "Terbitkan",
+      "void": "Batalkan",
+      "edit": "Sunting",
+      "delete": "Hapus",
+      "preview": "Pratinjau"
+    },
+    "void": {
+      "title": "Batalkan nota kredit {{number}}?",
+      "description": "Tindakan ini tidak dapat diurungkan. Jumlah yang dikreditkan kembali ke faktur.",
+      "confirm": "Batalkan"
+    },
+    "errors": {
+      "creditedMissing": "Faktur yang dikreditkan tidak ditemukan.",
+      "creditZero": "Jumlah kredit harus lebih dari 0.",
+      "creditCurrency": "Mata uang nota kredit harus sama dengan faktur.",
+      "creditExceeds": "Kredit melebihi jumlah yang masih dapat dikreditkan.",
+      "syncFailed": "Nota kredit disimpan, tetapi faktur tidak dapat diperbarui.",
+      "updateFailed": "Tidak dapat memperbarui faktur yang dikreditkan.",
+      "repairFailed": "Tidak dapat memperbaiki status faktur setelah kredit.",
+      "notAllowed": "Tidak dapat membuat nota kredit untuk faktur ini.",
+      "void": "Nota kredit ini sudah dibatalkan.",
+      "draftVoid": "Draf nota kredit tidak dapat dibatalkan."
+    },
+    "toast": {
+      "issued": "Nota kredit diterbitkan",
+      "voided": "Nota kredit dibatalkan",
+      "hasCreditNotes_other": "Faktur ini memiliki nota kredit. Hapus atau batalkan terlebih dahulu.",
+      "issuedCreditNote_other": "Faktur ini memiliki nota kredit yang sudah diterbitkan."
+    },
+    "empty": {
+      "title": "Belum ada nota kredit",
+      "description": "Buat nota kredit dari faktur agar muncul di sini."
+    }
+  },
+  "views": {
+    "invoices": "Faktur",
+    "creditNotes": "Nota Kredit"
   }
 }

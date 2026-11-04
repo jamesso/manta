@@ -1,0 +1,113 @@
+{
+  "header": {
+    "name": "Ricorrenti",
+    "new": "Nuova fattura ricorrente",
+    "count_one": "{{count}} fattura ricorrente",
+    "count_many": "{{count}} fatture ricorrenti",
+    "count_other": "{{count}} fatture ricorrenti"
+  },
+  "empty": {
+    "title": "Ancora nessuna fattura ricorrente",
+    "description": "Manta crea le bozze mentre l'app è aperta. Nulla viene inviato automaticamente.",
+    "noResults": "Nessuna fattura ricorrente corrispondente"
+  },
+  "columns": {
+    "name": "Nome",
+    "client": "Cliente",
+    "amount": "Importo",
+    "interval": "Ripetizione",
+    "nextDate": "Prossima bozza",
+    "active": "Attiva",
+    "actions": "Azioni"
+  },
+  "interval": {
+    "weekly": "Settimanale",
+    "monthly": "Mensile",
+    "quarterly": "Trimestrale",
+    "yearly": "Annuale"
+  },
+  "repeatEvery": {
+    "weekly_one": "Ogni settimana",
+    "weekly_many": "Ogni {{count}} settimane",
+    "weekly_other": "Ogni {{count}} settimane",
+    "monthly_one": "Ogni mese",
+    "monthly_many": "Ogni {{count}} mesi",
+    "monthly_other": "Ogni {{count}} mesi",
+    "quarterly_one": "Ogni trimestre",
+    "quarterly_many": "Ogni {{count}} trimestri",
+    "quarterly_other": "Ogni {{count}} trimestri",
+    "yearly_one": "Ogni anno",
+    "yearly_many": "Ogni {{count}} anni",
+    "yearly_other": "Ogni {{count}} anni"
+  },
+  "status": {
+    "paused": "In pausa",
+    "ended": "Terminata",
+    "active": "Attiva"
+  },
+  "actions": {
+    "open": "Azioni fattura ricorrente",
+    "editSchedule": "Modifica pianificazione",
+    "editTemplate": "Modifica modello",
+    "pause": "Metti in pausa",
+    "resume": "Riprendi",
+    "delete": "Elimina"
+  },
+  "sheet": {
+    "titleNew": "Nuova fattura ricorrente",
+    "titleEdit": "Modifica fattura ricorrente",
+    "schedule": "Pianificazione",
+    "name": "Nome",
+    "every": "Ripeti ogni",
+    "interval": "Intervallo",
+    "startDate": "Data di inizio",
+    "endDate": "Data di fine (facoltativa)",
+    "noEndDate": "Nessuna data di fine",
+    "activeHint": "I modelli in pausa non creano bozze.",
+    "active": "Attiva",
+    "summary": "Riepilogo",
+    "client": "Cliente",
+    "items": "Articoli",
+    "itemsCount_one": "{{count}} articolo",
+    "itemsCount_many": "{{count}} articoli",
+    "itemsCount_other": "{{count}} articoli",
+    "amount": "Importo",
+    "nextDates": "Prossime bozze",
+    "createsToday": "La prima bozza verrà creata oggi al salvataggio.",
+    "save": "Salva",
+    "cancel": "Annulla"
+  },
+  "detail": {
+    "startDate": "Data di inizio",
+    "endDate": "Data di fine",
+    "noItems": "Nessuna riga nel modello.",
+    "created": "Fatture create",
+    "noneCreated": "Ancora nessuna fattura creata."
+  },
+  "errors": {
+    "name": "Inserisci un nome.",
+    "every": "Inserisci un numero da 1 a 99.",
+    "interval": "Scegli un intervallo.",
+    "startDate": "Scegli una data di inizio valida.",
+    "endDate": "La data di fine deve essere uguale o successiva alla data di inizio.",
+    "template": "Aggiungi un cliente e almeno una riga nel modello."
+  },
+  "toast": {
+    "created_one": "{{count}} fattura ricorrente creata come bozza",
+    "created_many": "{{count}} fatture ricorrenti create come bozze",
+    "created_other": "{{count}} fatture ricorrenti create come bozze",
+    "viewDrafts": "Vedi bozze",
+    "capped": "Altre bozze in attesa per: {{names}}",
+    "runFailed": "Generazione ricorrente non riuscita",
+    "saved": "Fattura ricorrente salvata",
+    "deleted_one": "Fattura ricorrente eliminata",
+    "deleted_many": "{{count}} fatture ricorrenti eliminate",
+    "deleted_other": "{{count}} fatture ricorrenti eliminate",
+    "undo": "Annulla",
+    "restored": "Fattura ricorrente ripristinata"
+  },
+  "search": {
+    "label": "Filtra fatture ricorrenti",
+    "placeholder": "Filtra ricorrenti…"
+  }
+}

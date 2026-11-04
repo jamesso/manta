@@ -2,91 +2,91 @@
   "appUpdate": {
     "available": {
       "title": "Pembaruan baru tersedia",
-      "message": "Apakah anda ingin mulai mengunduh pembaruan di latar belakang?"
+      "message": "Apakah Anda ingin mulai mengunduh pembaruan di latar belakang?"
     },
     "noUpdate": {
       "title": "Tidak ada pembaruan yang tersedia",
       "message": "Anda sedang menggunakan versi terbaru dari aplikasi"
     },
     "error": {
-      "title": "Sebuah kesalahan telah terjadi"
+      "title": "Terjadi kesalahan"
     },
     "downloaded": {
       "title": "Pembaruan sudah diunduh",
-      "message": "Apakah anda ingin berhenti dan meningkatkan aplikasi sekarang?",
-      "quitNow": "Berhenti Sekarang",
+      "message": "Apakah Anda ingin keluar dan memperbarui aplikasi sekarang?",
+      "quitNow": "Keluar Sekarang",
       "later": "Nanti"
     }
   },
   "noAccess": {
     "title": "Tidak ada izin mengakses",
-    "message": "Silahkan pilih petunjuk lainnya"
+    "message": "Silakan pilih direktori lain"
   },
-  "errorBoundary": "Terjadi sebuah kesalahan",
+  "errorBoundary": "Terjadi kesalahan",
   "deleteInvoice": {
     "title": "Hapus faktur ini?",
-    "message": "Faktur akan dihapus secara permanen dari basisdata"
+    "message": "Faktur akan dihapus secara permanen dari basis data"
   },
   "deleteContact": {
     "title": "Hapus kontak ini?",
     "message": "Kontak akan dihapus secara permanen dari basis data"
   },
   "fileTypeErr": {
-    "title": "Silahkan pilih berkas lain"
+    "title": "Silakan pilih berkas lain"
   },
   "validation": {
     "invoiceID": {
-      "title": "ID Faktur Tidak Sah",
+      "title": "ID Faktur Tidak Valid",
       "message": "ID faktur tidak boleh kosong"
     },
     "recipient": {
       "empty": {
-        "title": "Kontak tidak sah",
+        "title": "Kontak tidak valid",
         "message": "Kontak tidak boleh kosong"
       },
       "requiredFields": {
-        "title": "Bidang-bidang yang diperlukan",
-        "message": "Silahkan isi di semua kolom yang wajib diisi"
+        "title": "Bidang wajib",
+        "message": "Silakan isi semua bidang yang wajib diisi"
       },
       "email": {
-        "title": "Surel tidak sah",
-        "message": "Silahkan pilih surel lain"
+        "title": "Email tidak valid",
+        "message": "Silakan pilih email lain"
       }
     },
     "rows": {
       "emptyDescription": {
-        "title": "Deskripsi tidak sah",
+        "title": "Deskripsi tidak valid",
         "message": "Deskripsi tidak boleh kosong"
       },
       "priceZero": {
-        "title": "Harga tidak sah",
+        "title": "Harga tidak valid",
         "message": "Harga harus lebih besar daripada nol"
       },
       "qtyZero": {
-        "title": "Kuantitas tidak sah",
+        "title": "Kuantitas tidak valid",
         "message": "Kuantitas harus lebih besar daripada nol"
       }
     },
     "dueDate": {
-      "title": "Batas tanggal akhir tidak sah",
-      "message": "Silahkan pilih sebuah tanggal"
+      "title": "Tanggal jatuh tempo tidak valid",
+      "message": "Silakan pilih tanggal"
     },
     "currency": {
       "fraction": {
-        "title": "Pecahan tidak sah",
+        "title": "Pecahan tidak valid",
         "message": "Pecahan desimal harus sama atau lebih besar dari nol"
       }
     },
     "discount": {
-      "title": "Diskon tidak sah",
+      "title": "Diskon tidak valid",
       "message": "Jumlah diskon harus lebih besar daripada nol"
     },
     "tax": {
-      "title": "Pajak tidak sah",
+      "title": "Pajak tidak valid",
       "message": "Jumlah pajak harus lebih besar daripada nol"
     },
     "note": {
-      "title": "Catatan tidak sah",
+      "title": "Catatan tidak valid",
       "message": "Konten catatan tidak boleh kosong"
     }
   }

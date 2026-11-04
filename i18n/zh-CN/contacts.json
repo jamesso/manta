@@ -1,9 +1,67 @@
 {
-  "header": "所有联系人",
+  "header": "客户",
   "fields": {
     "contact": "联系人",
     "email": "电子邮件",
     "phone": "电话",
-    "actions": "操作"
+    "actions": "操作",
+    "nameCompany": "姓名 / 公司",
+    "invoices": "发票",
+    "outstanding": "未付",
+    "taxId": "税号 / 增值税号",
+    "buyerReference": "买方参考号（Leitweg-ID）",
+    "buyerReferenceHint": "德国公共部门买方必填。",
+    "buyerReferenceWarning": "此 Leitweg-ID 的校验位似乎有误。",
+    "addressTitle": "地址"
+  },
+  "searchPlaceholder": "筛选客户…",
+  "newClient": "新建客户",
+  "empty": {
+    "title": "还没有客户",
+    "description": "创建发票时会自动保存客户，你也可以现在添加。",
+    "noResultsFiltered": "没有匹配的客户"
+  },
+  "editor": {
+    "createTitle": "新建客户",
+    "editTitle": "编辑客户",
+    "hint": "更改将应用于新发票。现有发票保留创建时的信息。",
+    "fullname": "完整姓名",
+    "company": "公司",
+    "email": "电子邮件",
+    "phone": "电话",
+    "save": "保存"
+  },
+  "detail": {
+    "outstanding": "未付",
+    "noInvoices": "此客户还没有发票。",
+    "newInvoice": "新建发票",
+    "edit": "编辑"
+  },
+  "actions": {
+    "newInvoice": "新建发票",
+    "edit": "编辑",
+    "delete": "删除",
+    "menuLabel": "{{name}} 的操作"
+  },
+  "toast": {
+    "deleted": "客户已删除",
+    "deleted_other": "已删除 {{count}} 个客户",
+    "undo": "撤销",
+    "restored": "客户已恢复",
+    "restored_other": "已恢复 {{count}} 个客户",
+    "deleteFailed": "{{count}} 个无法删除"
+  },
+  "errors": {
+    "fullnameRequired": "请输入完整姓名",
+    "emailRequired": "请输入电子邮件地址",
+    "emailInvalid": "请输入有效的电子邮件地址",
+    "countryInvalid": "请选择有效的国家代码"
+  },
+  "searchLabel": "筛选客户",
+  "count_other": "{{count}} 个客户",
+  "balance": {
+    "outstanding": "未付",
+    "settled": "已结清",
+    "noInvoices": "无发票"
   }
 }

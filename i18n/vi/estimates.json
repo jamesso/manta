@@ -1,0 +1,66 @@
+{
+  "header": {
+    "name": "Báo giá",
+    "count_other": "{{count}} báo giá"
+  },
+  "newEstimate": "Báo giá mới",
+  "search": {
+    "label": "Lọc báo giá",
+    "placeholder": "Lọc báo giá…"
+  },
+  "tabs": {
+    "all": "Tất cả",
+    "draft": "Bản nháp",
+    "sent": "Đã gửi",
+    "accepted": "Đã chấp nhận",
+    "declined": "Đã từ chối",
+    "expired": "Đã hết hạn",
+    "converted": "Đã chuyển đổi"
+  },
+  "status": {
+    "sent": "Đã gửi",
+    "accepted": "Đã chấp nhận",
+    "declined": "Đã từ chối",
+    "expired": "Đã hết hạn",
+    "converted": "Đã chuyển đổi"
+  },
+  "columns": {
+    "number": "Số",
+    "client": "Khách hàng",
+    "issued": "Ngày lập",
+    "validUntil": "Hiệu lực đến",
+    "amount": "Số tiền",
+    "status": "Trạng thái",
+    "actions": "Tác vụ"
+  },
+  "valid": {
+    "today": "Hiệu lực đến hôm nay",
+    "inDays_other": "Còn hiệu lực {{count}} ngày",
+    "expiredDays_other": "Đã hết hạn {{count}} ngày trước"
+  },
+  "actions": {
+    "open": "Tác vụ báo giá",
+    "edit": "Chỉnh sửa",
+    "duplicate": "Nhân bản",
+    "markSent": "Đánh dấu đã gửi",
+    "markAccepted": "Đánh dấu đã chấp nhận",
+    "markDeclined": "Đánh dấu đã từ chối",
+    "convert": "Chuyển thành hóa đơn",
+    "openInvoice": "Mở hóa đơn",
+    "preview": "Xem trước",
+    "delete": "Xóa"
+  },
+  "empty": {
+    "title": "Chưa có báo giá nào",
+    "description": "Hãy tạo báo giá. Chuyển nó thành hóa đơn khi khách hàng chấp nhận.",
+    "noResults": "Không có báo giá phù hợp",
+    "clearFilters": "Xóa bộ lọc"
+  },
+  "toast": {
+    "converted": "Đã chuyển đổi báo giá {{number}}",
+    "alreadyConverted": "Báo giá này đã được chuyển thành hóa đơn",
+    "notFound": "Báo giá này không còn tồn tại",
+    "linkFailed": "Hóa đơn đã được lưu, nhưng không thể đánh dấu báo giá là đã chuyển đổi",
+    "deleted_other": "Đã xóa {{count}} báo giá"
+  }
+}

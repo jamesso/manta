@@ -1,0 +1,97 @@
+{
+  "header": {
+    "name": "定期发票",
+    "new": "新建定期发票",
+    "count_other": "{{count}} 张定期发票"
+  },
+  "empty": {
+    "title": "还没有定期发票",
+    "description": "Manta 会在应用打开时创建草稿，不会自动发送任何内容。",
+    "noResults": "没有匹配的定期发票"
+  },
+  "columns": {
+    "name": "名称",
+    "client": "客户",
+    "amount": "金额",
+    "interval": "重复",
+    "nextDate": "下次草稿",
+    "active": "启用",
+    "actions": "操作"
+  },
+  "interval": {
+    "weekly": "每周",
+    "monthly": "每月",
+    "quarterly": "每季度",
+    "yearly": "每年"
+  },
+  "repeatEvery": {
+    "weekly_other": "每 {{count}} 周",
+    "monthly_other": "每 {{count}} 个月",
+    "quarterly_other": "每 {{count}} 个季度",
+    "yearly_other": "每 {{count}} 年"
+  },
+  "status": {
+    "paused": "已暂停",
+    "ended": "已结束",
+    "active": "进行中"
+  },
+  "actions": {
+    "open": "定期发票操作",
+    "editSchedule": "编辑计划",
+    "editTemplate": "编辑模板",
+    "pause": "暂停",
+    "resume": "恢复",
+    "delete": "删除"
+  },
+  "sheet": {
+    "titleNew": "新建定期发票",
+    "titleEdit": "编辑定期发票",
+    "schedule": "计划",
+    "name": "名称",
+    "every": "重复间隔",
+    "interval": "周期",
+    "startDate": "开始日期",
+    "endDate": "结束日期（可选）",
+    "noEndDate": "无结束日期",
+    "activeHint": "暂停的模板不会创建草稿。",
+    "active": "启用",
+    "summary": "摘要",
+    "client": "客户",
+    "items": "项目",
+    "itemsCount_other": "{{count}} 项",
+    "amount": "金额",
+    "nextDates": "后续草稿",
+    "createsToday": "保存后将于今天创建第一份草稿。",
+    "save": "保存",
+    "cancel": "取消"
+  },
+  "detail": {
+    "startDate": "开始日期",
+    "endDate": "结束日期",
+    "noItems": "模板中没有明细。",
+    "created": "已创建的发票",
+    "noneCreated": "尚未创建任何发票。"
+  },
+  "errors": {
+    "name": "请输入名称。",
+    "every": "请输入 1 到 99 之间的数字。",
+    "interval": "请选择周期。",
+    "startDate": "请选择有效的开始日期。",
+    "endDate": "结束日期不能早于开始日期。",
+    "template": "请在模板中添加客户和至少一项明细。"
+  },
+  "toast": {
+    "created_other": "已将 {{count}} 张定期发票创建为草稿",
+    "viewDrafts": "查看草稿",
+    "capped": "以下项目还有更多草稿待创建：{{names}}",
+    "runFailed": "定期发票运行失败",
+    "saved": "定期发票已保存",
+    "deleted_other": "已删除 {{count}} 张定期发票",
+    "undo": "撤销",
+    "restored": "定期发票已恢复"
+  },
+  "search": {
+    "label": "筛选定期发票",
+    "placeholder": "筛选定期发票…"
+  }
+}

@@ -21,11 +21,11 @@
     "company": "Your company name"
   },
   "actions": {
-    "email": "Email invoice",
-    "reminder": "Send reminder",
+    "email": "Email Invoice",
+    "reminder": "Send Reminder",
     "share": "Share PDF…",
-    "markSent": "Mark as sent",
-    "markReminded": "Mark reminder as sent",
+    "markSent": "Mark as Sent",
+    "markReminded": "Mark Reminder as Sent",
     "copyFullMessage": "Copy full message"
   },
   "toast": {
@@ -39,7 +39,7 @@
     "copied": "Message copied"
   },
   "ask": {
-    "title": "Email address for {{client}}",
+    "title": "Email Address for {{client}}",
     "description": "Enter an email address to open your mail app with a draft message.",
     "label": "Email",
     "save": "Save this address to the client",

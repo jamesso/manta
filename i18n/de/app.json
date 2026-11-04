@@ -1,0 +1,100 @@
+{
+  "nav": {
+    "newInvoice": "Neue Rechnung",
+    "search": "Suchen",
+    "invoices": "Rechnungen",
+    "estimates": "Angebote",
+    "recurring": "Wiederkehrend",
+    "clients": "Kunden",
+    "items": "Artikel",
+    "dashboard": "Übersicht",
+    "settings": "Einstellungen",
+    "help": "Hilfe",
+    "shortcuts": "Tastenkürzel",
+    "tutorial": "Einführung anzeigen",
+    "learnMore": "Mehr erfahren",
+    "toggleSidebar": "Seitenleiste ein-/ausblenden",
+    "searchPlaceholder": "Suchen oder springen zu …",
+    "library": "Bibliothek"
+  },
+  "titles": {
+    "newInvoice": "Neue Rechnung",
+    "editInvoice": "Rechnung bearbeiten",
+    "newEstimate": "Neues Angebot",
+    "editEstimate": "Angebot bearbeiten",
+    "dashboard": "Übersicht"
+  },
+  "update": {
+    "check": "Nach Updates suchen",
+    "checking": "Suche nach Updates …",
+    "downloading": "Update wird heruntergeladen: {{percent}} %"
+  },
+  "palette": {
+    "title": "Befehlspalette",
+    "description": "Seiten, Rechnungen, Angebote, Kunden, Artikel und Aktionen durchsuchen",
+    "placeholder": "Befehl eingeben oder suchen …",
+    "empty": "Keine Ergebnisse gefunden.",
+    "goTo": "Gehe zu",
+    "actions": "Aktionen",
+    "newEstimate": "Neues Angebot",
+    "invoices": "Rechnungen",
+    "estimates": "Angebote",
+    "clients": "Kunden",
+    "toggleTheme": "Design wechseln",
+    "themeChanged": "Design auf {{theme}} gesetzt",
+    "items": "Artikel",
+    "showAll": "Alle Treffer für „{{query}}“ in {{page}}"
+  },
+  "theme": {
+    "system": "System",
+    "light": "Hell",
+    "dark": "Dunkel"
+  },
+  "shortcuts": {
+    "title": "Tastenkürzel",
+    "groups": {
+      "general": "Allgemein",
+      "invoice": "Rechnung",
+      "go": "Gehe zu",
+      "help": "Hilfe"
+    },
+    "items": {
+      "palette": "Befehlspalette",
+      "sidebar": "Seitenleiste ein-/ausblenden",
+      "settings": "Einstellungen",
+      "shortcuts": "Tastenkürzel",
+      "checkUpdates": "Nach Updates suchen",
+      "quit": "Beenden",
+      "newInvoice": "Neue Rechnung",
+      "save": "Rechnung speichern",
+      "reset": "Formular zurücksetzen",
+      "addItem": "Position hinzufügen",
+      "toggleSettings": "Formulareinstellungen ein-/ausblenden",
+      "dueDate": "Fälligkeitsdatum ein-/ausblenden",
+      "currency": "Währung ein-/ausblenden",
+      "vat": "USt. ein-/ausblenden",
+      "discount": "Rabatt ein-/ausblenden",
+      "note": "Notiz ein-/ausblenden",
+      "invoices": "Rechnungen",
+      "dashboard": "Übersicht",
+      "clients": "Kunden",
+      "tutorial": "Einführung anzeigen"
+    }
+  },
+  "newInvoice": {
+    "confirmTitle": "Bearbeitung dieser Rechnung beenden?",
+    "confirmMessage": "Nicht gespeicherte Änderungen an dieser Rechnung gehen verloren. Die gespeicherte Rechnung bleibt unverändert.",
+    "confirm": "Neue Rechnung beginnen",
+    "cancel": "Weiter bearbeiten",
+    "template": {
+      "confirmTitle": "Bearbeitung dieser Vorlage beenden?",
+      "confirmMessage": "Nicht gespeicherte Änderungen an dieser Vorlage gehen verloren. Die gespeicherte Vorlage bleibt unverändert."
+    }
+  },
+  "error": {
+    "title": "Es ist ein Fehler aufgetreten",
+    "message": "Bitte melden Sie dies auf GitHub: https://github.com/jamesso/manta/issues",
+    "reload": "Neu laden",
+    "details": "Details"
+  }
+}

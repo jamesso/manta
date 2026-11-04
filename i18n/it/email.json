@@ -1,0 +1,53 @@
+{
+  "defaults": {
+    "invoice": {
+      "subject": "Fattura {number} da {company}",
+      "body": "Gentile {client},\n\nin allegato trova la fattura {number} di {total}. Scadenza: {dueDate}.\n\nGrazie per la collaborazione.\n\n{company}"
+    },
+    "reminder": {
+      "subject": "Promemoria di pagamento: fattura {number}",
+      "body": "Gentile {client},\n\ndesideriamo ricordarle che la fattura {number} di {total} era in scadenza il {dueDate}. Il saldo aperto è di {balance}.\n\nSe ha già provveduto al pagamento, ignori questo messaggio.\n\nCordiali saluti,\n{company}"
+    }
+  },
+  "vars": {
+    "noDueDate": "al ricevimento"
+  },
+  "placeholders": {
+    "number": "Numero fattura",
+    "client": "Nome del cliente",
+    "total": "Totale fattura",
+    "balance": "Saldo aperto",
+    "dueDate": "Data di scadenza",
+    "company": "Nome della tua azienda"
+  },
+  "actions": {
+    "email": "Invia fattura via email",
+    "reminder": "Invia promemoria",
+    "share": "Condividi PDF…",
+    "markSent": "Segna come inviata",
+    "markReminded": "Segna promemoria come inviato",
+    "copyFullMessage": "Copia messaggio completo"
+  },
+  "toast": {
+    "opened": "Email aperta: allega il PDF dalla cartella",
+    "openedHint": "{{fileName}} è selezionato nella cartella che si è aperta.",
+    "truncated": "Il messaggio era troppo lungo per un link email. Usa Copia messaggio completo per copiare tutto il testo.",
+    "failed": "Impossibile preparare l'email: {{reason}}",
+    "noMailApp": "Impossibile aprire l'app di posta. Il PDF è stato salvato.",
+    "markedSent": "Segnata come inviata",
+    "notSaved": "Salva prima la fattura.",
+    "copied": "Messaggio copiato"
+  },
+  "ask": {
+    "title": "Indirizzo email di {{client}}",
+    "description": "Inserisci un indirizzo email per aprire l'app di posta con una bozza del messaggio.",
+    "label": "Email",
+    "save": "Salva questo indirizzo nel cliente",
+    "confirm": "Continua",
+    "invalid": "Inserisci un indirizzo email valido"
+  },
+  "sheet": {
+    "sentOn": "Inviata il {{date}}",
+    "remindedOn": "Promemoria inviato il {{date}}"
+  }
+}
