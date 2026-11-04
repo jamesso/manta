@@ -1,9 +1,15 @@
+// Renders invoices in the hidden preview window and prints them to PDF.
+//
+// The preview window never shows. It is only the PDF render engine. Each
+// job gets a requestId. The preview renderer only accepts an
+// `update-preview` with the active requestId, and it acknowledges with
+// `preview-rendered` when fonts and images are ready. Jobs run one at a
+// time, so the printed page always shows the invoice of the job.
 const crypto = require('crypto');
 const path = require('path');
 const fs = require('fs');
 
 const RENDER_TIMEOUT_MS = 10_000;
-const TOKEN_TTL_MS = 5 * 60_000;
 
 let testElectron = null;
 
@@ -22,54 +28,8 @@ function resolveBrowserWindow() {
   return resolveElectron().BrowserWindow;
 }
 
-/** @type {Map<string, { invoiceId, invoice, snapshot, expires }>} */
-const previewTokens = new Map();
-
 let jobChain = Promise.resolve();
 let activeRequestId = null;
-let coordinatorEmailFreeze = false;
-
-function createPreviewToken({ invoiceId, invoice, snapshot }) {
-  const token = crypto.randomBytes(16).toString('hex');
-  previewTokens.set(token, {
-    invoiceId,
-    invoice,
-    snapshot,
-    expires: Date.now() + TOKEN_TTL_MS,
-  });
-  return token;
-}
-
-function consumePreviewToken(token, invoiceId) {
-  const entry = previewTokens.get(token);
-  previewTokens.delete(token);
-  if (!entry || entry.expires < Date.now()) {
-    return null;
-  }
-  if (entry.invoiceId !== invoiceId) {
-    return null;
-  }
-  return entry;
-}
-
-function restorePreviewToken(token, entry) {
-  if (token && entry) {
-    previewTokens.set(token, entry);
-  }
-}
-
-function releasePreviewToken(token) {
-  previewTokens.delete(token);
-}
-
-function purgeExpiredTokens() {
-  const now = Date.now();
-  for (const [key, entry] of previewTokens.entries()) {
-    if (entry.expires < now) {
-      previewTokens.delete(key);
-    }
-  }
-}
 
 function getPreviewWindow(appConfig) {
   const id = appConfig.get('previewWindowID');
@@ -78,36 +38,6 @@ function getPreviewWindow(appConfig) {
     throw new Error('preview-unavailable');
   }
   return win;
-}
-
-function setPreviewExportFrozen(win, frozen) {
-  if (win && !win.isDestroyed()) {
-    win.webContents.send('preview-export-freeze', frozen);
-  }
-}
-
-async function applySyncExportFrozen(win, frozen) {
-  if (!win || win.isDestroyed()) {
-    return;
-  }
-  const { webContents } = win;
-  if (
-    !webContents ||
-    (typeof webContents.isDestroyed === 'function' && webContents.isDestroyed())
-  ) {
-    return;
-  }
-  await webContents.executeJavaScript(
-    `window.__mantaExportFrozen = ${frozen ? 'true' : 'false'};`,
-    true
-  );
-}
-
-function clearCoordinatorEmailFreeze(win) {
-  if (coordinatorEmailFreeze && win && !win.isDestroyed()) {
-    setPreviewExportFrozen(win, false);
-    coordinatorEmailFreeze = false;
-  }
 }
 
 function waitForPreviewRendered(previewWindow, requestId, invoiceId) {
@@ -193,44 +123,17 @@ function enqueueJob(fn) {
   return run;
 }
 
-async function runDirectPreviewPdfJob(
-  win,
-  pdfPath,
-  writeInvoicePdf,
-  { flag = 'w' } = {}
-) {
+/**
+ * Renders `invoice` with `snapshot` in the hidden preview window, waits for
+ * the render ack, then runs `task(previewWindow)` while the job is active.
+ * Resolves with the result of `task`.
+ */
+function runPreviewRenderJob(appConfig, { invoice, snapshot }, task) {
   return enqueueJob(async () => {
-    if (!win || win.isDestroyed()) {
-      throw new Error('preview-unavailable');
-    }
-    let syncFreezeAcquired = false;
-    try {
-      await applySyncExportFrozen(win, true);
-      syncFreezeAcquired = true;
-      await writeInvoicePdf(win, pdfPath, { flag });
-      return pdfPath;
-    } finally {
-      if (syncFreezeAcquired) {
-        await applySyncExportFrozen(win, false);
-      }
-    }
-  });
-}
-
-async function runPreviewPdfJob(appConfig, writeInvoicePdf, params) {
-  return enqueueJob(async () => {
-    const { invoice, snapshot, pdfPath } = params;
     const previewWindow = getPreviewWindow(appConfig);
     const requestId = crypto.randomBytes(12).toString('hex');
     activeRequestId = requestId;
-    coordinatorEmailFreeze = true;
-    const hideAfter =
-      params.hidePreviewAfter === true && !previewWindow.isVisible();
-    let syncFreezeAcquired = false;
     try {
-      await applySyncExportFrozen(previewWindow, true);
-      syncFreezeAcquired = true;
-      setPreviewExportFrozen(previewWindow, true);
       previewWindow.webContents.send('update-preview', {
         requestId,
         invoice,
@@ -243,29 +146,52 @@ async function runPreviewPdfJob(appConfig, writeInvoicePdf, params) {
         requestId,
         String(invoice._id ?? '')
       );
-      let written;
-      if (params.writeFlag === 'w') {
-        await writeInvoicePdf(previewWindow, pdfPath, { flag: 'w' });
-        written = pdfPath;
-      } else {
-        written = await writePdfWithWx(previewWindow, pdfPath, writeInvoicePdf);
-      }
-      if (hideAfter) {
-        previewWindow.hide();
-      }
-      return written;
+      return await task(previewWindow);
     } finally {
       activeRequestId = null;
-      clearCoordinatorEmailFreeze(previewWindow);
-      if (syncFreezeAcquired) {
-        await applySyncExportFrozen(previewWindow, false);
-      }
     }
   });
 }
 
-function runFacturxPrintJob(task) {
-  return enqueueJob(task);
+/**
+ * Renders the invoice and writes the PDF to `pdfPath`. With writeFlag 'w'
+ * the file is overwritten. Otherwise the file is never overwritten and a
+ * free `-N` suffix is used. Resolves with the written path.
+ */
+function runPreviewPdfJob(appConfig, writeInvoicePdf, params) {
+  const { invoice, snapshot, pdfPath, writeFlag } = params;
+  return runPreviewRenderJob(
+    appConfig,
+    { invoice, snapshot },
+    async previewWindow => {
+      if (writeFlag === 'w') {
+        await writeInvoicePdf(previewWindow, pdfPath, { flag: 'w' });
+        return pdfPath;
+      }
+      return writePdfWithWx(previewWindow, pdfPath, writeInvoicePdf);
+    }
+  );
+}
+
+/**
+ * Renders the invoice and resolves with the PDF bytes. Nothing is written
+ * to disk.
+ */
+function renderPreviewPdfBuffer(
+  appConfig,
+  { invoice, snapshot },
+  printOptions
+) {
+  return runPreviewRenderJob(
+    appConfig,
+    { invoice, snapshot },
+    previewWindow => {
+      if (previewWindow.isDestroyed()) {
+        throw new Error('preview-unavailable');
+      }
+      return previewWindow.webContents.printToPDF(printOptions);
+    }
+  );
 }
 
 function registerPreviewCoordinatorIpc() {
@@ -285,28 +211,20 @@ function __setElectronForTests(electron) {
 function __resetForTests() {
   jobChain = Promise.resolve();
   activeRequestId = null;
-  coordinatorEmailFreeze = false;
-  previewTokens.clear();
 }
 
 module.exports = {
   activeRequestId: () => activeRequestId,
-  assertPathInExportDir,
-  consumePreviewToken,
-  createPreviewToken,
   allocatePdfPath,
+  assertPathInExportDir,
+  enqueueJob,
   getPreviewWindow,
-  purgeExpiredTokens,
-  registerPreviewToken: createPreviewToken,
   registerPreviewCoordinatorIpc,
-  releasePreviewToken,
-  restorePreviewToken,
+  renderPreviewPdfBuffer,
   runPreviewPdfJob,
+  runPreviewRenderJob,
   waitForPreviewRendered,
   writePdfWithWx,
-  runDirectPreviewPdfJob,
-  runFacturxPrintJob,
-  enqueueJob,
   __resetForTests,
   __setElectronForTests,
 };

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Field, FieldLabel } from '@/components/ui/field';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { firstOrNull } from '../../helper';
+import { firstOrNull } from '../../../preview/helper';
 
 export default function Template({ t, template, update, UILang }) {
   const pressed = template === 'business' ? 'business' : 'minimal';

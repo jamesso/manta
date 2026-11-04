@@ -102,6 +102,7 @@ for (const template of ['minimal', 'business']) {
   };
   CASES[`${template}-ur-PK`] = { template, language: 'ur-PK' };
   CASES[`${template}-zh-CN`] = { template, language: 'zh-CN' };
+  CASES[`${template}-fr`] = { template, language: 'fr' };
   CASES[`${template}-partial`] = {
     template,
     invoice: {

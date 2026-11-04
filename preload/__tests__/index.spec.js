@@ -54,6 +54,29 @@ describe('preload IPC allow-list', () => {
     expect(ipcRenderer.send).not.toHaveBeenCalled();
   });
 
+  it('blocks the removed Previewer window channels', () => {
+    for (const channel of [
+      'preview-invoice',
+      'update-preview-window',
+      'change-preview-window-language',
+      'change-preview-window-profile',
+      'save-configs-to-invoice',
+      'capture-preview-snapshot',
+      'request-email-invoice',
+      'preview-export-freeze',
+      'pfd-exported',
+    ]) {
+      expect(() => api.ipc.send(channel)).toThrow('Blocked IPC channel');
+    }
+  });
+
+  it('allows invoke for save-pdf and einvoice-export', () => {
+    api.ipc.invoke('save-pdf', {});
+    api.ipc.invoke('einvoice-export', {});
+    expect(ipcRenderer.invoke).toHaveBeenCalledWith('save-pdf', {});
+    expect(ipcRenderer.invoke).toHaveBeenCalledWith('einvoice-export', {});
+  });
+
   it('passes an empty event to listeners', () => {
     const listener = vi.fn();
     api.ipc.on('menu-change-tab', listener);

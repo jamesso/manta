@@ -1,7 +1,7 @@
 import React from 'react';
 import { Field, FieldLabel } from '@/components/ui/field';
 import { Slider } from '@/components/ui/slider';
-import { toConfigValue } from '../../helper';
+import { toConfigValue } from '../../../preview/helper';
 
 export default function FontSize({ t, fontSize, update, UILang }) {
   return (

@@ -20,6 +20,7 @@ import { resolveProfile } from '../../../../helpers/einvoice/toEn16931.js';
 
 // Styles
 import styled from 'styled-components';
+import { labelled } from '../../labelled';
 
 const InvoiceHeader = styled.div`
   flex: 1;
@@ -52,9 +53,6 @@ const RightColumn = styled.div`
     color: #dbbd8a;
     margin: 0;
     font-weight: 300;
-  }
-  p {
-    text-transform: capitalize;
   }
 `;
 
@@ -99,7 +97,7 @@ function Header({ t, invoice, profile, configs }) {
           <p>{sellerProfile.phone}</p>
           {bank.iban ? (
             <p>
-              {t('preview:einvoice:bank', { lng: language })}: {bank.iban}
+              {labelled(t, language, 'preview:einvoice:bank', bank.iban)}
               {bank.bic ? ` / ${bank.bic}` : ''}
               {bank.accountName ? ` (${bank.accountName})` : ''}
             </p>
@@ -108,19 +106,27 @@ function Header({ t, invoice, profile, configs }) {
             <>
               {invoice.seller.taxId ? (
                 <p>
-                  {t('preview:tax:taxId', { lng: language })}:{' '}
-                  {invoice.seller.taxId}
+                  {labelled(
+                    t,
+                    language,
+                    'preview:tax:taxId',
+                    invoice.seller.taxId
+                  )}
                 </p>
               ) : null}
               {invoice.seller.vatId ? (
                 <p>
-                  {t('preview:tax:vatId', { lng: language })}:{' '}
-                  {invoice.seller.vatId}
+                  {labelled(
+                    t,
+                    language,
+                    'preview:tax:vatId',
+                    invoice.seller.vatId
+                  )}
                 </p>
               ) : null}
             </>
           ) : (
-            tax && <p>Tax ID: {tax.tin}</p>
+            tax && <p>{labelled(t, language, 'preview:tax:taxId', tax.tin)}</p>
           )}
         </Company>
 
@@ -133,16 +139,24 @@ function Header({ t, invoice, profile, configs }) {
               <p key={line}>{line}</p>
             ))}
             <p>{recipient.email}</p>
-            {recipient.buyerReference ? (
+            {configs.showBuyerReference && recipient.buyerReference ? (
               <p>
-                {t('preview:einvoice:buyerReference', { lng: language })}:{' '}
-                {recipient.buyerReference}
+                {labelled(
+                  t,
+                  language,
+                  'preview:einvoice:buyerReference',
+                  recipient.buyerReference
+                )}
               </p>
             ) : null}
             {recipient.taxId ? (
               <p>
-                {t('preview:tax:recipientTaxId', { lng: language })}:{' '}
-                {recipient.taxId}
+                {labelled(
+                  t,
+                  language,
+                  'preview:tax:recipientTaxId',
+                  recipient.taxId
+                )}
               </p>
             ) : null}
             <p>{recipient.phone}</p>
@@ -166,10 +180,14 @@ function Header({ t, invoice, profile, configs }) {
               })}
         </h4>
         <p>
-          {t('preview:common:created', { lng: language })}:{' '}
-          {moment(getIssuedAt(invoice))
-            .lang(language)
-            .format(configs.dateFormat)}
+          {labelled(
+            t,
+            language,
+            'preview:common:created',
+            moment(getIssuedAt(invoice))
+              .locale(language)
+              .format(configs.dateFormat)
+          )}
         </p>
         {isCreditNote(invoice) && invoice.creditedInvoice ? (
           <p>
@@ -178,7 +196,7 @@ function Header({ t, invoice, profile, configs }) {
               number: invoice.creditedInvoice.invoiceID ?? '',
               date: invoice.creditedInvoice.issuedAt
                 ? moment(invoice.creditedInvoice.issuedAt)
-                    .lang(language)
+                    .locale(language)
                     .format(configs.dateFormat)
                 : '',
             })}
@@ -187,28 +205,36 @@ function Header({ t, invoice, profile, configs }) {
         {isEstimate(invoice)
           ? invoice.validUntil != null && (
               <p key="validUntil">
-                {t('preview:common:validUntil', { lng: language })}:{' '}
-                {moment(invoice.validUntil)
-                  .lang(language)
-                  .format(configs.dateFormat)}
+                {labelled(
+                  t,
+                  language,
+                  'preview:common:validUntil',
+                  moment(invoice.validUntil)
+                    .locale(language)
+                    .format(configs.dateFormat)
+                )}
               </p>
             )
           : !isCreditNote(invoice) &&
             invoice.dueDate && [
               <p key="dueDate">
-                {t('preview:common:due', { lng: language })}:{' '}
-                {invoice.dueDate.useCustom
-                  ? moment(invoice.dueDate.selectedDate)
-                      .lang(language)
-                      .format(configs.dateFormat)
-                  : moment(
-                      calTermDate(
-                        getIssuedAt(invoice),
-                        invoice.dueDate.paymentTerm
+                {labelled(
+                  t,
+                  language,
+                  'preview:common:due',
+                  invoice.dueDate.useCustom
+                    ? moment(invoice.dueDate.selectedDate)
+                        .locale(language)
+                        .format(configs.dateFormat)
+                    : moment(
+                        calTermDate(
+                          getIssuedAt(invoice),
+                          invoice.dueDate.paymentTerm
+                        )
                       )
-                    )
-                      .lang(language)
-                      .format(configs.dateFormat)}
+                        .locale(language)
+                        .format(configs.dateFormat)
+                )}
               </p>,
               <p key="dueDateNote">
                 {!invoice.dueDate.useCustom &&
@@ -217,7 +243,8 @@ function Header({ t, invoice, profile, configs }) {
               ${t(
                 `form:fields:dueDate:paymentTerms:${
                   invoice.dueDate.paymentTerm
-                }:description`
+                }:description`,
+                { lng: language }
               )}
             )
             `}

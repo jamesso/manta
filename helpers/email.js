@@ -444,20 +444,9 @@ export function validateEmailRequest(p) {
   if (!isPlainObject(p)) {
     throw new Error('invalid-request');
   }
-  const {
-    invoiceId,
-    kind,
-    invoice,
-    draft,
-    fileBase,
-    source,
-    snapshot,
-    previewToken,
-  } = p;
+  // Older renderers also send `source`. It is ignored.
+  const { invoiceId, kind, invoice, draft, fileBase, snapshot } = p;
   if (!EMAIL_KINDS.includes(kind)) {
-    throw new Error('invalid-request');
-  }
-  if (source !== 'preview' && source !== 'app') {
     throw new Error('invalid-request');
   }
   if (typeof fileBase !== 'string' || fileBase.length > 200) {
@@ -466,26 +455,13 @@ export function validateEmailRequest(p) {
   const doc = validateInvoiceDoc(invoice, invoiceId);
   const normalizedDraft = validateDraft(draft);
   const normalizedSnapshot = validateSnapshot(snapshot);
-  if (source === 'preview') {
-    if (
-      typeof previewToken !== 'string' ||
-      previewToken.length > 200 ||
-      previewToken.length < 8
-    ) {
-      throw new Error('invalid-request');
-    }
-  } else if (previewToken != null) {
-    throw new Error('invalid-request');
-  }
   return {
     invoiceId,
     kind,
     invoice: doc,
     draft: normalizedDraft,
     fileBase,
-    source,
     snapshot: normalizedSnapshot,
-    previewToken: source === 'preview' ? previewToken : undefined,
   };
 }
 
@@ -493,37 +469,27 @@ export function validateShareRequest(p) {
   if (!isPlainObject(p)) {
     throw new Error('invalid-request');
   }
-  const { invoiceId, invoice, fileBase, source, snapshot, previewToken } = p;
-  if (source !== 'preview' && source !== 'app') {
-    throw new Error('invalid-request');
-  }
+  // Older renderers also send `source`. It is ignored.
+  const { invoiceId, invoice, fileBase, snapshot } = p;
   if (typeof fileBase !== 'string' || fileBase.length > 200) {
     throw new Error('invalid-request');
   }
   const doc = validateInvoiceDoc(invoice, invoiceId);
   const normalizedSnapshot = validateSnapshot(snapshot);
-  if (source === 'preview') {
-    if (
-      typeof previewToken !== 'string' ||
-      previewToken.length > 200 ||
-      previewToken.length < 8
-    ) {
-      throw new Error('invalid-request');
-    }
-  } else if (previewToken != null) {
-    throw new Error('invalid-request');
-  }
   return {
     invoiceId,
     invoice: doc,
     fileBase,
-    source,
     snapshot: normalizedSnapshot,
-    previewToken: source === 'preview' ? previewToken : undefined,
   };
 }
 
-export function validateCaptureSnapshotPayload(p) {
+/**
+ * Validates `{ invoice, snapshot: { profile, configs, language } }`, the
+ * payload that the main window sends to render a PDF in the hidden preview
+ * window.
+ */
+export function validatePdfSnapshotPayload(p) {
   if (!isPlainObject(p)) {
     throw new Error('invalid-request');
   }
@@ -534,38 +500,4 @@ export function validateCaptureSnapshotPayload(p) {
   validateBoundedObject(invoice);
   const normalizedSnapshot = validateSnapshot(snapshot);
   return { invoice, snapshot: normalizedSnapshot };
-}
-
-function fingerprintPart(value) {
-  if (value === null || value === undefined) {
-    return null;
-  }
-  if (typeof value !== 'object') {
-    return value;
-  }
-  if (Array.isArray(value)) {
-    return value.map(fingerprintPart);
-  }
-  const keys = Object.keys(value).sort();
-  const out = {};
-  for (const key of keys) {
-    out[key] = fingerprintPart(value[key]);
-  }
-  return out;
-}
-
-export function invoiceCaptureFingerprint(invoice) {
-  if (!invoice || typeof invoice !== 'object') {
-    return '';
-  }
-  return JSON.stringify(fingerprintPart(invoice));
-}
-
-export function invoicesMatchCaptured(stored, supplied) {
-  if (!stored || !supplied || stored._id !== supplied._id) {
-    return false;
-  }
-  return (
-    invoiceCaptureFingerprint(stored) === invoiceCaptureFingerprint(supplied)
-  );
 }

@@ -10,13 +10,13 @@ import {
   isEstimate,
   isCreditNote,
 } from '../../../../app/helpers/docType';
+import { labelled } from '../../labelled';
 
 // Styles
 import styled from 'styled-components';
 const Wrapper = styled.div`
   display: flex;
   justify-content: space-between;
-  text-transform: capitalize;
 `;
 
 const Heading = styled.h1`
@@ -71,10 +71,14 @@ function Header({ t, invoice, profile, configs }) {
               })}
         </h4>
         <p>
-          {t('preview:common:created', { lng: language })}:{' '}
-          {moment(getIssuedAt(invoice))
-            .lang(language)
-            .format(configs.dateFormat)}
+          {labelled(
+            t,
+            language,
+            'preview:common:created',
+            moment(getIssuedAt(invoice))
+              .locale(language)
+              .format(configs.dateFormat)
+          )}
         </p>
         {isCreditNote(invoice) && invoice.creditedInvoice ? (
           <p>
@@ -83,7 +87,7 @@ function Header({ t, invoice, profile, configs }) {
               number: invoice.creditedInvoice.invoiceID ?? '',
               date: invoice.creditedInvoice.issuedAt
                 ? moment(invoice.creditedInvoice.issuedAt)
-                    .lang(language)
+                    .locale(language)
                     .format(configs.dateFormat)
                 : '',
             })}
@@ -92,25 +96,33 @@ function Header({ t, invoice, profile, configs }) {
         {isEstimate(invoice)
           ? invoice.validUntil != null && (
               <p key="validUntil">
-                {t('preview:common:validUntil', { lng: language })}:{' '}
-                {moment(invoice.validUntil)
-                  .lang(language)
-                  .format(configs.dateFormat)}
+                {labelled(
+                  t,
+                  language,
+                  'preview:common:validUntil',
+                  moment(invoice.validUntil)
+                    .locale(language)
+                    .format(configs.dateFormat)
+                )}
               </p>
             )
           : !isCreditNote(invoice) &&
             dueDate && [
               <p key="dueDate">
-                {t('preview:common:due', { lng: language })}:{' '}
-                {dueDate.useCustom
-                  ? moment(dueDate.selectedDate)
-                      .lang(language)
-                      .format(configs.dateFormat)
-                  : moment(
-                      calTermDate(getIssuedAt(invoice), dueDate.paymentTerm)
-                    )
-                      .lang(language)
-                      .format(configs.dateFormat)}
+                {labelled(
+                  t,
+                  language,
+                  'preview:common:due',
+                  dueDate.useCustom
+                    ? moment(dueDate.selectedDate)
+                        .locale(language)
+                        .format(configs.dateFormat)
+                    : moment(
+                        calTermDate(getIssuedAt(invoice), dueDate.paymentTerm)
+                      )
+                        .locale(language)
+                        .format(configs.dateFormat)
+                )}
               </p>,
               <p key="dueDateNote">
                 {!dueDate.useCustom &&
@@ -119,7 +131,8 @@ function Header({ t, invoice, profile, configs }) {
               ${t(
                 `form:fields:dueDate:paymentTerms:${
                   dueDate.paymentTerm
-                }:description`
+                }:description`,
+                { lng: language }
               )}
             )
             `}

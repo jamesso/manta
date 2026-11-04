@@ -92,44 +92,24 @@ function createMainWindow() {
   });
 }
 
+// Hidden PDF render engine. The main process renders invoices here and
+// prints them with printToPDF (see main/preview-pdf-coordinator.js). This
+// window never shows.
 function createPreviewWindow() {
-  // Get window state
-  const previewWindownStateKeeper = windowStateKeeper('preview');
-  // Create New Window
   previewWindow = new BrowserWindow({
-    x: previewWindownStateKeeper.x,
-    y: previewWindownStateKeeper.y,
-    width: previewWindownStateKeeper.width,
-    height: previewWindownStateKeeper.height,
-    minWidth: 1024,
-    minHeight: 800,
+    width: 1000,
+    height: 800,
     backgroundColor: getBackgroundColor(nativeTheme),
     show: false,
     title: 'Preview Window',
-    ...titleBarOptions(process.platform, nativeTheme),
     webPreferences: SECURE_WEB_PREFERENCES,
   });
   // Register WindowID
   appConfig.set('previewWindowID', parseInt(previewWindow.id));
-  // Track window state
-  previewWindownStateKeeper.track(previewWindow);
   // Load Content
   loadPage(previewWindow, 'preview');
-  if (process.platform !== 'darwin') {
-    nativeTheme.on('updated', () => {
-      if (!previewWindow.isDestroyed()) {
-        previewWindow.setTitleBarOverlay(titleBarOverlayFor(nativeTheme));
-      }
-    });
-  }
-  // Add Event Listener
-  previewWindow.on('show', event => {
-    if (isDev || forceDevtools)
-      previewWindow.webContents.openDevTools({ mode: 'detach' });
-  });
   previewWindow.on('close', event => {
     event.preventDefault();
-    if (isDev || forceDevtools) previewWindow.webContents.closeDevTools();
     previewWindow.hide();
   });
 }
@@ -191,7 +171,7 @@ function setInitialValues() {
     },
     invoice: {
       exportDir: os.homedir(),
-      template: 'default',
+      template: 'minimal',
       dateFormat: 'MM/DD/YYYY',
       tax: {
         tin: '123-456-789',
@@ -344,9 +324,12 @@ function migrateData() {
 }
 
 function removeObsoleteKeys() {
-  ['tour', 'tourWindowID', 'winsLastVisibleState'].forEach(k =>
-    appConfig.delete(k)
-  );
+  [
+    'tour',
+    'tourWindowID',
+    'winsLastVisibleState',
+    'windowState.preview',
+  ].forEach(k => appConfig.delete(k));
 }
 
 function addEventListeners() {
@@ -369,7 +352,6 @@ function addEventListeners() {
 }
 
 function loadMainProcessFiles() {
-  require('./main/preview-window');
   require('./main/save-pdf');
   require('./main/email-invoice');
   const {
@@ -452,14 +434,7 @@ function initialize() {
   });
   // Reactivate the app
   app.on('activate', () => {
-    if (
-      mainWindow &&
-      !mainWindow.isDestroyed() &&
-      previewWindow &&
-      !previewWindow.isDestroyed() &&
-      !mainWindow.isVisible() &&
-      !previewWindow.isVisible()
-    ) {
+    if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.isVisible()) {
       mainWindow.show();
       mainWindow.focus();
     }

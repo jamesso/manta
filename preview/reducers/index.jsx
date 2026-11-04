@@ -17,13 +17,17 @@ const initialState = {
 
 const RootReducer = handleActions(
   {
+    // Plain payload (scripts/pdf-snapshot.mjs, e2e): the invoice and its own
+    // configs, rendered with the stored seller profile.
     [ACTION_TYPES.INVOICE_UPDATE]: (state, action) =>
       Object.assign({}, state, {
         invoice: action.payload,
+        profile: appConfig.get('profile') ?? state.profile,
         configs: action.payload.configs
           ? action.payload.configs
           : state.configs,
       }),
+    // Coordinated PDF job from the main process.
     [ACTION_TYPES.PREVIEW_COORDINATED_UPDATE]: (state, action) => {
       const { invoice, profile, configs, language } = action.payload;
       const invoiceSettingsNow = appConfig.get('invoice');
@@ -36,33 +40,6 @@ const RootReducer = handleActions(
           getDefaultPreviewConfigs(invoiceSettingsNow, generalSettingsNow),
         ui: Object.assign({}, state.ui, {
           language: language ?? state.ui.language,
-        }),
-      });
-    },
-    [ACTION_TYPES.UI_CHANGE_LANGUAGE]: (state, action) =>
-      Object.assign({}, state, {
-        ui: Object.assign({}, state.ui, {
-          language: action.payload,
-        }),
-      }),
-    [ACTION_TYPES.SETTINGS_UPDATE_PROFILE]: (state, action) =>
-      Object.assign({}, state, {
-        profile: action.payload,
-      }),
-    [ACTION_TYPES.SETTINGS_UPDATE_CONFIGS]: (state, action) =>
-      Object.assign({}, state, {
-        configs: Object.assign({}, state.configs, {
-          [action.payload.name]: action.payload.value,
-        }),
-      }),
-    [ACTION_TYPES.SETTINGS_RELOAD_CONFIGS]: (state, action) => {
-      const { profile, invoice, general } = action.payload;
-      return Object.assign({}, state, {
-        profile,
-        configs: Object.assign({}, state.configs, {
-          language: general.language,
-          template: invoice.template,
-          dateFormat: invoice.dateFormat,
         }),
       });
     },

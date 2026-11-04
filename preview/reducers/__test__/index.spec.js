@@ -28,66 +28,27 @@ describe('RootReducer should', () => {
     expect(newState.configs).toEqual('configs');
   });
 
-  it('handle UI_CHANGE_LANGUAGE action', () => {
+  it('handle PREVIEW_COORDINATED_UPDATE action', () => {
     const currentState = {
       ui: { language: 'en' },
-    };
-    const newState = RootReducer(currentState, {
-      type: ACTION_TYPES.UI_CHANGE_LANGUAGE,
-      payload: 'fr',
-    });
-    expect(newState.ui.language).toEqual('fr');
-  });
-
-  it('handle SETTINGS_UPDATE_PROFILE action', () => {
-    const currentState = {
+      invoice: {},
       profile: 'Profile',
+      configs: {},
     };
     const newState = RootReducer(currentState, {
-      type: ACTION_TYPES.SETTINGS_UPDATE_PROFILE,
-      payload: 'New Profile',
-    });
-    expect(newState.profile).toEqual('New Profile');
-  });
-
-  it('handle SETTINGS_UPDATE_CONFIGS action', () => {
-    const currentState = {
-      configs: { template: 'minimal' },
-    };
-    const newState = RootReducer(currentState, {
-      type: ACTION_TYPES.SETTINGS_UPDATE_CONFIGS,
+      type: ACTION_TYPES.PREVIEW_COORDINATED_UPDATE,
       payload: {
-        name: 'template',
-        value: 'business',
-      },
-    });
-    expect(newState.configs.template).toEqual('business');
-  });
-
-  it('handle SETTINGS_RELOAD_CONFIGS action', () => {
-    const currentState = {
-      profile: 'Profile',
-      configs: {
+        requestId: 'r1',
+        invoice: { _id: 'inv-1' },
+        profile: 'Snapshot Profile',
+        configs: { template: 'business' },
         language: 'fr',
-        template: 'minimal',
-        dateFormat: 'DDMMYY',
-      },
-    };
-    const newState = RootReducer(currentState, {
-      type: ACTION_TYPES.SETTINGS_RELOAD_CONFIGS,
-      payload: {
-        profile: 'New Profile',
-        general: { language: 'en' },
-        invoice: {
-          dateFormat: 'MMMM/DDDD/YYYY',
-          template: 'business',
-        },
       },
     });
-    expect(newState.profile).toEqual('New Profile');
-    expect(newState.configs.language).toEqual('en');
-    expect(newState.configs.template).toEqual('business');
-    expect(newState.configs.dateFormat).toEqual('MMMM/DDDD/YYYY');
+    expect(newState.invoice).toEqual({ _id: 'inv-1' });
+    expect(newState.profile).toEqual('Snapshot Profile');
+    expect(newState.configs).toEqual({ template: 'business' });
+    expect(newState.ui.language).toEqual('fr');
   });
 });
 

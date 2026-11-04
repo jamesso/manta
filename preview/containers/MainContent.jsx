@@ -1,17 +1,11 @@
 import React from 'react';
 import { InvoiceTemplate } from '../templates';
-import { exportKey } from '../../helpers/einvoice/exportKey.js';
 
 export default function MainContent({ t, invoice, configs, profile, UILang }) {
-  const key = invoice._id ? exportKey(invoice, profile, configs) : '';
   return (
-    <main className="m-2 mt-0 min-w-0 flex-1 overflow-auto rounded-2xl bg-background pt-8 pb-8 shadow-panel">
+    <main className="min-w-0 flex-1 overflow-auto pt-8 pb-8">
       {invoice._id ? (
-        <div
-          className="print-area"
-          data-invoice-id={invoice._id}
-          data-export-key={key}
-        >
+        <div className="print-area" data-invoice-id={invoice._id}>
           <div className="paper" dir="ltr">
             <InvoiceTemplate
               t={t}
@@ -23,7 +17,7 @@ export default function MainContent({ t, invoice, configs, profile, UILang }) {
           </div>
         </div>
       ) : (
-        <p className="flex h-full items-center justify-center text-xs tracking-wide text-foreground uppercase">
+        <p className="flex h-full items-center justify-center text-xs tracking-wide text-neutral-500 uppercase">
           {t('preview:common:chooseInvoiceToPreview', { lng: UILang })}
         </p>
       )}

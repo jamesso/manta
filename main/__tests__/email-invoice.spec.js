@@ -21,23 +21,16 @@ vi.mock('../preview-pdf-coordinator', async importOriginal => {
   return {
     ...actual,
     runPreviewPdfJob: vi.fn(),
-    getPreviewWindow: vi.fn(),
   };
 });
 
 import {
   buildMailto,
-  invoicesMatchCaptured,
-  validateCaptureSnapshotPayload,
+  validatePdfSnapshotPayload,
   validateEmailRequest,
   validateShareRequest,
 } from '../../helpers/email';
-import {
-  consumePreviewToken,
-  createPreviewToken,
-  restorePreviewToken,
-  __resetForTests,
-} from '../preview-pdf-coordinator';
+import { __resetForTests } from '../preview-pdf-coordinator';
 import { getEmailVars } from '../../app/helpers/emailDraft';
 import { clipboard, ipcMain, shell, BrowserWindow } from 'electron';
 import appConfig from '../settings';
@@ -81,29 +74,6 @@ describe('email request validation', () => {
         },
       })
     ).toThrow('invalid-request');
-  });
-});
-
-describe('preview token handoff', () => {
-  it('returns null on second consume', () => {
-    const token = createPreviewToken({
-      invoiceId: 'inv-1',
-      invoice: { _id: 'inv-1' },
-      snapshot: { profile: {}, configs: {}, language: 'en' },
-    });
-    expect(consumePreviewToken(token, 'inv-1')).toBeTruthy();
-    expect(consumePreviewToken(token, 'inv-1')).toBeNull();
-  });
-
-  it('restores a preview token after a failed handoff', () => {
-    const token = createPreviewToken({
-      invoiceId: 'inv-1',
-      invoice: { _id: 'inv-1' },
-      snapshot: { profile: {}, configs: {}, language: 'en' },
-    });
-    const entry = consumePreviewToken(token, 'inv-1');
-    restorePreviewToken(token, entry);
-    expect(consumePreviewToken(token, 'inv-1')).toBeTruthy();
   });
 });
 
@@ -166,9 +136,9 @@ describe('reminder balance with issued credit', () => {
   });
 });
 
-describe('capture preview snapshot payload', () => {
+describe('pdf snapshot payload', () => {
   it('validates invoice and snapshot shape', () => {
-    const out = validateCaptureSnapshotPayload({
+    const out = validatePdfSnapshotPayload({
       invoice: { _id: 'x', docType: 'invoice', invoiceID: '1' },
       snapshot: { profile: {}, configs: {}, language: 'en' },
     });
@@ -264,49 +234,90 @@ describe('email-invoice ipc handler', () => {
     expect(clipboard.writeText).not.toHaveBeenCalled();
   });
 
-  it('rejects preview email when the invoice changed after capture', async () => {
-    const captured = {
-      _id: 'inv1',
-      docType: 'invoice',
-      invoiceID: 'INV-1',
-      status: 'pending',
-      grandTotal: 100,
-      rows: [{ description: 'Line', subtotal: 100 }],
-      recipient: { fullname: 'Client' },
-    };
-    const token = createPreviewToken({
-      invoiceId: 'inv1',
-      invoice: captured,
-      snapshot: {
-        profile: {},
-        configs: { language: 'en' },
-        language: 'en',
-      },
+  it('rejects the hidden preview window as sender', async () => {
+    BrowserWindow.fromWebContents.mockReturnValueOnce({
+      id: 2,
+      isDestroyed: () => false,
     });
-    const res = await emailHandler(trustedEvent, {
-      ...basePayload,
-      source: 'preview',
-      previewToken: token,
-      invoice: { ...captured, invoiceID: 'INV-2' },
-    });
-    expect(res.ok).toBe(false);
-    expect(res.error).toBe('preview-invoice-mismatch');
-    expect(shell.openExternal).not.toHaveBeenCalled();
+    const res = await emailHandler(trustedEvent, basePayload);
+    expect(res).toEqual({ ok: false, error: 'untrusted-sender' });
     expect(runPreviewPdfJob).not.toHaveBeenCalled();
+  });
+
+  it('rejects a sub-frame of the main window', async () => {
+    const res = await emailHandler(
+      { sender: { mainFrame: 'frame' }, senderFrame: 'child' },
+      basePayload
+    );
+    expect(res).toEqual({ ok: false, error: 'untrusted-sender' });
+    expect(runPreviewPdfJob).not.toHaveBeenCalled();
+  });
+
+  it('prints the payload invoice and snapshot in the hidden window', async () => {
+    runPreviewPdfJob.mockResolvedValueOnce('/tmp/manta-export/INV-1.pdf');
+    const { source, ...withoutSource } = basePayload;
+    expect(source).toBe('app');
+    const res = await emailHandler(trustedEvent, withoutSource);
+    expect(res.ok).toBe(true);
+    expect(res.pdfPath).toBe('/tmp/manta-export/INV-1.pdf');
+    const params = runPreviewPdfJob.mock.calls[0][2];
+    expect(params.invoice).toEqual(basePayload.invoice);
+    expect(params.snapshot).toEqual(basePayload.snapshot);
+    expect(params).not.toHaveProperty('hidePreviewAfter');
+    expect(shell.openExternal).toHaveBeenCalledTimes(1);
   });
 });
 
 describe('share-invoice-pdf validation', () => {
+  const share = {
+    invoiceId: 'inv1',
+    invoice: { _id: 'inv1', docType: 'invoice', invoiceID: 'INV-1' },
+    fileBase: 'INV-1',
+    snapshot: { profile: {}, configs: {}, language: 'en' },
+  };
+
   it('rejects malformed share payloads before print', () => {
     expect(() =>
-      validateShareRequest({
-        invoiceId: 'inv1',
-        invoice: { _id: 'inv1', docType: 'estimate', invoiceID: 'E-1' },
-        fileBase: 'E-1',
-        source: 'preview',
-        snapshot: { profile: {}, configs: {}, language: 'en' },
-        previewToken: 'tok',
-      })
+      validateShareRequest({ ...share, invoice: { _id: 'other' } })
     ).toThrow('invalid-request');
+    expect(() => validateShareRequest({ ...share, fileBase: 1 })).toThrow(
+      'invalid-request'
+    );
+  });
+
+  it('ignores a legacy source field', () => {
+    const out = validateShareRequest({ ...share, source: 'app' });
+    expect(out).not.toHaveProperty('source');
+    expect(out).not.toHaveProperty('previewToken');
+  });
+});
+
+describe('mailto truncation contract', () => {
+  it('marks truncated and stays within 1800 characters', () => {
+    const subject = 'S'.repeat(300);
+    const body = 'B'.repeat(5000);
+    const { url, truncated } = buildMailto({
+      to: 'user@example.com',
+      subject,
+      body,
+    });
+    expect(truncated).toBe(true);
+    expect(url.length).toBeLessThanOrEqual(1800);
+    expect(() => decodeURIComponent(url.split('body=')[1] ?? '')).not.toThrow();
+    const fullMessage = `${subject}\n\n${body}`;
+    expect(fullMessage.length).toBeGreaterThan(url.length);
+  });
+
+  it('throws when the URL cannot fit at all', () => {
+    expect(() =>
+      buildMailto(
+        {
+          to: 'user@example.com',
+          subject: 'Subject',
+          body: 'Body',
+        },
+        { maxLength: 20 }
+      )
+    ).toThrow(/mailto-too-long|too-long-recipient/);
   });
 });

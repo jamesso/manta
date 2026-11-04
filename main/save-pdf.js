@@ -1,48 +1,27 @@
-// Libs
-const { BrowserWindow, ipcMain, shell } = require('electron');
-const appConfig = require('./settings');
-const path = require('path');
-const { pdfFileName } = require('./pdf-file-name');
-const { writeInvoicePdf } = require('./print-invoice-pdf');
-const {
+import { ipcMain, shell } from 'electron';
+import path from 'node:path';
+
+import appConfig from './settings';
+import { pdfFileName } from './pdf-file-name';
+import { writeInvoicePdf } from './print-invoice-pdf';
+import {
   assertPathInExportDir,
   runPreviewPdfJob,
-} = require('./preview-pdf-coordinator');
+} from './preview-pdf-coordinator';
+import { getMainWindow, isMainWindowMainFrame } from './main-window-sender';
+import { validatePdfSnapshotPayload } from '../helpers/email.js';
 
-module.exports = { writeInvoicePdf };
-
-function isPreviewMainFrame(event) {
-  const win = BrowserWindow.fromWebContents(event.sender);
-  if (!win || win.isDestroyed()) {
-    return false;
+// save-pdf: main window → { invoice, snapshot: { profile, configs, language },
+// docType } → { ok: true, pdfPath } | { ok: false, error }
+ipcMain.handle('save-pdf', async (event, payload) => {
+  if (!isMainWindowMainFrame(event)) {
+    return { ok: false, error: 'untrusted-sender' };
   }
-  if (event.senderFrame !== event.sender.mainFrame) {
-    return false;
-  }
-  return win.id === appConfig.get('previewWindowID');
-}
-
-let emailHelpersPromise;
-
-function loadEmailHelpers() {
-  if (!emailHelpersPromise) {
-    emailHelpersPromise = import('../helpers/email.js');
-  }
-  return emailHelpersPromise;
-}
-
-ipcMain.on('save-pdf', async (event, payload) => {
-  if (!isPreviewMainFrame(event)) {
-    return;
-  }
-  const exportDir = appConfig.get('invoice.exportDir');
   try {
-    const { validateCaptureSnapshotPayload } = await loadEmailHelpers();
-    const { invoice, snapshot } = validateCaptureSnapshotPayload(payload);
+    const { invoice, snapshot } = validatePdfSnapshotPayload(payload);
     const docType =
-      payload && typeof payload.docType === 'string'
-        ? payload.docType
-        : invoice.docType;
+      typeof payload.docType === 'string' ? payload.docType : invoice.docType;
+    const exportDir = appConfig.get('invoice.exportDir');
     const pdfPath = path.join(
       exportDir,
       pdfFileName(invoice._id, docType, exportDir)
@@ -56,24 +35,27 @@ ipcMain.on('save-pdf', async (event, payload) => {
     });
     if (!appConfig.get('onboarding.exportedPdf')) {
       appConfig.set('onboarding.exportedPdf', true);
-      const main = BrowserWindow.fromId(appConfig.get('mainWindowID'));
-      if (main && !main.isDestroyed()) {
+      const main = getMainWindow();
+      if (main) {
         main.webContents.send('onboarding-updated', { exportedPdf: true });
       }
     }
     if (appConfig.get('general.previewPDF')) {
       await shell.openPath(pdfPath);
     }
-    event.sender.send('pfd-exported', {
-      title: 'PDF Exported',
-      body: 'Click to reveal file.',
-      location: pdfPath,
-    });
-  } catch (error) {
-    console.error('save-pdf failed:', error);
+    return { ok: true, pdfPath };
+  } catch (err) {
+    console.error('save-pdf failed:', err);
+    return { ok: false, error: err?.message || 'failed' };
   }
 });
 
 ipcMain.on('reveal-file', (event, location) => {
+  if (!isMainWindowMainFrame(event)) {
+    return;
+  }
+  if (typeof location !== 'string' || !location) {
+    return;
+  }
   shell.showItemInFolder(location);
 });

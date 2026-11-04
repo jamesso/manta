@@ -8,6 +8,7 @@ import {
   hasPostalAddress,
 } from '../../../../helpers/einvoice/address.js';
 import { resolveProfile } from '../../../../helpers/einvoice/toEn16931.js';
+import { labelled } from '../../labelled';
 const Wrapper = styled.div`
   display: flex;
   align-items: flex-start;
@@ -55,7 +56,7 @@ function Footer({ t, invoice, profile, configs }) {
         <p>{sellerProfile.phone}</p>
         {bank.iban ? (
           <p>
-            {t('preview:einvoice:bank', { lng: currentLanguage })}: {bank.iban}
+            {labelled(t, currentLanguage, 'preview:einvoice:bank', bank.iban)}
             {bank.bic ? ` / ${bank.bic}` : ''}
             {bank.accountName ? ` (${bank.accountName})` : ''}
           </p>
@@ -64,19 +65,29 @@ function Footer({ t, invoice, profile, configs }) {
           <>
             {invoice.seller.taxId ? (
               <p>
-                {t('preview:tax:taxId', { lng: currentLanguage })}:{' '}
-                {invoice.seller.taxId}
+                {labelled(
+                  t,
+                  currentLanguage,
+                  'preview:tax:taxId',
+                  invoice.seller.taxId
+                )}
               </p>
             ) : null}
             {invoice.seller.vatId ? (
               <p>
-                {t('preview:tax:vatId', { lng: currentLanguage })}:{' '}
-                {invoice.seller.vatId}
+                {labelled(
+                  t,
+                  currentLanguage,
+                  'preview:tax:vatId',
+                  invoice.seller.vatId
+                )}
               </p>
             ) : null}
           </>
         ) : (
-          tax && <p>Tax ID: {tax.tin}</p>
+          tax && (
+            <p>{labelled(t, currentLanguage, 'preview:tax:taxId', tax.tin)}</p>
+          )
         )}
       </Column>
       {configs.showRecipient && (
@@ -90,16 +101,24 @@ function Footer({ t, invoice, profile, configs }) {
             <p key={line}>{line}</p>
           ))}
           <p>{recipient.email}</p>
-          {recipient.buyerReference ? (
+          {configs.showBuyerReference && recipient.buyerReference ? (
             <p>
-              {t('preview:einvoice:buyerReference', { lng: currentLanguage })}:{' '}
-              {recipient.buyerReference}
+              {labelled(
+                t,
+                currentLanguage,
+                'preview:einvoice:buyerReference',
+                recipient.buyerReference
+              )}
             </p>
           ) : null}
           {recipient.taxId ? (
             <p>
-              {t('preview:tax:recipientTaxId', { lng: currentLanguage })}:{' '}
-              {recipient.taxId}
+              {labelled(
+                t,
+                currentLanguage,
+                'preview:tax:recipientTaxId',
+                recipient.taxId
+              )}
             </p>
           ) : null}
           <p>{recipient.phone}</p>

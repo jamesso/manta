@@ -21,11 +21,17 @@ const SWATCHES = [
   '#ff8a65',
 ];
 
-export default function AccentColor({ t, accentColor, update, UILang }) {
+export default function AccentColor({
+  t,
+  accentColor,
+  update,
+  UILang,
+  showLabel = true,
+}) {
   const setColor = hex => update('accentColor', hex);
   return (
     <Field>
-      <FieldLabel>
+      <FieldLabel className={showLabel ? undefined : 'sr-only'}>
         {t('preview:sidebar:accentColor:name', { lng: UILang })}
       </FieldLabel>
       <div className="flex flex-wrap gap-2">

@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { Field, FieldLabel } from '@/components/ui/field';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { firstOrNull } from '../../helper';
+import { firstOrNull } from '../../../preview/helper';
 
 const OPTIONS = [
   ['top', AlignVerticalJustifyStart],

@@ -10,23 +10,3 @@ export const updateCoordinatedPreview = createAction(
   ACTION_TYPES.PREVIEW_COORDINATED_UPDATE,
   payload => payload
 );
-
-export const updateConfigs = createAction(
-  ACTION_TYPES.SETTINGS_UPDATE_CONFIGS,
-  configs => configs
-);
-
-export const updateProfile = createAction(
-  ACTION_TYPES.SETTINGS_UPDATE_PROFILE,
-  profile => profile
-);
-
-export const changeUILanguage = createAction(
-  ACTION_TYPES.UI_CHANGE_LANGUAGE,
-  language => language
-);
-
-export const reloadConfigs = createAction(
-  ACTION_TYPES.SETTINGS_RELOAD_CONFIGS,
-  newConfigs => newConfigs
-);

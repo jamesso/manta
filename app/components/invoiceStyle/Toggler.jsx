@@ -2,7 +2,8 @@ import React from 'react';
 import { Field, FieldLabel } from '@/components/ui/field';
 import { Switch } from '@/components/ui/switch';
 
-const ROWS = [
+// [config key, label key] for the on/off style options.
+export const STYLE_TOGGLES = [
   ['showLogo', 'preview:sidebar:toggle:logo'],
   ['useSymbol', 'preview:sidebar:toggle:symbol'],
   ['showRecipient', 'preview:sidebar:toggle:recipient'],
@@ -15,7 +16,7 @@ export default function Toggler({ t, configs, update, UILang }) {
       <p className="text-sm font-medium">
         {t('preview:sidebar:toggle:name', { lng: UILang })}
       </p>
-      {ROWS.map(([name, key]) => (
+      {STYLE_TOGGLES.map(([name, key]) => (
         <Field
           key={name}
           orientation="horizontal"
