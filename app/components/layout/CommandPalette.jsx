@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
+import { ArrowRight } from 'lucide-react';
 import {
   CommandDialog,
   Command,
@@ -13,10 +14,13 @@ import {
 import { toast } from '@/components/ui/toast';
 import * as UIActions from '../../actions/ui';
 import * as SettingsActions from '../../actions/settings';
+import { editInvoice } from '../../actions/invoices';
 import { filterCommands, searchRecords } from '../../helpers/commandSearch';
+import { searchItems } from '../../helpers/items';
 import { nextTheme } from '../../helpers/theme';
 import { getInvoices, getEstimates } from '../../reducers/InvoicesReducer';
 import { getContacts } from '../../reducers/ContactsReducer';
+import { getItems } from '../../reducers/ItemsReducer';
 import { getCurrentSettings } from '../../reducers/SettingsReducer';
 
 const ipc = window.manta.ipc;
@@ -29,6 +33,7 @@ export default function CommandPalette() {
   const invoices = useSelector(getInvoices) || [];
   const estimates = useSelector(getEstimates) || [];
   const contacts = useSelector(getContacts) || [];
+  const items = useSelector(getItems) || [];
   const currentTheme =
     useSelector(s => s.settings.saved?.general?.theme) ?? 'system';
   const currentSettings = useSelector(getCurrentSettings);
@@ -131,6 +136,7 @@ export default function CommandPalette() {
   const filteredActions = filterCommands(actionCommands, query);
   const records = searchRecords({ query, invoices, contacts });
   const estimateRecords = searchRecords({ query, invoices: estimates });
+  const itemRecords = searchItems(items, query, 5);
 
   const close = () => dispatch(UIActions.setCommandPalette(false));
 
@@ -138,6 +144,20 @@ export default function CommandPalette() {
     close();
     fn();
   };
+
+  // Last row of a record group: opens the list page filtered by the query.
+  const showAll = (page, pageLabel) => (
+    <CommandItem
+      value={`all-${page}`}
+      onSelect={() =>
+        run(() => dispatch(UIActions.openList(page, { query: query.trim() })))
+      }
+      className="text-muted-foreground"
+    >
+      <ArrowRight />
+      {t('app:palette:showAll', { query: query.trim(), page: pageLabel })}
+    </CommandItem>
+  );
 
   const invoiceLabel = inv =>
     inv.invoiceID || (inv._id ? String(inv._id).slice(0, 8) : 'Invoice');
@@ -242,11 +262,12 @@ export default function CommandPalette() {
                 <CommandItem
                   key={e._id}
                   value={`estimate-${e._id}`}
-                  onSelect={() => run(() => ipc.send('preview-invoice', e))}
+                  onSelect={() => run(() => dispatch(editInvoice(e)))}
                 >
                   {invoiceLabel(e)}
                 </CommandItem>
               ))}
+              {showAll('estimates', t('app:nav:estimates'))}
             </CommandGroup>
           )}
           {records.invoices.length > 0 && (
@@ -255,11 +276,18 @@ export default function CommandPalette() {
                 <CommandItem
                   key={inv._id}
                   value={`invoice-${inv._id}`}
-                  onSelect={() => run(() => ipc.send('preview-invoice', inv))}
+                  onSelect={() =>
+                    run(() =>
+                      dispatch(
+                        UIActions.openList('invoices', { openId: inv._id })
+                      )
+                    )
+                  }
                 >
                   {invoiceLabel(inv)}
                 </CommandItem>
               ))}
+              {showAll('invoices', t('app:nav:invoices'))}
             </CommandGroup>
           )}
           {records.contacts.length > 0 && (
@@ -269,12 +297,37 @@ export default function CommandPalette() {
                   key={c._id}
                   value={`contact-${c._id}`}
                   onSelect={() =>
-                    run(() => dispatch(UIActions.changeActiveTab('contacts')))
+                    run(() =>
+                      dispatch(
+                        UIActions.openList('contacts', { openId: c._id })
+                      )
+                    )
                   }
                 >
                   {c.fullname || c.company || c.email || c._id}
                 </CommandItem>
               ))}
+              {showAll('contacts', t('app:nav:clients'))}
+            </CommandGroup>
+          )}
+          {itemRecords.length > 0 && (
+            <CommandGroup heading={t('app:palette:items')}>
+              {itemRecords.map(item => (
+                <CommandItem
+                  key={item._id}
+                  value={`item-${item._id}`}
+                  onSelect={() =>
+                    run(() =>
+                      dispatch(
+                        UIActions.openList('items', { openId: item._id })
+                      )
+                    )
+                  }
+                >
+                  {item.name}
+                </CommandItem>
+              ))}
+              {showAll('items', t('app:nav:items'))}
             </CommandGroup>
           )}
         </CommandList>

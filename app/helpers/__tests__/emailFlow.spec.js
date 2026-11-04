@@ -27,7 +27,7 @@ describe('runEmailFlow', () => {
     emailPrompt.askEmail.mockRestore();
   });
 
-  it('uses invoice seller company for preview-origin drafts', async () => {
+  it('uses the invoice seller and the drawer style', async () => {
     const invoke = vi.fn().mockResolvedValue({
       ok: true,
       fileName: 'INV-1.pdf',
@@ -51,13 +51,11 @@ describe('runEmailFlow', () => {
           rows: [{ subtotal: 50 }],
         },
         kind: 'invoice',
-        source: 'preview',
-        snapshot: {
-          profile: { company: 'New Company' },
-          configs: { language: 'en', dateFormat: 'MM/DD/YYYY' },
+        configs: {
           language: 'en',
+          dateFormat: 'MM/DD/YYYY',
+          template: 'business',
         },
-        previewToken: '0123456789abcdef',
       },
       {
         dispatch: vi.fn(),
@@ -87,5 +85,8 @@ describe('runEmailFlow', () => {
     expect(payload.draft.subject).toBe('Old Company');
     expect(payload.draft.body).toContain('Old Company');
     expect(payload.draft.subject).not.toContain('New Company');
+    expect(payload.snapshot.profile.company).toBe('Old Company');
+    expect(payload.snapshot.configs.template).toBe('business');
+    expect(payload).not.toHaveProperty('previewToken');
   });
 });

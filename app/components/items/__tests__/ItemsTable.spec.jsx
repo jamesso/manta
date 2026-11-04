@@ -40,7 +40,11 @@ function renderTable() {
           items={[item]}
           sorting={[{ id: 'name', desc: false }]}
           onSortingChange={() => {}}
-          onRowOpen={() => {}}
+          rowSelection={{}}
+          onRowSelectionChange={() => {}}
+          pagination={{ pageIndex: 0, pageSize: 50 }}
+          onPaginationChange={() => {}}
+          onOpen={() => {}}
           onEdit={() => {}}
         />
       </I18nextProvider>

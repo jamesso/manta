@@ -4,7 +4,6 @@ import os from 'node:os';
 import path from 'node:path';
 
 const MAIN_TITLE = 'Manta';
-const PREVIEW_TITLE = 'Previewer';
 const outDir = '/tmp/manta-025-screens';
 fs.mkdirSync(outDir, { recursive: true });
 
@@ -107,7 +106,8 @@ test('captures e-invoice UI screenshots', async () => {
       timeout: 15_000,
     });
     await main
-      .getByRole('button', { name: 'Invoice defaults', exact: true })
+      .getByRole('navigation', { name: 'Settings' })
+      .getByRole('button', { name: 'Invoices', exact: true })
       .click();
     await expect(
       main.getByRole('switch', { name: 'Enable e-invoice export', exact: true })
@@ -143,80 +143,6 @@ test('captures e-invoice UI screenshots', async () => {
     await expect(sw).toHaveAttribute('aria-checked', 'true');
     await main.screenshot({
       path: path.join(outDir, `settings-einvoice-checklist-${theme}.png`),
-      fullPage: true,
-    });
-
-    const preview = await pageByTitle(PREVIEW_TITLE);
-    await preview.evaluate(() => {
-      const invoice = window.manta.settings.get('invoice') ?? {};
-      window.manta.settings.set('invoice', {
-        ...invoice,
-        eInvoice: { enabled: true, format: 'xrechnung-ubl' },
-      });
-    });
-    const badInvoice = {
-      _id: 'einvoice-check-block',
-      invoiceID: 'INV-E2E',
-      status: 'pending',
-      issuedAt: Date.UTC(2026, 0, 10),
-      taxMode: 'line',
-      taxCalc: 1,
-      currency: { code: 'EUR', fraction: 2 },
-      rows: [
-        {
-          id: '1',
-          description: 'Line',
-          quantity: 1,
-          price: 10,
-          subtotal: 10,
-          taxRate: 19,
-          taxCategory: 'S',
-        },
-      ],
-      recipient: { fullname: 'Buyer', email: 'b@example.de' },
-      configs: {
-        template: 'business',
-        language: 'en',
-        dateFormat: 'MM/DD/YYYY',
-        showRecipient: true,
-        showLogo: false,
-        alignItems: 'flex-start',
-        fontSize: 10,
-        customAccentColor: false,
-      },
-    };
-    await app.evaluate(({ BrowserWindow }, inv) => {
-      BrowserWindow.getAllWindows()
-        .find(w => w.getTitle() === 'Previewer')
-        .webContents.send('update-preview', inv);
-    }, badInvoice);
-    await preview.waitForFunction(
-      id =>
-        document
-          .querySelector('.print-area')
-          ?.getAttribute('data-invoice-id') === id,
-      badInvoice._id,
-      { timeout: 15_000 }
-    );
-    await expect(preview.getByText(/\d+ problems to fix/)).toBeVisible({
-      timeout: 10_000,
-    });
-    const einvoiceBlock = preview.locator('[data-einvoice-export]');
-    await einvoiceBlock.scrollIntoViewIfNeeded();
-    await expect(
-      einvoiceBlock.getByRole('button', {
-        name: 'Export XRechnung (XML)',
-        exact: true,
-      })
-    ).toBeDisabled();
-    await expect(
-      einvoiceBlock.getByRole('button', {
-        name: 'Export Factur-X (PDF)',
-        exact: true,
-      })
-    ).toBeDisabled();
-    await preview.screenshot({
-      path: path.join(outDir, `preview-einvoice-blocked-${theme}.png`),
       fullPage: true,
     });
   }

@@ -12,7 +12,10 @@ export function resolveProfileForDocument(invoice, profile) {
   return resolveProfile(invoice, { profile });
 }
 
-export function getEInvoiceDerived(invoice, { profile, invoiceSettings, lang }) {
+export function getEInvoiceDerived(
+  invoice,
+  { profile, invoiceSettings, lang }
+) {
   const docType = getDocType(invoice);
   return {
     docType,
@@ -32,7 +35,11 @@ export function getEInvoiceDerived(invoice, { profile, invoiceSettings, lang }) 
   };
 }
 
-export function mergeRecipientFromContact(recipient, contact) {
+export function mergeRecipientFromContact(
+  recipient,
+  contact,
+  { buyerReference = true } = {}
+) {
   const base = { ...recipient };
   if (!contact) {
     return base;
@@ -45,7 +52,9 @@ export function mergeRecipientFromContact(recipient, contact) {
   if (contact.postalAddress && typeof contact.postalAddress === 'object') {
     base.postalAddress = { ...contact.postalAddress };
   }
-  copyIf('buyerReference', contact.buyerReference);
+  if (buyerReference) {
+    copyIf('buyerReference', contact.buyerReference);
+  }
   copyIf('taxId', contact.taxId);
   return base;
 }

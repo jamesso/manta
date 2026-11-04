@@ -74,7 +74,7 @@ describe('RecurringMW', () => {
     expect(runRecurringOnceMock).toHaveBeenCalledTimes(1);
   });
 
-  it('dispatches getInvoices and openInvoicesTab when drafts are created', async () => {
+  it('dispatches getInvoices and openList when drafts are created', async () => {
     runRecurringOnceMock.mockResolvedValueOnce({
       created: 2,
       skipped: 0,
@@ -86,7 +86,9 @@ describe('RecurringMW', () => {
     const toastCall = toast.add.mock.calls.find(c => c[0]?.actionProps);
     expect(toastCall).toBeDefined();
     toastCall[0].actionProps.onClick();
-    expect(dispatch).toHaveBeenCalledWith(UIActions.openInvoicesTab('draft'));
+    expect(dispatch).toHaveBeenCalledWith(
+      UIActions.openList('invoices', { status: 'draft' })
+    );
   });
 
   it('restores removed profiles from the delete undo action', async () => {

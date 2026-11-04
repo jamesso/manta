@@ -1,5 +1,5 @@
 import { createColumnHelper, useTable } from '@tanstack/react-table';
-import { MoreHorizontal, Plus } from 'lucide-react';
+import { Pencil, Plus, Power, PowerOff, Star, Trash2 } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -17,10 +17,8 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import {
   Table,
@@ -32,7 +30,9 @@ import {
 } from '@/components/ui/table';
 import { getActiveTaxRates, getTaxRates } from '../../../helpers/tax';
 import { getItems } from '../../../reducers/ItemsReducer';
+import ActionsMenu from '../../shared/ActionsMenu';
 import TaxRateDialog from './TaxRateDialog';
+import { SettingsBlock, SettingsGroup } from '../SettingsLayout';
 
 const columnHelper = createColumnHelper();
 
@@ -145,56 +145,45 @@ export default function TaxRates({ value, onChange }) {
           const disableDelete =
             rate.isDefault || (rate.active !== false && activeCount <= 1);
           return (
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                render={
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="size-8"
-                    aria-label={t('settings:taxRates:actionsFor', {
-                      name: rate.name,
-                    })}
-                  />
-                }
+            <ActionsMenu
+              label={t('settings:taxRates:actionsFor', { name: rate.name })}
+            >
+              <DropdownMenuItem
+                onClick={() => {
+                  setEditRate(rate);
+                  setDialogOpen(true);
+                }}
               >
-                <MoreHorizontal className="size-4" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="bg-popover text-popover-foreground"
+                <Pencil />
+                {t('common:edit')}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                disabled={rate.isDefault}
+                onClick={() => setDefault(rate.id)}
               >
-                <DropdownMenuItem
-                  onClick={() => {
-                    setEditRate(rate);
-                    setDialogOpen(true);
-                  }}
-                >
-                  {t('common:edit')}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  disabled={rate.isDefault}
-                  onClick={() => setDefault(rate.id)}
-                >
-                  {t('settings:taxRates:setDefault')}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  disabled={isOnlyActive || rate.isDefault}
-                  onClick={() => toggleInactive(rate.id)}
-                >
-                  {rate.active === false
-                    ? t('settings:taxRates:reactivate')
-                    : t('settings:taxRates:markInactive')}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  disabled={disableDelete}
-                  onClick={() => tryDelete(rate)}
-                >
-                  {t('settings:taxRates:delete')}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                <Star />
+                {t('settings:taxRates:setDefault')}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                disabled={isOnlyActive || rate.isDefault}
+                onClick={() => toggleInactive(rate.id)}
+              >
+                {rate.active === false ? <Power /> : <PowerOff />}
+                {rate.active === false
+                  ? t('settings:taxRates:reactivate')
+                  : t('settings:taxRates:markInactive')}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                variant="destructive"
+                disabled={disableDelete}
+                onClick={() => tryDelete(rate)}
+              >
+                <Trash2 />
+                {t('settings:taxRates:delete')}
+              </DropdownMenuItem>
+            </ActionsMenu>
           );
         },
       }),
@@ -205,59 +194,62 @@ export default function TaxRates({ value, onChange }) {
   const table = useTable({ data: rates, columns });
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between gap-2">
-        <h3 className="text-base font-semibold tracking-tight">
-          {t('settings:taxRates:title')}
-        </h3>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => {
-            setEditRate(null);
-            setDialogOpen(true);
-          }}
-        >
-          <Plus />
-          {t('settings:taxRates:add')}
-        </Button>
-      </div>
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map(hg => (
-            <TableRow key={hg.id}>
-              {hg.headers.map(header => (
-                <TableHead key={header.id}>
-                  {header.isPlaceholder
-                    ? null
-                    : typeof header.column.columnDef.header === 'function'
-                      ? header.column.columnDef.header(header.getContext())
-                      : header.column.columnDef.header}
-                </TableHead>
+    <>
+      <SettingsGroup
+        title={t('settings:taxRates:title')}
+        description={t('settings:taxRates:hintSnapshot')}
+        action={
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => {
+              setEditRate(null);
+              setDialogOpen(true);
+            }}
+          >
+            <Plus />
+            {t('settings:taxRates:add')}
+          </Button>
+        }
+      >
+        <div className="px-2 pt-1">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map(hg => (
+                <TableRow key={hg.id}>
+                  {hg.headers.map(header => (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : typeof header.column.columnDef.header === 'function'
+                          ? header.column.columnDef.header(header.getContext())
+                          : header.column.columnDef.header}
+                    </TableHead>
+                  ))}
+                </TableRow>
               ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows.map(row => (
-            <TableRow key={row.id}>
-              {row.getAllCells().map(cell => (
-                <TableCell key={cell.id}>
-                  {typeof cell.column.columnDef.cell === 'function'
-                    ? cell.column.columnDef.cell(cell.getContext())
-                    : cell.getValue()}
-                </TableCell>
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows.map(row => (
+                <TableRow key={row.id}>
+                  {row.getAllCells().map(cell => (
+                    <TableCell key={cell.id}>
+                      {typeof cell.column.columnDef.cell === 'function'
+                        ? cell.column.columnDef.cell(cell.getContext())
+                        : cell.getValue()}
+                    </TableCell>
+                  ))}
+                </TableRow>
               ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      <p className="text-sm text-muted-foreground">
-        {t('settings:taxRates:hintSnapshot')}
-      </p>
-      <p className="text-sm text-muted-foreground">
-        {t('settings:taxRates:hintAdvisor')}
-      </p>
+            </TableBody>
+          </Table>
+        </div>
+        <SettingsBlock>
+          <p className="text-sm text-muted-foreground">
+            {t('settings:taxRates:hintAdvisor')}
+          </p>
+        </SettingsBlock>
+      </SettingsGroup>
       <TaxRateDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
@@ -290,6 +282,6 @@ export default function TaxRates({ value, onChange }) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </>
   );
 }

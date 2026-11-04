@@ -1,16 +1,18 @@
 import {
-  MoreHorizontal,
-  HandCoins,
-  FileMinus,
-  Repeat,
-  Mail,
+  BadgeCheck,
   BellRing,
+  CircleDot,
+  Copy,
+  Eye,
+  FileMinus,
+  HandCoins,
+  Mail,
+  Pencil,
+  Repeat,
+  Trash2,
 } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
@@ -18,8 +20,8 @@ import {
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import ActionsMenu from '../shared/ActionsMenu';
 import { INVOICE_STATUSES } from '../../constants/invoices';
 import {
   deleteInvoice,
@@ -55,108 +57,101 @@ export default function InvoiceRowActions({
   const linked = allDocs.filter(
     cn => cn.docType === 'creditNote' && cn.creditedInvoiceId === invoice._id
   );
-  const ipc = window.manta.ipc;
   const showPayment = canRecordPayment(invoice, linked);
   const showCredit = canCreateCreditNote(invoice, linked);
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            aria-label={t('invoices:actions:open')}
-          />
-        }
+    <ActionsMenu label={t('invoices:actions:open')}>
+      <DropdownMenuItem
+        onClick={() => dispatch(UIActions.previewInvoice(invoice))}
       >
-        <MoreHorizontal />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-52">
-        <DropdownMenuItem onClick={() => ipc.send('preview-invoice', invoice)}>
-          {t('invoices:actions:preview')}
+        <Eye />
+        {t('invoices:actions:preview')}
+      </DropdownMenuItem>
+      <DropdownMenuItem onClick={() => dispatch(editInvoice(invoice))}>
+        <Pencil />
+        {t('invoices:actions:edit')}
+      </DropdownMenuItem>
+      <DropdownMenuItem onClick={() => dispatch(duplicateInvoice(invoice))}>
+        <Copy />
+        {t('invoices:actions:duplicate')}
+      </DropdownMenuItem>
+      <DropdownMenuSeparator />
+      {canEmail(invoice) ? (
+        <DropdownMenuItem onClick={() => emailInvoice(invoice, 'invoice')}>
+          <Mail />
+          {t('email:actions:email')}
         </DropdownMenuItem>
-        {canEmail(invoice) ? (
-          <DropdownMenuItem onClick={() => emailInvoice(invoice, 'invoice')}>
-            <Mail />
-            {t('email:actions:email')}
+      ) : null}
+      {canSendReminder(invoice, now, allDocs) ? (
+        <DropdownMenuItem onClick={() => emailInvoice(invoice, 'reminder')}>
+          <BellRing />
+          {t('email:actions:reminder')}
+        </DropdownMenuItem>
+      ) : null}
+      {showPayment ? (
+        <>
+          <DropdownMenuItem onClick={() => onRecordPayment(invoice._id)}>
+            <HandCoins />
+            {t('invoices:actions:recordPayment')}
           </DropdownMenuItem>
-        ) : null}
-        {canSendReminder(invoice, now, allDocs) ? (
-          <DropdownMenuItem onClick={() => emailInvoice(invoice, 'reminder')}>
-            <BellRing />
-            {t('email:actions:reminder')}
-          </DropdownMenuItem>
-        ) : null}
-        <DropdownMenuItem onClick={() => dispatch(editInvoice(invoice))}>
-          {t('invoices:actions:edit')}
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => dispatch(duplicateInvoice(invoice))}>
-          {t('invoices:actions:duplicate')}
-        </DropdownMenuItem>
-        {getDocType(invoice) === 'invoice' ? (
           <DropdownMenuItem
-            onClick={() => {
-              dispatch(
-                UIActions.setRecurringSheet({
-                  mode: 'new',
-                  profile: buildProfileFromInvoice(invoice, Date.now()),
-                })
-              );
-              dispatch(UIActions.changeActiveTab('recurring'));
-            }}
+            onClick={() => dispatch(recordFullPayment(invoice._id))}
           >
-            <Repeat />
-            {t('invoices:actions:makeRecurring')}
+            <BadgeCheck />
+            {t('invoices:actions:markPaidInFull')}
           </DropdownMenuItem>
-        ) : null}
-        {showCredit ? (
-          <DropdownMenuItem onClick={() => dispatch(createCreditNote(invoice))}>
-            <FileMinus />
-            {t('invoices:actions:createCreditNote')}
-          </DropdownMenuItem>
-        ) : null}
-        {showPayment ? (
-          <>
-            <DropdownMenuItem onClick={() => onRecordPayment(invoice._id)}>
-              <HandCoins />
-              {t('invoices:actions:recordPayment')}
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => dispatch(recordFullPayment(invoice._id))}
-            >
-              {t('invoices:actions:markPaidInFull')}
-            </DropdownMenuItem>
-          </>
-        ) : null}
-        <DropdownMenuSub>
-          <DropdownMenuSubTrigger>
-            {t('invoices:actions:setStatus')}
-          </DropdownMenuSubTrigger>
-          <DropdownMenuSubContent>
-            <DropdownMenuRadioGroup value={stored}>
-              {SETTABLE.map(status => (
-                <DropdownMenuRadioItem
-                  key={status}
-                  value={status}
-                  onClick={() =>
-                    dispatch(setInvoiceStatus(invoice._id, status))
-                  }
-                >
-                  {t(`invoices:status:${status}`)}
-                </DropdownMenuRadioItem>
-              ))}
-            </DropdownMenuRadioGroup>
-          </DropdownMenuSubContent>
-        </DropdownMenuSub>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          variant="destructive"
-          onClick={() => dispatch(deleteInvoice(invoice._id))}
-        >
-          {t('invoices:actions:delete')}
+        </>
+      ) : null}
+      {showCredit ? (
+        <DropdownMenuItem onClick={() => dispatch(createCreditNote(invoice))}>
+          <FileMinus />
+          {t('invoices:actions:createCreditNote')}
         </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+      ) : null}
+      {getDocType(invoice) === 'invoice' ? (
+        <DropdownMenuItem
+          onClick={() => {
+            dispatch(
+              UIActions.setRecurringSheet({
+                mode: 'new',
+                profile: buildProfileFromInvoice(invoice, Date.now()),
+              })
+            );
+            dispatch(UIActions.changeActiveTab('recurring'));
+          }}
+        >
+          <Repeat />
+          {t('invoices:actions:makeRecurring')}
+        </DropdownMenuItem>
+      ) : null}
+      <DropdownMenuSub>
+        <DropdownMenuSubTrigger>
+          <CircleDot />
+          {t('invoices:actions:setStatus')}
+        </DropdownMenuSubTrigger>
+        <DropdownMenuSubContent>
+          <DropdownMenuRadioGroup value={stored}>
+            {SETTABLE.map(status => (
+              <DropdownMenuRadioItem
+                key={status}
+                value={status}
+                onClick={() => dispatch(setInvoiceStatus(invoice._id, status))}
+              >
+                {t(`invoices:status:${status}`)}
+              </DropdownMenuRadioItem>
+            ))}
+          </DropdownMenuRadioGroup>
+        </DropdownMenuSubContent>
+      </DropdownMenuSub>
+      <DropdownMenuSeparator />
+      <DropdownMenuItem
+        variant="destructive"
+        onClick={() => dispatch(deleteInvoice(invoice._id))}
+      >
+        <Trash2 />
+        {t('invoices:actions:delete')}
+      </DropdownMenuItem>
+    </ActionsMenu>
   );
 }

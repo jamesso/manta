@@ -12,31 +12,8 @@ import {
 } from '@/components/ui/empty';
 import * as UIActions from '../../actions/ui';
 
-export default function InvoicesEmpty({
-  variant,
-  t,
-  onClearFilters,
-  creditNotesTab,
-}) {
+export default function InvoicesEmpty({ t, creditNotesTab }) {
   const dispatch = useDispatch();
-
-  if (variant === 'noResults') {
-    return (
-      <Empty>
-        <EmptyHeader>
-          <EmptyTitle>{t('invoices:empty:noResults')}</EmptyTitle>
-          <EmptyDescription>
-            {t('invoices:empty:noResultsDescription')}
-          </EmptyDescription>
-        </EmptyHeader>
-        <EmptyContent>
-          <Button type="button" variant="outline" onClick={onClearFilters}>
-            {t('invoices:empty:clearFilters')}
-          </Button>
-        </EmptyContent>
-      </Empty>
-    );
-  }
 
   return (
     <Empty>

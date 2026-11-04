@@ -121,14 +121,6 @@ test('main window is resizable and movable', async () => {
   expect(main.devTools).toBe(false);
 });
 
-test('preview window is resizable and movable', async () => {
-  const infos = await windowInfo();
-  const preview = infos.find(w => w.title === PREVIEW_TITLE);
-  expect(preview.resizable).toBe(true);
-  expect(preview.movable).toBe(true);
-  expect(preview.devTools).toBe(false);
-});
-
 test('main window renders without page errors', async () => {
   let page;
   for (const p of app.windows()) {
@@ -241,7 +233,7 @@ test('sidebar shows labels and Ctrl/Cmd+K opens the command palette', async () =
   ).toBeVisible();
   const sidebarNav = page.locator('[data-slot="sidebar"]');
   await expect(
-    sidebarNav.getByRole('button', { name: 'New invoice', exact: true })
+    sidebarNav.getByRole('button', { name: 'New Invoice', exact: true })
   ).toBeVisible();
   for (const name of ['Dashboard', 'Invoices', 'Clients', 'Settings']) {
     await expect(
@@ -303,39 +295,20 @@ test('recurring profile starting today creates one draft and resume does not dup
   });
   await page.evaluate(() => window.manta.ipc.send('set-theme', 'light'));
   await page
-    .getByRole('button', { name: 'New recurring invoice', exact: true })
+    .getByRole('button', { name: 'New Recurring Invoice', exact: true })
+    .first()
     .click();
   await expect(
-    page.getByRole('button', { name: 'Save template', exact: true })
+    page.getByRole('button', { name: 'Save Template', exact: true })
   ).toBeVisible({ timeout: 30_000 });
 
-  const addNewClient = page.getByRole('button', {
-    name: 'Add new client',
-    exact: true,
-  });
-  const clientSearch = page.getByRole('combobox', {
-    name: 'Search clients',
-    exact: true,
-  });
-  if (await clientSearch.isVisible()) {
-    await clientSearch.click();
-    await page.getByRole('option').first().click();
-  } else if (await addNewClient.isVisible()) {
-    await addNewClient.click();
-    await expect(page.locator('#client-fullname')).toBeVisible({
-      timeout: 15_000,
-    });
-    await reactInput(page.locator('#client-fullname'), 'Recurring Client');
-    await reactInput(page.locator('#client-email'), 'recurring@example.com');
-  } else {
-    await reactInput(page.locator('#client-fullname'), 'Recurring Client');
-    await reactInput(page.locator('#client-email'), 'recurring@example.com');
-  }
+  await reactInput(page.locator('#client-fullname'), 'Recurring Client');
+  await reactInput(page.locator('#client-email'), 'recurring@example.com');
   await reactInput(page.getByLabel('Description for item 1'), 'Retainer');
   await reactInput(page.getByLabel('Price for item 1'), '100');
   await reactInput(page.getByLabel('Quantity for item 1'), '1');
   await page
-    .getByRole('button', { name: 'Save template', exact: true })
+    .getByRole('button', { name: 'Save Template', exact: true })
     .click();
   // The detail sheet opens at once and hides the page from the a11y tree.
   await expect(page.locator('h1', { hasText: 'Recurring' })).toBeVisible({
@@ -392,7 +365,7 @@ test('draft save advances invoice numbering on cleared form', async () => {
   });
   await page
     .locator('[data-slot="sidebar"]')
-    .getByRole('button', { name: 'New invoice', exact: true })
+    .getByRole('button', { name: 'New Invoice', exact: true })
     .click();
   await expect(page.locator('#client-fullname')).toBeVisible({
     timeout: 30_000,
@@ -403,15 +376,46 @@ test('draft save advances invoice numbering on cleared form', async () => {
   await reactInput(page.getByLabel('Description for item 1'), 'Line item');
   await reactInput(page.getByLabel('Price for item 1'), '10');
   await reactInput(page.getByLabel('Quantity for item 1'), '1');
-  await page.getByRole('button', { name: 'Save draft', exact: true }).click();
+  await page.getByRole('button', { name: 'Save Draft', exact: true }).click();
   await expect(page.getByText('Draft saved')).toBeVisible({ timeout: 15_000 });
   await expect(page.locator('#invoice-number')).toHaveValue('INV-0002', {
     timeout: 15_000,
   });
 });
 
+test('client name field suggests saved clients like line items', async () => {
+  const page = await pageByTitle(MAIN_TITLE);
+  const name = page.locator('#client-fullname');
+  await expect(name).toHaveValue('');
+  await expect(page.locator('#client-email')).toBeVisible();
+
+  await name.click();
+  await name.pressSequentially('E2E');
+  await page.getByRole('option', { name: /E2E Client/ }).click();
+  await expect(name).toHaveValue('E2E Client');
+  await expect(page.locator('#client-email')).toHaveCount(0);
+  await expect(page.getByRole('listbox')).toHaveCount(0);
+  await expect(
+    page.locator('#root').getByText('e2e@example.com')
+  ).toBeVisible();
+
+  await name.fill('Someone New');
+  await expect(page.locator('#client-email')).toHaveValue('');
+});
+
 test('preview renders an invoice and exports a PDF', async () => {
-  const preview = await pageByTitle(PREVIEW_TITLE);
+  const exportDir = fs.mkdtempSync(path.join(os.tmpdir(), 'manta-pdf-e2e-'));
+  const page = await pageByTitle(MAIN_TITLE);
+  await page.evaluate(dir => {
+    const invoiceSettings = window.manta.settings.get('invoice');
+    window.manta.settings.set('invoice', {
+      ...invoiceSettings,
+      exportDir: dir,
+    });
+  }, exportDir);
+  await app.evaluate(({ shell }) => {
+    shell.openPath = async () => '';
+  });
   const issuedAt = Date.UTC(2026, 0, 15, 12);
   const invoice = {
     _id: 'pdf-snapshot-0001',
@@ -474,30 +478,33 @@ test('preview renders an invoice and exports a PDF', async () => {
       template: 'minimal',
     },
   };
-  await app.evaluate(({ BrowserWindow }, inv) => {
-    BrowserWindow.getAllWindows()
-      .find(w => w.getTitle() === 'Previewer')
-      .webContents.send('update-preview', inv);
-  }, invoice);
-  await preview.waitForFunction(
-    id => document.querySelector('.print-area')?.dataset.invoiceId === id,
-    invoice._id,
-    { timeout: 10_000 }
+  const result = await page.evaluate(
+    inv =>
+      window.manta.ipc.invoke('save-pdf', {
+        invoice: inv,
+        snapshot: {
+          profile: window.manta.settings.get('profile'),
+          configs: inv.configs,
+          language: inv.configs.language,
+        },
+        docType: 'invoice',
+      }),
+    invoice
   );
+  expect(result.ok, result.error).toBe(true);
+  expect(path.dirname(result.pdfPath)).toBe(exportDir);
+  const buf = fs.readFileSync(result.pdfPath);
+  expect(buf.subarray(0, 4).toString('utf8')).toBe('%PDF');
+
+  const preview = await pageByTitle(PREVIEW_TITLE);
   await expect(preview.locator('.paper')).toHaveCount(1);
-  const header = await app.evaluate(async ({ BrowserWindow }) => {
-    const w = BrowserWindow.getAllWindows().find(
-      x => x.getTitle() === 'Previewer'
-    );
-    const buf = await w.webContents.printToPDF({
-      landscape: false,
-      printBackground: true,
-      margins: { marginType: 'default' },
-      preferCSSPageSize: true,
-    });
-    return buf.subarray(0, 4).toString('utf8');
-  });
-  expect(header).toBe('%PDF');
+  expect(
+    await preview.evaluate(
+      () => document.querySelector('.print-area')?.dataset.invoiceId
+    )
+  ).toBe(invoice._id);
+  const infos = await windowInfo();
+  expect(infos.find(w => w.title === PREVIEW_TITLE)?.visible).toBe(false);
   expect(errors).toEqual([]);
 });
 
@@ -521,22 +528,17 @@ test('exports a Factur-X PDF', async () => {
   };
   fs.writeFileSync(settingsPath, JSON.stringify(settings));
 
-  const preview = await pageByTitle(PREVIEW_TITLE);
-  await preview.evaluate(
+  const page = await pageByTitle(MAIN_TITLE);
+  await page.evaluate(
     data => {
       window.manta.settings.set('profile', data.profile);
       window.manta.settings.set('invoice', data.invoice);
     },
     { profile: settings.profile, invoice: settings.invoice }
   );
-  await app.evaluate(({ BrowserWindow }, profile) => {
-    const previewWin = BrowserWindow.getAllWindows().find(
-      w => w.getTitle() === 'Previewer'
-    );
-    if (previewWin) {
-      previewWin.webContents.send('change-preview-window-profile', profile);
-    }
-  }, settings.profile);
+  await app.evaluate(({ shell }) => {
+    shell.openPath = async () => '';
+  });
   const invoice = {
     ...fixture.invoice,
     configs: {
@@ -545,16 +547,6 @@ test('exports a Factur-X PDF', async () => {
       language: 'en',
     },
   };
-  await app.evaluate(({ BrowserWindow }, inv) => {
-    BrowserWindow.getAllWindows()
-      .find(w => w.getTitle() === 'Previewer')
-      .webContents.send('update-preview', inv);
-  }, invoice);
-  await preview.waitForFunction(
-    id => document.querySelector('.print-area')?.dataset.invoiceId === id,
-    invoice._id,
-    { timeout: 15_000 }
-  );
 
   await app.evaluate(async ({ dialog }, targetPath) => {
     dialog.showSaveDialog = async () => ({
@@ -563,23 +555,18 @@ test('exports a Factur-X PDF', async () => {
     });
   }, outPath);
 
-  const result = await preview.evaluate(
-    async ({ invoice: inv, derived: d }) => {
-      const exportKeyAttr = document
-        .querySelector('.print-area')
-        ?.getAttribute('data-export-key');
-      return window.manta.ipc.invoke('einvoice-export', {
+  const result = await page.evaluate(
+    ({ invoice: inv, derived: d, profile }) =>
+      window.manta.ipc.invoke('einvoice-export', {
         kind: 'facturx',
         invoice: inv,
         derived: d,
-        previewConfigs: inv.configs,
-        exportKey: exportKeyAttr,
-      });
-    },
-    { invoice, derived: fixture.derived }
+        snapshot: { profile, configs: inv.configs, language: 'en' },
+      }),
+    { invoice, derived: fixture.derived, profile: settings.profile }
   );
 
-  expect(result.ok).toBe(true);
+  expect(result.ok, result.error ?? JSON.stringify(result.issues)).toBe(true);
   expect(fs.existsSync(outPath)).toBe(true);
   const buf = fs.readFileSync(outPath);
   expect(buf.subarray(0, 4).toString('utf8')).toBe('%PDF');
@@ -643,19 +630,6 @@ test('email invoice handoff stubs mail client and writes PDF', async () => {
       showRecipient: true,
     },
   };
-
-  await app.evaluate(({ BrowserWindow }, inv) => {
-    BrowserWindow.getAllWindows()
-      .find(w => w.getTitle() === 'Previewer')
-      .webContents.send('update-preview', inv);
-  }, invoice);
-
-  const preview = await pageByTitle(PREVIEW_TITLE);
-  await preview.waitForFunction(
-    id => document.querySelector('.print-area')?.dataset.invoiceId === id,
-    invoice._id,
-    { timeout: 15_000 }
-  );
 
   const payload = await page.evaluate(
     async ({ invoice: inv, profile }) => {

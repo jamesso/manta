@@ -1,13 +1,24 @@
-export const DEFAULT_NUMBERING = { prefix: 'INV-', next: 1, padding: 4 };
+// 'sequential' gives prefix + padded counter (INV-0001). 'random' gives an
+// 8-character hex ID, as the original app showed (3f2a9b1c).
+export const NUMBER_FORMATS = ['sequential', 'random'];
+
+export const DEFAULT_NUMBERING = {
+  prefix: 'INV-',
+  next: 1,
+  padding: 4,
+  format: 'sequential',
+};
 export const DEFAULT_ESTIMATE_NUMBERING = {
   prefix: 'EST-',
   next: 1,
   padding: 4,
+  format: 'sequential',
 };
 export const DEFAULT_CREDIT_NOTE_NUMBERING = {
   prefix: 'CN-',
   next: 1,
   padding: 4,
+  format: 'sequential',
 };
 
 export function numberingKeyFor(docType) {
@@ -48,18 +59,44 @@ export function normalizeNumbering(value, defaults = DEFAULT_NUMBERING) {
     prefix: typeof value.prefix === 'string' ? value.prefix : defaults.prefix,
     next: clampInt(value.next, 1, Number.MAX_SAFE_INTEGER, defaults.next),
     padding: clampInt(value.padding, 0, 12, defaults.padding),
+    format: NUMBER_FORMATS.includes(value.format)
+      ? value.format
+      : (defaults.format ?? 'sequential'),
   };
+}
+
+const RANDOM_NUMBER_RE = /^[0-9a-f]{8}$/;
+
+export function isRandomNumber(id) {
+  return typeof id === 'string' && RANDOM_NUMBER_RE.test(id);
+}
+
+// Always has a letter, so a sequential counter with an empty prefix never
+// reads a random ID as a used number.
+export function randomInvoiceNumber() {
+  let id;
+  do {
+    id = crypto.randomUUID().slice(0, 8);
+  } while (!/[a-f]/.test(id));
+  return id;
 }
 
 export function formatInvoiceNumber(n) {
   const numbering = normalizeNumbering(n);
+  if (numbering.format === 'random') {
+    return randomInvoiceNumber();
+  }
   const digits = String(numbering.next).padStart(numbering.padding, '0');
   return `${numbering.prefix}${digits}`;
 }
 
 export function advanceNumbering(n, savedID) {
   const numbering = normalizeNumbering(n);
-  if (!savedID || typeof savedID !== 'string') {
+  if (
+    numbering.format === 'random' ||
+    !savedID ||
+    typeof savedID !== 'string'
+  ) {
     return numbering;
   }
   const escaped = numbering.prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -93,7 +130,10 @@ export function resolveStoredNumbering(reconciledNumbering, configNumbering) {
     return fromConfig;
   }
   const reconciled = normalizeNumbering(reconciledNumbering);
-  return reconciled.next > fromConfig.next ? reconciled : fromConfig;
+  // Settings own the format; the counter overlay only carries `next`.
+  return reconciled.next > fromConfig.next
+    ? { ...reconciled, format: fromConfig.format }
+    : fromConfig;
 }
 
 export function reconcileNumberingWithPersistedInvoices(numbering, invoices) {
@@ -127,12 +167,21 @@ export function reconcileNumberingWithPersistedInvoices(numbering, invoices) {
   return { ...base, next };
 }
 
+// `currentId` is the number the form shows now. In random mode it is kept
+// while it is still free, so the form does not get a new ID on each refresh.
 export function suggestedInvoiceNumberFromReconciled(
   reconciledNumbering,
   configNumbering,
-  invoices
+  invoices,
+  currentId
 ) {
   const base = resolveStoredNumbering(reconciledNumbering, configNumbering);
+  if (base.format === 'random') {
+    const taken = (invoices ?? []).some(doc => doc?.invoiceID === currentId);
+    return isRandomNumber(currentId) && !taken
+      ? currentId
+      : formatInvoiceNumber(base);
+  }
   const reconciled = invoices
     ? reconcileNumberingWithPersistedInvoices(base, invoices)
     : base;
@@ -211,5 +260,7 @@ export function mergeNumbering(stored, saved, edited) {
   ) {
     padding = editedNorm.padding;
   }
-  return { prefix, next, padding };
+  const format =
+    editedNorm.format !== savedNorm.format ? editedNorm.format : base.format;
+  return { prefix, next, padding, format };
 }

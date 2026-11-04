@@ -4,13 +4,14 @@ import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+  Sheet,
+  SheetContent,
+  SheetBody,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
 import {
   Field,
   FieldDescription,
@@ -124,98 +125,107 @@ export default function RecordPaymentDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{t('invoices:payments:dialog:title')}</DialogTitle>
-          <DialogDescription>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="right">
+        <SheetHeader>
+          <SheetTitle>{t('invoices:payments:dialog:title')}</SheetTitle>
+          <SheetDescription>
             {t('invoices:payments:dialog:description', {
               number: getInvoiceNumber(invoice),
               balance: balanceText,
             })}
-          </DialogDescription>
-        </DialogHeader>
-        <form id={formId} className="grid gap-4" onSubmit={handleSubmit}>
-          <Field>
-            <FieldLabel htmlFor={`${formId}-amount`}>
-              {t('invoices:payments:dialog:amount')}
-            </FieldLabel>
-            <div className="flex items-center gap-2">
-              <Input
-                id={`${formId}-amount`}
-                inputMode="decimal"
-                autoFocus
-                value={amountRaw}
-                onChange={e => setAmountRaw(e.target.value)}
-                aria-invalid={Boolean(errors.amount)}
-              />
-              <span className="text-sm text-muted-foreground">
-                {currency.code}
-              </span>
-            </div>
-            <Button
-              type="button"
-              variant="link"
-              className="h-auto p-0"
-              onClick={() =>
-                setAmountRaw(
-                  formatAmountInput(
-                    getBalanceDue(invoice, creditNotes),
-                    invoice.currency
+          </SheetDescription>
+        </SheetHeader>
+        <SheetBody>
+          <form id={formId} className="grid gap-4" onSubmit={handleSubmit}>
+            <Field>
+              <FieldLabel htmlFor={`${formId}-amount`}>
+                {t('invoices:payments:dialog:amount')}
+              </FieldLabel>
+              <div className="flex items-center gap-2">
+                <Input
+                  id={`${formId}-amount`}
+                  inputMode="decimal"
+                  autoFocus
+                  value={amountRaw}
+                  onChange={e => setAmountRaw(e.target.value)}
+                  aria-invalid={Boolean(errors.amount)}
+                />
+                <span className="text-sm text-muted-foreground">
+                  {currency.code}
+                </span>
+              </div>
+              <Button
+                type="button"
+                variant="link"
+                className="h-auto p-0"
+                onClick={() =>
+                  setAmountRaw(
+                    formatAmountInput(
+                      getBalanceDue(invoice, creditNotes),
+                      invoice.currency
+                    )
                   )
-                )
-              }
-            >
-              {t('invoices:payments:dialog:payFull')}
-            </Button>
-            {errors.amount ? (
-              <FieldError>
-                {t(errors.amount, {
-                  count: currency.fraction ?? 2,
-                  balance: balanceText,
-                  example: formatAmountInput(10, currency),
-                })}
-              </FieldError>
-            ) : null}
-          </Field>
-          <DatePickerField
-            id={`${formId}-date`}
-            label={t('invoices:payments:dialog:date')}
-            value={date}
-            onChange={setDate}
-            disabledDays={{ after: new Date() }}
-            error={errors.date}
-          />
-          <Field>
-            <FieldLabel>{t('invoices:payments:dialog:method')}</FieldLabel>
-            <Select value={method} onValueChange={setMethod}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {PAYMENT_METHODS.map(m => (
-                  <SelectItem key={m} value={m}>
-                    {t(`invoices:payments:methods:${m}`)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
-          <Field>
-            <FieldLabel htmlFor={`${formId}-note`}>
-              {t('invoices:payments:dialog:note')}
-            </FieldLabel>
-            <Textarea
-              id={`${formId}-note`}
-              maxLength={500}
-              value={note}
-              onChange={e => setNote(e.target.value)}
-              placeholder={t('invoices:payments:dialog:notePlaceholder')}
+                }
+              >
+                {t('invoices:payments:dialog:payFull')}
+              </Button>
+              {errors.amount ? (
+                <FieldError>
+                  {t(errors.amount, {
+                    count: currency.fraction ?? 2,
+                    balance: balanceText,
+                    example: formatAmountInput(10, currency),
+                  })}
+                </FieldError>
+              ) : null}
+            </Field>
+            <DatePickerField
+              id={`${formId}-date`}
+              label={t('invoices:payments:dialog:date')}
+              value={date}
+              onChange={setDate}
+              disabledDays={{ after: new Date() }}
+              error={errors.date}
             />
-            <FieldDescription>{note.length}/500</FieldDescription>
-          </Field>
-        </form>
-        <DialogFooter>
+            <Field>
+              <FieldLabel>{t('invoices:payments:dialog:method')}</FieldLabel>
+              <Select
+                value={method}
+                items={PAYMENT_METHODS.map(m => ({
+                  value: m,
+                  label: t(`invoices:payments:methods:${m}`),
+                }))}
+                onValueChange={setMethod}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {PAYMENT_METHODS.map(m => (
+                    <SelectItem key={m} value={m}>
+                      {t(`invoices:payments:methods:${m}`)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+            <Field>
+              <FieldLabel htmlFor={`${formId}-note`}>
+                {t('invoices:payments:dialog:note')}
+              </FieldLabel>
+              <Textarea
+                id={`${formId}-note`}
+                maxLength={500}
+                value={note}
+                onChange={e => setNote(e.target.value)}
+                placeholder={t('invoices:payments:dialog:notePlaceholder')}
+              />
+              <FieldDescription>{note.length}/500</FieldDescription>
+            </Field>
+          </form>
+        </SheetBody>
+        <SheetFooter>
           <Button
             type="button"
             variant="outline"
@@ -226,8 +236,8 @@ export default function RecordPaymentDialog({
           <Button type="submit" form={formId} disabled={pending}>
             {t('invoices:payments:dialog:submit')}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   );
 }

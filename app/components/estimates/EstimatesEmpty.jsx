@@ -11,32 +11,9 @@ import {
 } from '@/components/ui/empty';
 import * as UIActions from '../../actions/ui';
 
-export default function EstimatesEmpty({
-  variant,
-  t,
-  dispatch,
-  onClearFilters,
-}) {
-  if (variant === 'noResults') {
-    return (
-      <Empty className="border border-dashed">
-        <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <FileText />
-          </EmptyMedia>
-          <EmptyTitle>{t('estimates:empty:noResults')}</EmptyTitle>
-        </EmptyHeader>
-        <EmptyContent>
-          <Button type="button" variant="outline" onClick={onClearFilters}>
-            {t('estimates:empty:clearFilters')}
-          </Button>
-        </EmptyContent>
-      </Empty>
-    );
-  }
-
+export default function EstimatesEmpty({ t, dispatch }) {
   return (
-    <Empty className="border border-dashed">
+    <Empty>
       <EmptyHeader>
         <EmptyMedia variant="icon">
           <FileText />

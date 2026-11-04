@@ -5,11 +5,17 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import {
   Sheet,
+  SheetBody,
+  SheetClose,
   SheetContent,
   SheetDescription,
+  SheetDetail,
+  SheetDetails,
   SheetFooter,
   SheetHeader,
+  SheetSection,
   SheetTitle,
+  useSheetValue,
 } from '@/components/ui/sheet';
 import {
   formatInvoiceAmount,
@@ -36,8 +42,8 @@ function formatOutstandingLines(outstanding, invoices) {
 }
 
 export default function ClientDetailSheet({
-  contact,
-  summary,
+  contact: openContact,
+  summary: openSummary,
   open,
   onOpenChange,
   dateFormat,
@@ -47,9 +53,16 @@ export default function ClientDetailSheet({
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const now = useNow();
+  const contact = useSheetValue(open, openContact);
+  const summary = useSheetValue(open, openSummary);
 
-  if (!contact) {
-    return null;
+  // Stay mounted while closed so the sheet slides in when it opens.
+  if (!contact || !summary) {
+    return (
+      <Sheet open={open} onOpenChange={onOpenChange}>
+        <SheetContent side="right" />
+      </Sheet>
+    );
   }
 
   const outstandingLines = formatOutstandingLines(
@@ -59,53 +72,47 @@ export default function ClientDetailSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent
-        side="right"
-        className="bg-background text-foreground sm:max-w-md"
-      >
+      <SheetContent side="right">
         <SheetHeader>
           <SheetTitle>{contact.fullname}</SheetTitle>
-          {contact.company ? (
-            <SheetDescription>{contact.company}</SheetDescription>
-          ) : null}
-          {contact.taxId ? (
-            <SheetDescription>{contact.taxId}</SheetDescription>
+          {contact.company || contact.taxId ? (
+            <SheetDescription>
+              {[contact.company, contact.taxId].filter(Boolean).join(' · ')}
+            </SheetDescription>
           ) : null}
         </SheetHeader>
-        <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-4 pb-4 text-sm">
-          <div>
-            <div className="text-muted-foreground">
-              {t('contacts:fields:email')}
-            </div>
-            <div>{contact.email || '—'}</div>
-          </div>
-          <div>
-            <div className="text-muted-foreground">
-              {t('contacts:fields:phone')}
-            </div>
-            <div>{contact.phone || '—'}</div>
-          </div>
-          <div>
-            <div className="text-muted-foreground">
-              {t('contacts:detail:outstanding')}
-            </div>
-            {outstandingLines.length ? (
-              outstandingLines.map(line => <div key={line}>{line}</div>)
-            ) : (
-              <div>—</div>
-            )}
-          </div>
-          <p className="text-muted-foreground">{t('contacts:editor:hint')}</p>
-          <div>
-            <div className="mb-2 font-medium">
-              {t('contacts:fields:invoices')}
-            </div>
+        <SheetBody>
+          <SheetSection>
+            <SheetDetails>
+              <SheetDetail label={t('contacts:fields:email')}>
+                {contact.email || '—'}
+              </SheetDetail>
+              <SheetDetail label={t('contacts:fields:phone')}>
+                {contact.phone || '—'}
+              </SheetDetail>
+              <SheetDetail label={t('contacts:detail:outstanding')}>
+                {outstandingLines.length ? (
+                  outstandingLines.map(line => (
+                    <div key={line} className="tabular-nums">
+                      {line}
+                    </div>
+                  ))
+                ) : (
+                  <div>—</div>
+                )}
+              </SheetDetail>
+            </SheetDetails>
+            <p className="text-sm text-muted-foreground">
+              {t('contacts:editor:hint')}
+            </p>
+          </SheetSection>
+          <SheetSection title={t('contacts:fields:invoices')}>
             {summary.invoices.length === 0 ? (
-              <p className="text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 {t('contacts:detail:noInvoices')}
               </p>
             ) : (
-              <ul className="space-y-2">
+              <ul className="divide-y rounded-lg border text-sm">
                 {summary.invoices.map(invoice => {
                   const issued = getIssuedAt(invoice);
                   const issuedLabel = issued
@@ -115,20 +122,22 @@ export default function ClientDetailSheet({
                     <li key={invoice._id}>
                       <button
                         type="button"
-                        className="flex w-full items-center justify-between gap-2 rounded-md border border-border px-3 py-2 text-start text-foreground hover:bg-muted/50"
+                        className="flex w-full items-center gap-2 px-3 py-2 text-start text-foreground hover:bg-muted/50"
                         onClick={() => onOpenInvoice(invoice._id)}
                       >
-                        <span className="font-medium">
-                          {getInvoiceNumber(invoice)}
-                        </span>
-                        <span className="text-muted-foreground">
-                          {issuedLabel}
+                        <span className="min-w-0 flex-1">
+                          <span className="font-medium">
+                            {getInvoiceNumber(invoice)}
+                          </span>
+                          <span className="ms-2 text-muted-foreground">
+                            {issuedLabel}
+                          </span>
                         </span>
                         <StatusBadge
                           status={getDisplayStatus(invoice, now)}
                           t={t}
                         />
-                        <span className="tabular-nums">
+                        <span className="shrink-0 tabular-nums">
                           {formatInvoiceAmount(invoice)}
                         </span>
                       </button>
@@ -137,9 +146,12 @@ export default function ClientDetailSheet({
                 })}
               </ul>
             )}
-          </div>
-        </div>
-        <SheetFooter className="flex-row gap-2">
+          </SheetSection>
+        </SheetBody>
+        <SheetFooter>
+          <SheetClose render={<Button type="button" variant="ghost" />}>
+            {t('common:close')}
+          </SheetClose>
           <Button
             type="button"
             variant="outline"

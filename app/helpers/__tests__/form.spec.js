@@ -10,6 +10,8 @@ import {
   pickInvoiceFields,
   resolveSellerForSave,
   isBlankRow,
+  recipientFromContact,
+  recipientWithTypedName,
 } from '../form';
 import { getAmountPaid, getInvoiceTotals } from '../invoice';
 vi.mock('@/lib/dialog', () => ({ alert: vi.fn() }));
@@ -116,6 +118,25 @@ describe('form helpers', () => {
     expect(
       getInvoiceData(f, { now: 123, defaultCurrency: currency }).issuedAt
     ).toBe(100);
+  });
+  it('keeps the buyer reference only with e-invoicing on and the switch on', () => {
+    const f = form();
+    f.recipient.new.buyerReference = '04011000-1234512345-06';
+    const save = invoiceSettings =>
+      getInvoiceData(f, { defaultCurrency: currency, invoiceSettings });
+    expect(save({ eInvoice: { enabled: true } }).recipient.buyerReference).toBe(
+      '04011000-1234512345-06'
+    );
+    const switchOff = save({
+      eInvoice: { enabled: true },
+      useBuyerReference: false,
+    });
+    expect(switchOff.recipient).not.toHaveProperty('buyerReference');
+    expect(switchOff.recipient.fullname).toBe('Jane');
+    expect(save({ eInvoice: { enabled: false } }).recipient).not.toHaveProperty(
+      'buyerReference'
+    );
+    expect(f.recipient.new.buyerReference).toBe('04011000-1234512345-06');
   });
   it('preserves an old edit date and resolves statuses', () => {
     const f = form();
@@ -502,5 +523,47 @@ describe('form helpers', () => {
     expect(getFormErrors(f, 'final')['rows.1.taxCategory']).toEqual(
       expect.any(String)
     );
+  });
+});
+
+describe('client name field', () => {
+  const contact = { _id: 'c1', fullname: 'Jane', email: 'jane@x.com' };
+
+  it('links a picked client and clears new-client text', () => {
+    const typed = { newRecipient: true, select: {}, new: { fullname: 'Ja' } };
+    expect(recipientFromContact(typed, contact)).toEqual({
+      newRecipient: false,
+      select: contact,
+      new: {},
+    });
+  });
+
+  it('typing over a linked client starts a fresh new client', () => {
+    const linked = { newRecipient: false, select: contact, new: {} };
+    expect(recipientWithTypedName(linked, 'Bob')).toEqual({
+      newRecipient: true,
+      select: {},
+      new: { fullname: 'Bob' },
+    });
+  });
+
+  it('typing a new client name keeps the other typed fields', () => {
+    const draft = {
+      newRecipient: true,
+      select: {},
+      new: { fullname: 'Bo', email: 'bob@x.com' },
+    };
+    expect(recipientWithTypedName(draft, 'Bob').new).toEqual({
+      fullname: 'Bob',
+      email: 'bob@x.com',
+    });
+  });
+
+  it('typing with no selection becomes a new client', () => {
+    const empty = { newRecipient: false, select: {}, new: { email: 'a@b.c' } };
+    expect(recipientWithTypedName(empty, 'Al')).toMatchObject({
+      newRecipient: true,
+      new: { fullname: 'Al', email: 'a@b.c' },
+    });
   });
 });

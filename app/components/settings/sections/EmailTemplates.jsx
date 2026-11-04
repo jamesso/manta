@@ -15,6 +15,7 @@ import {
   TEMPLATE_KEYS,
 } from '../../../helpers/emailDraft';
 import { useDebouncedSave } from '../useDebouncedSave';
+import { SettingsBlock, SettingsGroup } from '../SettingsLayout';
 
 const PLACEHOLDERS = [
   'number',
@@ -173,22 +174,28 @@ export default function EmailTemplates({
   };
 
   return (
-    <div className="space-y-4 border-t pt-6">
-      <h3 className="text-base font-medium text-foreground">
-        {t('settings:sections:invoice:email:title')}
-      </h3>
-      <Tabs defaultValue="invoice">
-        <TabsList className="bg-background text-foreground">
-          <TabsTrigger value="invoice">
-            {t('settings:sections:invoice:email:tabInvoice')}
-          </TabsTrigger>
-          <TabsTrigger value="reminder">
-            {t('settings:sections:invoice:email:tabReminder')}
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="invoice">{renderKind('invoice')}</TabsContent>
-        <TabsContent value="reminder">{renderKind('reminder')}</TabsContent>
-      </Tabs>
-    </div>
+    <SettingsGroup
+      title={t('settings:sections:invoice:email:title')}
+      description={t('settings:sections:invoice:email:description')}
+    >
+      <SettingsBlock>
+        <Tabs defaultValue="invoice">
+          <TabsList className="bg-background text-foreground">
+            <TabsTrigger value="invoice">
+              {t('settings:sections:invoice:email:tabInvoice')}
+            </TabsTrigger>
+            <TabsTrigger value="reminder">
+              {t('settings:sections:invoice:email:tabReminder')}
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="invoice" className="pt-4">
+            {renderKind('invoice')}
+          </TabsContent>
+          <TabsContent value="reminder" className="pt-4">
+            {renderKind('reminder')}
+          </TabsContent>
+        </Tabs>
+      </SettingsBlock>
+    </SettingsGroup>
   );
 }

@@ -11,23 +11,8 @@ import {
   EmptyTitle,
 } from '@/components/ui/empty';
 
-export default function ItemsEmpty({ variant, query, onNew, onClearSearch }) {
+export default function ItemsEmpty({ variant, onNew }) {
   const { t } = useTranslation();
-
-  if (variant === 'noResults') {
-    return (
-      <Empty>
-        <EmptyHeader>
-          <EmptyTitle>{t('items:empty:noResults', { query })}</EmptyTitle>
-        </EmptyHeader>
-        <EmptyContent>
-          <Button type="button" variant="outline" onClick={onClearSearch}>
-            {t('items:empty:clearSearch')}
-          </Button>
-        </EmptyContent>
-      </Empty>
-    );
-  }
 
   if (variant === 'noArchived') {
     return (

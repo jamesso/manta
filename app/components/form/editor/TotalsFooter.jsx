@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { saveFormData, clearForm } from '../../../actions/form';
+import { saveFormData } from '../../../actions/form';
 import * as UIActions from '../../../actions/ui';
 import { formToPreviewInvoice } from '../../../helpers/preview';
 import { getCreditableAmount } from '../../../helpers/creditNotes';
@@ -127,18 +127,15 @@ export default function TotalsFooter() {
             <FieldError>{t(form.errors.creditTotal)}</FieldError>
           ) : null}
           <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              disabled={form.savePending}
+              onClick={() => dispatch(UIActions.closeForm())}
+            >
+              {t('form:cancel:label')}
+            </Button>
             {form.templateTarget != null ? (
               <>
-                <Button
-                  variant="ghost"
-                  disabled={form.savePending}
-                  onClick={() => {
-                    dispatch(clearForm(null, true));
-                    dispatch(UIActions.changeActiveTab('recurring'));
-                  }}
-                >
-                  {t('form:header:btns:clear')}
-                </Button>
                 <Button
                   disabled={form.savePending}
                   onClick={() => dispatch(saveFormData('template'))}

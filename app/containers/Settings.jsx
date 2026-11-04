@@ -146,11 +146,11 @@ export default function Settings() {
   }
 
   return (
-    <div className="flex h-full flex-col gap-5 px-8 pt-7 pb-8 text-foreground">
+    <div className="flex flex-col gap-8 p-8 text-foreground">
       <h1 className="text-[1.75rem] leading-tight font-bold tracking-tight">
         {t('settings:header')}
       </h1>
-      <div className="grid flex-1 gap-10 md:grid-cols-[13rem_1fr]">
+      <div className="grid items-start gap-12 md:grid-cols-[13rem_minmax(0,1fr)]">
         <SettingsNav active={section} onChange={changeSection} />
         <div className="min-w-0 max-w-3xl">{content}</div>
       </div>

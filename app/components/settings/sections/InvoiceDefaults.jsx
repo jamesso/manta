@@ -17,6 +17,7 @@ import {
   DEFAULT_ESTIMATE_NUMBERING,
   DEFAULT_NUMBERING,
   DEFAULT_CREDIT_NOTE_NUMBERING,
+  NUMBER_FORMATS,
   formatInvoiceNumber,
   normalizeNumbering,
 } from '../../../helpers/numbering';
@@ -25,22 +26,37 @@ import TaxRates from './TaxRates';
 import EInvoiceSettings from './EInvoiceSettings.jsx';
 import EmailTemplates from './EmailTemplates.jsx';
 import { getTaxRates } from '../../../helpers/tax';
+import Template from '../../invoiceStyle/Template';
+import Alignment from '../../invoiceStyle/Alignment';
+import FontSize from '../../invoiceStyle/FontSize';
+import LogoSize from '../../invoiceStyle/LogoSize';
+import AccentColor from '../../invoiceStyle/AccentColor';
+import { STYLE_TOGGLES } from '../../invoiceStyle/Toggler';
+import {
+  SettingsBlock,
+  SettingsGroup,
+  SettingsPage,
+  SettingsRow,
+} from '../SettingsLayout';
+import { DEFAULT_INVOICE_STYLE } from '../../../../preview/constants/defaultConfigs';
 
-const REQUIRED_KEYS = [
-  'invoiceID',
-  'dueDate',
-  'currency',
-  'discount',
-  'tax',
-  'note',
-];
+const REQUIRED_LABELS = {
+  invoiceID: 'invoices:fields:invoiceID',
+  dueDate: 'form:fields:dueDate:name',
+  currency: 'form:fields:currency',
+  discount: 'form:fields:discount:name',
+  tax: 'form:fields:tax:name',
+  note: 'form:fields:note',
+};
+const REQUIRED_KEYS = Object.keys(REQUIRED_LABELS);
+const NUMBERING_KEYS = ['prefix', 'next', 'padding'];
+// Fixed example, so the sample does not change on each render.
+const RANDOM_SAMPLE = '3f2a9b1c';
 
-function sortCurrencyOptions() {
-  return sortBy(keys(currencies), key => currencies[key].name).map(key => ({
-    code: currencies[key].code,
-    name: currencies[key].name,
-  }));
-}
+// Select needs `items` to show the label of the chosen value.
+const currencyItems = sortBy(keys(currencies), key => currencies[key].name).map(
+  key => ({ value: currencies[key].code, label: currencies[key].name })
+);
 
 export default function InvoiceDefaults({
   value,
@@ -50,7 +66,7 @@ export default function InvoiceDefaults({
   saveMessage,
   registerFlush,
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { draft, setDraft, onBlur, flush, saveNow } = useDebouncedSave(
     value,
     onSave
@@ -71,6 +87,24 @@ export default function InvoiceDefaults({
   );
 
   const patch = partial => setDraft(prev => ({ ...prev, ...partial }));
+
+  const UILang = i18n.language;
+  const separatorItems = ['commaDot', 'dotComma', 'spaceDot'].map(value => ({
+    value,
+    label: t(`settings:fields:currency:${value}`),
+  }));
+  const placementItems = [
+    { value: 'before', label: t('settings:fields:currency:beforeAmount') },
+    { value: 'after', label: t('settings:fields:currency:afterAmount') },
+  ];
+  const style = { ...DEFAULT_INVOICE_STYLE, ...draft.style };
+  const setTemplate = (_name, template) =>
+    saveNow(current => ({ ...current, template }));
+  const patchStyle = (name, value) =>
+    setDraft(prev => ({
+      ...prev,
+      style: { ...DEFAULT_INVOICE_STYLE, ...prev.style, [name]: value },
+    }));
 
   const patchTax = (name, raw) => {
     let amount = draft.tax?.amount;
@@ -99,8 +133,8 @@ export default function InvoiceDefaults({
 
   const patchNumbering = (name, raw) => {
     const next = { ...numbering };
-    if (name === 'prefix') {
-      next.prefix = raw;
+    if (name === 'prefix' || name === 'format') {
+      next[name] = raw;
     } else {
       next[name] = raw.trim() === '' ? '' : Number(raw);
     }
@@ -109,8 +143,8 @@ export default function InvoiceDefaults({
 
   const patchEstimateNumbering = (name, raw) => {
     const next = { ...estimateNumbering };
-    if (name === 'prefix') {
-      next.prefix = raw;
+    if (name === 'prefix' || name === 'format') {
+      next[name] = raw;
     } else {
       next[name] = raw.trim() === '' ? '' : Number(raw);
     }
@@ -119,8 +153,8 @@ export default function InvoiceDefaults({
 
   const patchCreditNoteNumbering = (name, raw) => {
     const next = { ...creditNoteNumbering };
-    if (name === 'prefix') {
-      next.prefix = raw;
+    if (name === 'prefix' || name === 'format') {
+      next[name] = raw;
     } else {
       next[name] = raw.trim() === '' ? '' : Number(raw);
     }
@@ -134,163 +168,197 @@ export default function InvoiceDefaults({
     }));
   };
 
-  return (
-    <div className="space-y-8">
-      <div>
-        <h2 className="text-lg font-semibold">
-          {t('settings:sections:invoice:title')}
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          {t('settings:sections:invoice:description')}
-        </p>
-        {saveMessage ? (
-          <p className="mt-2 text-sm text-destructive" role="alert">
-            {saveMessage}
-          </p>
-        ) : null}
-      </div>
+  const numberingField = (prefix, errorKey, value, onChange) => name => (
+    <Field key={`${prefix}-${name}`}>
+      <FieldLabel htmlFor={`${prefix}-num-${name}`}>
+        {t(`form:numbering:${name}`)}
+      </FieldLabel>
+      <Input
+        id={`${prefix}-num-${name}`}
+        type={name === 'prefix' ? 'text' : 'number'}
+        value={value[name] ?? ''}
+        aria-invalid={Boolean(errors?.[`${errorKey}.${name}`])}
+        onChange={e => onChange(name, e.target.value)}
+      />
+      {errors?.[`${errorKey}.${name}`] ? (
+        <FieldError>{t(errors[`${errorKey}.${name}`])}</FieldError>
+      ) : null}
+    </Field>
+  );
 
-      <div className="space-y-3">
-        <h3 className="text-base font-semibold tracking-tight">
-          {t('form:numbering:title')}
-        </h3>
-        <div className="grid gap-4 md:grid-cols-3">
-          {['prefix', 'next', 'padding'].map(name => (
-            <Field key={name}>
-              <FieldLabel htmlFor={`inv-num-${name}`}>
-                {t(`form:numbering:${name}`)}
-              </FieldLabel>
-              <Input
-                id={`inv-num-${name}`}
-                type={name === 'prefix' ? 'text' : 'number'}
-                value={numbering[name] ?? ''}
-                aria-invalid={Boolean(errors?.[`numbering.${name}`])}
-                onChange={e => patchNumbering(name, e.target.value)}
-              />
-              {errors?.[`numbering.${name}`] ? (
-                <FieldError>{t(errors[`numbering.${name}`])}</FieldError>
-              ) : null}
-            </Field>
-          ))}
-        </div>
-        <p className="text-sm text-muted-foreground">
-          {t('form:numbering:sample', {
-            number: formatInvoiceNumber(numbering),
-          })}
-        </p>
-      </div>
+  const formatItems = NUMBER_FORMATS.map(format => ({
+    value: format,
+    label: t(`form:numbering:formats:${format}`),
+  }));
 
-      <div className="space-y-3">
-        <h3 className="text-base font-semibold tracking-tight">
-          {t('settings:sections:estimates:title')}
-        </h3>
-        <div className="grid gap-4 md:grid-cols-3">
-          {['prefix', 'next', 'padding'].map(name => (
-            <Field key={`est-${name}`}>
-              <FieldLabel htmlFor={`est-num-${name}`}>
-                {t(`form:numbering:${name}`)}
-              </FieldLabel>
-              <Input
-                id={`est-num-${name}`}
-                type={name === 'prefix' ? 'text' : 'number'}
-                value={estimateNumbering[name] ?? ''}
-                aria-invalid={Boolean(errors?.[`estimateNumbering.${name}`])}
-                onChange={e => patchEstimateNumbering(name, e.target.value)}
-              />
-              {errors?.[`estimateNumbering.${name}`] ? (
-                <FieldError>
-                  {t(errors[`estimateNumbering.${name}`])}
-                </FieldError>
-              ) : null}
-            </Field>
-          ))}
-        </div>
-        <p className="text-sm text-muted-foreground">
-          {t('form:numbering:sample', {
-            number: formatInvoiceNumber(estimateNumbering),
-          })}
-        </p>
-        <Field>
-          <FieldLabel htmlFor="estimate-valid-days">
-            {t('settings:fields:estimateValidDays')}
-          </FieldLabel>
-          <Input
-            id="estimate-valid-days"
-            type="number"
-            value={draft.estimateValidDays ?? ''}
-            aria-invalid={Boolean(errors?.estimateValidDays)}
-            onChange={e =>
-              saveNow(current => ({
-                ...current,
-                estimateValidDays:
-                  e.target.value.trim() === '' ? '' : Number(e.target.value),
-              }))
-            }
-          />
-          {errors?.estimateValidDays ? (
-            <FieldError>{t(errors.estimateValidDays)}</FieldError>
-          ) : null}
-        </Field>
-      </div>
-
-      <div className="space-y-3">
-        <h3 className="text-base font-semibold tracking-tight">
-          {t('settings:sections:creditNotes:title')}
-        </h3>
-        <div className="grid gap-4 md:grid-cols-3">
-          {['prefix', 'next', 'padding'].map(name => (
-            <Field key={`cn-${name}`}>
-              <FieldLabel htmlFor={`cn-num-${name}`}>
-                {t(`form:numbering:${name}`)}
-              </FieldLabel>
-              <Input
-                id={`cn-num-${name}`}
-                type={name === 'prefix' ? 'text' : 'number'}
-                value={creditNoteNumbering[name] ?? ''}
-                aria-invalid={Boolean(errors?.[`creditNoteNumbering.${name}`])}
-                onChange={e => patchCreditNoteNumbering(name, e.target.value)}
-              />
-              {errors?.[`creditNoteNumbering.${name}`] ? (
-                <FieldError>
-                  {t(errors[`creditNoteNumbering.${name}`])}
-                </FieldError>
-              ) : null}
-            </Field>
-          ))}
-        </div>
-        <p className="text-sm text-muted-foreground">
-          {t('form:numbering:sample', {
-            number: formatInvoiceNumber(creditNoteNumbering),
-          })}
-        </p>
-      </div>
-
-      <Field>
-        <FieldLabel>{t('settings:fields:template')}</FieldLabel>
-        <Select
-          value={draft.template}
-          onValueChange={template =>
-            saveNow(current => ({ ...current, template }))
-          }
+  const formatField = (prefix, value, onChange) => (
+    <Field>
+      <FieldLabel htmlFor={`${prefix}-num-format`}>
+        {t('form:numbering:format')}
+      </FieldLabel>
+      <Select
+        items={formatItems}
+        value={value.format}
+        onValueChange={format => onChange('format', format)}
+      >
+        <SelectTrigger
+          id={`${prefix}-num-format`}
+          className="bg-background text-foreground"
         >
-          <SelectTrigger className="bg-background text-foreground">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="minimal">Minimal</SelectItem>
-            <SelectItem value="business">Business</SelectItem>
-          </SelectContent>
-        </Select>
-      </Field>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {formatItems.map(item => (
+            <SelectItem key={item.value} value={item.value}>
+              {item.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </Field>
+  );
 
-      <div className="space-y-3">
-        <h3 className="text-base font-semibold tracking-tight">
-          {t('form:fields:currency')}
-        </h3>
-        <div className="grid gap-4 md:grid-cols-2">
+  const numberingBlock = (title, prefix, errorKey, value, onChange, extra) => {
+    const isRandom = value.format === 'random';
+    return (
+      <SettingsBlock>
+        <div className="flex items-baseline justify-between gap-4">
+          <h4 className="text-sm font-medium text-foreground">{title}</h4>
+          <p className="text-sm text-muted-foreground">
+            {t('form:numbering:sample', {
+              number: isRandom ? RANDOM_SAMPLE : formatInvoiceNumber(value),
+            })}
+          </p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-3">
+          {formatField(prefix, value, onChange)}
+          {isRandom
+            ? null
+            : NUMBERING_KEYS.map(
+                numberingField(prefix, errorKey, value, onChange)
+              )}
+          {extra}
+        </div>
+      </SettingsBlock>
+    );
+  };
+
+  return (
+    <SettingsPage
+      title={t('settings:sections:invoice:title')}
+      description={t('settings:sections:invoice:description')}
+      error={saveMessage}
+    >
+      <SettingsGroup title={t('settings:sections:invoice:numberingTitle')}>
+        {numberingBlock(
+          t('settings:sections:invoice:invoicesTitle'),
+          'inv',
+          'numbering',
+          numbering,
+          patchNumbering
+        )}
+        {numberingBlock(
+          t('settings:sections:estimates:title'),
+          'est',
+          'estimateNumbering',
+          estimateNumbering,
+          patchEstimateNumbering,
+          <Field>
+            <FieldLabel htmlFor="estimate-valid-days">
+              {t('settings:fields:estimateValidDays')}
+            </FieldLabel>
+            <Input
+              id="estimate-valid-days"
+              type="number"
+              value={draft.estimateValidDays ?? ''}
+              aria-invalid={Boolean(errors?.estimateValidDays)}
+              onChange={e =>
+                saveNow(current => ({
+                  ...current,
+                  estimateValidDays:
+                    e.target.value.trim() === '' ? '' : Number(e.target.value),
+                }))
+              }
+            />
+            {errors?.estimateValidDays ? (
+              <FieldError>{t(errors.estimateValidDays)}</FieldError>
+            ) : null}
+          </Field>
+        )}
+        {numberingBlock(
+          t('settings:sections:creditNotes:title'),
+          'cn',
+          'creditNoteNumbering',
+          creditNoteNumbering,
+          patchCreditNoteNumbering
+        )}
+      </SettingsGroup>
+
+      <SettingsGroup
+        title={t('settings:fields:style:title')}
+        description={t('settings:fields:style:hint')}
+      >
+        <SettingsBlock className="grid gap-x-8 gap-y-6 md:grid-cols-2">
+          <Template
+            t={t}
+            UILang={UILang}
+            template={draft.template}
+            update={setTemplate}
+          />
+          <Alignment
+            t={t}
+            UILang={UILang}
+            alignItems={style.alignItems}
+            update={patchStyle}
+          />
+          <FontSize
+            t={t}
+            UILang={UILang}
+            fontSize={style.fontSize}
+            update={patchStyle}
+          />
+          {style.showLogo ? (
+            <LogoSize
+              t={t}
+              UILang={UILang}
+              logoSize={style.logoSize}
+              update={patchStyle}
+            />
+          ) : null}
+        </SettingsBlock>
+        {STYLE_TOGGLES.map(([name]) => (
+          <SettingsRow
+            key={name}
+            label={t(`settings:fields:style:toggles:${name}`)}
+            description={t(`settings:fields:style:toggles:${name}Hint`)}
+            htmlFor={`style-${name}`}
+          >
+            <Switch
+              id={`style-${name}`}
+              checked={Boolean(style[name])}
+              onCheckedChange={checked => patchStyle(name, checked)}
+            />
+          </SettingsRow>
+        ))}
+        {style.customAccentColor ? (
+          <SettingsBlock>
+            <AccentColor
+              t={t}
+              UILang={UILang}
+              accentColor={style.accentColor}
+              update={patchStyle}
+              showLabel={false}
+            />
+          </SettingsBlock>
+        ) : null}
+      </SettingsGroup>
+
+      <SettingsGroup title={t('form:fields:currency')}>
+        <SettingsBlock className="grid gap-4 md:grid-cols-2">
           <Field>
             <FieldLabel>{t('form:fields:currency')}</FieldLabel>
             <Select
+              items={currencyItems}
               value={draft.currency?.code}
               onValueChange={code =>
                 saveNow(current => ({
@@ -303,9 +371,9 @@ export default function InvoiceDefaults({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {sortCurrencyOptions().map(c => (
-                  <SelectItem key={c.code} value={c.code}>
-                    {c.name}
+                {currencyItems.map(c => (
+                  <SelectItem key={c.value} value={c.value}>
+                    {c.label}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -314,6 +382,7 @@ export default function InvoiceDefaults({
           <Field>
             <FieldLabel>{t('settings:fields:currency:separator')}</FieldLabel>
             <Select
+              items={separatorItems}
               value={draft.currency?.separator}
               onValueChange={separator =>
                 saveNow(current => ({
@@ -341,6 +410,7 @@ export default function InvoiceDefaults({
           <Field>
             <FieldLabel>{t('settings:fields:currency:placement')}</FieldLabel>
             <Select
+              items={placementItems}
               value={draft.currency?.placement}
               onValueChange={placement =>
                 saveNow(current => ({
@@ -375,38 +445,27 @@ export default function InvoiceDefaults({
               <FieldError>{t(errors['currency.fraction'])}</FieldError>
             ) : null}
           </Field>
-        </div>
-      </div>
+        </SettingsBlock>
+      </SettingsGroup>
 
       <TaxRates
         value={getTaxRates(draft)}
         onChange={list => saveNow(current => ({ ...current, taxRates: list }))}
       />
 
-      <div className="space-y-3">
-        <h3 className="text-base font-semibold tracking-tight">
-          {t('settings:fields:requiredFields')}
-        </h3>
-        <div className="grid gap-3 sm:grid-cols-2">
+      <SettingsGroup
+        title={t('settings:fields:requiredFields')}
+        description={t('settings:sections:invoice:requiredHint')}
+      >
+        <SettingsBlock className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
           {REQUIRED_KEYS.map(name => (
             <Field
               key={name}
-              className="flex flex-row items-center justify-between gap-4"
+              orientation="horizontal"
+              className="items-center justify-between gap-4"
             >
               <FieldLabel htmlFor={`req-${name}`}>
-                {t(
-                  name === 'invoiceID'
-                    ? 'invoices:fields:invoiceID'
-                    : name === 'dueDate'
-                      ? 'form:fields:dueDate:name'
-                      : name === 'discount'
-                        ? 'form:fields:discount:name'
-                        : name === 'tax'
-                          ? 'form:fields:tax:name'
-                          : name === 'note'
-                            ? 'form:fields:note'
-                            : 'form:fields:currency'
-                )}
+                {t(REQUIRED_LABELS[name])}
               </FieldLabel>
               <Switch
                 id={`req-${name}`}
@@ -415,8 +474,8 @@ export default function InvoiceDefaults({
               />
             </Field>
           ))}
-        </div>
-      </div>
+        </SettingsBlock>
+      </SettingsGroup>
 
       <EInvoiceSettings
         profile={profile}
@@ -432,6 +491,6 @@ export default function InvoiceDefaults({
         errors={errors}
         registerFlush={registerFlush}
       />
-    </div>
+    </SettingsPage>
   );
 }

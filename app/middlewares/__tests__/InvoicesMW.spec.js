@@ -201,14 +201,13 @@ describe('Invoices Middleware', () => {
 
   describe('should handle INVOICE_SAVE action', () => {
     it('returns success for a draft without opening preview', async () => {
-      window.manta.ipc.send.mockClear();
       const result = await middleware(
         Actions.saveInvoice({ status: 'draft', rows: [] })
       );
       expect(result).toMatchObject({ status: 'draft', rows: [] });
-      expect(
-        window.manta.ipc.send.mock.calls.map(([event]) => event)
-      ).not.toContain('preview-invoice');
+      expect(dispatch.mock.calls.map(([action]) => action.type)).not.toContain(
+        ACTION_TYPES.UI_PREVIEW_SHEET_SET
+      );
     });
     it('returns false if invoice persistence fails', async () => {
       saveDoc.mockRejectedValueOnce(new Error('disk full'));
@@ -275,7 +274,7 @@ describe('Invoices Middleware', () => {
 
       // Execute
       const action = Actions.saveInvoice(newInvoice);
-      middleware(action).then(() =>
+      return middleware(action).then(() =>
         saveDoc('invoices', newInvoice).then(data => {
           // Call next after the promised is returned
           expect(next.mock.calls.length).toBe(1);
@@ -284,8 +283,8 @@ describe('Invoices Middleware', () => {
               payload: [...mockData.invoicesRecords, newInvoice],
             })
           );
-          // Dispatch success notification
-          expect(dispatch.mock.calls.length).toBe(1);
+          // Dispatch success notification, then open the preview drawer
+          expect(dispatch.mock.calls.length).toBe(2);
           expect(dispatch).toHaveBeenCalledWith({
             type: ACTION_TYPES.UI_NOTIFICATION_NEW,
             payload: {
@@ -297,7 +296,7 @@ describe('Invoices Middleware', () => {
       );
     });
 
-    it('tell main process to open preview window with invoice data', () => {
+    it('opens the preview drawer with the saved invoice', async () => {
       const newInvoice = {
         recipient: {
           fullname: faker.person.fullName(),
@@ -318,16 +317,11 @@ describe('Invoices Middleware', () => {
           },
         ],
       };
-      middleware(Actions.saveInvoice(newInvoice)).then(() =>
-        saveDoc('invoices', newInvoice).then(data => {
-          // ipc to main process
-          expect(window.manta.ipc.send).toHaveBeenCalled();
-          expect(window.manta.ipc.send).toHaveBeenCalledWith(
-            'preview-invoice',
-            newInvoice
-          );
-        })
-      );
+      await middleware(Actions.saveInvoice(newInvoice));
+      expect(dispatch).toHaveBeenCalledWith({
+        type: ACTION_TYPES.UI_PREVIEW_SHEET_SET,
+        payload: newInvoice,
+      });
     });
 
     it('handle syntax error correctly', async () => {

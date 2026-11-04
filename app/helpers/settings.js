@@ -5,7 +5,8 @@ export const SETTINGS_SECTIONS = ['profile', 'invoice', 'general'];
 
 const THEMES = new Set(['system', 'light', 'dark']);
 const SOUNDS = new Set(['default', 'cs']);
-const TEMPLATES = new Set(['minimal', 'business']);
+// Older installs store 'default'; it renders as Minimal.
+const TEMPLATES = new Set(['minimal', 'business', 'default']);
 const SEPARATORS = new Set(['commaDot', 'dotComma', 'spaceDot']);
 const PLACEMENTS = new Set(['before', 'after']);
 const TAX_METHODS = new Set(['default', 'reverse']);
@@ -32,6 +33,13 @@ const PROFILE_STRING_FIELDS = [
   'legalName',
 ];
 const EINVOICE_FORMATS = new Set(['facturx-en16931', 'xrechnung-ubl']);
+const ALIGNMENTS = new Set(['top', 'middle', 'bottom']);
+const STYLE_BOOLEAN_KEYS = [
+  'customAccentColor',
+  'showLogo',
+  'useSymbol',
+  'showRecipient',
+];
 const REQUIRED_FIELD_KEYS = [
   'invoiceID',
   'dueDate',
@@ -81,6 +89,40 @@ function validateNumbering(numbering, errors, fieldKey = 'numbering') {
       errors[fieldKey] = val;
     } else {
       errors[key.replace(/^numbering\./, `${fieldKey}.`)] = val;
+    }
+  }
+}
+
+function isLevel(value, min, max) {
+  const n = Number(value);
+  return (
+    typeof value === 'string' && Number.isFinite(n) && n >= min && n <= max
+  );
+}
+
+function validateStyle(style, errors) {
+  if (!isPlainObject(style)) {
+    errors.style = 'settings:errors:invoiceInvalid';
+    return;
+  }
+  if (
+    style.accentColor != null &&
+    !/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(String(style.accentColor))
+  ) {
+    errors['style.accentColor'] = 'settings:errors:invoiceInvalid';
+  }
+  if (style.fontSize != null && !isLevel(style.fontSize, 100, 500)) {
+    errors['style.fontSize'] = 'settings:errors:invoiceInvalid';
+  }
+  if (style.logoSize != null && !isLevel(style.logoSize, 5, 50)) {
+    errors['style.logoSize'] = 'settings:errors:invoiceInvalid';
+  }
+  if (style.alignItems != null && !ALIGNMENTS.has(style.alignItems)) {
+    errors['style.alignItems'] = 'settings:errors:invoiceInvalid';
+  }
+  for (const key of STYLE_BOOLEAN_KEYS) {
+    if (style[key] != null && typeof style[key] !== 'boolean') {
+      errors[`style.${key}`] = 'settings:errors:invoiceInvalid';
     }
   }
 }
@@ -219,6 +261,9 @@ export function getSettingsErrors(section, data) {
       }
     }
   }
+  if ('style' in data) {
+    validateStyle(data.style, errors);
+  }
   const required = data.required_fields;
   if ('required_fields' in data) {
     if (required == null || !isPlainObject(required)) {
@@ -264,6 +309,12 @@ export function getSettingsErrors(section, data) {
   }
   if (Array.isArray(data.taxRates)) {
     Object.assign(errors, getTaxRatesErrors(data.taxRates));
+  }
+  if (
+    data.useBuyerReference != null &&
+    typeof data.useBuyerReference !== 'boolean'
+  ) {
+    errors.useBuyerReference = 'settings:errors:invoiceInvalid';
   }
   const eInvoice = data.eInvoice;
   if (eInvoice != null) {

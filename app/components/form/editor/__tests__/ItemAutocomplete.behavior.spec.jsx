@@ -14,11 +14,19 @@ const catalog = [
     unitCode: 'HUR',
     archived: false,
   },
+  {
+    _id: 'i2',
+    name: 'Hosting',
+    description: '',
+    unitPrice: 20,
+    unitCode: 'MON',
+    archived: false,
+  },
 ];
 
-function renderHarness({ onPick, onEnterWithoutPick }) {
+function renderHarness({ onPick, onEnterWithoutPick, initialValue = '' }) {
   function Harness() {
-    const [value, setValue] = useState('');
+    const [value, setValue] = useState(initialValue);
     return (
       <ItemAutocomplete
         id="desc"
@@ -106,6 +114,56 @@ describe('ItemAutocomplete mounted behavior', () => {
     expect(onPick).toHaveBeenCalledWith(
       expect.objectContaining({ _id: 'i1', unitPrice: 80 })
     );
+  });
+
+  it('lists all saved items when the user clicks an empty field', async () => {
+    const user = userEvent.setup();
+    const onPick = vi.fn();
+    const { input } = renderHarness({ onPick, onEnterWithoutPick: vi.fn() });
+
+    await user.click(input);
+    await waitFor(() => {
+      expect(document.body.textContent).toContain('Hosting');
+    });
+    expect(document.body.textContent).toContain('Design');
+
+    await user.click(
+      [...document.querySelectorAll('[role="option"]')].find(o =>
+        o.textContent.includes('Hosting')
+      )
+    );
+    expect(onPick).toHaveBeenCalledWith(
+      expect.objectContaining({ _id: 'i2', unitPrice: 20 })
+    );
+  });
+
+  it('does not open suggestions on a click in a filled field', async () => {
+    const user = userEvent.setup();
+    const { input } = renderHarness({
+      onPick: vi.fn(),
+      onEnterWithoutPick: vi.fn(),
+      initialValue: 'Design work',
+    });
+
+    await user.click(input);
+    await new Promise(resolve => setTimeout(resolve, 50));
+    expect(document.querySelector('[role="option"]')).toBeNull();
+  });
+
+  it('adds a row on Enter in an open empty list with no highlight', async () => {
+    const user = userEvent.setup();
+    const onPick = vi.fn();
+    const onEnterWithoutPick = vi.fn();
+    const { input } = renderHarness({ onPick, onEnterWithoutPick });
+
+    await user.click(input);
+    await waitFor(() => {
+      expect(document.body.textContent).toContain('Hosting');
+    });
+    await user.keyboard('{Enter}');
+
+    expect(onPick).not.toHaveBeenCalled();
+    expect(onEnterWithoutPick).toHaveBeenCalledTimes(1);
   });
 
   it('blockBaseUIKeyHandler sets baseUIHandlerPrevented', () => {

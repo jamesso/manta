@@ -1,18 +1,13 @@
 import moment from 'moment';
 import { createColumnHelper } from '@tanstack/react-table';
-import { ArrowUpDown } from 'lucide-react';
-
-import { Checkbox } from '@/components/ui/checkbox';
 import { formatNumber } from '../../../helpers/formatNumber';
 import { STATUS_SORT_RANK } from '../../helpers/invoiceList';
 import DueCell from './DueCell';
 import InvoiceRowActions from './InvoiceRowActions';
 import StatusBadge from './StatusBadge';
+import { SortHeader, selectColumn } from '../table/DataTable';
 
 const columnHelper = createColumnHelper();
-
-const sortHeaderClass =
-  'inline-flex min-h-6 items-center gap-1 bg-transparent text-muted-foreground shadow-none transition-colors hover:text-foreground';
 
 export function getColumns({
   t,
@@ -22,42 +17,13 @@ export function getColumns({
   onRecordPayment,
 }) {
   return [
-    columnHelper.display({
-      id: 'select',
-      header: ({ table }) => (
-        <Checkbox
-          className="size-4.5"
-          aria-label={t('invoices:columns:selectAll')}
-          checked={table.getIsAllRowsSelected()}
-          indeterminate={
-            table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()
-          }
-          onCheckedChange={value => table.toggleAllRowsSelected(!!value)}
-        />
-      ),
-      cell: ({ row }) => (
-        <div onClick={event => event.stopPropagation()} role="presentation">
-          <Checkbox
-            className="size-4.5"
-            aria-label={t('invoices:columns:select', {
-              number: row.original.number,
-            })}
-            checked={row.getIsSelected()}
-            onCheckedChange={value => row.toggleSelected(!!value)}
-          />
-        </div>
-      ),
+    selectColumn({
+      selectAllLabel: t('invoices:columns:selectAll'),
+      getRowLabel: row => t('invoices:columns:select', { number: row.number }),
     }),
     columnHelper.accessor('number', {
       header: ({ column }) => (
-        <button
-          type="button"
-          className={sortHeaderClass}
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          {t('invoices:columns:number')}
-          <ArrowUpDown className="size-3.5 opacity-50" />
-        </button>
+        <SortHeader column={column}>{t('invoices:columns:number')}</SortHeader>
       ),
       cell: ({ row }) => (
         <button
@@ -75,64 +41,36 @@ export function getColumns({
           )}
         </button>
       ),
-      sortingFn: 'alphanumeric',
+      sortFn: 'alphanumeric',
     }),
     columnHelper.accessor('client', {
       header: ({ column }) => (
-        <button
-          type="button"
-          className={sortHeaderClass}
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          {t('invoices:columns:client')}
-          <ArrowUpDown className="size-3.5 opacity-50" />
-        </button>
+        <SortHeader column={column}>{t('invoices:columns:client')}</SortHeader>
       ),
-      sortingFn: 'text',
+      sortFn: 'text',
     }),
     columnHelper.accessor('issuedAt', {
       header: ({ column }) => (
-        <button
-          type="button"
-          className={sortHeaderClass}
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          {t('invoices:columns:issued')}
-          <ArrowUpDown className="size-3.5 opacity-50" />
-        </button>
+        <SortHeader column={column}>{t('invoices:columns:issued')}</SortHeader>
       ),
       cell: ({ row }) => {
         const v = row.original.issuedAt;
         const fmt = row.original.invoice.configs?.dateFormat ?? dateFormat;
         return v ? moment(v).format(fmt) : '—';
       },
-      sortingFn: 'basic',
+      sortFn: 'basic',
     }),
     columnHelper.accessor(row => row.dueAt ?? Number.POSITIVE_INFINITY, {
       id: 'dueAt',
       header: ({ column }) => (
-        <button
-          type="button"
-          className={sortHeaderClass}
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          {t('invoices:columns:due')}
-          <ArrowUpDown className="size-3.5 opacity-50" />
-        </button>
+        <SortHeader column={column}>{t('invoices:columns:due')}</SortHeader>
       ),
       cell: ({ row }) => <DueCell row={row} t={t} dateFormat={dateFormat} />,
-      sortingFn: 'basic',
+      sortFn: 'basic',
     }),
     columnHelper.accessor('amount', {
       header: ({ column }) => (
-        <button
-          type="button"
-          className={`${sortHeaderClass} w-full justify-end`}
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          {t('invoices:columns:amount')}
-          <ArrowUpDown className="size-3.5 opacity-50" />
-        </button>
+        <SortHeader column={column}>{t('invoices:columns:amount')}</SortHeader>
       ),
       cell: ({ row }) => {
         const { displayStatus, amountPaid, balance, invoice, amountText } =
@@ -159,24 +97,17 @@ export function getColumns({
         );
       },
       meta: { align: 'end' },
-      sortingFn: 'basic',
+      sortFn: 'basic',
     }),
     columnHelper.accessor(row => STATUS_SORT_RANK[row.displayStatus], {
       id: 'status',
       header: ({ column }) => (
-        <button
-          type="button"
-          className={sortHeaderClass}
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          {t('invoices:columns:status')}
-          <ArrowUpDown className="size-3.5 opacity-50" />
-        </button>
+        <SortHeader column={column}>{t('invoices:columns:status')}</SortHeader>
       ),
       cell: ({ row }) => (
         <StatusBadge status={row.original.displayStatus} t={t} />
       ),
-      sortingFn: 'basic',
+      sortFn: 'basic',
     }),
     columnHelper.display({
       id: 'actions',

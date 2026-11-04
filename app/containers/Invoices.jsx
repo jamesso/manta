@@ -1,13 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { useTable } from '@tanstack/react-table';
-import { Plus, Search } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import * as UIActions from '../actions/ui';
+import { deleteInvoice, recordFullPayment } from '../actions/invoices';
 import { getDateFormat } from '../reducers/SettingsReducer';
 import {
   getAllSalesDocs,
@@ -15,7 +14,7 @@ import {
   getInvoices,
 } from '../reducers/InvoicesReducer';
 import {
-  INVOICE_TABS,
+  INVOICE_STATUS_FILTERS,
   countByTab,
   matchesSearch,
   matchesTab,
@@ -23,17 +22,34 @@ import {
   toInvoiceRow,
 } from '../helpers/invoiceList';
 import { groupCreditNotesByInvoice } from '../helpers/creditNotes';
+import { facetOptions, matchesAny } from '../helpers/listFilters';
 import { isCreditNote } from '../helpers/docType';
-import BulkActionsBar from '../components/invoices/BulkActionsBar';
 import { getColumns } from '../components/invoices/columns';
 import { getCreditNoteColumns } from '../components/invoices/creditNoteColumns';
 import InvoiceDetailSheet from '../components/invoices/InvoiceDetailSheet';
 import CreditNoteDetailSheet from '../components/invoices/CreditNoteDetailSheet';
 import RecordPaymentDialog from '../components/invoices/RecordPaymentDialog';
 import InvoicesEmpty from '../components/invoices/InvoicesEmpty';
-import InvoicesTable from '../components/invoices/InvoicesTable';
-import { features } from '../components/invoices/invoiceTableFeatures';
+import DataTable, {
+  SelectionBar,
+  usePagination,
+  useRowSelection,
+} from '../components/table/DataTable';
+import { features } from '../components/table/features';
 import { useNow } from '../components/invoices/useNow';
+import {
+  FacetFilter,
+  FilterBar,
+  FilterSearch,
+  NoResults,
+  ResetFilters,
+} from '../components/filters/FilterBar';
+import {
+  ListPage,
+  PageHeader,
+  ViewTabs,
+} from '../components/layout/PageHeader';
+import { useListRequest } from '../components/filters/useListRequest';
 
 export default function Invoices() {
   const { t } = useTranslation();
@@ -42,16 +58,15 @@ export default function Invoices() {
   const creditNotes = useSelector(getCreditNotes);
   const allSalesDocs = useSelector(getAllSalesDocs);
   const dateFormat = useSelector(getDateFormat);
-  const tabRequest = useSelector(s => s.ui.invoicesTabRequest);
   const now = useNow();
 
-  const [tab, setTab] = useState('all');
+  const [view, setView] = useState('invoices');
+  const [statuses, setStatuses] = useState([]);
+  const [clients, setClients] = useState([]);
   const [query, setQuery] = useState('');
   const [sorting, setSorting] = useState([{ id: 'issuedAt', desc: true }]);
-  const [rowSelection, setRowSelection] = useState({});
   const [openId, setOpenId] = useState(null);
   const [paymentForId, setPaymentForId] = useState(null);
-  const searchRef = useRef(null);
 
   const creditByInvoice = useMemo(
     () => groupCreditNotesByInvoice(allSalesDocs),
@@ -69,29 +84,66 @@ export default function Invoices() {
     [creditNotes]
   );
 
-  const rows = useMemo(() => {
-    if (tab === 'creditNotes') {
-      return creditNoteRows;
-    }
-    return invoiceRows;
-  }, [tab, invoiceRows, creditNoteRows]);
+  const isCreditNotes = view === 'creditNotes';
+  const rows = isCreditNotes ? creditNoteRows : invoiceRows;
 
-  const counts = useMemo(
-    () => countByTab([...invoiceRows, ...creditNoteRows]),
-    [invoiceRows, creditNoteRows]
+  // Each facet counts rows that match the other filters.
+  const matchesStatus = useCallback(
+    row => isCreditNotes || matchesAny(statuses, s => matchesTab(row, s)),
+    [isCreditNotes, statuses]
+  );
+  const matchesClient = useCallback(
+    row => matchesAny(clients, c => row.client === c),
+    [clients]
+  );
+
+  const statusOptions = useMemo(() => {
+    const counts = countByTab(
+      rows.filter(row => matchesSearch(row, query) && matchesClient(row))
+    );
+    return INVOICE_STATUS_FILTERS.map(key => ({
+      value: key,
+      label: t(`invoices:tabs:${key}`),
+      count: counts[key],
+    }));
+  }, [rows, query, matchesClient, t]);
+
+  const clientOptions = useMemo(
+    () =>
+      facetOptions(
+        rows.filter(row => matchesSearch(row, query) && matchesStatus(row)),
+        row => row.client,
+        clients
+      ),
+    [rows, query, matchesStatus, clients]
   );
 
   const visible = useMemo(
-    () => rows.filter(row => matchesTab(row, tab) && matchesSearch(row, query)),
-    [rows, tab, query]
+    () =>
+      rows.filter(
+        row =>
+          matchesSearch(row, query) && matchesStatus(row) && matchesClient(row)
+      ),
+    [rows, query, matchesStatus, matchesClient]
   );
+
+  const visibleIds = useMemo(() => visible.map(row => row.id), [visible]);
+  const { rowSelection, setRowSelection, selectedIds, clearSelection } =
+    useRowSelection(visibleIds);
+  const [pagination, setPagination] = usePagination([
+    view,
+    query,
+    statuses,
+    clients,
+    sorting,
+  ]);
 
   const onOpen = useCallback(id => setOpenId(id), []);
   const onOpenInvoice = useCallback(id => setOpenId(id), []);
   const onRecordPayment = useCallback(id => setPaymentForId(id), []);
 
   const columns = useMemo(() => {
-    if (tab === 'creditNotes') {
+    if (isCreditNotes) {
       return getCreditNoteColumns({
         t,
         dateFormat,
@@ -101,55 +153,37 @@ export default function Invoices() {
       });
     }
     return getColumns({ t, dateFormat, onOpen, dispatch, onRecordPayment });
-  }, [tab, t, dateFormat, onOpen, onOpenInvoice, dispatch, onRecordPayment]);
+  }, [
+    isCreditNotes,
+    t,
+    dateFormat,
+    onOpen,
+    onOpenInvoice,
+    dispatch,
+    onRecordPayment,
+  ]);
 
   const table = useTable({
     features,
     data: visible,
     columns,
     getRowId: row => row.id,
-    state: { sorting, rowSelection },
+    state: { sorting, rowSelection, pagination },
     onSortingChange: setSorting,
     onRowSelectionChange: setRowSelection,
+    onPaginationChange: setPagination,
+    autoResetPageIndex: false,
   });
 
-  const selectedIds = useMemo(
-    () => Object.keys(rowSelection).filter(id => rowSelection[id]),
-    [rowSelection]
-  );
-
-  useEffect(() => {
-    setRowSelection({});
-  }, [tab, query]);
-
-  useEffect(() => {
-    if (tabRequest && INVOICE_TABS.includes(tabRequest)) {
-      setTab(tabRequest);
-      setQuery('');
-    }
-    if (tabRequest != null) {
-      dispatch(UIActions.openInvoicesTab(null));
-    }
-  }, [tabRequest, dispatch]);
-
-  useEffect(() => {
-    setRowSelection(prev => {
-      const ids = new Set(rows.map(r => r.id));
-      const next = {};
-      let changed = false;
-      for (const id of Object.keys(prev)) {
-        if (ids.has(id) && prev[id]) {
-          next[id] = true;
-        } else if (prev[id]) {
-          changed = true;
-        }
-      }
-      if (!changed && Object.keys(next).length === Object.keys(prev).length) {
-        return prev;
-      }
-      return next;
-    });
-  }, [rows]);
+  useListRequest('invoices', request => {
+    setView(request.status === 'creditNotes' ? 'creditNotes' : 'invoices');
+    setStatuses(
+      INVOICE_STATUS_FILTERS.includes(request.status) ? [request.status] : []
+    );
+    setClients([]);
+    setQuery(request.query ?? '');
+    if (request.openId) setOpenId(request.openId);
+  });
 
   useEffect(() => {
     if (openId && !rows.some(r => r.id === openId)) {
@@ -164,92 +198,106 @@ export default function Invoices() {
     ? invoices.find(inv => inv._id === paymentForId) || null
     : null;
 
+  const hasFilters =
+    query.trim() !== '' ||
+    clients.length > 0 ||
+    (!isCreditNotes && statuses.length > 0);
   const clearFilters = () => {
-    setTab('all');
+    setStatuses([]);
+    setClients([]);
     setQuery('');
   };
 
-  const showEmptyNone =
-    tab === 'creditNotes' ? creditNotes.length === 0 : invoices.length === 0;
+  const showEmptyNone = isCreditNotes
+    ? creditNotes.length === 0
+    : invoices.length === 0;
   const showEmptyResults = !showEmptyNone && visible.length === 0;
 
   return (
-    <div className="flex h-full flex-col gap-5 px-8 pt-7 pb-8 text-foreground">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-[1.75rem] leading-tight font-bold tracking-tight">
-            {t('invoices:header:name')}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {t('invoices:header:count', { count: invoices.length })}
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="relative min-w-[12rem] flex-1 sm:w-64">
-            <Search className="pointer-events-none absolute start-2 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              ref={searchRef}
-              type="search"
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              onKeyDown={e => {
-                if (e.key === 'Escape') {
-                  setQuery('');
-                  e.preventDefault();
-                }
-              }}
-              className="ps-8"
-              aria-label={t('invoices:search:label')}
-              placeholder={t('invoices:search:placeholder')}
-            />
-          </div>
-          <Button
-            type="button"
-            onClick={() => dispatch(UIActions.newInvoice())}
-          >
-            <Plus />
-            {t('invoices:newInvoice')}
-          </Button>
-        </div>
-      </div>
-
-      <Tabs value={tab} onValueChange={setTab}>
-        <TabsList className="h-auto flex-wrap justify-start">
-          {INVOICE_TABS.map(key => (
-            <TabsTrigger key={key} value={key}>
-              {t(`invoices:tabs:${key}`)}
-              <span className="ms-1 text-muted-foreground">
-                ({counts[key]})
-              </span>
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
-
-      {tab !== 'creditNotes' ? (
-        <BulkActionsBar
-          selectedIds={selectedIds}
-          t={t}
-          dispatch={dispatch}
-          onClearSelection={() => setRowSelection({})}
+    <ListPage>
+      <PageHeader
+        title={t('invoices:header:name')}
+        count={t('invoices:header:count', { count: invoices.length })}
+      >
+        <ViewTabs
+          value={view}
+          onChange={setView}
+          options={[
+            {
+              value: 'invoices',
+              label: t('invoices:views:invoices'),
+              count: invoices.length,
+            },
+            {
+              value: 'creditNotes',
+              label: t('invoices:views:creditNotes'),
+              count: creditNotes.length,
+            },
+          ]}
         />
+        <Button type="button" onClick={() => dispatch(UIActions.newInvoice())}>
+          <Plus />
+          {t('invoices:newInvoice')}
+        </Button>
+      </PageHeader>
+
+      {!showEmptyNone ? (
+        <FilterBar>
+          <FilterSearch
+            value={query}
+            onChange={setQuery}
+            label={t('invoices:search:label')}
+            placeholder={t('invoices:search:placeholder')}
+          />
+          {!isCreditNotes ? (
+            <FacetFilter
+              title={t('common:filters:status')}
+              options={statusOptions}
+              selected={statuses}
+              onChange={setStatuses}
+            />
+          ) : null}
+          <FacetFilter
+            title={t('common:filters:client')}
+            options={clientOptions}
+            selected={clients}
+            onChange={setClients}
+            searchable
+          />
+          {hasFilters ? <ResetFilters onClick={clearFilters} /> : null}
+        </FilterBar>
       ) : null}
 
       {showEmptyNone ? (
-        <InvoicesEmpty
-          variant="none"
-          t={t}
-          creditNotesTab={tab === 'creditNotes'}
-        />
+        <InvoicesEmpty t={t} creditNotesTab={isCreditNotes} />
       ) : showEmptyResults ? (
-        <InvoicesEmpty
-          variant="noResults"
-          t={t}
-          onClearFilters={clearFilters}
+        <NoResults
+          title={t('invoices:empty:noResults')}
+          onClear={clearFilters}
         />
       ) : (
-        <InvoicesTable table={table} onOpen={onOpen} />
+        <DataTable table={table} onOpen={onOpen} />
       )}
+
+      <SelectionBar
+        count={selectedIds.length}
+        onClear={clearSelection}
+        actions={[
+          ...(isCreditNotes
+            ? []
+            : [
+                {
+                  label: t('invoices:bulk:markPaidInFull'),
+                  onClick: () => dispatch(recordFullPayment(selectedIds)),
+                },
+              ]),
+          {
+            label: t('common:delete'),
+            variant: 'destructive',
+            onClick: () => dispatch(deleteInvoice(selectedIds)),
+          },
+        ]}
+      />
 
       <InvoiceDetailSheet
         invoice={openInvoice}
@@ -285,6 +333,6 @@ export default function Invoices() {
         }}
         creditNotes={creditByInvoice.get(paymentForId) ?? []}
       />
-    </div>
+    </ListPage>
   );
 }

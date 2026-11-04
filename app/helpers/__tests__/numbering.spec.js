@@ -1,3 +1,4 @@
+import { beforeEach, vi } from 'vitest';
 import {
   DEFAULT_NUMBERING,
   normalizeNumbering,
@@ -7,6 +8,9 @@ import {
   assignNumberIfMissing,
   reconcileNumberingWithPersistedInvoices,
   resolveFormInvoiceIdForWrite,
+  isRandomNumber,
+  resolveStoredNumbering,
+  suggestedInvoiceNumberFromReconciled,
 } from '../numbering';
 
 describe('normalizeNumbering', () => {
@@ -42,7 +46,7 @@ describe('formatInvoiceNumber', () => {
 });
 
 describe('advanceNumbering', () => {
-  const base = { prefix: 'INV-', next: 1, padding: 4 };
+  const base = { prefix: 'INV-', next: 1, padding: 4, format: 'sequential' };
 
   it('advances when saved id matches suggestion', () => {
     expect(advanceNumbering(base, 'INV-0001')).toEqual({ ...base, next: 2 });
@@ -64,7 +68,12 @@ describe('advanceNumbering', () => {
   });
 
   it('escapes regexp characters in prefix', () => {
-    const special = { prefix: 'INV.(26)-', next: 1, padding: 2 };
+    const special = {
+      prefix: 'INV.(26)-',
+      next: 1,
+      padding: 2,
+      format: 'sequential',
+    };
     expect(advanceNumbering(special, 'INV.(26)-03')).toEqual({
       ...special,
       next: 4,
@@ -73,8 +82,8 @@ describe('advanceNumbering', () => {
 });
 
 describe('mergeNumbering', () => {
-  const stored = { prefix: 'INV-', next: 5, padding: 4 };
-  const saved = { prefix: 'INV-', next: 5, padding: 4 };
+  const stored = { prefix: 'INV-', next: 5, padding: 4, format: 'sequential' };
+  const saved = { ...stored };
 
   it('keeps stored next when settings unchanged', () => {
     expect(mergeNumbering(stored, saved, saved)).toEqual(stored);
@@ -83,13 +92,13 @@ describe('mergeNumbering', () => {
   it('uses edited next when changed in settings tab', () => {
     expect(
       mergeNumbering(stored, saved, { prefix: 'INV-', next: 10, padding: 4 })
-    ).toEqual({ prefix: 'INV-', next: 10, padding: 4 });
+    ).toEqual({ ...stored, next: 10 });
   });
 
   it('keeps stored next when only prefix edited in stale tab', () => {
     expect(
       mergeNumbering(stored, saved, { prefix: '2026-', next: 1, padding: 4 })
-    ).toEqual({ prefix: '2026-', next: 5, padding: 4 });
+    ).toEqual({ ...stored, prefix: '2026-' });
   });
 });
 
@@ -187,5 +196,90 @@ describe('resolveFormInvoiceIdForWrite', () => {
       invoices: [],
     });
     expect(id).toBe('INV-0099');
+  });
+});
+
+describe('random number format', () => {
+  const random = { ...DEFAULT_NUMBERING, format: 'random' };
+
+  // vitest.setup.js mocks randomUUID with a fixed value.
+  beforeEach(() => {
+    vi.mocked(crypto.randomUUID).mockRestore();
+  });
+
+  it('defaults to sequential and drops unknown formats', () => {
+    expect(normalizeNumbering({ prefix: 'X-' }).format).toBe('sequential');
+    expect(normalizeNumbering({ format: 'nope' }).format).toBe('sequential');
+    expect(normalizeNumbering(random).format).toBe('random');
+  });
+
+  it('formats an 8-character hex ID with a letter', () => {
+    for (let i = 0; i < 50; i += 1) {
+      const id = formatInvoiceNumber(random);
+      expect(isRandomNumber(id)).toBe(true);
+      expect(id).toMatch(/[a-f]/);
+    }
+  });
+
+  it('does not move the counter', () => {
+    const base = { ...random, prefix: '', next: 3 };
+    expect(advanceNumbering(base, '12345678')).toEqual(base);
+    expect(
+      assignNumberIfMissing({ status: 'draft' }, 'pending', base).numbering
+    ).toEqual(base);
+  });
+
+  it('keeps the current random ID while no doc uses it', () => {
+    expect(
+      suggestedInvoiceNumberFromReconciled(null, random, [], 'abcd1234')
+    ).toBe('abcd1234');
+  });
+
+  it('makes a new ID when any doc type already uses the current one', () => {
+    const docs = [{ docType: 'estimate', invoiceID: 'abcd1234' }];
+    const next = suggestedInvoiceNumberFromReconciled(
+      null,
+      random,
+      docs,
+      'abcd1234'
+    );
+    expect(isRandomNumber(next)).toBe(true);
+    expect(next).not.toBe('abcd1234');
+  });
+
+  it('replaces a sequential number in the form', () => {
+    expect(
+      isRandomNumber(
+        suggestedInvoiceNumberFromReconciled(null, random, [], 'INV-0001')
+      )
+    ).toBe(true);
+  });
+
+  it('takes the format from settings, not the counter overlay', () => {
+    const overlay = { ...DEFAULT_NUMBERING, next: 9 };
+    expect(resolveStoredNumbering(overlay, random)).toEqual({
+      ...random,
+      next: 9,
+    });
+  });
+
+  it('merges an edited format', () => {
+    const saved = DEFAULT_NUMBERING;
+    expect(mergeNumbering({ ...saved, next: 5 }, saved, random)).toEqual({
+      ...saved,
+      next: 5,
+      format: 'random',
+    });
+  });
+
+  it('gives a free random ID on write when the typed one is taken', () => {
+    const id = resolveFormInvoiceIdForWrite({
+      formInvoiceId: 'abcd1234',
+      ownDocId: 'me',
+      numbering: random,
+      invoices: [{ _id: 'other', invoiceID: 'abcd1234' }],
+    });
+    expect(isRandomNumber(id)).toBe(true);
+    expect(id).not.toBe('abcd1234');
   });
 });

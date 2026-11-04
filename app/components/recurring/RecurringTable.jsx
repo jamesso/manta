@@ -1,107 +1,169 @@
 import moment from 'moment';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
+import { createColumnHelper, useTable } from '@tanstack/react-table';
+
+import { Switch } from '@/components/ui/switch';
 import { formatInvoiceAmount } from '../../helpers/invoice';
 import { dateKeyToMs } from '../../helpers/recurringSchedule';
-import { getRecurringStatus } from '../../helpers/recurring';
-import * as Actions from '../../actions/recurring';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Switch } from '@/components/ui/switch';
-import * as UIActions from '../../actions/ui';
+  formatRecurringInterval,
+  getRecurringClient,
+  getRecurringStatus,
+  getRecurringTotal,
+} from '../../helpers/recurring';
+import * as Actions from '../../actions/recurring';
+import DataTable, { SortHeader, selectColumn } from '../table/DataTable';
+import { features } from '../table/features';
 import RecurringRowActions from './RecurringRowActions';
 
-export default function RecurringTable({ profiles }) {
+const columnHelper = createColumnHelper();
+
+// Approximate length in days, only to sort the repeat column.
+const INTERVAL_DAYS = { weekly: 7, monthly: 30, quarterly: 91, yearly: 365 };
+
+function getColumns({ t, dispatch, dateFormat, onOpen }) {
+  return [
+    selectColumn({
+      selectAllLabel: t('common:table:selectAll'),
+      getRowLabel: row => t('common:table:selectRow', { name: row.name }),
+    }),
+    columnHelper.accessor('name', {
+      header: ({ column }) => (
+        <SortHeader column={column}>{t('recurring:columns:name')}</SortHeader>
+      ),
+      cell: ({ row }) => (
+        <button
+          type="button"
+          className="min-h-6 bg-transparent text-start font-medium text-primary shadow-none underline-offset-4 hover:underline"
+          onClick={event => {
+            event.stopPropagation();
+            onOpen(row.id);
+          }}
+        >
+          {row.original.name}
+        </button>
+      ),
+      sortFn: 'text',
+    }),
+    columnHelper.accessor(getRecurringClient, {
+      id: 'client',
+      header: ({ column }) => (
+        <SortHeader column={column}>{t('recurring:columns:client')}</SortHeader>
+      ),
+      sortFn: 'text',
+    }),
+    columnHelper.accessor(getRecurringTotal, {
+      id: 'amount',
+      header: ({ column }) => (
+        <SortHeader column={column}>{t('recurring:columns:amount')}</SortHeader>
+      ),
+      cell: ({ row, getValue }) =>
+        formatInvoiceAmount({
+          grandTotal: getValue(),
+          currency: row.original.template?.currency,
+        }),
+      meta: { align: 'end' },
+      sortFn: 'basic',
+    }),
+    columnHelper.accessor(
+      row => (INTERVAL_DAYS[row.interval] ?? 0) * (row.every ?? 1),
+      {
+        id: 'interval',
+        header: ({ column }) => (
+          <SortHeader column={column}>
+            {t('recurring:columns:interval')}
+          </SortHeader>
+        ),
+        cell: ({ row }) => {
+          const { interval, every } = row.original;
+          return formatRecurringInterval(t, interval, every);
+        },
+        sortFn: 'basic',
+      }
+    ),
+    columnHelper.accessor(row => row.nextDate ?? '', {
+      id: 'nextDate',
+      header: ({ column }) => (
+        <SortHeader column={column}>
+          {t('recurring:columns:nextDate')}
+        </SortHeader>
+      ),
+      cell: ({ row }) => {
+        const status = getRecurringStatus(row.original, Date.now());
+        if (status === 'paused' || status === 'ended') {
+          return t(`recurring:status:${status}`);
+        }
+        return moment(dateKeyToMs(row.original.nextDate)).format(dateFormat);
+      },
+      sortFn: 'basic',
+    }),
+    columnHelper.accessor(row => (row.active ? 1 : 0), {
+      id: 'active',
+      header: ({ column }) => (
+        <SortHeader column={column}>{t('recurring:columns:active')}</SortHeader>
+      ),
+      cell: ({ row }) => (
+        <div onClick={event => event.stopPropagation()} role="presentation">
+          <Switch
+            checked={row.original.active}
+            aria-label={row.original.name}
+            onCheckedChange={checked =>
+              dispatch(
+                Actions.setRecurringActive({ id: row.id, active: checked })
+              )
+            }
+          />
+        </div>
+      ),
+      sortFn: 'basic',
+    }),
+    columnHelper.display({
+      id: 'actions',
+      header: () => (
+        <span className="sr-only">{t('recurring:columns:actions')}</span>
+      ),
+      cell: ({ row }) => (
+        <div onClick={event => event.stopPropagation()} role="presentation">
+          <RecurringRowActions profile={row.original} />
+        </div>
+      ),
+    }),
+  ];
+}
+
+export default function RecurringTable({
+  profiles,
+  sorting,
+  onSortingChange,
+  rowSelection,
+  onRowSelectionChange,
+  pagination,
+  onPaginationChange,
+  onOpen,
+}) {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const dateFormat =
     window.manta.settings.get('invoice.dateFormat') ?? 'MM/DD/YYYY';
 
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>{t('recurring:columns:name')}</TableHead>
-          <TableHead>{t('recurring:columns:client')}</TableHead>
-          <TableHead className="text-end">
-            {t('recurring:columns:amount')}
-          </TableHead>
-          <TableHead>{t('recurring:columns:interval')}</TableHead>
-          <TableHead>{t('recurring:columns:nextDate')}</TableHead>
-          <TableHead>{t('recurring:columns:active')}</TableHead>
-          <TableHead className="w-12">
-            {t('recurring:columns:actions')}
-          </TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {profiles.map(profile => {
-          const status = getRecurringStatus(profile, Date.now());
-          const client =
-            profile.template?.recipient?.fullname ||
-            profile.template?.recipient?.company ||
-            '';
-          const intervalKey =
-            profile.every === 1
-              ? `recurring:interval:${profile.interval}_one`
-              : `recurring:interval:${profile.interval}_other`;
-          return (
-            <TableRow key={profile._id}>
-              <TableCell>
-                <button
-                  type="button"
-                  className="font-medium text-primary underline-offset-4 hover:underline"
-                  onClick={() =>
-                    dispatch(
-                      UIActions.setRecurringSheet({
-                        mode: 'edit',
-                        id: profile._id,
-                      })
-                    )
-                  }
-                >
-                  {profile.name}
-                </button>
-              </TableCell>
-              <TableCell>{client}</TableCell>
-              <TableCell className="tabular-nums text-end">
-                {formatInvoiceAmount(profile.template || {})}
-              </TableCell>
-              <TableCell>{t(intervalKey, { count: profile.every })}</TableCell>
-              <TableCell>
-                {status === 'paused'
-                  ? t('recurring:status:paused')
-                  : status === 'ended'
-                    ? t('recurring:status:ended')
-                    : moment(dateKeyToMs(profile.nextDate)).format(dateFormat)}
-              </TableCell>
-              <TableCell>
-                <Switch
-                  checked={profile.active}
-                  aria-label={profile.name}
-                  onCheckedChange={checked =>
-                    dispatch(
-                      Actions.setRecurringActive({
-                        id: profile._id,
-                        active: checked,
-                      })
-                    )
-                  }
-                />
-              </TableCell>
-              <TableCell>
-                <RecurringRowActions profile={profile} />
-              </TableCell>
-            </TableRow>
-          );
-        })}
-      </TableBody>
-    </Table>
+  const columns = useMemo(
+    () => getColumns({ t, dispatch, dateFormat, onOpen }),
+    [t, dispatch, dateFormat, onOpen]
   );
+
+  const table = useTable({
+    features,
+    data: profiles,
+    columns,
+    getRowId: row => row._id,
+    state: { sorting, rowSelection, pagination },
+    onSortingChange,
+    onRowSelectionChange,
+    onPaginationChange,
+    autoResetPageIndex: false,
+  });
+
+  return <DataTable table={table} onOpen={onOpen} />;
 }

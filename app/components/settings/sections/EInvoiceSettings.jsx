@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { confirm } from '@/lib/dialog';
-import { Field, FieldLabel } from '@/components/ui/field';
 import {
   Select,
   SelectContent,
@@ -12,9 +11,11 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import EInvoiceChecklist from '../../einvoice/EInvoiceChecklist.jsx';
+import { SettingsBlock, SettingsGroup, SettingsRow } from '../SettingsLayout';
 import { getEInvoiceDerived } from '../../../helpers/einvoice.js';
 import { toEn16931 } from '../../../../helpers/einvoice/toEn16931.js';
 import { getEInvoiceIssues } from '../../../../helpers/einvoice/getEInvoiceIssues.js';
+import { isBuyerReferenceOn } from '../../../../helpers/einvoice/identifiers.js';
 
 export default function EInvoiceSettings({ profile, value, onSave, saveNow }) {
   const { t } = useTranslation();
@@ -29,7 +30,12 @@ export default function EInvoiceSettings({ profile, value, onSave, saveNow }) {
       ? t('settings:sections:eInvoice.formats.facturx')
       : t('settings:sections:eInvoice.formats.xrechnung');
 
+  const enabled = Boolean(eInvoice.enabled);
+
   const profileIssues = useMemo(() => {
+    if (!enabled) {
+      return [];
+    }
     const sampleInvoice = {
       status: 'pending',
       invoiceID: 'SAMPLE-1',
@@ -63,7 +69,7 @@ export default function EInvoiceSettings({ profile, value, onSave, saveNow }) {
       invoice: sampleInvoice,
       derived,
     }).filter(i => i.fix === 'profile' || i.fix === 'bank');
-  }, [profile, value, eInvoice.format]);
+  }, [enabled, profile, value, eInvoice.format]);
 
   const toggleEnabled = async checked => {
     if (!checked) {
@@ -91,54 +97,68 @@ export default function EInvoiceSettings({ profile, value, onSave, saveNow }) {
   };
 
   return (
-    <div className="space-y-4 border-t pt-6">
-      <div>
-        <h3 className="text-base font-semibold tracking-tight text-foreground">
-          {t('settings:sections:eInvoice.title')}
-        </h3>
-        <p className="text-sm text-muted-foreground">
-          {t('settings:sections:eInvoice.description')}
-        </p>
-      </div>
-      <p className="text-sm text-muted-foreground">
-        {t('settings:sections:eInvoice.disclaimer')}
-      </p>
-      <Field className="flex flex-row items-center justify-between gap-4">
-        <FieldLabel htmlFor="einvoice-enabled">
-          {t('settings:sections:eInvoice.enable')}
-        </FieldLabel>
+    <SettingsGroup
+      title={t('settings:sections:eInvoice.title')}
+      description={t('settings:sections:eInvoice.description')}
+    >
+      <SettingsRow
+        label={t('settings:sections:eInvoice.enable')}
+        description={t('settings:sections:eInvoice.disclaimer')}
+        htmlFor="einvoice-enabled"
+      >
         <Switch
           id="einvoice-enabled"
-          checked={Boolean(eInvoice.enabled)}
+          checked={enabled}
           disabled={busy}
           onCheckedChange={toggleEnabled}
         />
-      </Field>
-      <Field>
-        <FieldLabel>{t('settings:sections:eInvoice.defaultFormat')}</FieldLabel>
-        <Select
-          value={formatValue}
-          onValueChange={format =>
-            saveNow(current => ({
-              ...current,
-              eInvoice: { ...current.eInvoice, format },
-            }))
-          }
-        >
-          <SelectTrigger className="bg-background text-foreground">
-            <SelectValue>{formatLabel}</SelectValue>
-          </SelectTrigger>
-          <SelectContent className="bg-popover text-popover-foreground">
-            <SelectItem value="xrechnung-ubl">
-              {t('settings:sections:eInvoice.formats.xrechnung')}
-            </SelectItem>
-            <SelectItem value="facturx-en16931">
-              {t('settings:sections:eInvoice.formats.facturx')}
-            </SelectItem>
-          </SelectContent>
-        </Select>
-      </Field>
-      <EInvoiceChecklist issues={profileIssues} />
-    </div>
+      </SettingsRow>
+      {/* When off, only the switch shows. */}
+      {enabled ? (
+        <>
+          <SettingsRow label={t('settings:sections:eInvoice.defaultFormat')}>
+            <Select
+              value={formatValue}
+              onValueChange={format =>
+                saveNow(current => ({
+                  ...current,
+                  eInvoice: { ...current.eInvoice, format },
+                }))
+              }
+            >
+              <SelectTrigger className="w-64 bg-background text-foreground">
+                <SelectValue>{formatLabel}</SelectValue>
+              </SelectTrigger>
+              <SelectContent className="bg-popover text-popover-foreground">
+                <SelectItem value="xrechnung-ubl">
+                  {t('settings:sections:eInvoice.formats.xrechnung')}
+                </SelectItem>
+                <SelectItem value="facturx-en16931">
+                  {t('settings:sections:eInvoice.formats.facturx')}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </SettingsRow>
+          <SettingsRow
+            label={t('settings:sections:eInvoice.buyerReference')}
+            description={t('settings:sections:eInvoice.buyerReferenceHint')}
+            htmlFor="einvoice-buyerReference"
+          >
+            <Switch
+              id="einvoice-buyerReference"
+              checked={isBuyerReferenceOn(value)}
+              onCheckedChange={checked =>
+                saveNow(current => ({ ...current, useBuyerReference: checked }))
+              }
+            />
+          </SettingsRow>
+          {profileIssues?.length ? (
+            <SettingsBlock>
+              <EInvoiceChecklist issues={profileIssues} />
+            </SettingsBlock>
+          ) : null}
+        </>
+      ) : null}
+    </SettingsGroup>
   );
 }

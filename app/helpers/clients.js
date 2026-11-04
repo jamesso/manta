@@ -1,6 +1,7 @@
 import { COUNTRY_CODES } from '../../helpers/einvoice/codes.js';
 import { getBalanceDue, getDisplayStatus, onlyInvoices } from './invoice';
 import { groupCreditNotesByInvoice } from './creditNotes';
+import { normalize } from './commandSearch';
 
 export const EMAIL_REGEX =
   /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
@@ -103,23 +104,24 @@ export function summarizeClients(contacts, allSalesDocs, now) {
   return map;
 }
 
+// Every word in the query must appear in the name, company, email, or phone.
 export function matchesClientQuery(contact, query) {
-  const q = String(query ?? '')
-    .trim()
-    .toLowerCase();
-  if (!q) {
+  const terms = normalize(query).split(/\s+/).filter(Boolean);
+  if (terms.length === 0) {
     return true;
   }
-  const haystacks = [
+  const haystack = [
     contact.fullname,
     contact.company,
     contact.email,
     contact.phone,
-  ].map(v => String(v ?? '').toLowerCase());
-  if (haystacks.some(h => h.includes(q))) {
+  ]
+    .map(normalize)
+    .join(' ');
+  if (terms.every(term => haystack.includes(term))) {
     return true;
   }
-  const queryDigits = q.replace(/\D/g, '');
+  const queryDigits = String(query).replace(/\D/g, '');
   if (queryDigits) {
     const phoneDigits = String(contact.phone ?? '').replace(/\D/g, '');
     if (phoneDigits.includes(queryDigits)) {
@@ -127,4 +129,15 @@ export function matchesClientQuery(contact, query) {
     }
   }
   return false;
+}
+
+export const CLIENT_BALANCE_FILTERS = ['outstanding', 'settled', 'noInvoices'];
+
+// Groups a client by its summary from summarizeClients().
+export function getClientBalanceStatus(summary) {
+  if (!summary || summary.invoiceCount === 0) {
+    return 'noInvoices';
+  }
+  const owes = Object.values(summary.outstanding ?? {}).some(v => v > 0);
+  return owes ? 'outstanding' : 'settled';
 }

@@ -13,7 +13,7 @@ import {
 export default function RecurringEmpty({ onNew }) {
   const { t } = useTranslation();
   return (
-    <Empty className="flex-1">
+    <Empty>
       <EmptyHeader>
         <EmptyMedia variant="icon">
           <Repeat />

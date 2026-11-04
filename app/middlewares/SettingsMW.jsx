@@ -135,14 +135,10 @@ const SettingsMW =
         } finally {
           endWrite?.();
         }
-        if (setting === 'profile' && !isEqual(previous, nextData)) {
-          ipc.send('change-preview-window-profile', nextData);
-        }
         if (setting === 'general') {
           const prevGeneral = previous || {};
           if (prevGeneral.language !== nextData.language) {
             i18n.changeLanguage(nextData.language);
-            ipc.send('change-preview-window-language', nextData.language);
           }
           if (prevGeneral.sound !== nextData.sound) {
             sounds.preload();

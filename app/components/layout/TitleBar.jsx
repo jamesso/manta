@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { PanelLeft, Search, SquarePen } from 'lucide-react';
+import { PanelLeft, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Kbd } from '@/components/ui/kbd';
 import { useSidebar } from '@/components/ui/sidebar';
@@ -24,7 +24,7 @@ function ToolbarButton({ label, shortcut, onClick, children }) {
             size="icon"
             aria-label={label}
             onClick={onClick}
-            className="bg-foreground/[0.045] text-foreground/70 hover:bg-foreground/[0.08] dark:bg-foreground/[0.07] dark:hover:bg-foreground/[0.11]"
+            className="bg-transparent text-foreground/70 hover:bg-foreground/[0.08] dark:bg-transparent dark:hover:bg-foreground/[0.11]"
           />
         }
       >
@@ -52,13 +52,6 @@ export default function TitleBar() {
           onClick={toggleSidebar}
         >
           <PanelLeft className="rtl:rotate-180" />
-        </ToolbarButton>
-        <ToolbarButton
-          label={t('app:nav:newInvoice')}
-          shortcut={`${modKey}N`}
-          onClick={() => dispatch(UIActions.newInvoice())}
-        >
-          <SquarePen />
         </ToolbarButton>
       </div>
       <button

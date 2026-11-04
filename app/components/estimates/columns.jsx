@@ -1,16 +1,13 @@
 import moment from 'moment';
 import { createColumnHelper } from '@tanstack/react-table';
-import { ArrowUpDown } from 'lucide-react';
 
 import { ESTIMATE_SORT_RANK } from '../../helpers/estimateList';
 import { editInvoice } from '../../actions/invoices';
 import EstimateRowActions from './EstimateRowActions';
 import StatusBadge from '../invoices/StatusBadge';
+import { SortHeader, selectColumn } from '../table/DataTable';
 
 const columnHelper = createColumnHelper();
-
-const sortHeaderClass =
-  'inline-flex min-h-6 items-center gap-1 bg-transparent text-muted-foreground shadow-none transition-colors hover:text-foreground';
 
 function ValidUntilCell({ row, t, dateFormat }) {
   const { validUntil, validInDays, displayStatus } = row.original;
@@ -43,16 +40,13 @@ function ValidUntilCell({ row, t, dateFormat }) {
 
 export function getColumns({ t, dateFormat, dispatch }) {
   return [
+    selectColumn({
+      selectAllLabel: t('common:table:selectAll'),
+      getRowLabel: row => t('common:table:selectRow', { name: row.number }),
+    }),
     columnHelper.accessor('number', {
       header: ({ column }) => (
-        <button
-          type="button"
-          className={sortHeaderClass}
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          {t('estimates:columns:number')}
-          <ArrowUpDown className="size-3.5 opacity-50" />
-        </button>
+        <SortHeader column={column}>{t('estimates:columns:number')}</SortHeader>
       ),
       cell: ({ row }) => (
         <button
@@ -66,89 +60,54 @@ export function getColumns({ t, dateFormat, dispatch }) {
           {row.original.number}
         </button>
       ),
-      sortingFn: 'alphanumeric',
+      sortFn: 'alphanumeric',
     }),
     columnHelper.accessor('client', {
       header: ({ column }) => (
-        <button
-          type="button"
-          className={sortHeaderClass}
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          {t('estimates:columns:client')}
-          <ArrowUpDown className="size-3.5 opacity-50" />
-        </button>
+        <SortHeader column={column}>{t('estimates:columns:client')}</SortHeader>
       ),
-      sortingFn: 'alphanumeric',
+      sortFn: 'text',
     }),
     columnHelper.accessor('issuedAt', {
       header: ({ column }) => (
-        <button
-          type="button"
-          className={sortHeaderClass}
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          {t('estimates:columns:issued')}
-          <ArrowUpDown className="size-3.5 opacity-50" />
-        </button>
+        <SortHeader column={column}>{t('estimates:columns:issued')}</SortHeader>
       ),
       cell: ({ row }) => {
         const v = row.original.issuedAt;
         const fmt = row.original.invoice.configs?.dateFormat ?? dateFormat;
         return v ? moment(v).format(fmt) : '—';
       },
-      sortingFn: 'basic',
+      sortFn: 'basic',
     }),
     columnHelper.accessor(row => row.validUntil ?? Number.POSITIVE_INFINITY, {
       id: 'validUntil',
       header: ({ column }) => (
-        <button
-          type="button"
-          className={sortHeaderClass}
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
+        <SortHeader column={column}>
           {t('estimates:columns:validUntil')}
-          <ArrowUpDown className="size-3.5 opacity-50" />
-        </button>
+        </SortHeader>
       ),
       cell: ({ row }) => (
         <ValidUntilCell row={row} t={t} dateFormat={dateFormat} />
       ),
-      sortingFn: 'basic',
+      sortFn: 'basic',
     }),
     columnHelper.accessor('amount', {
       header: ({ column }) => (
-        <button
-          type="button"
-          className={`${sortHeaderClass} w-full justify-end`}
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          {t('estimates:columns:amount')}
-          <ArrowUpDown className="size-3.5 opacity-50" />
-        </button>
+        <SortHeader column={column}>{t('estimates:columns:amount')}</SortHeader>
       ),
-      cell: ({ row }) => (
-        <div className="text-end tabular-nums">{row.original.amountText}</div>
-      ),
+      cell: ({ row }) => row.original.amountText,
       meta: { align: 'end' },
-      sortingFn: 'basic',
+      sortFn: 'basic',
     }),
     columnHelper.accessor(row => ESTIMATE_SORT_RANK[row.displayStatus], {
       id: 'status',
       header: ({ column }) => (
-        <button
-          type="button"
-          className={sortHeaderClass}
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          {t('estimates:columns:status')}
-          <ArrowUpDown className="size-3.5 opacity-50" />
-        </button>
+        <SortHeader column={column}>{t('estimates:columns:status')}</SortHeader>
       ),
       cell: ({ row }) => (
         <StatusBadge status={row.original.displayStatus} t={t} />
       ),
-      sortingFn: 'basic',
+      sortFn: 'basic',
     }),
     columnHelper.display({
       id: 'actions',

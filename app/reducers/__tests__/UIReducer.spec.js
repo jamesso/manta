@@ -9,7 +9,8 @@ const baseState = {
   shortcutsOpen: false,
   pendingSettingsSection: null,
   recurringSheet: null,
-  invoicesTabRequest: null,
+  previewSheet: null,
+  listRequest: null,
 };
 
 describe('UI Reducer', () => {
@@ -65,26 +66,39 @@ describe('UI Reducer', () => {
     expect(reducer(undefined, {})).toMatchObject({ sidebarCollapsed: true });
   });
 
-  it('UI_INVOICES_TAB_REQUEST sets active tab and request payload', () => {
+  it('UI_LIST_REQUEST opens the page and stores the request', () => {
     const newState = UIReducer(baseState, {
-      type: ACTION_TYPES.UI_INVOICES_TAB_REQUEST,
-      payload: 'draft',
+      type: ACTION_TYPES.UI_LIST_REQUEST,
+      payload: { page: 'invoices', status: 'draft' },
     });
     expect(newState.activeTab).toBe('invoices');
-    expect(newState.invoicesTabRequest).toBe('draft');
+    expect(newState.listRequest).toEqual({ page: 'invoices', status: 'draft' });
   });
 
-  it('UI_INVOICES_TAB_REQUEST with null clears request only', () => {
+  it('UI_LIST_REQUEST_CLEAR clears the request only', () => {
     const withRequest = {
       ...baseState,
-      activeTab: 'invoices',
-      invoicesTabRequest: 'draft',
+      activeTab: 'contacts',
+      listRequest: { page: 'contacts', openId: 'c1' },
     };
     const newState = UIReducer(withRequest, {
-      type: ACTION_TYPES.UI_INVOICES_TAB_REQUEST,
+      type: ACTION_TYPES.UI_LIST_REQUEST_CLEAR,
+    });
+    expect(newState.activeTab).toBe('contacts');
+    expect(newState.listRequest).toBeNull();
+  });
+
+  it('UI_PREVIEW_SHEET_SET opens and closes the preview drawer', () => {
+    const doc = { _id: 'inv-1' };
+    const opened = UIReducer(baseState, {
+      type: ACTION_TYPES.UI_PREVIEW_SHEET_SET,
+      payload: doc,
+    });
+    expect(opened.previewSheet).toBe(doc);
+    const closed = UIReducer(opened, {
+      type: ACTION_TYPES.UI_PREVIEW_SHEET_SET,
       payload: null,
     });
-    expect(newState.activeTab).toBe('invoices');
-    expect(newState.invoicesTabRequest).toBeNull();
+    expect(closed.previewSheet).toBeNull();
   });
 });

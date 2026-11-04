@@ -1,5 +1,7 @@
 import {
+  createPaginatedRowModel,
   createSortedRowModel,
+  rowPaginationFeature,
   rowSelectionFeature,
   rowSortingFeature,
   sortFn_alphanumeric,
@@ -11,7 +13,9 @@ import {
 export const features = tableFeatures({
   rowSortingFeature,
   rowSelectionFeature,
+  rowPaginationFeature,
   sortedRowModel: createSortedRowModel(),
+  paginatedRowModel: createPaginatedRowModel(),
   sortFns: {
     alphanumeric: sortFn_alphanumeric,
     text: sortFn_text,

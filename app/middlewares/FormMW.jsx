@@ -1,7 +1,6 @@
 // Node Libs
 import i18n from '../../i18n/i18n';
 const appConfig = window.manta.settings;
-const ipc = window.manta.ipc;
 
 // Actions Verbs
 import * as ACTION_TYPES from '../constants/actions.jsx';
@@ -72,7 +71,8 @@ function suggestedInvoiceNumberForForm(form) {
   return suggestedInvoiceNumberFromReconciled(
     form.reconciledNumbering,
     appConfig.get(`invoice.${key}`),
-    form.numberingInvoices
+    form.numberingInvoices,
+    form.invoiceID
   );
 }
 
@@ -455,10 +455,7 @@ async function handleSave({ dispatch, getState }, mode) {
         creditSyncFailed = writeResult.syncFailed === true;
         if (creditSyncFailed) {
           toast.add({
-            title: i18n.t('invoices:creditNotes:errors:syncFailed', {
-              defaultValue:
-                'Credit note saved, but the invoice could not be updated.',
-            }),
+            title: i18n.t('invoices:creditNotes:errors:syncFailed'),
             type: 'warning',
           });
         }
@@ -640,16 +637,16 @@ async function handleSave({ dispatch, getState }, mode) {
         editMode.data.status === 'draft' &&
         mode === 'final'
       ) {
-        ipc.send('preview-invoice', savedBase);
+        dispatch(UIActions.previewInvoice(savedBase));
       } else if (mode === 'final' && formSnapshot.docType === 'estimate') {
-        ipc.send('preview-invoice', savedBase);
+        dispatch(UIActions.previewInvoice(savedBase));
       } else if (
         mode === 'final' &&
         formSnapshot.docType === 'creditNote' &&
         savedBase.status === 'issued' &&
         !creditSyncFailed
       ) {
-        ipc.send('preview-invoice', savedBase);
+        dispatch(UIActions.previewInvoice(savedBase));
       }
 
       if (creditSyncFailed && savedBase) {
@@ -847,6 +844,13 @@ const FormMW =
             )
           );
         }
+        dispatch({ type: ACTION_TYPES.FORM_MARK_CLEAN });
+        return result;
+      }
+
+      case ACTION_TYPES.FORM_LOAD_TEMPLATE: {
+        const result = next(action);
+        dispatch({ type: ACTION_TYPES.FORM_MARK_CLEAN });
         return result;
       }
 

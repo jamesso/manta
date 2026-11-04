@@ -9,6 +9,7 @@ import {
   getIssuedAt,
   getStoredStatus,
 } from './invoice';
+import { normalize } from './commandSearch';
 
 export const INVOICE_TABS = [
   'all',
@@ -18,6 +19,15 @@ export const INVOICE_TABS = [
   'paid',
   'closed',
   'creditNotes',
+];
+
+// Status groups shown in the invoice Status filter.
+export const INVOICE_STATUS_FILTERS = [
+  'draft',
+  'outstanding',
+  'overdue',
+  'paid',
+  'closed',
 ];
 
 export const STATUS_SORT_RANK = {
@@ -125,16 +135,17 @@ function countByTab(rows) {
   return counts;
 }
 
+// Every word in the query must appear in the number, client, or amount.
 function matchesSearch(row, query) {
-  const q = query.trim().toLowerCase();
-  if (!q) {
+  const terms = normalize(query).split(/\s+/).filter(Boolean);
+  if (terms.length === 0) {
     return true;
   }
   const doc = row.invoice ?? row.doc;
-  const { number, amountText } = row;
+  const { amountText = '' } = row;
   const recipient = doc?.recipient || {};
   const haystack = [
-    number,
+    row.number,
     row.creditedNumber,
     recipient.fullname,
     recipient.company,
@@ -143,8 +154,9 @@ function matchesSearch(row, query) {
     amountText.replace(/\D/g, ''),
   ]
     .filter(Boolean)
-    .map(s => String(s).toLowerCase());
-  return haystack.some(s => s.includes(q));
+    .map(normalize)
+    .join(' ');
+  return terms.every(term => haystack.includes(term));
 }
 
 export { countByTab, matchesSearch, matchesTab, toCreditNoteRow, toInvoiceRow };

@@ -2,9 +2,8 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import {
-  ChevronsUpDown,
   CircleHelp,
-  FileText,
+  ClipboardList,
   LayoutDashboard,
   Package,
   Plus,
@@ -23,20 +22,16 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarRail,
   useSidebar,
 } from '@/components/ui/sidebar';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Kbd } from '@/components/ui/kbd';
 import * as UIActions from '../../actions/ui';
-import AppUpdate from './AppUpdate';
 import { getOverdueCount } from '../../reducers/InvoicesReducer';
 import { useNow } from '../invoices/useNow';
 import { getFormNavSection } from './navSection';
@@ -47,7 +42,6 @@ const modKey = window.manta.platform === 'darwin' ? '⌘' : 'Ctrl+';
 export default function AppSidebar({ activeTab }) {
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const profile = useSelector(s => s.settings.saved?.profile) || {};
   const formDocType = useSelector(s => s.form?.docType || 'invoice');
   const templateTarget = useSelector(s => s.form?.templateTarget ?? null);
   const formEditActive = useSelector(
@@ -56,9 +50,6 @@ export default function AppSidebar({ activeTab }) {
   const { isMobile } = useSidebar();
   const now = useNow();
   const overdue = useSelector(state => getOverdueCount(state, now));
-
-  const displayName = profile.company || profile.fullname || 'Manta';
-  const fallbackLetter = (displayName.trim()[0] || 'M').toUpperCase();
 
   const changeTab = tab => dispatch(UIActions.changeActiveTab(tab));
 
@@ -80,7 +71,7 @@ export default function AppSidebar({ activeTab }) {
         onClick={() => changeTab(tab)}
       >
         <Icon />
-        <span>{label}</span>
+        <span className="truncate">{label}</span>
         {badge > 0 ? (
           <span
             aria-label={t('invoices:nav:overdueBadge', { count: badge })}
@@ -109,7 +100,7 @@ export default function AppSidebar({ activeTab }) {
           ? ` · ${t('invoices:nav:overdueBadge', { count: overdue })}`
           : '',
     },
-    { tab: 'estimates', label: t('app:nav:estimates'), icon: FileText },
+    { tab: 'estimates', label: t('app:nav:estimates'), icon: ClipboardList },
     { tab: 'recurring', label: t('app:nav:recurring'), icon: Repeat },
   ];
   const libraryItems = [
@@ -127,19 +118,19 @@ export default function AppSidebar({ activeTab }) {
         // The sheet starts at the window top: keep clear of the window controls.
         <div className="titlebar drag-region h-12 shrink-0" />
       ) : null}
-      <SidebarHeader className="pt-1">
+      <SidebarHeader className="pt-0">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
               isActive={formSection === 'newInvoice'}
               tooltip={t('app:nav:newInvoice')}
               onClick={() => dispatch(UIActions.newInvoice())}
-              className="font-medium text-sidebar-accent-foreground [&_svg]:text-current! data-active:[&_svg]:text-current!"
+              className="bg-background/60 font-medium text-sidebar-accent-foreground shadow-xs hover:bg-background hover:shadow-sm data-active:bg-background [&_svg]:text-current! data-active:[&_svg]:text-current! dark:bg-sidebar-accent/60 dark:hover:bg-sidebar-accent dark:data-active:bg-sidebar-accent"
             >
               <span className="-ms-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xs">
                 <Plus className="size-3.5!" strokeWidth={2.5} />
               </span>
-              <span>{t('app:nav:newInvoice')}</span>
+              <span className="truncate">{t('app:nav:newInvoice')}</span>
               <Kbd
                 aria-hidden
                 className="ms-auto bg-transparent text-sidebar-foreground/50 group-data-[collapsible=icon]:hidden"
@@ -165,7 +156,6 @@ export default function AppSidebar({ activeTab }) {
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu className="gap-0.5">
-          <AppUpdate />
           {renderItem({
             tab: 'settings',
             label: t('app:nav:settings'),
@@ -199,53 +189,8 @@ export default function AppSidebar({ activeTab }) {
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>
-          <SidebarMenuItem className="mt-1">
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                render={<SidebarMenuButton size="lg" tooltip={displayName} />}
-              >
-                <Avatar className="size-8 rounded-lg after:rounded-lg">
-                  <AvatarImage
-                    src={profile.logo}
-                    alt=""
-                    className="rounded-lg object-contain"
-                  />
-                  <AvatarFallback className="rounded-lg bg-primary text-primary-foreground">
-                    {fallbackLetter}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="grid flex-1 text-start text-sm leading-tight">
-                  <span className="truncate font-medium text-sidebar-accent-foreground">
-                    {displayName}
-                  </span>
-                  {profile.email ? (
-                    <span className="truncate text-xs text-sidebar-foreground/60">
-                      {profile.email}
-                    </span>
-                  ) : null}
-                </div>
-                <ChevronsUpDown className="ms-auto size-4!" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent side="top" align="start" className="w-56">
-                <DropdownMenuItem onClick={() => changeTab('settings')}>
-                  {t('app:nav:businessProfile')}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => dispatch(UIActions.setShortcutsDialog(true))}
-                >
-                  {t('app:nav:shortcuts')}
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => changeTab('settings')}>
-                  <Settings />
-                  {t('app:nav:settings')}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
-      <SidebarRail />
     </Sidebar>
   );
 }

@@ -2,11 +2,12 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+  Sheet,
+  SheetContent,
+  SheetBody,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
 import { Kbd } from '@/components/ui/kbd';
 import { SHORTCUT_GROUPS } from '../../constants/shortcuts';
 import * as UIActions from '../../actions/ui';
@@ -18,15 +19,15 @@ export default function ShortcutsDialog() {
   const isMac = window.manta.platform === 'darwin';
 
   return (
-    <Dialog
+    <Sheet
       open={open}
       onOpenChange={v => dispatch(UIActions.setShortcutsDialog(v))}
     >
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle>{t('app:shortcuts:title')}</DialogTitle>
-        </DialogHeader>
-        <div className="max-h-[70vh] space-y-6 overflow-auto pe-1">
+      <SheetContent side="right">
+        <SheetHeader>
+          <SheetTitle>{t('app:shortcuts:title')}</SheetTitle>
+        </SheetHeader>
+        <SheetBody>
           {SHORTCUT_GROUPS.map(({ group, items }) => (
             <section key={group}>
               <h3 className="mb-2 text-sm font-medium text-muted-foreground">
@@ -45,8 +46,8 @@ export default function ShortcutsDialog() {
               </ul>
             </section>
           ))}
-        </div>
-      </DialogContent>
-    </Dialog>
+        </SheetBody>
+      </SheetContent>
+    </Sheet>
   );
 }

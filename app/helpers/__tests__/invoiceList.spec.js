@@ -136,3 +136,17 @@ describe('toCreditNoteRow', () => {
     expect(row.docType).toBe('creditNote');
   });
 });
+
+describe('matchesSearch with several words', () => {
+  const row = {
+    number: 'INV-7',
+    amountText: '$50.00',
+    invoice: { recipient: { fullname: 'Ada Lovelace', company: 'Analytical' } },
+  };
+
+  it('needs every word, in any field and any order', () => {
+    expect(matchesSearch(row, 'analytical ada')).toBe(true);
+    expect(matchesSearch(row, 'inv-7 lovelace')).toBe(true);
+    expect(matchesSearch(row, 'ada babbage')).toBe(false);
+  });
+});

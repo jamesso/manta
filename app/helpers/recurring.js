@@ -1,5 +1,6 @@
 import moment from 'moment';
 import { getIssuedAt, getInvoiceTotals } from './invoice';
+import { normalize } from './commandSearch';
 import {
   DATE_KEY,
   firstPeriodOnOrAfter,
@@ -299,4 +300,46 @@ export function buildRecurringTombstone(profileId, periodKey) {
     recurringTombstone: true,
     status: 'draft',
   };
+}
+
+// Templates saved from the form have no stored total, so compute it from the
+// rows the same way each created draft does.
+export function getRecurringTotal(profile) {
+  const template = profile.template ?? {};
+  return (
+    getInvoiceTotals({ ...template, rows: template.rows ?? [] }).grandTotal ?? 0
+  );
+}
+
+export const RECURRING_STATUSES = ['active', 'paused', 'ended'];
+
+// "Weekly" for every 1 period, else "Every 3 weeks". The counted form goes
+// through i18next plurals, so each language gets its own plural rules.
+export function formatRecurringInterval(t, interval, every = 1) {
+  return every === 1
+    ? t(`recurring:interval:${interval}`)
+    : t(`recurring:repeatEvery:${interval}`, { count: every });
+}
+
+export function getRecurringClient(profile) {
+  const recipient = profile.template?.recipient ?? {};
+  return recipient.fullname || recipient.company || '';
+}
+
+// Every word in the query must appear in the name or the client.
+export function matchesRecurringQuery(profile, query) {
+  const terms = normalize(query).split(/\s+/).filter(Boolean);
+  if (terms.length === 0) {
+    return true;
+  }
+  const recipient = profile.template?.recipient ?? {};
+  const haystack = [
+    profile.name,
+    recipient.fullname,
+    recipient.company,
+    recipient.email,
+  ]
+    .map(normalize)
+    .join(' ');
+  return terms.every(term => haystack.includes(term));
 }

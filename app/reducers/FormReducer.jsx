@@ -32,7 +32,8 @@ function invoiceNumberForState(state) {
   return suggestedInvoiceNumberFromReconciled(
     state.reconciledNumbering,
     appConfig.get(`invoice.${key}`),
-    state.numberingInvoices
+    state.numberingInvoices,
+    state.invoiceID
   );
 }
 
@@ -68,6 +69,8 @@ const initialState = {
   errorMode: null,
   savePending: false,
   formRevision: 0,
+  // formRevision when a saved document or template was loaded.
+  cleanRevision: 0,
   formGeneration: 0,
   reconciledNumbering: null,
   numberingInvoices: null,
@@ -442,6 +445,9 @@ const FormReducer = handleActions(
         invoiceID: invoiceNumberForState({ ...state, docType: nextType }),
       });
     },
+
+    [ACTION_TYPES.FORM_MARK_CLEAN]: state =>
+      Object.assign({}, state, { cleanRevision: state.formRevision }),
 
     [ACTION_TYPES.FORM_SAVE_PENDING]: (state, action) =>
       Object.assign({}, state, {

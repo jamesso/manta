@@ -190,12 +190,9 @@ const RecurringMW =
             }
             if (removed.length) {
               const toastId = toast.add({
-                title: i18n.t(
-                  removed.length === 1
-                    ? 'recurring:toast:deleted_one'
-                    : 'recurring:toast:deleted_other',
-                  { count: removed.length }
-                ),
+                title: i18n.t('recurring:toast:deleted', {
+                  count: removed.length,
+                }),
                 timeout: UNDO_TIMEOUT_MS,
                 actionProps: {
                   children: i18n.t('recurring:toast:undo'),
@@ -228,15 +225,15 @@ const RecurringMW =
             if (result.created > 0) {
               dispatch(InvoicesActions.getInvoices());
               toast.add({
-                title: i18n.t(
-                  result.created === 1
-                    ? 'recurring:toast:created_one'
-                    : 'recurring:toast:created_other',
-                  { count: result.created }
-                ),
+                title: i18n.t('recurring:toast:created', {
+                  count: result.created,
+                }),
                 actionProps: {
                   children: i18n.t('recurring:toast:viewDrafts'),
-                  onClick: () => dispatch(UIActions.openInvoicesTab('draft')),
+                  onClick: () =>
+                    dispatch(
+                      UIActions.openList('invoices', { status: 'draft' })
+                    ),
                 },
               });
             }

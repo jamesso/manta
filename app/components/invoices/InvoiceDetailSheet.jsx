@@ -5,12 +5,23 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Sheet,
+  SheetBody,
+  SheetClose,
   SheetContent,
   SheetDescription,
+  SheetDetail,
+  SheetDetails,
   SheetFooter,
   SheetHeader,
+  SheetSection,
   SheetTitle,
+  useSheetValue,
 } from '@/components/ui/sheet';
+import {
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
+import ActionsMenu from '../shared/ActionsMenu';
 import { formatNumber } from '../../../helpers/formatNumber';
 import {
   deleteInvoice,
@@ -23,7 +34,18 @@ import {
 import * as UIActions from '../../actions/ui';
 import { getDocType } from '../../helpers/docType';
 import { buildProfileFromInvoice } from '../../helpers/recurring';
-import { FileMinus, Repeat, Mail, BellRing, Share } from 'lucide-react';
+import {
+  BadgeCheck,
+  BellRing,
+  Copy,
+  FileMinus,
+  HandCoins,
+  Mail,
+  MailCheck,
+  Repeat,
+  Share,
+  Trash2,
+} from 'lucide-react';
 import { toast } from '@/components/ui/toast';
 import { canEmail, canSendReminder } from '../../helpers/emailDraft';
 import { captureAppSnapshot } from '../../helpers/emailFlow';
@@ -57,16 +79,17 @@ import {
   mergeRecipientFromContact,
 } from '../../helpers/einvoice.js';
 import { toEn16931 } from '../../../helpers/einvoice/toEn16931.js';
+import { isBuyerReferenceOn } from '../../../helpers/einvoice/identifiers.js';
 import { getEInvoiceIssues } from '../../../helpers/einvoice/getEInvoiceIssues.js';
 
 export default function InvoiceDetailSheet({
-  invoice,
+  invoice: openInvoice,
   open,
   onOpenChange,
   dateFormat,
   t,
   now,
-  linkedCreditNotes = [],
+  linkedCreditNotes: openLinkedCreditNotes = [],
   onOpenCreditNote,
 }) {
   const dispatch = useDispatch();
@@ -74,8 +97,9 @@ export default function InvoiceDetailSheet({
   const emailInvoice = useEmailInvoice();
   const settings = useSelector(getCurrentSettings);
   const contacts = useSelector(getContacts) || [];
-  const ipc = window.manta.ipc;
   const [paymentOpen, setPaymentOpen] = useState(false);
+  const invoice = useSheetValue(open, openInvoice);
+  const linkedCreditNotes = useSheetValue(open, openLinkedCreditNotes);
 
   if (!invoice) {
     return (
@@ -114,10 +138,13 @@ export default function InvoiceDetailSheet({
   const contact =
     invoice.recipient?._id &&
     contacts.find(c => c._id === invoice.recipient._id);
+  const buyerReferenceOn = isBuyerReferenceOn(invoiceSettings);
   const copyClientVisible = Boolean(
     contact &&
     eInvoiceIssues.some(i => i.fix === 'client') &&
-    (contact.postalAddress?.street || contact.buyerReference || contact.taxId)
+    (contact.postalAddress?.street ||
+      (buyerReferenceOn && contact.buyerReference) ||
+      contact.taxId)
   );
   const issued = getIssuedAt(invoice);
   const due = getDueDate(invoice);
@@ -147,264 +174,398 @@ export default function InvoiceDetailSheet({
     ? allDocs.find(d => d._id === invoice.sourceEstimateId)
     : null;
 
+  const showBalance = showPayments || credited > 0;
+  const isInvoice = getDocType(invoice) === 'invoice';
+  const showEmail = canEmail(invoice);
+  const showReminder = canSendReminder(invoice, now, allDocs);
+  const showMarkSent = showEmail && !invoice.sentAt;
+  const showShare = window.manta.platform === 'darwin' && showEmail;
+  const hasMoreActions =
+    showEmail || showReminder || canPay || showCreateCredit || isInvoice;
+  const sharePdf = async () => {
+    const snapshot = captureAppSnapshot(invoice, window.manta.settings);
+    const res = await window.manta.ipc.invoke('share-invoice-pdf', {
+      invoiceId: invoice._id,
+      invoice,
+      fileBase: getInvoiceNumber(invoice),
+      snapshot,
+    });
+    if (!res?.ok) {
+      toast.add({
+        title: t('email:toast:failed', { reason: res?.error }),
+        type: 'warning',
+      });
+    }
+  };
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent
-        side="right"
-        className="overflow-y-auto bg-background text-foreground sm:max-w-lg w-full"
-      >
-        <SheetHeader className="flex-row flex-wrap items-center gap-2">
-          <SheetTitle>{t('invoices:sheet:title', { number })}</SheetTitle>
-          <StatusBadge status={displayStatus} t={t} />
-          {displayStatus === 'overdue' && getPayments(invoice).length > 0 ? (
-            <span className="text-sm text-muted-foreground">
-              {t('invoices:payments:partiallyPaid')}
-            </span>
-          ) : null}
-          <SheetDescription className="sr-only">{number}</SheetDescription>
+      <SheetContent side="right" className="sm:max-w-lg">
+        <SheetHeader>
+          <div className="flex flex-wrap items-center gap-2">
+            <SheetTitle>{t('invoices:sheet:title', { number })}</SheetTitle>
+            <StatusBadge status={displayStatus} t={t} />
+            {displayStatus === 'overdue' && getPayments(invoice).length > 0 ? (
+              <span className="text-sm text-muted-foreground">
+                {t('invoices:payments:partiallyPaid')}
+              </span>
+            ) : null}
+          </div>
+          <SheetDescription>
+            {invoice.recipient?.fullname ||
+              invoice.recipient?.company ||
+              number}
+          </SheetDescription>
         </SheetHeader>
 
-        {sourceEstimate ? (
-          <p className="px-4 text-sm text-muted-foreground">
-            {t('invoices:sheet:fromEstimate', {
-              number: getInvoiceNumber(sourceEstimate),
-            })}
-          </p>
-        ) : null}
-
-        <dl className="grid gap-3 px-4 text-sm">
-          <div>
-            <dt className="text-muted-foreground">
-              {t('invoices:sheet:client')}
-            </dt>
-            <dd>
-              {invoice.recipient?.fullname}
-              {invoice.recipient?.company ? (
-                <div className="text-muted-foreground">
-                  {invoice.recipient.company}
-                </div>
-              ) : null}
-              {invoice.recipient?.email ? (
-                <div className="text-muted-foreground">
-                  {invoice.recipient.email}
-                </div>
-              ) : null}
-            </dd>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <dt className="text-muted-foreground">
-                {t('invoices:sheet:issued')}
-              </dt>
-              <dd>{issued ? moment(issued).format(fmt) : '—'}</dd>
+        <SheetBody>
+          <div className="rounded-xl border bg-muted/40 p-4">
+            <div className="text-sm text-muted-foreground">
+              {showBalance
+                ? balanceDue < 0
+                  ? t('invoices:sheet:refundDue')
+                  : t('invoices:sheet:balanceDue')
+                : t('invoices:sheet:total')}
             </div>
-            <div>
-              <dt className="text-muted-foreground">
-                {t('invoices:sheet:due')}
-              </dt>
-              <dd>
+            <div className="mt-1 text-2xl font-semibold tracking-tight tabular-nums">
+              {showBalance
+                ? formatInvoiceAmount({
+                    ...invoice,
+                    grandTotal: Math.abs(balanceDue),
+                  })
+                : formatInvoiceAmount(invoice)}
+            </div>
+            {sourceEstimate ? (
+              <div className="mt-2 text-sm text-muted-foreground">
+                {t('invoices:sheet:fromEstimate', {
+                  number: getInvoiceNumber(sourceEstimate),
+                })}
+              </div>
+            ) : null}
+          </div>
+
+          <SheetSection>
+            <SheetDetails>
+              <SheetDetail label={t('invoices:sheet:client')}>
+                {invoice.recipient?.fullname || '—'}
+                {invoice.recipient?.company ? (
+                  <div className="text-muted-foreground">
+                    {invoice.recipient.company}
+                  </div>
+                ) : null}
+                {invoice.recipient?.email ? (
+                  <div className="text-muted-foreground">
+                    {invoice.recipient.email}
+                  </div>
+                ) : null}
+              </SheetDetail>
+              <SheetDetail label={t('invoices:sheet:issued')}>
+                {issued ? moment(issued).format(fmt) : '—'}
+              </SheetDetail>
+              <SheetDetail label={t('invoices:sheet:due')}>
                 <DueCell row={row} t={t} dateFormat={dateFormat} />
-              </dd>
-            </div>
-          </div>
-          {currency?.code ? (
-            <div>
-              <dt className="text-muted-foreground">
-                {t('invoices:sheet:currency')}
-              </dt>
-              <dd>{currency.code}</dd>
-            </div>
-          ) : null}
-          {invoice.sentAt ? (
-            <div className="text-muted-foreground">
-              {t('email:sheet:sentOn', {
-                date: moment(invoice.sentAt).format(fmt),
-              })}
-            </div>
-          ) : null}
-          {invoice.remindedAt ? (
-            <div className="text-muted-foreground">
-              {t('email:sheet:remindedOn', {
-                date: moment(invoice.remindedAt).format(fmt),
-              })}
-            </div>
-          ) : null}
-        </dl>
+              </SheetDetail>
+              {currency?.code ? (
+                <SheetDetail label={t('invoices:sheet:currency')}>
+                  {currency.code}
+                </SheetDetail>
+              ) : null}
+            </SheetDetails>
+            {invoice.sentAt || invoice.remindedAt ? (
+              <div className="text-sm text-muted-foreground">
+                {invoice.sentAt ? (
+                  <div>
+                    {t('email:sheet:sentOn', {
+                      date: moment(invoice.sentAt).format(fmt),
+                    })}
+                  </div>
+                ) : null}
+                {invoice.remindedAt ? (
+                  <div>
+                    {t('email:sheet:remindedOn', {
+                      date: moment(invoice.remindedAt).format(fmt),
+                    })}
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+          </SheetSection>
 
-        <div className="px-4 pt-4">
-          <h3 className="mb-2 text-sm font-medium">
-            {t('invoices:sheet:items')}
-          </h3>
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b text-start text-muted-foreground">
-                <th className="pb-2 pe-2 font-medium">
-                  {t('invoices:sheet:description')}
-                </th>
-                <th className="pb-2 pe-2 font-medium">
-                  {t('invoices:sheet:quantity')}
-                </th>
-                <th className="pb-2 pe-2 font-medium text-end">
-                  {t('invoices:sheet:price')}
-                </th>
-                <th className="pb-2 font-medium text-end">
+          <SheetSection title={t('invoices:sheet:items')}>
+            <div className="overflow-hidden rounded-lg border">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/40 text-muted-foreground">
+                  <tr>
+                    <th className="px-3 py-2 text-start font-medium">
+                      {t('invoices:sheet:description')}
+                    </th>
+                    <th className="px-3 py-2 text-end font-medium">
+                      {t('invoices:sheet:quantity')}
+                    </th>
+                    <th className="px-3 py-2 text-end font-medium">
+                      {t('invoices:sheet:price')}
+                    </th>
+                    <th className="px-3 py-2 text-end font-medium">
+                      {t('invoices:sheet:subtotal')}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y border-t">
+                  {(invoice.rows || []).map(rowItem => (
+                    <tr key={rowItem.id || rowItem.description}>
+                      <td className="px-3 py-2 align-top">
+                        {rowItem.description}
+                      </td>
+                      <td className="px-3 py-2 text-end align-top tabular-nums">
+                        {rowItem.quantity}
+                      </td>
+                      <td className="px-3 py-2 text-end align-top tabular-nums">
+                        {formatMoney(Number(rowItem.price))}
+                      </td>
+                      <td className="px-3 py-2 text-end align-top tabular-nums">
+                        {formatMoney(rowItem.subtotal)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <dl className="ms-auto grid w-full max-w-64 gap-1.5 text-sm">
+              <div className="flex justify-between gap-4">
+                <dt className="text-muted-foreground">
                   {t('invoices:sheet:subtotal')}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {(invoice.rows || []).map(rowItem => (
-                <tr
-                  key={rowItem.id || rowItem.description}
-                  className="border-b"
-                >
-                  <td className="py-2 pe-2">{rowItem.description}</td>
-                  <td className="py-2 pe-2">{rowItem.quantity}</td>
-                  <td className="py-2 pe-2 text-end tabular-nums">
-                    {formatMoney(Number(rowItem.price))}
-                  </td>
-                  <td className="py-2 text-end tabular-nums">
-                    {formatMoney(rowItem.subtotal)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <dl className="mt-4 grid gap-1 px-4 text-sm">
-          <div className="flex justify-between">
-            <dt>{t('invoices:sheet:subtotal')}</dt>
-            <dd className="tabular-nums">{formatMoney(values.subtotal)}</dd>
-          </div>
-          {values.discount != null ? (
-            <div className="flex justify-between">
-              <dt>{t('invoices:sheet:discount')}</dt>
-              <dd className="tabular-nums">{formatMoney(values.discount)}</dd>
-            </div>
-          ) : null}
-          {values.taxTotal != null && values.taxTotal !== 0 ? (
-            <div className="flex justify-between">
-              <dt>{t('invoices:sheet:tax')}</dt>
-              <dd className="tabular-nums">{formatMoney(values.taxTotal)}</dd>
-            </div>
-          ) : null}
-          <div className="flex justify-between border-t pt-2 font-medium">
-            <dt>{t('invoices:sheet:total')}</dt>
-            <dd className="tabular-nums">{formatInvoiceAmount(invoice)}</dd>
-          </div>
-          {showPayments || credited > 0 ? (
-            <>
+                </dt>
+                <dd className="tabular-nums">{formatMoney(values.subtotal)}</dd>
+              </div>
+              {values.discount != null && values.discount !== 0 ? (
+                <div className="flex justify-between gap-4">
+                  <dt className="text-muted-foreground">
+                    {t('invoices:sheet:discount')}
+                  </dt>
+                  <dd className="tabular-nums">
+                    {formatMoney(values.discount)}
+                  </dd>
+                </div>
+              ) : null}
+              {values.taxTotal != null && values.taxTotal !== 0 ? (
+                <div className="flex justify-between gap-4">
+                  <dt className="text-muted-foreground">
+                    {t('invoices:sheet:tax')}
+                  </dt>
+                  <dd className="tabular-nums">
+                    {formatMoney(values.taxTotal)}
+                  </dd>
+                </div>
+              ) : null}
+              <div className="flex justify-between gap-4 border-t pt-1.5 font-medium">
+                <dt>{t('invoices:sheet:total')}</dt>
+                <dd className="tabular-nums">{formatInvoiceAmount(invoice)}</dd>
+              </div>
               {credited > 0 ? (
-                <div className="flex justify-between">
-                  <dt>{t('invoices:sheet:credited')}</dt>
+                <div className="flex justify-between gap-4">
+                  <dt className="text-muted-foreground">
+                    {t('invoices:sheet:credited')}
+                  </dt>
                   <dd className="tabular-nums">{formatMoney(credited)}</dd>
                 </div>
               ) : null}
               {showPayments ? (
-                <div className="flex justify-between">
-                  <dt>{t('invoices:payments:amountPaid')}</dt>
+                <div className="flex justify-between gap-4">
+                  <dt className="text-muted-foreground">
+                    {t('invoices:payments:amountPaid')}
+                  </dt>
                   <dd className="tabular-nums">{formatMoney(amountPaid)}</dd>
                 </div>
               ) : null}
-              <div className="flex justify-between font-medium">
-                <dt>
-                  {balanceDue < 0
-                    ? t('invoices:sheet:refundDue')
-                    : t('invoices:sheet:balanceDue')}
-                </dt>
-                <dd className="tabular-nums">
-                  {formatMoney(Math.abs(balanceDue))}
-                </dd>
-              </div>
-            </>
-          ) : null}
-        </dl>
+              {showBalance ? (
+                <div className="flex justify-between gap-4 font-medium">
+                  <dt>
+                    {balanceDue < 0
+                      ? t('invoices:sheet:refundDue')
+                      : t('invoices:sheet:balanceDue')}
+                  </dt>
+                  <dd className="tabular-nums">
+                    {formatMoney(Math.abs(balanceDue))}
+                  </dd>
+                </div>
+              ) : null}
+            </dl>
+          </SheetSection>
 
-        {linkedCreditNotes.length > 0 ? (
-          <div className="mt-4 px-4">
-            <h3 className="mb-2 text-sm font-medium">
-              {t('invoices:sheet:creditNotes')}
-            </h3>
-            <ul className="space-y-2">
-              {linkedCreditNotes.map(cn => {
-                const cnIssued = getIssuedAt(cn);
-                return (
-                  <li key={cn._id}>
-                    <button
-                      type="button"
-                      className="flex w-full items-center gap-2 rounded-md border px-3 py-2 text-start text-sm hover:bg-muted/50"
-                      onClick={() => onOpenCreditNote?.(cn._id)}
-                    >
-                      <span className="min-w-0 flex-1">
-                        <span className="font-medium">
-                          {getInvoiceNumber(cn)}
-                        </span>
-                        {cnIssued ? (
-                          <span className="ms-2 text-muted-foreground">
-                            {moment(cnIssued).format(fmt)}
-                          </span>
-                        ) : null}
-                      </span>
-                      <StatusBadge
-                        status={getStoredStatus(cn)}
-                        docType="creditNote"
-                        t={t}
-                      />
-                      <span className="tabular-nums shrink-0">
-                        {formatInvoiceAmount(cn)}
-                      </span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        ) : null}
-
-        <div className="mt-4 px-4">
-          <h3 className="mb-2 text-sm font-medium">
-            {t('invoices:payments:title')}
-          </h3>
-          <PaymentsList invoice={invoice} dateFormat={fmt} t={t} />
-        </div>
-
-        {invoice.note ? (
-          <div className="mt-4 px-4 text-sm">
-            <h3 className="text-sm font-medium">{t('invoices:sheet:note')}</h3>
-            <p className="mt-1 text-muted-foreground">{invoice.note}</p>
-          </div>
-        ) : null}
-
-        {eInvoiceEnabled ? (
-          <div className="mt-4 px-4">
-            <h3 className="mb-2 text-sm font-medium text-foreground">
-              {t('invoices:sheet:einvoiceTitle')}
-            </h3>
-            <EInvoiceChecklist
-              issues={eInvoiceIssues}
-              copyClientVisible={copyClientVisible}
-              onCopyClient={() => {
-                if (!contact) {
-                  return;
-                }
-                const recipient = mergeRecipientFromContact(
-                  invoice.recipient,
-                  contact
-                );
-                dispatch(updateInvoice({ ...invoice, recipient }));
-              }}
-            />
-          </div>
-        ) : null}
-
-        <SheetFooter className="flex-row flex-wrap gap-2">
-          <Button
-            type="button"
-            onClick={() => ipc.send('preview-invoice', invoice)}
+          <SheetSection
+            title={t('invoices:payments:title')}
+            action={
+              canPay ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPaymentOpen(true)}
+                >
+                  <HandCoins />
+                  {t('invoices:actions:recordPayment')}
+                </Button>
+              ) : null
+            }
           >
-            {t('invoices:actions:preview')}
-          </Button>
+            <PaymentsList invoice={invoice} dateFormat={fmt} t={t} />
+          </SheetSection>
+
+          {linkedCreditNotes.length > 0 ? (
+            <SheetSection title={t('invoices:sheet:creditNotes')}>
+              <ul className="divide-y rounded-lg border">
+                {linkedCreditNotes.map(cn => {
+                  const cnIssued = getIssuedAt(cn);
+                  return (
+                    <li key={cn._id}>
+                      <button
+                        type="button"
+                        className="flex w-full items-center gap-2 px-3 py-2 text-start text-sm hover:bg-muted/50"
+                        onClick={() => onOpenCreditNote?.(cn._id)}
+                      >
+                        <span className="min-w-0 flex-1">
+                          <span className="font-medium">
+                            {getInvoiceNumber(cn)}
+                          </span>
+                          {cnIssued ? (
+                            <span className="ms-2 text-muted-foreground">
+                              {moment(cnIssued).format(fmt)}
+                            </span>
+                          ) : null}
+                        </span>
+                        <StatusBadge
+                          status={getStoredStatus(cn)}
+                          docType="creditNote"
+                          t={t}
+                        />
+                        <span className="shrink-0 tabular-nums">
+                          {formatInvoiceAmount(cn)}
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </SheetSection>
+          ) : null}
+
+          {invoice.note ? (
+            <SheetSection title={t('invoices:sheet:note')}>
+              <p className="text-sm whitespace-pre-wrap text-muted-foreground">
+                {invoice.note}
+              </p>
+            </SheetSection>
+          ) : null}
+
+          {eInvoiceEnabled ? (
+            <SheetSection title={t('invoices:sheet:einvoiceTitle')}>
+              <EInvoiceChecklist
+                issues={eInvoiceIssues}
+                copyClientVisible={copyClientVisible}
+                onCopyClient={() => {
+                  if (!contact) {
+                    return;
+                  }
+                  const recipient = mergeRecipientFromContact(
+                    invoice.recipient,
+                    contact,
+                    { buyerReference: buyerReferenceOn }
+                  );
+                  dispatch(updateInvoice({ ...invoice, recipient }));
+                }}
+              />
+            </SheetSection>
+          ) : null}
+        </SheetBody>
+
+        <SheetFooter>
+          <ActionsMenu placement="footer" label={t('invoices:actions:open')}>
+            <DropdownMenuItem
+              onClick={() => dispatch(duplicateInvoice(invoice))}
+            >
+              <Copy />
+              {t('invoices:actions:duplicate')}
+            </DropdownMenuItem>
+            {hasMoreActions ? <DropdownMenuSeparator /> : null}
+            {showEmail ? (
+              <DropdownMenuItem
+                onClick={() => emailInvoice(invoice, 'invoice')}
+              >
+                <Mail />
+                {t('email:actions:email')}
+              </DropdownMenuItem>
+            ) : null}
+            {showReminder ? (
+              <DropdownMenuItem
+                onClick={() => emailInvoice(invoice, 'reminder')}
+              >
+                <BellRing />
+                {t('email:actions:reminder')}
+              </DropdownMenuItem>
+            ) : null}
+            {showMarkSent ? (
+              <DropdownMenuItem
+                onClick={() =>
+                  dispatch(markInvoiceSent(invoice._id, 'invoice'))
+                }
+              >
+                <MailCheck />
+                {t('email:actions:markSent')}
+              </DropdownMenuItem>
+            ) : null}
+            {showShare ? (
+              <DropdownMenuItem onClick={sharePdf}>
+                <Share />
+                {t('email:actions:share')}
+              </DropdownMenuItem>
+            ) : null}
+            {canPay ? (
+              <DropdownMenuItem
+                onClick={() => dispatch(recordFullPayment(invoice._id))}
+              >
+                <BadgeCheck />
+                {t('invoices:actions:markPaidInFull')}
+              </DropdownMenuItem>
+            ) : null}
+            {showCreateCredit ? (
+              <DropdownMenuItem
+                onClick={() => dispatch(createCreditNote(invoice))}
+              >
+                <FileMinus />
+                {t('invoices:actions:createCreditNote')}
+              </DropdownMenuItem>
+            ) : null}
+            {isInvoice ? (
+              <DropdownMenuItem
+                onClick={() => {
+                  dispatch(
+                    UIActions.setRecurringSheet({
+                      mode: 'new',
+                      profile: buildProfileFromInvoice(invoice, Date.now()),
+                    })
+                  );
+                  dispatch(UIActions.changeActiveTab('recurring'));
+                }}
+              >
+                <Repeat />
+                {t('invoices:actions:makeRecurring')}
+              </DropdownMenuItem>
+            ) : null}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={() => {
+                onOpenChange(false);
+                dispatch(deleteInvoice(invoice._id));
+              }}
+            >
+              <Trash2 />
+              {t('invoices:actions:delete')}
+            </DropdownMenuItem>
+          </ActionsMenu>
+          <SheetClose render={<Button type="button" variant="ghost" />}>
+            {t('common:close')}
+          </SheetClose>
           <Button
             type="button"
             variant="outline"
@@ -414,123 +575,9 @@ export default function InvoiceDetailSheet({
           </Button>
           <Button
             type="button"
-            variant="outline"
-            onClick={() => dispatch(duplicateInvoice(invoice))}
+            onClick={() => dispatch(UIActions.previewInvoice(invoice))}
           >
-            {t('invoices:actions:duplicate')}
-          </Button>
-          {getDocType(invoice) === 'invoice' ? (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                dispatch(
-                  UIActions.setRecurringSheet({
-                    mode: 'new',
-                    profile: buildProfileFromInvoice(invoice, Date.now()),
-                  })
-                );
-                dispatch(UIActions.changeActiveTab('recurring'));
-              }}
-            >
-              <Repeat />
-              {t('invoices:actions:makeRecurring')}
-            </Button>
-          ) : null}
-          {showCreateCredit ? (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => dispatch(createCreditNote(invoice))}
-            >
-              <FileMinus />
-              {t('invoices:actions:createCreditNote')}
-            </Button>
-          ) : null}
-          {canPay ? (
-            <>
-              <Button type="button" onClick={() => setPaymentOpen(true)}>
-                {t('invoices:actions:recordPayment')}
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => dispatch(recordFullPayment(invoice._id))}
-              >
-                {t('invoices:actions:markPaidInFull')}
-              </Button>
-            </>
-          ) : null}
-          {canEmail(invoice) ? (
-            <Button
-              type="button"
-              variant="outline"
-              className="bg-background text-foreground"
-              onClick={() => emailInvoice(invoice, 'invoice')}
-            >
-              <Mail />
-              {t('email:actions:email')}
-            </Button>
-          ) : null}
-          {canSendReminder(invoice, now, allDocs) ? (
-            <Button
-              type="button"
-              variant="outline"
-              className="bg-background text-foreground"
-              onClick={() => emailInvoice(invoice, 'reminder')}
-            >
-              <BellRing />
-              {t('email:actions:reminder')}
-            </Button>
-          ) : null}
-          {canEmail(invoice) && !invoice.sentAt ? (
-            <Button
-              type="button"
-              variant="outline"
-              className="bg-background text-foreground"
-              onClick={() => dispatch(markInvoiceSent(invoice._id, 'invoice'))}
-            >
-              {t('email:actions:markSent')}
-            </Button>
-          ) : null}
-          {window.manta.platform === 'darwin' && canEmail(invoice) ? (
-            <Button
-              type="button"
-              variant="outline"
-              className="bg-background text-foreground"
-              onClick={async () => {
-                const snapshot = captureAppSnapshot(
-                  invoice,
-                  window.manta.settings
-                );
-                const res = await window.manta.ipc.invoke('share-invoice-pdf', {
-                  invoiceId: invoice._id,
-                  invoice,
-                  fileBase: getInvoiceNumber(invoice),
-                  source: 'app',
-                  snapshot,
-                });
-                if (!res?.ok) {
-                  toast.add({
-                    title: t('email:toast:failed', { reason: res?.error }),
-                    type: 'warning',
-                  });
-                }
-              }}
-            >
-              <Share />
-              {t('email:actions:share')}
-            </Button>
-          ) : null}
-          <Button
-            type="button"
-            variant="destructive"
-            onClick={() => {
-              onOpenChange(false);
-              dispatch(deleteInvoice(invoice._id));
-            }}
-          >
-            {t('invoices:actions:delete')}
+            {t('invoices:actions:preview')}
           </Button>
         </SheetFooter>
         <RecordPaymentDialog

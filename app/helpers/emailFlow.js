@@ -1,4 +1,4 @@
-import { getDefaultPreviewConfigs } from '../../preview/constants/defaultConfigs';
+import { resolveInvoiceConfigs } from '../../preview/constants/defaultConfigs';
 import { updateContact } from '../actions/contacts';
 import { markInvoiceSent } from '../actions/invoices';
 import { toast } from '@/components/ui/toast';
@@ -12,13 +12,17 @@ function defaultSettings() {
   return window.manta.settings;
 }
 
-export function captureAppSnapshot(invoice, settings = defaultSettings()) {
-  const invoiceSettings = settings.get('invoice');
-  const generalSettings = settings.get('general');
-  const configs =
-    invoice.configs ??
-    getDefaultPreviewConfigs(invoiceSettings, generalSettings);
-  const language = configs.language ?? generalSettings.language;
+// `configs` lets the preview drawer print its current, unsaved style.
+export function captureAppSnapshot(
+  invoice,
+  settings = defaultSettings(),
+  configs = resolveInvoiceConfigs(
+    invoice,
+    settings.get('invoice'),
+    settings.get('general')
+  )
+) {
+  const language = configs.language ?? settings.get('general').language;
   return {
     profile: snapshotProfileForInvoice(invoice, settings.get('profile')),
     configs,
@@ -30,10 +34,7 @@ function translateAt(t, language) {
   return (key, opts) => t(key, { ...opts, lng: language });
 }
 
-export async function runEmailFlow(
-  { invoice, kind, source = 'app', snapshot, previewToken },
-  deps = {}
-) {
+export async function runEmailFlow({ invoice, kind, configs }, deps = {}) {
   const ipc = deps.ipc ?? window.manta.ipc;
   const settings = deps.settings ?? defaultSettings();
   const contacts = deps.contacts ?? [];
@@ -67,13 +68,7 @@ export async function runEmailFlow(
     }
   }
 
-  const flowSnapshot =
-    source === 'preview' && snapshot
-      ? {
-          ...snapshot,
-          profile: snapshotProfileForInvoice(invoice, snapshot.profile),
-        }
-      : captureAppSnapshot(invoice, settings);
+  const flowSnapshot = captureAppSnapshot(invoice, settings, configs);
 
   const draft = buildEmailDraft(invoice, kind, {
     to: email,
@@ -90,9 +85,7 @@ export async function runEmailFlow(
     invoice,
     draft,
     fileBase: getInvoiceNumber(invoice),
-    source,
     snapshot: flowSnapshot,
-    previewToken,
   });
 
   if (res.ok) {

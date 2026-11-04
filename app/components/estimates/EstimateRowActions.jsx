@@ -1,22 +1,20 @@
 import {
-  ArrowRightLeft,
-  CalendarX,
   CircleCheck,
   CircleX,
-  FileCheck,
+  Copy,
+  Eye,
   FilePlus,
-  MoreHorizontal,
-  Send,
+  FileText,
+  MailCheck,
+  Pencil,
+  Trash2,
 } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import ActionsMenu from '../shared/ActionsMenu';
 import {
   deleteInvoice,
   duplicateInvoice,
@@ -25,82 +23,79 @@ import {
 } from '../../actions/invoices';
 import { convertEstimate } from '../../actions/estimates';
 import { getEstimateStoredStatus } from '../../helpers/estimate';
-
-const ipc = window.manta.ipc;
+import * as UIActions from '../../actions/ui';
 
 export default function EstimateRowActions({ row, dispatch, t }) {
   const e = row.invoice;
   const stored = getEstimateStoredStatus(e);
+  const hasStatusActions =
+    ['draft', 'sent', 'accepted', 'declined'].includes(stored) ||
+    row.canConvert ||
+    row.convertedInvoice;
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            aria-label={t('estimates:actions:open')}
-          />
-        }
-      >
-        <MoreHorizontal />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-52">
-        <DropdownMenuItem onClick={() => dispatch(editInvoice(e))}>
-          {t('estimates:actions:edit')}
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => dispatch(duplicateInvoice(e))}>
-          {t('estimates:actions:duplicate')}
-        </DropdownMenuItem>
-        {stored === 'draft' ? (
-          <DropdownMenuItem
-            onClick={() => dispatch(setInvoiceStatus(e._id, 'sent'))}
-          >
-            <Send className="size-4" />
-            {t('estimates:actions:markSent')}
-          </DropdownMenuItem>
-        ) : null}
-        {['draft', 'sent', 'declined'].includes(stored) ? (
-          <DropdownMenuItem
-            onClick={() => dispatch(setInvoiceStatus(e._id, 'accepted'))}
-          >
-            <CircleCheck className="size-4" />
-            {t('estimates:actions:markAccepted')}
-          </DropdownMenuItem>
-        ) : null}
-        {['draft', 'sent', 'accepted'].includes(stored) ? (
-          <DropdownMenuItem
-            onClick={() => dispatch(setInvoiceStatus(e._id, 'declined'))}
-          >
-            <CircleX className="size-4" />
-            {t('estimates:actions:markDeclined')}
-          </DropdownMenuItem>
-        ) : null}
-        {row.canConvert ? (
-          <DropdownMenuItem onClick={() => dispatch(convertEstimate(e))}>
-            <FilePlus className="size-4" />
-            {t('estimates:actions:convert')}
-          </DropdownMenuItem>
-        ) : null}
-        {row.convertedInvoice ? (
-          <DropdownMenuItem
-            onClick={() => ipc.send('preview-invoice', row.convertedInvoice)}
-          >
-            <FileCheck className="size-4" />
-            {t('estimates:actions:openInvoice')}
-          </DropdownMenuItem>
-        ) : null}
-        <DropdownMenuItem onClick={() => ipc.send('preview-invoice', e)}>
-          {t('estimates:actions:preview')}
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
+    <ActionsMenu label={t('estimates:actions:open')}>
+      <DropdownMenuItem onClick={() => dispatch(UIActions.previewInvoice(e))}>
+        <Eye />
+        {t('estimates:actions:preview')}
+      </DropdownMenuItem>
+      <DropdownMenuItem onClick={() => dispatch(editInvoice(e))}>
+        <Pencil />
+        {t('estimates:actions:edit')}
+      </DropdownMenuItem>
+      <DropdownMenuItem onClick={() => dispatch(duplicateInvoice(e))}>
+        <Copy />
+        {t('estimates:actions:duplicate')}
+      </DropdownMenuItem>
+      {hasStatusActions ? <DropdownMenuSeparator /> : null}
+      {stored === 'draft' ? (
         <DropdownMenuItem
-          variant="destructive"
-          onClick={() => dispatch(deleteInvoice(e._id))}
+          onClick={() => dispatch(setInvoiceStatus(e._id, 'sent'))}
         >
-          {t('estimates:actions:delete')}
+          <MailCheck />
+          {t('estimates:actions:markSent')}
         </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+      ) : null}
+      {['draft', 'sent', 'declined'].includes(stored) ? (
+        <DropdownMenuItem
+          onClick={() => dispatch(setInvoiceStatus(e._id, 'accepted'))}
+        >
+          <CircleCheck />
+          {t('estimates:actions:markAccepted')}
+        </DropdownMenuItem>
+      ) : null}
+      {['draft', 'sent', 'accepted'].includes(stored) ? (
+        <DropdownMenuItem
+          onClick={() => dispatch(setInvoiceStatus(e._id, 'declined'))}
+        >
+          <CircleX />
+          {t('estimates:actions:markDeclined')}
+        </DropdownMenuItem>
+      ) : null}
+      {row.canConvert ? (
+        <DropdownMenuItem onClick={() => dispatch(convertEstimate(e))}>
+          <FilePlus />
+          {t('estimates:actions:convert')}
+        </DropdownMenuItem>
+      ) : null}
+      {row.convertedInvoice ? (
+        <DropdownMenuItem
+          onClick={() =>
+            dispatch(UIActions.previewInvoice(row.convertedInvoice))
+          }
+        >
+          <FileText />
+          {t('estimates:actions:openInvoice')}
+        </DropdownMenuItem>
+      ) : null}
+      <DropdownMenuSeparator />
+      <DropdownMenuItem
+        variant="destructive"
+        onClick={() => dispatch(deleteInvoice(e._id))}
+      >
+        <Trash2 />
+        {t('estimates:actions:delete')}
+      </DropdownMenuItem>
+    </ActionsMenu>
   );
 }

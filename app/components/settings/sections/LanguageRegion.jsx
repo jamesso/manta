@@ -2,7 +2,6 @@ import moment from 'moment';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Field, FieldLabel } from '@/components/ui/field';
 import {
   Select,
   SelectContent,
@@ -11,6 +10,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useDebouncedSave } from '../useDebouncedSave';
+import { SettingsGroup, SettingsPage, SettingsRow } from '../SettingsLayout';
 
 const LANGS = ['de', 'en', 'fr', 'id', 'it', 'sk', 'ur-PK', 'vi', 'zh-CN'];
 
@@ -60,60 +60,65 @@ export default function LanguageRegion({
   }, [flushGeneral, flushInvoice, registerFlush]);
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-lg font-semibold">
-          {t('settings:sections:language:title')}
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          {t('settings:sections:language:description')}
-        </p>
-        {saveMessage ? (
-          <p className="mt-2 text-sm text-destructive" role="alert">
-            {saveMessage}
-          </p>
-        ) : null}
-      </div>
-      <Field>
-        <FieldLabel>{t('settings:fields:language:name')}</FieldLabel>
-        <Select
-          value={generalDraft.language}
-          onValueChange={language =>
-            saveGeneralNow(current => ({ ...current, language }))
-          }
+    <SettingsPage
+      title={t('settings:sections:language:title')}
+      description={t('settings:sections:language:description')}
+      error={saveMessage}
+    >
+      <SettingsGroup>
+        <SettingsRow
+          label={t('settings:fields:language:name')}
+          description={t('settings:sections:language:languageHint')}
         >
-          <SelectTrigger className="bg-background text-foreground">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {LANGS.map(code => (
-              <SelectItem key={code} value={code}>
-                {t(`settings:fields:language:${code}`, { lng: code })}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </Field>
-      <Field>
-        <FieldLabel>{t('settings:fields:dateFormat')}</FieldLabel>
-        <Select
-          value={invoiceDraft.dateFormat}
-          onValueChange={dateFormat =>
-            saveInvoiceNow(current => ({ ...current, dateFormat }))
-          }
+          <Select
+            items={LANGS.map(code => ({
+              value: code,
+              label: t(`settings:fields:language:${code}`, { lng: code }),
+            }))}
+            value={generalDraft.language}
+            onValueChange={language =>
+              saveGeneralNow(current => ({ ...current, language }))
+            }
+          >
+            <SelectTrigger className="w-56 bg-background text-foreground">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {LANGS.map(code => (
+                <SelectItem key={code} value={code}>
+                  {t(`settings:fields:language:${code}`, { lng: code })}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </SettingsRow>
+        <SettingsRow
+          label={t('settings:fields:dateFormat')}
+          description={t('settings:sections:language:dateFormatHint')}
         >
-          <SelectTrigger className="bg-background text-foreground">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {DATE_FORMATS.map(fmt => (
-              <SelectItem key={fmt} value={fmt}>
-                {moment(Date.now()).format(fmt)} ({fmt})
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </Field>
-    </div>
+          <Select
+            items={DATE_FORMATS.map(fmt => ({
+              value: fmt,
+              label: `${moment(Date.now()).format(fmt)} (${fmt})`,
+            }))}
+            value={invoiceDraft.dateFormat}
+            onValueChange={dateFormat =>
+              saveInvoiceNow(current => ({ ...current, dateFormat }))
+            }
+          >
+            <SelectTrigger className="w-72 bg-background text-foreground">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {DATE_FORMATS.map(fmt => (
+                <SelectItem key={fmt} value={fmt}>
+                  {moment(Date.now()).format(fmt)} ({fmt})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </SettingsRow>
+      </SettingsGroup>
+    </SettingsPage>
   );
 }

@@ -100,6 +100,10 @@ export default function AdjustmentsCard() {
               </FieldLabel>
               <Select
                 value={tax.method || 'default'}
+                items={[
+                  { value: 'default', label: t('common:default') },
+                  { value: 'reverse', label: t('form:fields:tax:reverse') },
+                ]}
                 onValueChange={value =>
                   value && update('tax', { method: value })
                 }

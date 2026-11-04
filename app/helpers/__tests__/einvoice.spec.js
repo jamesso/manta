@@ -1,10 +1,7 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 
-import {
-  getEInvoiceDerived,
-  mergeRecipientFromContact,
-} from '../einvoice';
+import { getEInvoiceDerived, mergeRecipientFromContact } from '../einvoice';
 
 const fixtureDir = path.join(process.cwd(), 'e2e/fixtures/einvoice');
 
@@ -39,7 +36,12 @@ describe('app einvoice helpers', () => {
   it('mergeRecipientFromContact copies address fields only when set', () => {
     const recipient = { fullname: 'Keep', _id: 'r1', email: 'old@x.de' };
     const contact = {
-      postalAddress: { street: 'New', city: 'C', postcode: '1', countryCode: 'DE' },
+      postalAddress: {
+        street: 'New',
+        city: 'C',
+        postcode: '1',
+        countryCode: 'DE',
+      },
       buyerReference: '04011000-1234512345-06',
       taxId: 'DE123',
       email: '',
@@ -52,5 +54,10 @@ describe('app einvoice helpers', () => {
     expect(merged.taxId).toBe('DE123');
     expect(merged.email).toBe('old@x.de');
     expect(recipient.fullname).toBe('Keep');
+    const off = mergeRecipientFromContact(recipient, contact, {
+      buyerReference: false,
+    });
+    expect(off).not.toHaveProperty('buyerReference');
+    expect(off.taxId).toBe('DE123');
   });
 });

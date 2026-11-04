@@ -1,21 +1,27 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+  Sheet,
+  SheetContent,
+  SheetBody,
+  SheetClose,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import PostalAddressFields from '../shared/PostalAddressFields.jsx';
 import { buildContact, getContactErrors } from '../../helpers/clients';
-import { leitwegCheck } from '../../../helpers/einvoice/identifiers.js';
+import {
+  isBuyerReferenceOn,
+  leitwegCheck,
+} from '../../../helpers/einvoice/identifiers.js';
+import { getCurrentSettings } from '../../reducers/SettingsReducer';
 import * as ContactsActions from '../../actions/contacts';
 
 const emptyValues = {
@@ -44,6 +50,10 @@ export default function ClientEditorDialog({ open, onOpenChange, contact }) {
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
   const isEdit = Boolean(contact);
+  // When off, the field is hidden but a saved value stays on the client.
+  const buyerReferenceOn = isBuyerReferenceOn(
+    useSelector(getCurrentSettings)?.invoice
+  );
 
   useEffect(() => {
     if (!open) {
@@ -95,120 +105,132 @@ export default function ClientEditorDialog({ open, onOpenChange, contact }) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-background text-foreground sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="right">
+        <SheetHeader>
+          <SheetTitle>
             {isEdit
               ? t('contacts:editor:editTitle')
               : t('contacts:editor:createTitle')}
-          </DialogTitle>
+          </SheetTitle>
           {isEdit ? (
-            <DialogDescription>{t('contacts:editor:hint')}</DialogDescription>
+            <SheetDescription>{t('contacts:editor:hint')}</SheetDescription>
           ) : null}
-        </DialogHeader>
-        <form id={formId} className="space-y-4" onSubmit={onSubmit}>
-          <Field>
-            <FieldLabel htmlFor={`${formId}-fullname`}>
-              {t('contacts:editor:fullname')} *
-            </FieldLabel>
-            <Input
-              ref={fullnameRef}
-              id={`${formId}-fullname`}
-              autoComplete="off"
-              value={values.fullname}
-              aria-invalid={Boolean(errors.fullname)}
-              onChange={e => setField('fullname', e.target.value)}
-            />
-            {errors.fullname ? (
-              <FieldError>{t(errors.fullname)}</FieldError>
+        </SheetHeader>
+        <SheetBody>
+          <form id={formId} className="space-y-4" onSubmit={onSubmit}>
+            <Field>
+              <FieldLabel htmlFor={`${formId}-fullname`}>
+                {t('contacts:editor:fullname')} *
+              </FieldLabel>
+              <Input
+                ref={fullnameRef}
+                id={`${formId}-fullname`}
+                autoComplete="off"
+                value={values.fullname}
+                aria-invalid={Boolean(errors.fullname)}
+                onChange={e => setField('fullname', e.target.value)}
+              />
+              {errors.fullname ? (
+                <FieldError>{t(errors.fullname)}</FieldError>
+              ) : null}
+            </Field>
+            <Field>
+              <FieldLabel htmlFor={`${formId}-company`}>
+                {t('contacts:editor:company')}
+              </FieldLabel>
+              <Input
+                id={`${formId}-company`}
+                autoComplete="off"
+                value={values.company}
+                onChange={e => setField('company', e.target.value)}
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor={`${formId}-taxId`}>
+                {t('contacts:fields:taxId')}
+              </FieldLabel>
+              <Input
+                id={`${formId}-taxId`}
+                autoComplete="off"
+                maxLength={40}
+                value={values.taxId}
+                onChange={e => setField('taxId', e.target.value)}
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor={`${formId}-email`}>
+                {t('contacts:editor:email')} *
+              </FieldLabel>
+              <Input
+                id={`${formId}-email`}
+                type="email"
+                autoComplete="off"
+                value={values.email}
+                aria-invalid={Boolean(errors.email)}
+                onChange={e => setField('email', e.target.value)}
+              />
+              {errors.email ? <FieldError>{t(errors.email)}</FieldError> : null}
+            </Field>
+            <Field>
+              <FieldLabel htmlFor={`${formId}-phone`}>
+                {t('contacts:editor:phone')}
+              </FieldLabel>
+              <Input
+                id={`${formId}-phone`}
+                type="tel"
+                autoComplete="off"
+                value={values.phone}
+                onChange={e => setField('phone', e.target.value)}
+              />
+            </Field>
+            {buyerReferenceOn ? (
+              <Field>
+                <FieldLabel htmlFor={`${formId}-buyerReference`}>
+                  {t('contacts:fields:buyerReference')}
+                </FieldLabel>
+                <p className="text-sm text-muted-foreground">
+                  {t('contacts:fields:buyerReferenceHint')}
+                </p>
+                <Input
+                  id={`${formId}-buyerReference`}
+                  value={values.buyerReference}
+                  onChange={e => setField('buyerReference', e.target.value)}
+                />
+                {leitwegCheck(values.buyerReference) === 'bad-check-digits' ? (
+                  <p
+                    className="text-sm text-amber-600 dark:text-amber-400"
+                    role="status"
+                  >
+                    {t('contacts:fields:buyerReferenceWarning')}
+                  </p>
+                ) : null}
+              </Field>
             ) : null}
-          </Field>
-          <Field>
-            <FieldLabel htmlFor={`${formId}-company`}>
-              {t('contacts:editor:company')}
-            </FieldLabel>
-            <Input
-              id={`${formId}-company`}
-              autoComplete="off"
-              value={values.company}
-              onChange={e => setField('company', e.target.value)}
-            />
-          </Field>
-          <Field>
-            <FieldLabel htmlFor={`${formId}-taxId`}>
-              {t('contacts:fields:taxId')}
-            </FieldLabel>
-            <Input
-              id={`${formId}-taxId`}
-              autoComplete="off"
-              maxLength={40}
-              value={values.taxId}
-              onChange={e => setField('taxId', e.target.value)}
-            />
-          </Field>
-          <Field>
-            <FieldLabel htmlFor={`${formId}-email`}>
-              {t('contacts:editor:email')} *
-            </FieldLabel>
-            <Input
-              id={`${formId}-email`}
-              type="email"
-              autoComplete="off"
-              value={values.email}
-              aria-invalid={Boolean(errors.email)}
-              onChange={e => setField('email', e.target.value)}
-            />
-            {errors.email ? <FieldError>{t(errors.email)}</FieldError> : null}
-          </Field>
-          <Field>
-            <FieldLabel htmlFor={`${formId}-phone`}>
-              {t('contacts:editor:phone')}
-            </FieldLabel>
-            <Input
-              id={`${formId}-phone`}
-              type="tel"
-              autoComplete="off"
-              value={values.phone}
-              onChange={e => setField('phone', e.target.value)}
-            />
-          </Field>
-          <Field>
-            <FieldLabel htmlFor={`${formId}-buyerReference`}>
-              {t('contacts:fields:buyerReference')}
-            </FieldLabel>
-            <p className="text-sm text-muted-foreground">
-              {t('contacts:fields:buyerReferenceHint')}
-            </p>
-            <Input
-              id={`${formId}-buyerReference`}
-              value={values.buyerReference}
-              onChange={e => setField('buyerReference', e.target.value)}
-            />
-            {leitwegCheck(values.buyerReference) === 'bad-check-digits' ? (
-              <p className="text-sm text-amber-600 dark:text-amber-400" role="status">
-                {t('contacts:fields:buyerReferenceWarning')}
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-foreground">
+                {t('contacts:fields:addressTitle')}
               </p>
-            ) : null}
-          </Field>
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-foreground">
-              {t('contacts:fields:addressTitle')}
-            </p>
-            <PostalAddressFields
-              idPrefix={`${formId}-postal`}
-              value={values.postalAddress}
-              errors={errors}
-              onChange={postalAddress => setField('postalAddress', postalAddress)}
-            />
-          </div>
-        </form>
-        <DialogFooter>
+              <PostalAddressFields
+                idPrefix={`${formId}-postal`}
+                value={values.postalAddress}
+                errors={errors}
+                onChange={postalAddress =>
+                  setField('postalAddress', postalAddress)
+                }
+              />
+            </div>
+          </form>
+        </SheetBody>
+        <SheetFooter>
+          <SheetClose render={<Button type="button" variant="outline" />}>
+            {t('common:cancel')}
+          </SheetClose>
           <Button type="submit" form={formId} disabled={saving}>
             {t('contacts:editor:save')}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   );
 }

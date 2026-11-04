@@ -1,29 +1,51 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { Search, UserPlus } from 'lucide-react';
+import { Plus, Users } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
   Empty,
   EmptyContent,
   EmptyDescription,
   EmptyHeader,
+  EmptyMedia,
   EmptyTitle,
 } from '@/components/ui/empty';
 import ClientDetailSheet from '../components/contacts/ClientDetailSheet';
 import ClientEditorDialog from '../components/contacts/ClientEditorDialog';
 import ClientsTable from '../components/contacts/ClientsTable';
+import {
+  SelectionBar,
+  usePagination,
+  useRowSelection,
+} from '../components/table/DataTable';
+import { deleteContact } from '../actions/contacts';
+import {
+  FacetFilter,
+  FilterBar,
+  FilterSearch,
+  NoResults,
+  ResetFilters,
+} from '../components/filters/FilterBar';
+import { ListPage, PageHeader } from '../components/layout/PageHeader';
+import { matchesAny } from '../helpers/listFilters';
+import { useListRequest } from '../components/filters/useListRequest';
 import InvoiceDetailSheet from '../components/invoices/InvoiceDetailSheet';
 import { useNow } from '../components/invoices/useNow';
-import { matchesClientQuery, summarizeClients } from '../helpers/clients';
+import {
+  CLIENT_BALANCE_FILTERS,
+  getClientBalanceStatus,
+  matchesClientQuery,
+  summarizeClients,
+} from '../helpers/clients';
 import { getContacts } from '../reducers/ContactsReducer';
 import { getInvoices, getAllSalesDocs } from '../reducers/InvoicesReducer';
 import { getDateFormat } from '../reducers/SettingsReducer';
 
 export default function Contacts() {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
   const contacts = useSelector(getContacts);
   const invoices = useSelector(getInvoices);
   const allSalesDocs = useSelector(getAllSalesDocs);
@@ -31,6 +53,7 @@ export default function Contacts() {
   const now = useNow();
 
   const [query, setQuery] = useState('');
+  const [balances, setBalances] = useState([]);
   const [sorting, setSorting] = useState([{ id: 'name', desc: false }]);
   const [detailId, setDetailId] = useState(null);
   const [editorOpen, setEditorOpen] = useState(false);
@@ -42,23 +65,49 @@ export default function Contacts() {
     [contacts, allSalesDocs, now]
   );
 
-  const tableRows = useMemo(() => {
+  const searchedRows = useMemo(() => {
     return contacts
       .filter(c => matchesClientQuery(c, query))
-      .map(c => ({
-        ...c,
-        summary: summaryMap.get(c._id) ?? {
+      .map(c => {
+        const summary = summaryMap.get(c._id) ?? {
           invoiceCount: 0,
           outstanding: {},
           invoices: [],
-        },
-      }));
+        };
+        return { ...c, summary, balance: getClientBalanceStatus(summary) };
+      });
   }, [contacts, query, summaryMap]);
+
+  const balanceOptions = CLIENT_BALANCE_FILTERS.map(key => ({
+    value: key,
+    label: t(`contacts:balance:${key}`),
+    count: searchedRows.filter(row => row.balance === key).length,
+  }));
+  const tableRows = useMemo(
+    () =>
+      searchedRows.filter(row => matchesAny(balances, b => row.balance === b)),
+    [searchedRows, balances]
+  );
+  const visibleIds = useMemo(() => tableRows.map(row => row._id), [tableRows]);
+  const { rowSelection, setRowSelection, selectedIds, clearSelection } =
+    useRowSelection(visibleIds);
+  const [pagination, setPagination] = usePagination([query, balances, sorting]);
+  const hasFilters = query.trim() !== '' || balances.length > 0;
+  const clearFilters = () => {
+    setQuery('');
+    setBalances([]);
+  };
 
   const detailContact = detailId
     ? contacts.find(c => c._id === detailId) || null
     : null;
   const detailSummary = detailId ? summaryMap.get(detailId) : null;
+
+  useListRequest('contacts', request => {
+    setQuery(request.query ?? '');
+    setBalances([]);
+    if (request.openId) setDetailId(request.openId);
+  });
 
   const openEditor = useCallback(contact => {
     setEditorContact(contact ?? null);
@@ -85,22 +134,41 @@ export default function Contacts() {
   const showEmptySearch = !showEmptyNone && tableRows.length === 0;
 
   return (
-    <div className="flex h-full flex-col gap-5 px-8 pt-7 pb-8 text-foreground">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-[1.75rem] leading-tight font-bold tracking-tight">
-          {t('contacts:header')}
-        </h1>
-        {!showEmptyNone ? (
-          <Button type="button" onClick={() => openEditor(null)}>
-            <UserPlus className="size-4" />
-            {t('contacts:newClient')}
-          </Button>
-        ) : null}
-      </div>
+    <ListPage>
+      <PageHeader
+        title={t('contacts:header')}
+        count={t('contacts:count', { count: contacts.length })}
+      >
+        <Button type="button" onClick={() => openEditor(null)}>
+          <Plus />
+          {t('contacts:newClient')}
+        </Button>
+      </PageHeader>
+
+      {!showEmptyNone ? (
+        <FilterBar>
+          <FilterSearch
+            value={query}
+            onChange={setQuery}
+            label={t('contacts:searchLabel')}
+            placeholder={t('contacts:searchPlaceholder')}
+          />
+          <FacetFilter
+            title={t('common:filters:balance')}
+            options={balanceOptions}
+            selected={balances}
+            onChange={setBalances}
+          />
+          {hasFilters ? <ResetFilters onClick={clearFilters} /> : null}
+        </FilterBar>
+      ) : null}
 
       {showEmptyNone ? (
         <Empty>
           <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <Users />
+            </EmptyMedia>
             <EmptyTitle>{t('contacts:empty:title')}</EmptyTitle>
             <EmptyDescription>
               {t('contacts:empty:description')}
@@ -108,50 +176,43 @@ export default function Contacts() {
           </EmptyHeader>
           <EmptyContent>
             <Button type="button" onClick={() => openEditor(null)}>
-              <UserPlus className="size-4" />
               {t('contacts:newClient')}
             </Button>
           </EmptyContent>
         </Empty>
       ) : showEmptySearch ? (
-        <Empty>
-          <EmptyHeader>
-            <EmptyTitle>{t('contacts:empty:noResults', { query })}</EmptyTitle>
-          </EmptyHeader>
-          <EmptyContent>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setQuery('')}
-            >
-              {t('contacts:empty:clearSearch')}
-            </Button>
-          </EmptyContent>
-        </Empty>
+        <NoResults
+          title={t('contacts:empty:noResultsFiltered')}
+          onClear={clearFilters}
+        />
       ) : (
-        <>
-          <div className="relative max-w-sm">
-            <Search className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              className="ps-9"
-              value={query}
-              placeholder={t('contacts:searchPlaceholder')}
-              onChange={e => setQuery(e.target.value)}
-            />
-          </div>
-          <ClientsTable
-            contacts={tableRows}
-            sorting={sorting}
-            onSortingChange={setSorting}
-            onRowOpen={row => setDetailId(row._id)}
-            onEdit={contact => {
-              const latest =
-                contacts.find(c => c._id === contact._id) || contact;
-              openEditor(latest);
-            }}
-          />
-        </>
+        <ClientsTable
+          contacts={tableRows}
+          sorting={sorting}
+          onSortingChange={setSorting}
+          rowSelection={rowSelection}
+          onRowSelectionChange={setRowSelection}
+          pagination={pagination}
+          onPaginationChange={setPagination}
+          onOpen={setDetailId}
+          onEdit={contact => {
+            const latest = contacts.find(c => c._id === contact._id) || contact;
+            openEditor(latest);
+          }}
+        />
       )}
+
+      <SelectionBar
+        count={selectedIds.length}
+        onClear={clearSelection}
+        actions={[
+          {
+            label: t('common:delete'),
+            variant: 'destructive',
+            onClick: () => dispatch(deleteContact(selectedIds)),
+          },
+        ]}
+      />
 
       <ClientEditorDialog
         open={editorOpen}
@@ -159,24 +220,23 @@ export default function Contacts() {
         contact={editorContact}
       />
 
-      {detailContact && detailSummary ? (
-        <ClientDetailSheet
-          contact={detailContact}
-          summary={detailSummary}
-          open={Boolean(detailId)}
-          onOpenChange={open => {
-            if (!open) {
-              setDetailId(null);
-            }
-          }}
-          dateFormat={dateFormat}
-          onEdit={contact => {
-            const latest = contacts.find(c => c._id === contact._id) || contact;
-            openEditor(latest);
-          }}
-          onOpenInvoice={id => setInvoiceDetailId(id)}
-        />
-      ) : null}
+      <ClientDetailSheet
+        contact={detailContact}
+        summary={detailSummary}
+        open={Boolean(detailContact && detailSummary)}
+        onOpenChange={open => {
+          if (!open) {
+            setDetailId(null);
+          }
+        }}
+        dateFormat={dateFormat}
+        onEdit={contact => {
+          const latest = contacts.find(c => c._id === contact._id) || contact;
+          setDetailId(null);
+          openEditor(latest);
+        }}
+        onOpenInvoice={id => setInvoiceDetailId(id)}
+      />
 
       <InvoiceDetailSheet
         invoice={invoiceDetail}
@@ -190,6 +250,6 @@ export default function Contacts() {
         t={t}
         now={now}
       />
-    </div>
+    </ListPage>
   );
 }

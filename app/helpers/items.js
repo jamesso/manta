@@ -142,6 +142,24 @@ export function searchItems(items, query, limit = 8) {
   return candidates.slice(0, limit);
 }
 
+// Most-used first: count saved document lines whose description matches
+// the text the item prints. Ties sort by name.
+export function sortItemsByUsage(items, docs) {
+  const counts = new Map();
+  for (const doc of docs) {
+    for (const row of doc.rows ?? []) {
+      const key = normalize(String(row.description ?? '').trim());
+      if (key) counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+  }
+  const usage = item => counts.get(normalize(itemToRowDescription(item))) ?? 0;
+  return [...items].sort(
+    (a, b) =>
+      usage(b) - usage(a) ||
+      a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+  );
+}
+
 export function matchesItemQuery(item, query) {
   const normalizedQuery = normalize(query);
   if (!normalizedQuery) {

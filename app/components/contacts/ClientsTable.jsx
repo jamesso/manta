@@ -1,29 +1,19 @@
 import { createColumnHelper, useTable } from '@tanstack/react-table';
-import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
+import { FilePlus, Pencil, Trash2 } from 'lucide-react';
 import { useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { Button } from '@/components/ui/button';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import ActionsMenu from '../shared/ActionsMenu';
 import { formatInvoiceAmount } from '../../helpers/invoice';
 import * as ContactsActions from '../../actions/contacts';
 import * as InvoicesActions from '../../actions/invoices';
-import { features } from './clientsTableFeatures';
+import DataTable, { SortHeader, selectColumn } from '../table/DataTable';
+import { features } from '../table/features';
 
 const columnHelper = createColumnHelper();
 
@@ -57,9 +47,6 @@ function ClientAvatar({ name = '' }) {
   );
 }
 
-const sortHeaderClass =
-  'inline-flex min-h-6 items-center gap-1 bg-transparent text-muted-foreground shadow-none transition-colors hover:text-foreground';
-
 function formatOutstandingLines(outstanding, invoices) {
   const codes = Object.keys(outstanding);
   if (!codes.length) {
@@ -81,19 +68,23 @@ function formatOutstandingLines(outstanding, invoices) {
   });
 }
 
-function getColumns({ t, dispatch, onEdit, onOpenDetail }) {
+// Sort key only: amounts in different currencies are added as plain numbers.
+function totalOutstanding(outstanding) {
+  return Object.values(outstanding).reduce((sum, amount) => sum + amount, 0);
+}
+
+function getColumns({ t, dispatch, onEdit }) {
   return [
+    selectColumn({
+      selectAllLabel: t('common:table:selectAll'),
+      getRowLabel: row => t('common:table:selectRow', { name: row.fullname }),
+    }),
     columnHelper.accessor(row => row.fullname, {
       id: 'name',
       header: ({ column }) => (
-        <button
-          type="button"
-          className={sortHeaderClass}
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
+        <SortHeader column={column}>
           {t('contacts:fields:nameCompany')}
-          <ArrowUpDown className="size-3.5 opacity-50" />
-        </button>
+        </SortHeader>
       ),
       cell: ({ row }) => (
         <div className="flex items-center gap-3">
@@ -108,41 +99,41 @@ function getColumns({ t, dispatch, onEdit, onOpenDetail }) {
           </div>
         </div>
       ),
-      sortingFn: (a, b) =>
+      sortFn: (a, b) =>
         a.original.fullname.localeCompare(b.original.fullname, undefined, {
           sensitivity: 'base',
         }),
     }),
-    columnHelper.accessor('email', {
-      header: t('contacts:fields:email'),
+    columnHelper.accessor(row => row.email ?? '', {
+      id: 'email',
+      header: ({ column }) => (
+        <SortHeader column={column}>{t('contacts:fields:email')}</SortHeader>
+      ),
       cell: ({ getValue }) => getValue() || '—',
+      sortFn: 'text',
     }),
-    columnHelper.accessor('phone', {
-      header: t('contacts:fields:phone'),
+    columnHelper.accessor(row => row.phone ?? '', {
+      id: 'phone',
+      header: ({ column }) => (
+        <SortHeader column={column}>{t('contacts:fields:phone')}</SortHeader>
+      ),
       cell: ({ getValue }) => getValue() || '—',
+      sortFn: 'text',
     }),
     columnHelper.accessor(row => row.summary.invoiceCount, {
       id: 'invoiceCount',
       header: ({ column }) => (
-        <button
-          type="button"
-          className={`${sortHeaderClass} ms-auto`}
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          {t('contacts:fields:invoices')}
-          <ArrowUpDown className="size-3.5 opacity-50" />
-        </button>
+        <SortHeader column={column}>{t('contacts:fields:invoices')}</SortHeader>
       ),
-      cell: ({ getValue }) => (
-        <span className="tabular-nums">{getValue()}</span>
-      ),
+      meta: { align: 'end' },
+      sortFn: 'basic',
     }),
-    columnHelper.display({
+    columnHelper.accessor(row => totalOutstanding(row.summary.outstanding), {
       id: 'outstanding',
-      header: () => (
-        <span className="block text-end">
+      header: ({ column }) => (
+        <SortHeader column={column}>
           {t('contacts:fields:outstanding')}
-        </span>
+        </SortHeader>
       ),
       cell: ({ row }) => {
         const lines = formatOutstandingLines(
@@ -150,18 +141,12 @@ function getColumns({ t, dispatch, onEdit, onOpenDetail }) {
           row.original.summary.invoices
         );
         if (!lines) {
-          return (
-            <span className="block text-end text-muted-foreground">—</span>
-          );
+          return <span className="text-muted-foreground">—</span>;
         }
-        return (
-          <div className="text-end tabular-nums">
-            {lines.map(line => (
-              <div key={line}>{line}</div>
-            ))}
-          </div>
-        );
+        return lines.map(line => <div key={line}>{line}</div>);
       },
+      meta: { align: 'end' },
+      sortFn: 'basic',
     }),
     columnHelper.display({
       id: 'actions',
@@ -174,42 +159,35 @@ function getColumns({ t, dispatch, onEdit, onOpenDetail }) {
           onClick={event => event.stopPropagation()}
           role="presentation"
         >
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  aria-label={t('contacts:actions:menuLabel', {
-                    name: row.original.fullname,
-                  })}
-                />
+          <ActionsMenu
+            label={t('contacts:actions:menuLabel', {
+              name: row.original.fullname,
+            })}
+          >
+            <DropdownMenuItem onClick={() => onEdit(row.original)}>
+              <Pencil />
+              {t('contacts:actions:edit')}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() =>
+                dispatch(InvoicesActions.newInvoiceFromContact(row.original))
               }
             >
-              <MoreHorizontal />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-44">
-              <DropdownMenuItem
-                onClick={() =>
-                  dispatch(InvoicesActions.newInvoiceFromContact(row.original))
-                }
-              >
-                {t('contacts:actions:newInvoice')}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onEdit(row.original)}>
-                {t('contacts:actions:edit')}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                variant="destructive"
-                onClick={() =>
-                  dispatch(ContactsActions.deleteContact(row.original._id))
-                }
-              >
-                {t('contacts:actions:delete')}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              <FilePlus />
+              {t('contacts:actions:newInvoice')}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={() =>
+                dispatch(ContactsActions.deleteContact(row.original._id))
+              }
+            >
+              <Trash2 />
+              {t('contacts:actions:delete')}
+            </DropdownMenuItem>
+          </ActionsMenu>
         </div>
       ),
     }),
@@ -220,15 +198,19 @@ export default function ClientsTable({
   contacts,
   sorting,
   onSortingChange,
-  onRowOpen,
+  rowSelection,
+  onRowSelectionChange,
+  pagination,
+  onPaginationChange,
+  onOpen,
   onEdit,
 }) {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
   const columns = useMemo(
-    () => getColumns({ t, dispatch, onEdit, onOpenDetail: onRowOpen }),
-    [t, dispatch, onEdit, onRowOpen]
+    () => getColumns({ t, dispatch, onEdit }),
+    [t, dispatch, onEdit]
   );
 
   const table = useTable({
@@ -236,69 +218,12 @@ export default function ClientsTable({
     data: contacts,
     columns,
     getRowId: row => row._id,
-    state: { sorting },
+    state: { sorting, rowSelection, pagination },
     onSortingChange,
+    onRowSelectionChange,
+    onPaginationChange,
+    autoResetPageIndex: false,
   });
 
-  return (
-    <Table>
-      <TableHeader>
-        {table.getHeaderGroups().map(headerGroup => (
-          <TableRow key={headerGroup.id}>
-            {headerGroup.headers.map(header => {
-              const sorted = header.column.getIsSorted();
-              const canSort = header.column.getCanSort();
-              return (
-                <TableHead
-                  key={header.id}
-                  aria-sort={
-                    canSort
-                      ? sorted === 'asc'
-                        ? 'ascending'
-                        : sorted === 'desc'
-                          ? 'descending'
-                          : 'none'
-                      : undefined
-                  }
-                  className={
-                    header.column.id === 'invoiceCount' ||
-                    header.column.id === 'outstanding'
-                      ? 'text-end'
-                      : undefined
-                  }
-                >
-                  {header.isPlaceholder ? null : (
-                    <table.FlexRender header={header} />
-                  )}
-                </TableHead>
-              );
-            })}
-          </TableRow>
-        ))}
-      </TableHeader>
-      <TableBody>
-        {table.getRowModel().rows.map(row => (
-          <TableRow
-            key={row.id}
-            className="cursor-pointer"
-            onClick={() => onRowOpen(row.original)}
-          >
-            {row.getAllCells().map(cell => (
-              <TableCell
-                key={cell.id}
-                className={
-                  cell.column.id === 'invoiceCount' ||
-                  cell.column.id === 'outstanding'
-                    ? 'text-end tabular-nums'
-                    : undefined
-                }
-              >
-                <table.FlexRender cell={cell} />
-              </TableCell>
-            ))}
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
+  return <DataTable table={table} onOpen={onOpen} />;
 }

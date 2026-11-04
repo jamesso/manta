@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import {
   Sheet,
   SheetTrigger,
+  SheetBody,
   SheetContent,
   SheetHeader,
   SheetTitle,
@@ -77,14 +78,13 @@ export default function EditorLayout() {
               <Eye />
               {t('form:preview:toggle')}
             </SheetTrigger>
-            <SheetContent
-              side="right"
-              className="w-full overflow-y-auto bg-background text-foreground sm:max-w-xl"
-            >
+            <SheetContent side="right" className="sm:max-w-xl">
               <SheetHeader>
                 <SheetTitle>{t('form:preview:toggle')}</SheetTitle>
               </SheetHeader>
-              <LivePreview />
+              <SheetBody className="p-0">
+                <LivePreview />
+              </SheetBody>
             </SheetContent>
           </Sheet>
         </div>

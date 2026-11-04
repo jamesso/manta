@@ -39,6 +39,7 @@ export default function TaxRateSelect({ row, index }) {
   return (
     <Select
       value={value}
+      items={options.map(rate => ({ value: rate.id, label: rate.name }))}
       onValueChange={id => {
         const rate =
           rates.find(r => r.id === id) ?? active.find(r => r.id === id);
@@ -46,7 +47,7 @@ export default function TaxRateSelect({ row, index }) {
       }}
     >
       <SelectTrigger
-        className="w-full bg-background text-foreground"
+        className="w-full"
         aria-label={t('form:fields:tax:rateRow', { number: index + 1 })}
       >
         <SelectValue placeholder="—" />

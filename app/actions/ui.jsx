@@ -26,6 +26,9 @@ export const newInvoice = createAction(ACTION_TYPES.UI_NEW_INVOICE);
 
 export const newEstimate = createAction(ACTION_TYPES.UI_NEW_ESTIMATE);
 
+// Leave the editor without saving: asks first when changes would be lost.
+export const closeForm = createAction(ACTION_TYPES.UI_FORM_CLOSE);
+
 export const setSidebarCollapsed = createAction(
   ACTION_TYPES.UI_SIDEBAR_COLLAPSED_SET,
   v => v
@@ -55,7 +58,19 @@ export const setRecurringSheet = createAction(
   v => v
 );
 
-export const openInvoicesTab = createAction(
-  ACTION_TYPES.UI_INVOICES_TAB_REQUEST,
-  tab => tab
+// Open the preview drawer for a saved document, or close it with null.
+export const previewInvoice = createAction(
+  ACTION_TYPES.UI_PREVIEW_SHEET_SET,
+  doc => doc ?? null
+);
+
+// Opens a list page and asks it to apply filters or open a record.
+// request: { status?, query?, openId? }
+export const openList = createAction(
+  ACTION_TYPES.UI_LIST_REQUEST,
+  (page, request = {}) => ({ page, ...request })
+);
+
+export const clearListRequest = createAction(
+  ACTION_TYPES.UI_LIST_REQUEST_CLEAR
 );

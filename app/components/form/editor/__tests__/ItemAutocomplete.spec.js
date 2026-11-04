@@ -18,13 +18,26 @@ describe('ItemAutocomplete behavior', () => {
     expect(shouldBlockAutocompleteEnter(event, false, true)).toBe(false);
   });
 
-  it('adds a row on Enter only when the popup is closed', () => {
+  it('adds a row on Enter unless an open popup has a highlighted item', () => {
     expect(
       shouldAddRowOnEnter({ key: 'Enter', open: false, isComposing: false })
     ).toBe(true);
     expect(
-      shouldAddRowOnEnter({ key: 'Enter', open: true, isComposing: false })
+      shouldAddRowOnEnter({
+        key: 'Enter',
+        open: true,
+        highlighted: true,
+        isComposing: false,
+      })
     ).toBe(false);
+    expect(
+      shouldAddRowOnEnter({
+        key: 'Enter',
+        open: true,
+        highlighted: false,
+        isComposing: false,
+      })
+    ).toBe(true);
     expect(
       shouldAddRowOnEnter({ key: 'Enter', open: false, isComposing: true })
     ).toBe(false);

@@ -2,13 +2,14 @@ import React, { useState, useSyncExternalStore } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+  Sheet,
+  SheetContent,
+  SheetBody,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -50,7 +51,7 @@ export default function EmailAddressDialog() {
   };
 
   return (
-    <Dialog
+    <Sheet
       open
       onOpenChange={open => {
         if (!open) {
@@ -58,39 +59,41 @@ export default function EmailAddressDialog() {
         }
       }}
     >
-      <DialogContent className="bg-popover text-popover-foreground">
-        <DialogHeader>
-          <DialogTitle>
+      <SheetContent side="right">
+        <SheetHeader>
+          <SheetTitle>
             {t('email:ask:title', { client: current.client })}
-          </DialogTitle>
-          <DialogDescription>{t('email:ask:description')}</DialogDescription>
-        </DialogHeader>
-        <Field>
-          <FieldLabel htmlFor="email-address-input">
-            {t('email:ask:label')}
-          </FieldLabel>
-          <Input
-            id="email-address-input"
-            type="email"
-            className="bg-background text-foreground"
-            value={value}
-            onChange={e => {
-              setValue(e.target.value);
-              setError('');
-            }}
-          />
-          {error ? <FieldError>{error}</FieldError> : null}
-        </Field>
-        {current.canSave ? (
-          <label className="flex items-center gap-2 text-sm text-foreground">
-            <Checkbox
-              checked={saveToClient}
-              onCheckedChange={checked => setSaveToClient(checked === true)}
+          </SheetTitle>
+          <SheetDescription>{t('email:ask:description')}</SheetDescription>
+        </SheetHeader>
+        <SheetBody className="gap-4">
+          <Field>
+            <FieldLabel htmlFor="email-address-input">
+              {t('email:ask:label')}
+            </FieldLabel>
+            <Input
+              id="email-address-input"
+              type="email"
+              className="bg-background text-foreground"
+              value={value}
+              onChange={e => {
+                setValue(e.target.value);
+                setError('');
+              }}
             />
-            {t('email:ask:save')}
-          </label>
-        ) : null}
-        <DialogFooter>
+            {error ? <FieldError>{error}</FieldError> : null}
+          </Field>
+          {current.canSave ? (
+            <label className="flex items-center gap-2 text-sm text-foreground">
+              <Checkbox
+                checked={saveToClient}
+                onCheckedChange={checked => setSaveToClient(checked === true)}
+              />
+              {t('email:ask:save')}
+            </label>
+          ) : null}
+        </SheetBody>
+        <SheetFooter>
           <Button
             type="button"
             variant="outline"
@@ -102,8 +105,8 @@ export default function EmailAddressDialog() {
           <Button type="button" onClick={onContinue}>
             {t('email:ask:confirm')}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   );
 }

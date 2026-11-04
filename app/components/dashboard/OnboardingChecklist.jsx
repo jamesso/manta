@@ -9,8 +9,6 @@ import * as SettingsActions from '../../actions/settings';
 import * as UIActions from '../../actions/ui';
 import { getRecentInvoices } from '../../helpers/dashboard';
 
-const ipc = window.manta.ipc;
-
 export default function OnboardingChecklist({
   checklist,
   invoices,
@@ -32,7 +30,7 @@ export default function OnboardingChecklist({
     invoice: () => dispatch(UIActions.newInvoice()),
     pdf: () => {
       if (newest) {
-        ipc.send('preview-invoice', newest);
+        dispatch(UIActions.previewInvoice(newest));
       }
     },
   };

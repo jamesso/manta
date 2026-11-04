@@ -1,6 +1,5 @@
 // Node Libs
 import currencies from '../../libs/currencies.json';
-const ipc = window.manta.ipc;
 import i18n from '../../i18n/i18n';
 import { omit } from 'lodash';
 
@@ -173,9 +172,7 @@ async function handleSyncCreditedInvoice(
   } catch (err) {
     publishInvoiceDocs(next, allDocs);
     toast.add({
-      title: i18n.t('invoices:creditNotes:errors:syncFailed', {
-        defaultValue: 'Could not update the credited invoice.',
-      }),
+      title: i18n.t('invoices:creditNotes:errors:updateFailed'),
       type: 'warning',
     });
     throw err;
@@ -394,10 +391,7 @@ const InvoicesMW =
                 payload = await getAllDocs('invoices');
               } catch {
                 toast.add({
-                  title: i18n.t('invoices:creditNotes:errors:syncFailed', {
-                    defaultValue:
-                      'Could not repair invoice status after credits.',
-                  }),
+                  title: i18n.t('invoices:creditNotes:errors:repairFailed'),
                   type: 'warning',
                 });
               }
@@ -450,7 +444,7 @@ const InvoicesMW =
                   ),
                 },
               });
-              ipc.send('preview-invoice', action.payload);
+              dispatch(UIActions.previewInvoice(action.payload));
             }
             return persistedInvoice(newDocs, action.payload);
           })
@@ -578,9 +572,7 @@ const InvoicesMW =
               const toastId = toast.add({
                 title: i18n.t(
                   allEstimates
-                    ? removed.length === 1
-                      ? 'estimates:toast:deleted_one'
-                      : 'estimates:toast:deleted_other'
+                    ? 'estimates:toast:deleted'
                     : 'invoices:toast:deleted',
                   { count: removed.length }
                 ),
@@ -1284,9 +1276,7 @@ const InvoicesMW =
             const invoice = docs.find(d => d._id === action.payload._id);
             if (!invoice) {
               toast.add({
-                title: i18n.t('invoices:toast:notFound', {
-                  defaultValue: 'Invoice not found',
-                }),
+                title: i18n.t('invoices:toast:notFound'),
                 type: 'warning',
               });
               return;
@@ -1294,9 +1284,7 @@ const InvoicesMW =
             const linked = linkedCreditNotes(docs, invoice._id);
             if (!canCreateCreditNote(invoice, linked)) {
               toast.add({
-                title: i18n.t('invoices:creditNotes:errors:notAllowed', {
-                  defaultValue: 'Cannot create credit note for this invoice.',
-                }),
+                title: i18n.t('invoices:creditNotes:errors:notAllowed'),
                 type: 'warning',
               });
               return;
@@ -1378,9 +1366,7 @@ const InvoicesMW =
                 }
                 if (stored === 'void') {
                   toast.add({
-                    title: i18n.t('invoices:creditNotes:errors:void', {
-                      defaultValue: 'Credit note is void.',
-                    }),
+                    title: i18n.t('invoices:creditNotes:errors:void'),
                     type: 'warning',
                   });
                   return;
@@ -1442,9 +1428,7 @@ const InvoicesMW =
                 const stored = cn.status ?? 'draft';
                 if (stored === 'draft') {
                   toast.add({
-                    title: i18n.t('invoices:creditNotes:errors:draftVoid', {
-                      defaultValue: 'Draft credit notes cannot be voided.',
-                    }),
+                    title: i18n.t('invoices:creditNotes:errors:draftVoid'),
                     type: 'warning',
                   });
                   return;

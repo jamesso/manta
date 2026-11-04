@@ -21,8 +21,14 @@ import {
   previewImport,
   runImport,
 } from '../../../helpers/backupFlow';
-import ImportDialog from './ImportDialog';
+import ImportSheet from './ImportSheet';
 import { useDebouncedSave } from '../useDebouncedSave';
+import {
+  SettingsBlock,
+  SettingsGroup,
+  SettingsPage,
+  SettingsRow,
+} from '../SettingsLayout';
 
 const ipc = window.manta.ipc;
 
@@ -267,104 +273,113 @@ export default function ExportBackup({
     }
   };
 
+  const importSummary = importState
+    ? {
+        fileName: importState.fileName,
+        exportedAt: importState.exportedAt,
+        appVersion: importState.backup.appVersion,
+        counts: Object.fromEntries(
+          ['invoices', 'contacts', 'items', 'recurring'].map(key => [
+            key,
+            {
+              total: (importState.backup[key] ?? []).length,
+              added: importState.preview.skip[key].added,
+              existing: importState.preview.skip[key].skipped,
+              skipped:
+                (importState.invalid[key] ?? 0) +
+                (importState.duplicates[key] ?? 0),
+            },
+          ])
+        ),
+        creditWarnings: importState.creditWarnings,
+        hasSettings: Boolean(importState.backup.settings),
+      }
+    : null;
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-lg font-semibold">
-          {t('settings:sections:export:title')}
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          {t('settings:sections:export:description')}
-        </p>
-        {saveMessage ? (
-          <p className="mt-2 text-sm text-destructive" role="alert">
-            {saveMessage}
-          </p>
-        ) : null}
-      </div>
-      <Field>
-        <FieldLabel>{t('settings:fields:pdfExportDir')}</FieldLabel>
-        <div className="flex gap-2">
-          <Input
-            readOnly
-            value={invoiceDraft.exportDir ?? ''}
-            className="flex-1"
+    <SettingsPage
+      title={t('settings:sections:export:title')}
+      description={t('settings:sections:export:description')}
+      error={saveMessage}
+    >
+      <SettingsGroup title={t('settings:sections:export:pdfTitle')}>
+        <SettingsBlock>
+          <Field>
+            <FieldLabel>{t('settings:fields:pdfExportDir')}</FieldLabel>
+            <div className="flex gap-2">
+              <Input
+                readOnly
+                value={invoiceDraft.exportDir ?? ''}
+                className="flex-1"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => ipc.send('select-export-directory')}
+              >
+                {t('settings:sections:export:chooseFolder')}
+              </Button>
+            </div>
+          </Field>
+        </SettingsBlock>
+        <SettingsRow
+          label={t('settings:fields:openPDFReader')}
+          htmlFor="preview-pdf"
+        >
+          <Switch
+            id="preview-pdf"
+            checked={Boolean(generalDraft.previewPDF)}
+            onCheckedChange={previewPDF =>
+              saveGeneralNow(current => ({ ...current, previewPDF }))
+            }
           />
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => ipc.send('select-export-directory')}
-          >
-            {t('settings:sections:export:chooseFolder')}
-          </Button>
-        </div>
-      </Field>
-      <Field className="flex flex-row items-center justify-between gap-4">
-        <FieldLabel htmlFor="preview-pdf">
-          {t('settings:fields:openPDFReader')}
-        </FieldLabel>
-        <Switch
-          id="preview-pdf"
-          checked={Boolean(generalDraft.previewPDF)}
-          onCheckedChange={previewPDF =>
-            saveGeneralNow(current => ({ ...current, previewPDF }))
-          }
-        />
-      </Field>
-      <div className="space-y-3 border-t border-border pt-6">
-        <p className="text-sm text-muted-foreground">
-          {t('settings:backup:autoHint')}
-        </p>
-        <div className="flex flex-wrap gap-2">
+        </SettingsRow>
+      </SettingsGroup>
+      <SettingsGroup
+        title={t('settings:sections:export:backupTitle')}
+        description={t('settings:backup:autoHint')}
+      >
+        <SettingsRow
+          label={t('settings:sections:export:exportBackup')}
+          description={t('settings:sections:export:exportBackupHint')}
+        >
           <Button type="button" variant="outline" onClick={onExportBackup}>
             <Download className="size-4" />
             {t('settings:backup:export')}
           </Button>
+        </SettingsRow>
+        <SettingsRow
+          label={t('settings:backup:importTitle')}
+          description={t('settings:sections:export:importBackupHint')}
+        >
           <Button type="button" variant="outline" onClick={onImportPick}>
             <Upload className="size-4" />
             {t('settings:backup:import')}
           </Button>
+        </SettingsRow>
+      </SettingsGroup>
+      <SettingsGroup title={t('settings:sections:export:csvTitle')}>
+        <SettingsRow
+          label={t('settings:sections:export:csvInvoices')}
+          description={t('settings:sections:export:csvInvoicesHint')}
+        >
           <Button type="button" variant="outline" onClick={onExportCsv}>
             <Sheet className="size-4" />
             {t('settings:backup:exportCsv')}
           </Button>
-        </div>
-      </div>
-      {importState ? (
-        <ImportDialog
-          open={importOpen}
-          onOpenChange={setImportOpen}
-          fileName={importState.fileName}
-          exportedAt={importState.exportedAt}
-          preview={{
-            invoices: {
-              total: importState.backup.invoices.length,
-              added: importState.preview.skip.invoices.added,
-              skipped: importState.preview.skip.invoices.skipped,
-            },
-            contacts: {
-              total: importState.backup.contacts.length,
-              added: importState.preview.skip.contacts.added,
-              skipped: importState.preview.skip.contacts.skipped,
-            },
-            items: {
-              total: (importState.backup.items ?? []).length,
-              added: importState.preview.skip.items.added,
-              skipped: importState.preview.skip.items.skipped,
-            },
-          }}
-          invalid={importState.invalid}
-          duplicates={importState.duplicates}
-          creditWarnings={importState.creditWarnings}
-          hasSettings={Boolean(importState.backup.settings)}
-          mode={mode}
-          onModeChange={setMode}
-          includeSettings={includeSettings}
-          onIncludeSettingsChange={setIncludeSettings}
-          importing={importing}
-          onConfirm={onConfirmImport}
-        />
-      ) : null}
-    </div>
+        </SettingsRow>
+      </SettingsGroup>
+      <ImportSheet
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        summary={importSummary}
+        mode={mode}
+        onModeChange={setMode}
+        includeSettings={includeSettings}
+        onIncludeSettingsChange={setIncludeSettings}
+        importing={importing}
+        onConfirm={onConfirmImport}
+      />
+    </SettingsPage>
   );
 }

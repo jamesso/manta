@@ -157,3 +157,60 @@ describe('getSettingsErrors', () => {
     ).toEqual({});
   });
 });
+
+describe('getSettingsErrors invoice template', () => {
+  it('accepts the legacy default template of older installs', () => {
+    expect(getSettingsErrors('invoice', { template: 'default' })).toEqual({});
+  });
+});
+
+describe('getSettingsErrors invoice style', () => {
+  it('accepts a valid style', () => {
+    expect(
+      getSettingsErrors('invoice', {
+        style: {
+          accentColor: '#2CCCE4',
+          fontSize: '300',
+          logoSize: '7.5',
+          alignItems: 'top',
+          showLogo: false,
+        },
+      })
+    ).toEqual({});
+  });
+
+  it('rejects bad style values', () => {
+    expect(
+      getSettingsErrors('invoice', {
+        style: {
+          accentColor: 'red',
+          fontSize: 300,
+          logoSize: '80',
+          alignItems: 'left',
+          useSymbol: 'yes',
+        },
+      })
+    ).toEqual({
+      'style.accentColor': 'settings:errors:invoiceInvalid',
+      'style.fontSize': 'settings:errors:invoiceInvalid',
+      'style.logoSize': 'settings:errors:invoiceInvalid',
+      'style.alignItems': 'settings:errors:invoiceInvalid',
+      'style.useSymbol': 'settings:errors:invoiceInvalid',
+    });
+  });
+
+  it('rejects a buyer reference setting that is not a boolean', () => {
+    expect(getSettingsErrors('invoice', { useBuyerReference: false })).toEqual(
+      {}
+    );
+    expect(getSettingsErrors('invoice', { useBuyerReference: 'no' })).toEqual({
+      useBuyerReference: 'settings:errors:invoiceInvalid',
+    });
+  });
+
+  it('rejects a style that is not an object', () => {
+    expect(getSettingsErrors('invoice', { style: [] })).toEqual({
+      style: 'settings:errors:invoiceInvalid',
+    });
+  });
+});

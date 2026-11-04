@@ -1,5 +1,5 @@
 import * as dialog from '@/lib/dialog';
-import { isEmpty, pick, includes } from 'lodash';
+import { isEmpty, pick, includes, omit } from 'lodash';
 import moment from 'moment';
 
 import i18n from '../../i18n/i18n';
@@ -9,11 +9,17 @@ import {
   getIssuedAt,
   isLineTaxInvoice,
 } from './invoice';
-import { clearRowTax, getSellerTaxIds, getTaxRateErrors, buildSellerSnapshot } from './tax';
+import {
+  clearRowTax,
+  getSellerTaxIds,
+  getTaxRateErrors,
+  buildSellerSnapshot,
+} from './tax';
 import { reconcilePaymentStatus } from './payments';
 import { getDocType } from './docType';
 import { getDefaultValidUntil, normalizeValidDays } from './estimate';
 import { getCreditedTotal, getInvoiceTotal, roundMoney } from './invoice';
+import { isBuyerReferenceOn } from '../../helpers/einvoice/identifiers.js';
 
 const EMAIL_RE =
   /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
@@ -109,11 +115,40 @@ function recipientHasDraftIdentity(recipient) {
   return Boolean(data.fullname || data.company || data.email);
 }
 
+// True when leaving the editor now would lose something the user entered.
+// A saved document or template counts edits made since it was loaded; a new
+// document counts any client or line item text.
+export function hasUnsavedChanges(form) {
+  if (!form || form.savePending) return false;
+  if (form.settings?.editMode?.active || form.templateTarget != null) {
+    return (form.formRevision ?? 0) !== (form.cleanRevision ?? 0);
+  }
+  return hasDraftContent(form);
+}
+
 function hasDraftContent(form) {
   if (recipientHasDraftIdentity(form.recipient)) return true;
   return form.rows.some(
     row => row.description && String(row.description).trim()
   );
+}
+
+// The client name field works like a line item: pick a saved client to link
+// it, or type a name to describe a new client.
+export function recipientFromContact(recipient, contact) {
+  return { ...recipient, newRecipient: false, select: contact, new: {} };
+}
+
+// Typing over a linked client starts a new client, so it does not keep the
+// old client's email or tax ID.
+export function recipientWithTypedName(recipient, fullname) {
+  const linked = !recipient.newRecipient && Boolean(recipient.select?._id);
+  return {
+    ...recipient,
+    newRecipient: true,
+    select: {},
+    new: linked ? { fullname } : { ...recipient.new, fullname },
+  };
 }
 
 export function getRecipientErrors(recipient, mode) {
@@ -730,6 +765,9 @@ export function getInvoiceData(
   const seller = resolveSellerForSave(formData, profile, invoiceSettings, mode);
   if (seller) {
     fields.seller = seller;
+  }
+  if (!isBuyerReferenceOn(invoiceSettings) && fields.recipient) {
+    fields.recipient = omit(fields.recipient, 'buyerReference');
   }
   if (formData.recipient.newRecipient && docType !== 'creditNote') {
     const savedRecipient =

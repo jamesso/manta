@@ -11,24 +11,31 @@ import {
   getUnitCode,
 } from '../../../helpers/items';
 
-const inputClassName =
+export const inputClassName =
   'h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-colors outline-none file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40';
 
-const popupClassName =
-  'group/combobox-content relative max-h-(--available-height) w-(--anchor-width) max-w-(--available-width) min-w-[calc(var(--anchor-width)+--spacing(7))] origin-(--transform-origin) overflow-hidden rounded-lg bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-[side=bottom]:slide-in-from-top-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95';
+export const popupClassName =
+  'group/combobox-content relative max-h-(--available-height) w-(--anchor-width) max-w-(--available-width) origin-(--transform-origin) overflow-hidden rounded-lg bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-[side=bottom]:slide-in-from-top-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95';
 
-const listClassName =
+export const listClassName =
   'max-h-72 scroll-py-1 overflow-y-auto p-1 outline-none data-empty:p-0';
 
 export function shouldApplyTextChange(reason, skipSelection) {
   return !skipSelection && reason !== 'item-press';
 }
 
-export function shouldAddRowOnEnter({ key, open, isComposing }) {
+// A click opens the full list only on an empty line. A click on a filled
+// line (to edit its text) must not show suggestions.
+export function shouldIgnoreOpenChange(nextOpen, reason, hasQuery) {
+  return nextOpen && reason === 'input-press' && hasQuery;
+}
+
+// Enter adds a new row unless the user highlighted an item to pick.
+export function shouldAddRowOnEnter({ key, open, highlighted, isComposing }) {
   if (isComposing || key !== 'Enter') {
     return false;
   }
-  return !open;
+  return !open || !highlighted;
 }
 
 export function shouldBlockAutocompleteEnter(event, open, composing) {
@@ -61,9 +68,15 @@ export default function ItemAutocomplete({
   const [userOpen, setUserOpen] = useState(false);
   const skipTextChangeRef = useRef(false);
   const composingRef = useRef(false);
+  const highlightedRef = useRef(false);
 
-  const matches = useMemo(() => searchItems(items, value), [items, value]);
-  const open = userOpen && matches.length > 0 && value.trim().length >= 1;
+  const hasQuery = value.trim().length > 0;
+  // An empty field lists every saved item, so the user can browse them.
+  const matches = useMemo(
+    () => (hasQuery ? searchItems(items, value) : items),
+    [hasQuery, items, value]
+  );
+  const open = userOpen && matches.length > 0;
 
   const handlePick = item => {
     skipTextChangeRef.current = true;
@@ -87,11 +100,23 @@ export default function ItemAutocomplete({
       filter={null}
       itemToStringValue={itemToRowDescription}
       open={open}
-      onOpenChange={setUserOpen}
+      openOnInputClick
+      onItemHighlighted={item => {
+        highlightedRef.current = item != null;
+      }}
+      onOpenChange={(nextOpen, details) => {
+        if (shouldIgnoreOpenChange(nextOpen, details.reason, hasQuery)) {
+          return;
+        }
+        setUserOpen(nextOpen);
+      }}
     >
       <Autocomplete.Input
         id={id}
         className={cn(inputClassName, inputProps.className)}
+        placeholder={
+          items.length > 0 ? t('form:fields:items:pickPlaceholder') : undefined
+        }
         {...inputProps}
         onCompositionStart={event => {
           composingRef.current = true;
@@ -116,10 +141,12 @@ export default function ItemAutocomplete({
             shouldAddRowOnEnter({
               key: event.key,
               open,
+              highlighted: highlightedRef.current,
               isComposing: composing,
             })
           ) {
             event.preventDefault();
+            setUserOpen(false);
             onEnterWithoutPick();
           }
         }}

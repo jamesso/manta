@@ -69,7 +69,8 @@ describe('formToPreviewInvoice', () => {
     const result = formToPreviewInvoice(f, context);
     expect(result.invoice.recipient.fullname).toBe('Jo');
     expect(result.invoice.issuedAt).toBe(42);
-    expect(result.configs).toEqual({ template: 'business' });
+    expect(result.configs.template).toBe('business');
+    expect(result.configs.fontSize).toBe('200');
   });
   it('passes payments in edit mode', () => {
     const f = input();

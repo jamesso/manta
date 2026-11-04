@@ -1,6 +1,7 @@
 import {
   buildContact,
   getContactErrors,
+  getClientBalanceStatus,
   matchesClientQuery,
   summarizeClients,
 } from '../clients';
@@ -240,5 +241,28 @@ describe('summarizeClients estimate filter', () => {
     const map = summarizeClients([{ _id: 'a', fullname: 'A' }], invoices, now);
     expect(map.get('a').invoiceCount).toBe(1);
     expect(map.get('a').outstanding).toEqual({ USD: 10 });
+  });
+});
+
+describe('matchesClientQuery with several words', () => {
+  it('needs every word, across fields', () => {
+    const contact = { fullname: 'Jane Doe', company: 'Acme Corp' };
+    expect(matchesClientQuery(contact, 'doe acme')).toBe(true);
+    expect(matchesClientQuery(contact, 'doe globex')).toBe(false);
+  });
+});
+
+describe('getClientBalanceStatus', () => {
+  it('groups clients by what they owe', () => {
+    expect(getClientBalanceStatus(undefined)).toBe('noInvoices');
+    expect(getClientBalanceStatus({ invoiceCount: 0, outstanding: {} })).toBe(
+      'noInvoices'
+    );
+    expect(
+      getClientBalanceStatus({ invoiceCount: 2, outstanding: { USD: 50 } })
+    ).toBe('outstanding');
+    expect(
+      getClientBalanceStatus({ invoiceCount: 2, outstanding: { USD: 0 } })
+    ).toBe('settled');
   });
 });

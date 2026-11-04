@@ -26,7 +26,11 @@ describe('UI Middleware', () => {
     dispatch = vi.fn();
     getState = vi.fn(() => ({
       ui: { activeTab: 'form' },
-      form: { settings: { editMode: { active: false } } },
+      form: {
+        recipient: { newRecipient: true, new: {} },
+        rows: [{ description: '' }],
+        settings: { editMode: { active: false } },
+      },
     }));
     middleware = UIMiddleware({ dispatch, getState })(next);
     toast.add.mockClear();
@@ -89,7 +93,7 @@ describe('UI Middleware', () => {
     it('does nothing when edit confirm is declined', async () => {
       getState.mockReturnValue({
         ui: { activeTab: 'form' },
-        form: { settings: { editMode: { active: true } } },
+        form: { formRevision: 1, settings: { editMode: { active: true } } },
       });
       dialog.confirm.mockResolvedValueOnce(false);
       middleware(UIActions.newInvoice());
@@ -102,7 +106,7 @@ describe('UI Middleware', () => {
     it('clears form when edit confirm is accepted', async () => {
       getState.mockReturnValue({
         ui: { activeTab: 'invoices' },
-        form: { settings: { editMode: { active: true } } },
+        form: { formRevision: 1, settings: { editMode: { active: true } } },
       });
       dialog.confirm.mockResolvedValueOnce(true);
       middleware(UIActions.newInvoice());
@@ -116,6 +120,8 @@ describe('UI Middleware', () => {
         ui: { activeTab: 'form' },
         form: {
           templateTarget: { profileId: 'rec-1' },
+          formRevision: 3,
+          cleanRevision: 1,
           settings: { editMode: { active: false } },
         },
       });
@@ -134,6 +140,8 @@ describe('UI Middleware', () => {
         ui: { activeTab: 'form' },
         form: {
           templateTarget: { profileId: 'rec-1' },
+          formRevision: 3,
+          cleanRevision: 1,
           settings: { editMode: { active: false } },
         },
       });
@@ -148,5 +156,135 @@ describe('UI Middleware', () => {
     const action = { type: 'TEST' };
     middleware(action);
     expect(next).toHaveBeenCalledWith(action);
+  });
+
+  describe('UI_FORM_CLOSE', () => {
+    const formState = form => ({
+      ui: { activeTab: 'form' },
+      form: {
+        docType: 'invoice',
+        recipient: { newRecipient: true, new: {} },
+        rows: [{ description: '' }],
+        settings: { editMode: { active: false } },
+        ...form,
+      },
+    });
+
+    it('leaves an empty new document without asking', () => {
+      getState.mockReturnValue(formState({ docType: 'estimate' }));
+      middleware(UIActions.closeForm());
+      expect(dialog.confirm).not.toHaveBeenCalled();
+      expect(dispatch).toHaveBeenCalledWith(FormActions.clearForm(null, true));
+      expect(dispatch).toHaveBeenCalledWith(
+        UIActions.changeActiveTab('estimates')
+      );
+    });
+
+    it('asks before it discards a new document with content', async () => {
+      getState.mockReturnValue(
+        formState({ rows: [{ description: 'Design work' }] })
+      );
+      dialog.confirm.mockResolvedValueOnce(false);
+      await middleware(UIActions.closeForm());
+      expect(dialog.confirm).toHaveBeenCalledTimes(1);
+      expect(dispatch).not.toHaveBeenCalled();
+    });
+
+    it('discards edits to a saved document and opens its list', async () => {
+      getState.mockReturnValue(
+        formState({
+          docType: 'creditNote',
+          formRevision: 2,
+          settings: { editMode: { active: true } },
+        })
+      );
+      dialog.confirm.mockResolvedValueOnce(true);
+      await middleware(UIActions.closeForm());
+      expect(dispatch).toHaveBeenCalledWith(FormActions.clearForm(null, true));
+      expect(dispatch).toHaveBeenCalledWith(
+        UIActions.changeActiveTab('invoices')
+      );
+    });
+
+    it('returns to Recurring after it discards a template', async () => {
+      getState.mockReturnValue(
+        formState({ templateTarget: { profileId: null }, formRevision: 1 })
+      );
+      dialog.confirm.mockResolvedValueOnce(true);
+      await middleware(UIActions.closeForm());
+      expect(dispatch).toHaveBeenCalledWith(
+        UIActions.changeActiveTab('recurring')
+      );
+    });
+  });
+
+  describe('leaving the editor', () => {
+    const onForm = form => ({
+      ui: { activeTab: 'form' },
+      form: {
+        docType: 'invoice',
+        recipient: { newRecipient: true, new: {} },
+        rows: [{ description: '' }],
+        settings: { editMode: { active: false } },
+        ...form,
+      },
+    });
+    const withText = { rows: [{ description: 'Design work' }] };
+
+    it('asks before a sidebar move discards a new document', async () => {
+      getState.mockReturnValue(onForm(withText));
+      dialog.confirm.mockResolvedValueOnce(false);
+      const action = UIActions.changeActiveTab('invoices');
+      await middleware(action);
+      expect(dialog.confirm).toHaveBeenCalledTimes(1);
+      expect(next).not.toHaveBeenCalled();
+      expect(dispatch).not.toHaveBeenCalled();
+    });
+
+    it('clears the form, then moves, when the user discards', async () => {
+      getState.mockReturnValue(onForm(withText));
+      dialog.confirm.mockResolvedValueOnce(true);
+      const action = UIActions.changeActiveTab('settings');
+      await middleware(action);
+      expect(dispatch).toHaveBeenCalledWith(FormActions.clearForm(null, true));
+      expect(next).toHaveBeenCalledWith(action);
+    });
+
+    it('guards list requests from the command palette too', async () => {
+      getState.mockReturnValue(onForm(withText));
+      dialog.confirm.mockResolvedValueOnce(false);
+      await middleware(UIActions.openList('contacts', { openId: 'c1' }));
+      expect(next).not.toHaveBeenCalled();
+    });
+
+    it('moves without asking when a saved document has no edits', () => {
+      getState.mockReturnValue(
+        onForm({
+          formRevision: 4,
+          cleanRevision: 4,
+          settings: { editMode: { active: true } },
+        })
+      );
+      const action = UIActions.changeActiveTab('invoices');
+      middleware(action);
+      expect(dialog.confirm).not.toHaveBeenCalled();
+      expect(next).toHaveBeenCalledWith(action);
+    });
+
+    it('moves without asking while a save runs', () => {
+      getState.mockReturnValue(onForm({ ...withText, savePending: true }));
+      const action = UIActions.changeActiveTab('invoices');
+      middleware(action);
+      expect(dialog.confirm).not.toHaveBeenCalled();
+      expect(next).toHaveBeenCalledWith(action);
+    });
+
+    it('asks before New Estimate discards a new invoice', async () => {
+      getState.mockReturnValue(onForm(withText));
+      dialog.confirm.mockResolvedValueOnce(false);
+      await middleware(UIActions.newEstimate());
+      expect(dialog.confirm).toHaveBeenCalledTimes(1);
+      expect(dispatch).not.toHaveBeenCalled();
+    });
   });
 });

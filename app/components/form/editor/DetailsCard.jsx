@@ -69,6 +69,14 @@ export default function DetailsCard() {
   );
   const update = (field, value) => dispatch(updateFieldData(field, value));
   const currencyChange = (name, value) => update('currency', { [name]: value });
+  const paymentTermItems = paymentTerms.map(term => ({
+    value: term,
+    label: t(`form:fields:dueDate:paymentTerms:${term}:label`),
+  }));
+  const currencyOptionLabel = v =>
+    t(
+      `settings:fields:currency:${v === 'before' ? 'beforeAmount' : v === 'after' ? 'afterAmount' : v}`
+    );
   return (
     <Card>
       <CardHeader>
@@ -202,6 +210,7 @@ export default function DetailsCard() {
                 ) : (
                   <Select
                     value={dueDate.paymentTerm || paymentTerms[0]}
+                    items={paymentTermItems}
                     onValueChange={value =>
                       value && update('dueDate', { paymentTerm: value })
                     }
@@ -212,9 +221,9 @@ export default function DetailsCard() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {paymentTerms.map(term => (
-                        <SelectItem key={term} value={term}>
-                          {t(`form:fields:dueDate:paymentTerms:${term}:label`)}
+                      {paymentTermItems.map(term => (
+                        <SelectItem key={term.value} value={term.value}>
+                          {term.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -263,6 +272,7 @@ export default function DetailsCard() {
                   <>
                     <Select
                       value={dueDate.paymentTerm || paymentTerms[0]}
+                      items={paymentTermItems}
                       onValueChange={value =>
                         value && update('dueDate', { paymentTerm: value })
                       }
@@ -273,11 +283,9 @@ export default function DetailsCard() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {paymentTerms.map(term => (
-                          <SelectItem key={term} value={term}>
-                            {t(
-                              `form:fields:dueDate:paymentTerms:${term}:label`
-                            )}
+                        {paymentTermItems.map(term => (
+                          <SelectItem key={term.value} value={term.value}>
+                            {term.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -341,6 +349,10 @@ export default function DetailsCard() {
                       </FieldLabel>
                       <Select
                         value={currency[name] || values[0]}
+                        items={values.map(v => ({
+                          value: v,
+                          label: currencyOptionLabel(v),
+                        }))}
                         onValueChange={value =>
                           value && currencyChange(name, value)
                         }
@@ -351,9 +363,7 @@ export default function DetailsCard() {
                         <SelectContent>
                           {values.map(v => (
                             <SelectItem key={v} value={v}>
-                              {t(
-                                `settings:fields:currency:${v === 'before' ? 'beforeAmount' : v === 'after' ? 'afterAmount' : v}`
-                              )}
+                              {currencyOptionLabel(v)}
                             </SelectItem>
                           ))}
                         </SelectContent>

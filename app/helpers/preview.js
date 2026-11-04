@@ -1,4 +1,4 @@
-import { getDefaultPreviewConfigs } from '../../preview/constants/defaultConfigs';
+import { resolveInvoiceConfigs } from '../../preview/constants/defaultConfigs';
 import { getInvoiceTotals, getIssuedAt } from './invoice';
 import { pickInvoiceFields, resolveSellerForSave } from './form';
 import { getDefaultValidUntil, normalizeValidDays } from './estimate';
@@ -48,8 +48,10 @@ export function formToPreviewInvoice(
   if (seller) {
     invoice.seller = seller;
   }
-  const configs =
-    editMode.data?.configs ??
-    getDefaultPreviewConfigs(invoiceSettings, generalSettings);
+  const configs = resolveInvoiceConfigs(
+    editMode.data,
+    invoiceSettings,
+    generalSettings
+  );
   return { invoice, configs, profile };
 }

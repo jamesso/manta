@@ -9,7 +9,8 @@ const initialState = {
   shortcutsOpen: false,
   pendingSettingsSection: null,
   recurringSheet: null,
-  invoicesTabRequest: null,
+  previewSheet: null,
+  listRequest: null,
 };
 
 const UIReducer = handleActions(
@@ -56,15 +57,19 @@ const UIReducer = handleActions(
         recurringSheet: action.payload,
       }),
 
-    [ACTION_TYPES.UI_INVOICES_TAB_REQUEST]: (state, action) => {
-      if (action.payload == null) {
-        return Object.assign({}, state, { invoicesTabRequest: null });
-      }
-      return Object.assign({}, state, {
-        activeTab: 'invoices',
-        invoicesTabRequest: action.payload,
-      });
-    },
+    [ACTION_TYPES.UI_PREVIEW_SHEET_SET]: (state, action) =>
+      Object.assign({}, state, {
+        previewSheet: action.payload ?? null,
+      }),
+
+    [ACTION_TYPES.UI_LIST_REQUEST]: (state, action) =>
+      Object.assign({}, state, {
+        activeTab: action.payload.page,
+        listRequest: action.payload,
+      }),
+
+    [ACTION_TYPES.UI_LIST_REQUEST_CLEAR]: state =>
+      Object.assign({}, state, { listRequest: null }),
   },
   initialState
 );

@@ -12,6 +12,7 @@ import AppSidebar from './components/layout/AppSidebar';
 import TitleBar from './components/layout/TitleBar';
 import CommandPalette from './components/layout/CommandPalette';
 import ShortcutsDialog from './components/layout/ShortcutsDialog';
+import InvoicePreviewSheet from './components/preview/InvoicePreviewSheet';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { useMediaQuery } from '@/hooks/use-media-query';
@@ -33,7 +34,6 @@ const MENU_CHANNELS = [
   'menu-form-toggle-discount',
   'menu-form-toggle-note',
   'menu-form-toggle-settings',
-  'save-configs-to-invoice',
   'onboarding-updated',
 ];
 
@@ -101,9 +101,6 @@ function App() {
     ipc.on('menu-form-toggle-settings', () =>
       dispatch(FormActions.toggleFormSettings())
     );
-    ipc.on('save-configs-to-invoice', (_e, invoiceID, configs) => {
-      dispatch(InvoicesActions.saveInvoiceConfigs(invoiceID, configs));
-    });
     ipc.on('onboarding-updated', (_e, patch) => {
       dispatch(SettingsActions.updateOnboarding(patch));
     });
@@ -130,6 +127,7 @@ function App() {
         </div>
         <CommandPalette />
         <ShortcutsDialog />
+        <InvoicePreviewSheet />
       </SidebarProvider>
     </TooltipProvider>
   );

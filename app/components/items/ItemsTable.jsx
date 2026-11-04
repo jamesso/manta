@@ -1,40 +1,26 @@
 import { createColumnHelper, useTable } from '@tanstack/react-table';
-import { ArrowUpDown } from 'lucide-react';
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { formatNumber } from '../../../helpers/formatNumber';
 import { getUnitCode, isKnownUnit } from '../../helpers/items';
+import DataTable, { SortHeader, selectColumn } from '../table/DataTable';
+import { features } from '../table/features';
 import ItemRowActions from './ItemRowActions';
-import { features } from './itemTableFeatures';
 
 const columnHelper = createColumnHelper();
 
-const sortHeaderClass =
-  'inline-flex min-h-6 items-center gap-1 bg-transparent text-muted-foreground shadow-none transition-colors hover:text-foreground';
-
 function getColumns({ t, currency, onEdit }) {
   return [
+    selectColumn({
+      selectAllLabel: t('common:table:selectAll'),
+      getRowLabel: row => t('common:table:selectRow', { name: row.name }),
+    }),
     columnHelper.accessor('name', {
       id: 'name',
       header: ({ column }) => (
-        <button
-          type="button"
-          className={sortHeaderClass}
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          {t('items:columns:name')}
-          <ArrowUpDown className="size-3.5 opacity-50" />
-        </button>
+        <SortHeader column={column}>{t('items:columns:name')}</SortHeader>
       ),
       cell: ({ row }) => (
         <div>
@@ -46,43 +32,49 @@ function getColumns({ t, currency, onEdit }) {
           ) : null}
         </div>
       ),
-      sortingFn: (a, b) =>
+      sortFn: (a, b) =>
         a.original.name.localeCompare(b.original.name, undefined, {
           sensitivity: 'base',
         }),
     }),
-    columnHelper.accessor(row => getUnitCode(row.unitCode), {
-      id: 'unit',
-      header: t('items:columns:unit'),
-      cell: ({ getValue }) => {
-        const code = getValue();
+    columnHelper.accessor(
+      row => {
+        const code = getUnitCode(row.unitCode);
         return isKnownUnit(code) ? t(`items:units:${code}`) : code;
       },
-    }),
-    columnHelper.accessor('unitPrice', {
-      header: ({ column }) => (
-        <button
-          type="button"
-          className={`${sortHeaderClass} ms-auto`}
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          {t('items:columns:unitPrice')}
-          <ArrowUpDown className="size-3.5 opacity-50" />
-        </button>
-      ),
-      cell: ({ getValue }) => (
-        <span className="block text-end tabular-nums">
-          {/* Items stored by an older import can have no price. */}
-          {Number.isFinite(getValue())
+      {
+        id: 'unit',
+        header: ({ column }) => (
+          <SortHeader column={column}>{t('items:columns:unit')}</SortHeader>
+        ),
+        sortFn: 'text',
+      }
+    ),
+    // Items stored by an older import can have no price; they sort first.
+    columnHelper.accessor(
+      row =>
+        Number.isFinite(row.unitPrice)
+          ? row.unitPrice
+          : Number.NEGATIVE_INFINITY,
+      {
+        id: 'unitPrice',
+        header: ({ column }) => (
+          <SortHeader column={column}>
+            {t('items:columns:unitPrice')}
+          </SortHeader>
+        ),
+        cell: ({ row }) =>
+          Number.isFinite(row.original.unitPrice)
             ? formatNumber(
-                getValue(),
+                row.original.unitPrice,
                 currency.fraction ?? 2,
                 currency.separator ?? 'commaDot'
               )
-            : '—'}
-        </span>
-      ),
-    }),
+            : '—',
+        meta: { align: 'end' },
+        sortFn: 'basic',
+      }
+    ),
     columnHelper.display({
       id: 'actions',
       header: () => (
@@ -105,7 +97,11 @@ export default function ItemsTable({
   items,
   sorting,
   onSortingChange,
-  onRowOpen,
+  rowSelection,
+  onRowSelectionChange,
+  pagination,
+  onPaginationChange,
+  onOpen,
   onEdit,
 }) {
   const { t } = useTranslation();
@@ -127,59 +123,12 @@ export default function ItemsTable({
     data: items,
     columns,
     getRowId: row => row._id,
-    state: { sorting },
+    state: { sorting, rowSelection, pagination },
     onSortingChange,
+    onRowSelectionChange,
+    onPaginationChange,
+    autoResetPageIndex: false,
   });
 
-  return (
-    <Table>
-      <TableHeader>
-        {table.getHeaderGroups().map(headerGroup => (
-          <TableRow key={headerGroup.id}>
-            {headerGroup.headers.map(header => {
-              const sorted = header.column.getIsSorted();
-              const canSort = header.column.getCanSort();
-              return (
-                <TableHead
-                  key={header.id}
-                  aria-sort={
-                    canSort
-                      ? sorted === 'asc'
-                        ? 'ascending'
-                        : sorted === 'desc'
-                          ? 'descending'
-                          : 'none'
-                      : undefined
-                  }
-                >
-                  {header.isPlaceholder
-                    ? null
-                    : typeof header.column.columnDef.header === 'function'
-                      ? header.column.columnDef.header(header.getContext())
-                      : header.column.columnDef.header}
-                </TableHead>
-              );
-            })}
-          </TableRow>
-        ))}
-      </TableHeader>
-      <TableBody>
-        {table.getRowModel().rows.map(row => (
-          <TableRow
-            key={row.id}
-            className="cursor-pointer"
-            onClick={() => onRowOpen(row.original)}
-          >
-            {row.getAllCells().map(cell => (
-              <TableCell key={cell.id}>
-                {typeof cell.column.columnDef.cell === 'function'
-                  ? cell.column.columnDef.cell(cell.getContext())
-                  : cell.getValue()}
-              </TableCell>
-            ))}
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
+  return <DataTable table={table} onOpen={onOpen} />;
 }

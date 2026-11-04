@@ -7,6 +7,7 @@ import {
   getUnitCode,
   rowToItemValues,
   searchItems,
+  sortItemsByUsage,
   withArchived,
 } from '../items';
 
@@ -314,5 +315,37 @@ describe('items helpers', () => {
     expect(withArchived({ _id: '1', archived: false }, true).archived).toBe(
       true
     );
+  });
+
+  describe('sortItemsByUsage', () => {
+    const items = [
+      { _id: 'a', name: 'Audit', description: '' },
+      { _id: 'b', name: 'Branding', description: 'Brand design' },
+      { _id: 'c', name: 'Consulting', description: '' },
+    ];
+
+    it('puts the most-used items first and sorts ties by name', () => {
+      const docs = [
+        {
+          rows: [
+            { description: 'Consulting' },
+            { description: 'brand design' },
+          ],
+        },
+        { rows: [{ description: 'Consulting' }] },
+        { rows: undefined },
+      ];
+      expect(sortItemsByUsage(items, docs).map(i => i._id)).toEqual([
+        'c',
+        'b',
+        'a',
+      ]);
+    });
+
+    it('does not mutate the input array', () => {
+      const copy = [...items];
+      sortItemsByUsage(items, []);
+      expect(items).toEqual(copy);
+    });
   });
 });

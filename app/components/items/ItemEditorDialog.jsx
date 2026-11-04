@@ -4,12 +4,13 @@ import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+  Sheet,
+  SheetContent,
+  SheetBody,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
 import {
   Field,
   FieldDescription,
@@ -93,6 +94,24 @@ export default function ItemEditorDialog({
   if (!isKnownUnit(currentCode) && !unitOptions.includes(currentCode)) {
     unitOptions.push(currentCode);
   }
+  const unitItems = unitOptions.map(code => ({
+    value: code,
+    label: isKnownUnit(code) ? t(`items:units:${code}`) : code,
+  }));
+  const rateOptions =
+    item?.taxRateId && !activeRates.some(r => r.id === item.taxRateId)
+      ? activeRates.concat(taxRates.filter(r => r.id === item.taxRateId))
+      : activeRates;
+  const taxRateItems = [
+    { value: 'default', label: t('items:dialog:defaultTaxRate') },
+    ...rateOptions.map(rate => ({
+      value: rate.id,
+      label:
+        rate.active === false
+          ? `${rate.name} (${t('settings:taxRates:inactive')})`
+          : rate.name,
+    })),
+  ];
 
   const onSubmit = async event => {
     event.preventDefault();
@@ -120,136 +139,127 @@ export default function ItemEditorDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-background text-foreground sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="right">
+        <SheetHeader>
+          <SheetTitle>
             {isEdit ? t('items:dialog:editTitle') : t('items:dialog:newTitle')}
-          </DialogTitle>
-        </DialogHeader>
-        <form id={formId} className="space-y-4" onSubmit={onSubmit}>
-          <Field>
-            <FieldLabel htmlFor={`${formId}-name`}>
-              {t('items:dialog:name')} *
-            </FieldLabel>
-            <Input
-              ref={nameRef}
-              id={`${formId}-name`}
-              autoComplete="off"
-              maxLength={120}
-              value={values.name}
-              aria-invalid={Boolean(errors.name)}
-              onChange={e => setField('name', e.target.value)}
-            />
-            {errors.name ? <FieldError>{t(errors.name)}</FieldError> : null}
-          </Field>
-          <Field>
-            <FieldLabel htmlFor={`${formId}-description`}>
-              {t('items:dialog:description')}
-            </FieldLabel>
-            <Textarea
-              id={`${formId}-description`}
-              rows={3}
-              value={values.description}
-              onChange={e => setField('description', e.target.value)}
-            />
-            <FieldDescription>
-              {t('items:dialog:descriptionHint')}
-            </FieldDescription>
-          </Field>
-          <Field>
-            <FieldLabel htmlFor={`${formId}-price`}>
-              {t('items:dialog:unitPrice')} *
-            </FieldLabel>
-            <Input
-              id={`${formId}-price`}
-              type="number"
-              step="0.01"
-              className="text-end tabular-nums"
-              value={values.unitPrice}
-              aria-invalid={Boolean(errors.unitPrice)}
-              onChange={e => setField('unitPrice', e.target.value)}
-            />
-            <FieldDescription>{t('items:dialog:priceHint')}</FieldDescription>
-            {errors.unitPrice ? (
-              <FieldError>{t(errors.unitPrice)}</FieldError>
-            ) : null}
-          </Field>
-          <Field>
-            <FieldLabel htmlFor={`${formId}-unit`}>
-              {t('items:dialog:unit')}
-            </FieldLabel>
-            <Select
-              value={currentCode}
-              onValueChange={v => setField('unitCode', v)}
-            >
-              <SelectTrigger id={`${formId}-unit`} className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {unitOptions.map(code => (
-                  <SelectItem key={code} value={code}>
-                    {isKnownUnit(code) ? t(`items:units:${code}`) : code}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.unitCode ? (
-              <FieldError>{t(errors.unitCode)}</FieldError>
-            ) : null}
-          </Field>
-          <Field>
-            <FieldLabel htmlFor={`${formId}-taxRate`}>
-              {t('items:dialog:taxRate')}
-            </FieldLabel>
-            <Select
-              value={values.taxRateId ?? 'default'}
-              onValueChange={v =>
-                setField('taxRateId', v === 'default' ? null : v)
-              }
-            >
-              <SelectTrigger
-                id={`${formId}-taxRate`}
-                className="w-full bg-background text-foreground"
+          </SheetTitle>
+        </SheetHeader>
+        <SheetBody>
+          <form id={formId} className="space-y-4" onSubmit={onSubmit}>
+            <Field>
+              <FieldLabel htmlFor={`${formId}-name`}>
+                {t('items:dialog:name')} *
+              </FieldLabel>
+              <Input
+                ref={nameRef}
+                id={`${formId}-name`}
+                autoComplete="off"
+                maxLength={120}
+                value={values.name}
+                aria-invalid={Boolean(errors.name)}
+                onChange={e => setField('name', e.target.value)}
+              />
+              {errors.name ? <FieldError>{t(errors.name)}</FieldError> : null}
+            </Field>
+            <Field>
+              <FieldLabel htmlFor={`${formId}-description`}>
+                {t('items:dialog:description')}
+              </FieldLabel>
+              <Textarea
+                id={`${formId}-description`}
+                rows={3}
+                value={values.description}
+                onChange={e => setField('description', e.target.value)}
+              />
+              <FieldDescription>
+                {t('items:dialog:descriptionHint')}
+              </FieldDescription>
+            </Field>
+            <Field>
+              <FieldLabel htmlFor={`${formId}-price`}>
+                {t('items:dialog:unitPrice')} *
+              </FieldLabel>
+              <Input
+                id={`${formId}-price`}
+                type="number"
+                step="0.01"
+                className="text-end tabular-nums"
+                value={values.unitPrice}
+                aria-invalid={Boolean(errors.unitPrice)}
+                onChange={e => setField('unitPrice', e.target.value)}
+              />
+              <FieldDescription>{t('items:dialog:priceHint')}</FieldDescription>
+              {errors.unitPrice ? (
+                <FieldError>{t(errors.unitPrice)}</FieldError>
+              ) : null}
+            </Field>
+            <Field>
+              <FieldLabel htmlFor={`${formId}-unit`}>
+                {t('items:dialog:unit')}
+              </FieldLabel>
+              <Select
+                value={currentCode}
+                items={unitItems}
+                onValueChange={v => setField('unitCode', v)}
               >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-popover text-popover-foreground">
-                <SelectItem value="default">
-                  {t('items:dialog:defaultTaxRate')}
-                </SelectItem>
-                {[...activeRates]
-                  .concat(
-                    item?.taxRateId &&
-                      !activeRates.some(r => r.id === item.taxRateId)
-                      ? taxRates.filter(r => r.id === item.taxRateId)
-                      : []
-                  )
-                  .map(rate => (
-                    <SelectItem key={rate.id} value={rate.id}>
-                      {rate.name}
-                      {rate.active === false
-                        ? ` (${t('settings:taxRates:inactive')})`
-                        : ''}
+                <SelectTrigger id={`${formId}-unit`} className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {unitItems.map(unit => (
+                    <SelectItem key={unit.value} value={unit.value}>
+                      {unit.label}
                     </SelectItem>
                   ))}
-              </SelectContent>
-            </Select>
-          </Field>
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
-              {t('items:dialog:cancel')}
-            </Button>
-            <Button type="submit" disabled={saving}>
-              {t('items:dialog:save')}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+                </SelectContent>
+              </Select>
+              {errors.unitCode ? (
+                <FieldError>{t(errors.unitCode)}</FieldError>
+              ) : null}
+            </Field>
+            <Field>
+              <FieldLabel htmlFor={`${formId}-taxRate`}>
+                {t('items:dialog:taxRate')}
+              </FieldLabel>
+              <Select
+                value={values.taxRateId ?? 'default'}
+                items={taxRateItems}
+                onValueChange={v =>
+                  setField('taxRateId', v === 'default' ? null : v)
+                }
+              >
+                <SelectTrigger
+                  id={`${formId}-taxRate`}
+                  className="w-full bg-background text-foreground"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-popover text-popover-foreground">
+                  {taxRateItems.map(rate => (
+                    <SelectItem key={rate.value} value={rate.value}>
+                      {rate.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+          </form>
+        </SheetBody>
+        <SheetFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+          >
+            {t('items:dialog:cancel')}
+          </Button>
+          <Button type="submit" form={formId} disabled={saving}>
+            {t('items:dialog:save')}
+          </Button>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   );
 }

@@ -222,6 +222,31 @@
     @apply bg-background font-sans text-foreground;
     margin: 0;
   }
+  /* Scrollbars: a slim rounded thumb on a clear track, in light and dark.
+     Do not set scrollbar-color or scrollbar-width anywhere: Chromium then
+     ignores these ::-webkit-scrollbar rules. `.no-scrollbar` still hides. */
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+  ::-webkit-scrollbar-track,
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    min-height: 40px;
+    min-width: 40px;
+    border: 3px solid transparent;
+    border-radius: 9999px;
+    background-clip: padding-box;
+    background-color: color-mix(in oklch, var(--foreground) 18%, transparent);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: color-mix(in oklch, var(--foreground) 32%, transparent);
+  }
+  ::-webkit-scrollbar-thumb:active {
+    background-color: color-mix(in oklch, var(--foreground) 42%, transparent);
+  }
   /* Old screens: no ring after a mouse click. This replaces the removed
      `*:focus { outline: none !important }` rule. Keyboard focus keeps a ring. */
   :focus:not(:focus-visible) {

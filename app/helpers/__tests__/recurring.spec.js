@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
+  getRecurringClient,
+  matchesRecurringQuery,
   TEMPLATE_OMIT,
   buildTemplateFromInvoice,
   buildProfileFromInvoice,
@@ -10,8 +12,14 @@ import {
   previewRecurringDates,
   normalizeImportedRecurring,
   materializeDueDate,
+  getRecurringTotal,
+  formatRecurringInterval,
 } from '../recurring';
 import { dateKeyToMs, toDateKey } from '../recurringSchedule';
+import i18next from 'i18next';
+import en from '../../../i18n/en';
+import sk from '../../../i18n/sk';
+import zhCN from '../../../i18n/zh-CN';
 
 const sampleInvoice = {
   _id: 'inv-1',
@@ -315,5 +323,74 @@ describe('normalizeImportedRecurring', () => {
 describe('materializeDueDate', () => {
   it('returns undefined when empty', () => {
     expect(materializeDueDate(undefined, 0)).toBeUndefined();
+  });
+});
+
+describe('matchesRecurringQuery', () => {
+  const profile = {
+    name: 'Monthly retainer',
+    template: { recipient: { fullname: 'Jane Doe', company: 'Acme Corp' } },
+  };
+
+  it('needs every word, across the name and the client', () => {
+    expect(matchesRecurringQuery(profile, '')).toBe(true);
+    expect(matchesRecurringQuery(profile, 'retainer acme')).toBe(true);
+    expect(matchesRecurringQuery(profile, 'retainer globex')).toBe(false);
+  });
+
+  it('reads the client from fullname, then company', () => {
+    expect(getRecurringClient(profile)).toBe('Jane Doe');
+    expect(
+      getRecurringClient({ template: { recipient: { company: 'X' } } })
+    ).toBe('X');
+    expect(getRecurringClient({})).toBe('');
+  });
+});
+
+describe('getRecurringTotal', () => {
+  it('computes the total from template rows when none is stored', () => {
+    const template = buildTemplateFromInvoice(sampleInvoice, 0);
+    delete template.grandTotal;
+    delete template.subtotal;
+    expect(getRecurringTotal({ template })).toBe(100);
+  });
+
+  it('returns 0 for a profile without a template', () => {
+    expect(getRecurringTotal({})).toBe(0);
+  });
+});
+
+describe('formatRecurringInterval', () => {
+  const tFor = lng => {
+    const i18n = i18next.createInstance();
+    i18n.init({
+      initAsync: false,
+      lng,
+      fallbackLng: 'en',
+      resources: { en, sk, 'zh-CN': zhCN },
+    });
+    return i18n.t.bind(i18n);
+  };
+
+  it('shows the period label when it repeats every 1 period', () => {
+    expect(formatRecurringInterval(tFor('en'), 'weekly', 1)).toBe('Weekly');
+    // zh-CN has no "one" plural form; it must not fall back to English.
+    expect(formatRecurringInterval(tFor('zh-CN'), 'weekly', 1)).toBe('每周');
+  });
+
+  it('uses the plural rules of the language for counts', () => {
+    expect(formatRecurringInterval(tFor('en'), 'monthly', 3)).toBe(
+      'Every 3 months'
+    );
+    expect(formatRecurringInterval(tFor('zh-CN'), 'monthly', 3)).toBe(
+      '每 3 个月'
+    );
+    // Slovak: 2-4 take the "few" form, 5+ take "other".
+    expect(formatRecurringInterval(tFor('sk'), 'weekly', 3)).toBe(
+      'Každé 3 týždne'
+    );
+    expect(formatRecurringInterval(tFor('sk'), 'weekly', 5)).toBe(
+      'Každých 5 týždňov'
+    );
   });
 });

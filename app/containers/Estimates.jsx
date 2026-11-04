@@ -2,13 +2,11 @@ import { useCallback, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { useTable } from '@tanstack/react-table';
-import { Plus, Search } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import * as UIActions from '../actions/ui';
-import { editInvoice } from '../actions/invoices';
+import { deleteInvoice, editInvoice } from '../actions/invoices';
 import { getDateFormat } from '../reducers/SettingsReducer';
 import { getAllSalesDocs, getEstimates } from '../reducers/InvoicesReducer';
 import {
@@ -19,11 +17,27 @@ import {
   toEstimateRow,
 } from '../helpers/estimateList';
 import { buildLinkIndex } from '../helpers/estimate';
+import { facetOptions, matchesAny } from '../helpers/listFilters';
 import { getColumns } from '../components/estimates/columns';
 import EstimatesEmpty from '../components/estimates/EstimatesEmpty';
-import InvoicesTable from '../components/invoices/InvoicesTable';
-import { features } from '../components/invoices/invoiceTableFeatures';
+import DataTable, {
+  SelectionBar,
+  usePagination,
+  useRowSelection,
+} from '../components/table/DataTable';
+import { features } from '../components/table/features';
 import { useNow } from '../components/invoices/useNow';
+import {
+  FacetFilter,
+  FilterBar,
+  FilterSearch,
+  NoResults,
+  ResetFilters,
+} from '../components/filters/FilterBar';
+import { ListPage, PageHeader } from '../components/layout/PageHeader';
+import { useListRequest } from '../components/filters/useListRequest';
+
+const STATUS_FILTERS = ESTIMATE_TABS.filter(key => key !== 'all');
 
 export default function Estimates() {
   const { t } = useTranslation();
@@ -35,7 +49,8 @@ export default function Estimates() {
 
   const index = useMemo(() => buildLinkIndex(allDocs), [allDocs]);
 
-  const [tab, setTab] = useState('all');
+  const [statuses, setStatuses] = useState([]);
+  const [clients, setClients] = useState([]);
   const [query, setQuery] = useState('');
   const [sorting, setSorting] = useState([{ id: 'issuedAt', desc: true }]);
 
@@ -43,17 +58,64 @@ export default function Estimates() {
     () => estimates.map(e => toEstimateRow(e, now, index)),
     [estimates, now, index]
   );
-  const counts = useMemo(() => countByEstimateTab(rows), [rows]);
+
+  // Each facet counts rows that match the other filters.
+  const matchesStatus = useCallback(
+    row => matchesAny(statuses, s => matchesEstimateTab(row.displayStatus, s)),
+    [statuses]
+  );
+  const matchesClient = useCallback(
+    row => matchesAny(clients, c => row.client === c),
+    [clients]
+  );
+
+  const statusOptions = useMemo(() => {
+    const counts = countByEstimateTab(
+      rows.filter(row => matchesSearch(row, query) && matchesClient(row))
+    );
+    return STATUS_FILTERS.map(key => ({
+      value: key,
+      label: t(`estimates:tabs:${key}`),
+      count: counts[key],
+    }));
+  }, [rows, query, matchesClient, t]);
+
+  const clientOptions = useMemo(
+    () =>
+      facetOptions(
+        rows.filter(row => matchesSearch(row, query) && matchesStatus(row)),
+        row => row.client,
+        clients
+      ),
+    [rows, query, matchesStatus, clients]
+  );
 
   const visible = useMemo(
     () =>
       rows.filter(
         row =>
-          matchesEstimateTab(row.displayStatus, tab) &&
-          matchesSearch(row, query)
+          matchesSearch(row, query) && matchesStatus(row) && matchesClient(row)
       ),
-    [rows, tab, query]
+    [rows, query, matchesStatus, matchesClient]
   );
+
+  const visibleIds = useMemo(() => visible.map(row => row.id), [visible]);
+  const { rowSelection, setRowSelection, selectedIds, clearSelection } =
+    useRowSelection(visibleIds);
+  const [pagination, setPagination] = usePagination([
+    query,
+    statuses,
+    clients,
+    sorting,
+  ]);
+
+  useListRequest('estimates', request => {
+    setStatuses(
+      STATUS_FILTERS.includes(request.status) ? [request.status] : []
+    );
+    setClients([]);
+    setQuery(request.query ?? '');
+  });
 
   const columns = useMemo(
     () => getColumns({ t, dateFormat, dispatch }),
@@ -65,12 +127,18 @@ export default function Estimates() {
     data: visible,
     columns,
     getRowId: row => row.id,
-    state: { sorting },
+    state: { sorting, rowSelection, pagination },
     onSortingChange: setSorting,
+    onRowSelectionChange: setRowSelection,
+    onPaginationChange: setPagination,
+    autoResetPageIndex: false,
   });
 
+  const hasFilters =
+    query.trim() !== '' || statuses.length > 0 || clients.length > 0;
   const clearFilters = () => {
-    setTab('all');
+    setStatuses([]);
+    setClients([]);
     setQuery('');
   };
 
@@ -88,63 +156,64 @@ export default function Estimates() {
   const showEmptyResults = !showEmptyNone && visible.length === 0;
 
   return (
-    <div className="flex h-full flex-col gap-5 px-8 pt-7 pb-8 text-foreground">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-[1.75rem] leading-tight font-bold tracking-tight">
-            {t('estimates:header:name')}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {t('estimates:header:count', { count: estimates.length })}
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="relative min-w-[12rem] flex-1 sm:w-64">
-            <Search className="pointer-events-none absolute start-2 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="search"
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              className="ps-8"
-              aria-label={t('estimates:search:label')}
-              placeholder={t('estimates:search:placeholder')}
-            />
-          </div>
-          <Button
-            type="button"
-            onClick={() => dispatch(UIActions.newEstimate())}
-          >
-            <Plus />
-            {t('estimates:newEstimate')}
-          </Button>
-        </div>
-      </div>
+    <ListPage>
+      <PageHeader
+        title={t('estimates:header:name')}
+        count={t('estimates:header:count', { count: estimates.length })}
+      >
+        <Button type="button" onClick={() => dispatch(UIActions.newEstimate())}>
+          <Plus />
+          {t('estimates:newEstimate')}
+        </Button>
+      </PageHeader>
 
-      <Tabs value={tab} onValueChange={setTab}>
-        <TabsList>
-          {ESTIMATE_TABS.map(tabKey => (
-            <TabsTrigger key={tabKey} value={tabKey}>
-              {t(`estimates:tabs:${tabKey}`)}
-              <span className="ms-1 text-muted-foreground">
-                ({counts[tabKey]})
-              </span>
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
+      {!showEmptyNone ? (
+        <FilterBar>
+          <FilterSearch
+            value={query}
+            onChange={setQuery}
+            label={t('estimates:search:label')}
+            placeholder={t('estimates:search:placeholder')}
+          />
+          <FacetFilter
+            title={t('common:filters:status')}
+            options={statusOptions}
+            selected={statuses}
+            onChange={setStatuses}
+          />
+          <FacetFilter
+            title={t('common:filters:client')}
+            options={clientOptions}
+            selected={clients}
+            onChange={setClients}
+            searchable
+          />
+          {hasFilters ? <ResetFilters onClick={clearFilters} /> : null}
+        </FilterBar>
+      ) : null}
 
       {showEmptyNone ? (
-        <EstimatesEmpty variant="none" t={t} dispatch={dispatch} />
+        <EstimatesEmpty t={t} dispatch={dispatch} />
       ) : showEmptyResults ? (
-        <EstimatesEmpty
-          variant="noResults"
-          t={t}
-          dispatch={dispatch}
-          onClearFilters={clearFilters}
+        <NoResults
+          title={t('estimates:empty:noResults')}
+          onClear={clearFilters}
         />
       ) : (
-        <InvoicesTable table={table} onOpen={onOpen} />
+        <DataTable table={table} onOpen={onOpen} />
       )}
-    </div>
+
+      <SelectionBar
+        count={selectedIds.length}
+        onClear={clearSelection}
+        actions={[
+          {
+            label: t('common:delete'),
+            variant: 'destructive',
+            onClick: () => dispatch(deleteInvoice(selectedIds)),
+          },
+        ]}
+      />
+    </ListPage>
   );
 }
