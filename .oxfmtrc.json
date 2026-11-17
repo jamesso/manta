@@ -1,0 +1,25 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "proseWrap": "never",
+  "singleQuote": true,
+  "trailingComma": "es5",
+  "semi": true,
+  "arrowParens": "avoid",
+  "printWidth": 80,
+  "sortPackageJson": false,
+  "ignorePatterns": [
+    "node_modules/",
+    "out/",
+    "dist/",
+    "prod/",
+    "coverage/",
+    "static/",
+    "plans/",
+    "playwright-report/",
+    "test-results/",
+    "package-lock.json",
+    "*.md",
+    "*.yml",
+    "*.json"
+  ]
+}

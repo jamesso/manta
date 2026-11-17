@@ -54,7 +54,7 @@ npm test
 npm run test:e2e
 ```
 
-A pre-commit hook runs ESLint and Prettier on staged files.
+A pre-commit hook runs oxlint and oxfmt on staged files.
 
 ### Commits and commit messages
 

@@ -37,7 +37,7 @@ This repository continues Manta. It moves the app to current, supported tools an
 - **Electron 45.** Runs on macOS 13+, Windows 10/11 and 64-bit Linux. One universal macOS build for Apple Silicon and Intel.
 - **Current libraries.** React 19, Redux 5, PouchDB 9, i18next, shadcn/ui, Tailwind CSS 4. The old drag-and-drop, animation, date picker and color picker libraries were replaced.
 - **Security.** Every window runs sandboxed with context isolation. Renderers talk to the main process only through a preload bridge. Built pages have a Content Security Policy.
-- **Tooling.** electron-vite for builds and hot reload, Vitest and Testing Library for unit tests, Playwright for end-to-end tests, ESLint 9 and Prettier 3.
+- **Tooling.** electron-vite for builds and hot reload, Vitest and Testing Library for unit tests, Playwright for end-to-end tests, oxlint and oxfmt.
 - **Releases.** GitHub Actions builds, tests and publishes the installers. In-app updates come from this repository's [releases](https://github.com/jamesso/manta/releases).
 
 The issue tracker, discussions and wiki of the original project do not apply to this repository. Report issues [here](https://github.com/jamesso/manta/issues).
@@ -160,8 +160,8 @@ npm ci
 | `npm test`                              | Run the unit tests (Vitest).                          |
 | `npm run test:watch`                    | Run the unit tests in watch mode.                     |
 | `npm run test:e2e`                      | Build, then run the end-to-end tests (Playwright).    |
-| `npm run lint`                          | Run ESLint.                                           |
-| `npm run format` / `format:check`       | Format, or check formatting, with Prettier.           |
+| `npm run lint`                          | Run oxlint.                                           |
+| `npm run format` / `format:check`       | Format, or check formatting, with oxfmt.           |
 | `npm run build && npx electron-builder --publish never` | Build installers for your platform into `dist/`. |
 
 Development and test runs do not use your real data folder. They use `Manta-dev` next to it. To test with a copy of real data, copy the data folder and point Manta at the copy:
@@ -171,7 +171,7 @@ cp -R "$HOME/Library/Application Support/Manta" /tmp/manta-profile-copy
 MANTA_USER_DATA=/tmp/manta-profile-copy npm start
 ```
 
-A pre-commit hook runs ESLint and Prettier on staged files.
+A pre-commit hook runs oxlint and oxfmt on staged files.
 
 #### Releases
 

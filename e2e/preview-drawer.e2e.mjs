@@ -132,6 +132,12 @@ test('preview drawer edits the style per invoice and exports a PDF', async () =>
   ).toBeVisible({ timeout: 10_000 });
   await page.keyboard.press('Escape');
   await expect(drawer).toBeHidden();
+  const closeToasts = page.getByRole('button', { name: 'Close toast' });
+  while (await closeToasts.count()) {
+    const count = await closeToasts.count();
+    await closeToasts.first().click();
+    await expect(closeToasts).toHaveCount(count - 1);
+  }
 });
 
 test('Settings > Invoices shows the global invoice style', async () => {

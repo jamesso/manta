@@ -110,11 +110,11 @@ test('captures e-invoice UI screenshots', async () => {
       .getByRole('button', { name: 'Invoices', exact: true })
       .click();
     await expect(
-      main.getByRole('switch', { name: 'Enable e-invoice export', exact: true })
+      main.getByRole('switch', { name: 'Enable E-Invoice Export', exact: true })
     ).toBeVisible();
 
     const sw = main.getByRole('switch', {
-      name: 'Enable e-invoice export',
+      name: 'Enable E-Invoice Export',
       exact: true,
     });
     await sw.scrollIntoViewIfNeeded();
@@ -138,7 +138,7 @@ test('captures e-invoice UI screenshots', async () => {
     await sw.click({ force: true });
     await expect(dialog).toBeVisible({ timeout: 15_000 });
     await main
-      .getByRole('button', { name: 'I understand', exact: true })
+      .getByRole('button', { name: 'I Understand', exact: true })
       .click();
     await expect(sw).toHaveAttribute('aria-checked', 'true');
     await main.screenshot({
