@@ -243,11 +243,14 @@ const restoreDocs = (dbName, docs) =>
 const updateDocs = (dbName, docs) =>
   setDB(dbName).then(async db => {
     const succeeded = [];
+    const written = [];
     const failed = [];
     for (const doc of docs) {
       try {
-        await db.put(doc);
-        succeeded.push(doc._id);
+        const body = { ...doc };
+        const result = await db.put(doc);
+        succeeded.push(result.id);
+        written.push({ ...body, _id: result.id, _rev: result.rev });
       } catch (error) {
         failed.push({
           id: doc._id,
@@ -256,7 +259,19 @@ const updateDocs = (dbName, docs) =>
         });
       }
     }
-    const allDocs = await getAllDocs(dbName);
+    let allDocs;
+    try {
+      allDocs = await getAllDocs(dbName);
+    } catch (readErr) {
+      if (succeeded.length > 0 && failed.length > 0) {
+        throw Object.assign(new Error('partial-update'), {
+          succeeded,
+          failed,
+          docs: written,
+        });
+      }
+      throw readErr;
+    }
     if (failed.length) {
       throw Object.assign(new Error('partial-update'), {
         succeeded,
