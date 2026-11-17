@@ -49,7 +49,7 @@
     "electron-updater": "^6.8.11",
     "events": "^3.3.0",
     "i18next": "^26.5.12",
-    "is-svg": "^3.0.0",
+    "is-svg": "^6.1.0",
     "lodash": "^4.18.1",
     "lucide-react": "^1.66.0",
     "moment": "^2.31.0",
