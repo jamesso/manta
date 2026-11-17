@@ -14,6 +14,7 @@
 
 ## Status
 
+- **Status**: DONE
 - **Priority**: P2
 - **Effort**: S
 - **Risk**: LOW
@@ -99,10 +100,10 @@ Keep `fail-fast: false` and the OS matrix. Keep `permissions: contents: write`.
 
 ## Done criteria
 
-- [ ] `release.yml` runs lint, `format:check`, unit tests, build, and Playwright before packaging
-- [ ] Signing and publish steps still exist and still use the existing secret names
-- [ ] CI workflow file is unchanged
-- [ ] `plans/README.md` row 041 is `DONE`
+- [x] `release.yml` runs lint, `format:check`, unit tests, build, and Playwright before packaging
+- [x] Signing and publish steps still exist and still use the existing secret names
+- [x] CI workflow file is unchanged
+- [ ] `plans/README.md` row 041 is `DONE` (index left for the operator)
 
 ## STOP conditions
 
@@ -113,3 +114,10 @@ Keep `fail-fast: false` and the OS matrix. Keep `permissions: contents: write`.
 ## Maintenance notes
 
 When CI gains a new required check, add it here too, before packaging. A release job that only runs `npm test` will drift again.
+
+Executed 2026-11-16 on `plan-033-041-043`. Drift `git diff --stat 10f3f0e..HEAD -- .github/workflows/release.yml .github/workflows/ci.yml` was empty (exit 0). Edited `.github/workflows/release.yml` only. CI has no Playwright install and no browser cache, so none was added. `npm run test:e2e` was not run.
+
+- `rg -n "format:check|eslint|playwright" .github/workflows/release.yml` — exit 0. `format:check` and `playwright` match. `npm run lint` is on line 24.
+- `rg -n "publish never" .github/workflows/release.yml` — exit 1. No matches.
+- `npx --yes actionlint .github/workflows/release.yml` — exit 1. npm could not determine an executable. Not a YAML error.
+- `/opt/homebrew/bin/actionlint .github/workflows/release.yml` — exit 0.

@@ -21,8 +21,16 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      - run: npm run lint
+      - run: npm run format:check
       - run: npm test
       - run: npm run build
+      - name: e2e (Linux needs a virtual display)
+        if: runner.os == 'Linux'
+        run: xvfb-run --auto-servernum npx playwright test
+      - name: e2e
+        if: runner.os != 'Linux'
+        run: npx playwright test
       - name: Detect signing credentials
         id: signing
         shell: bash
