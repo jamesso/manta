@@ -69,6 +69,7 @@ import {
   saveDoc,
   updateDoc,
   removeDocs,
+  bulkSaveDocs,
   restoreDocs,
   updateDocs,
   deleteDoc,
@@ -582,12 +583,29 @@ const InvoicesMW =
               return null;
             }
             return removeDocs('invoices', deletable).then(async result => {
-              for (const doc of result.removed) {
-                if (doc.recurringId && doc.periodKey) {
-                  await saveDoc(
+              const tombstones = result.removed
+                .filter(doc => doc.recurringId && doc.periodKey)
+                .map(doc =>
+                  buildRecurringTombstone(doc.recurringId, doc.periodKey)
+                );
+              if (tombstones.length) {
+                try {
+                  const { failed, allDocs } = await bulkSaveDocs(
                     'invoices',
-                    buildRecurringTombstone(doc.recurringId, doc.periodKey)
+                    tombstones
                   );
+                  if (failed.length) {
+                    throw new Error(failed[0].message || failed[0].name);
+                  }
+                  return { ...result, docs: allDocs };
+                } catch (err) {
+                  next({
+                    type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+                    payload: {
+                      type: 'warning',
+                      message: err.message,
+                    },
+                  });
                 }
               }
               const docs = await getAllDocs('invoices');
