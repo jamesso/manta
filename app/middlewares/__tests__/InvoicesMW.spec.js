@@ -1395,6 +1395,149 @@ describe('Invoices Middleware', () => {
       expect(inv.cancelledByCredit).toBe(true);
     });
 
+    it('CREDIT_NOTE_ISSUE writes the note and the invoice in one updateDocs', async () => {
+      const invoice = {
+        _id: 'inv-src',
+        _rev: '1-a',
+        docType: 'invoice',
+        status: 'pending',
+        grandTotal: 100,
+        currency,
+      };
+      const cn = {
+        _id: 'cn-1',
+        _rev: '1-b',
+        docType: 'creditNote',
+        status: 'draft',
+        creditedInvoiceId: 'inv-src',
+        grandTotal: 100,
+        currency,
+      };
+      let inv = { ...invoice };
+      let note = { ...cn };
+      getAllDocs.mockImplementation(() =>
+        Promise.resolve([{ ...inv }, { ...note }])
+      );
+      getSingleDoc.mockImplementation((_db, id) => {
+        if (id === 'cn-1') return Promise.resolve({ ...note });
+        if (id === 'inv-src') return Promise.resolve({ ...inv });
+        return Promise.reject(new Error('missing'));
+      });
+      updateDocs.mockImplementation((_db, docs) => {
+        for (const doc of docs) {
+          if (doc._id === 'cn-1') note = { ...doc, _rev: '2-b' };
+          if (doc._id === 'inv-src') inv = { ...doc, _rev: '2-a' };
+        }
+        return Promise.resolve([{ ...inv }, { ...note }]);
+      });
+      await middleware(Actions.issueCreditNote('cn-1'));
+      expect(updateDocs).toHaveBeenCalledTimes(1);
+      const written = updateDocs.mock.calls[0][1];
+      expect(written).toHaveLength(2);
+      expect(written[0]).toMatchObject({
+        _id: 'cn-1',
+        status: 'issued',
+        _rev: '1-b',
+      });
+      expect(written[1]).toMatchObject({
+        _id: 'inv-src',
+        status: 'cancelled',
+        cancelledByCredit: true,
+      });
+      const published = next.mock.calls
+        .map(([action]) => action)
+        .filter(action => action.type === ACTION_TYPES.INVOICE_UPDATE);
+      expect(published.at(-1).payload).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ _id: 'cn-1', status: 'issued' }),
+          expect.objectContaining({
+            _id: 'inv-src',
+            status: 'cancelled',
+            cancelledByCredit: true,
+          }),
+        ])
+      );
+    });
+
+    it('CREDIT_NOTE_ISSUE restores the previous note when the invoice put fails', async () => {
+      const invoice = {
+        _id: 'inv-src',
+        _rev: '1-a',
+        docType: 'invoice',
+        status: 'pending',
+        grandTotal: 100,
+        currency,
+      };
+      const cn = {
+        _id: 'cn-1',
+        _rev: '1-b',
+        docType: 'creditNote',
+        status: 'draft',
+        creditedInvoiceId: 'inv-src',
+        grandTotal: 100,
+        currency,
+      };
+      let inv = { ...invoice };
+      let note = { ...cn };
+      getAllDocs.mockImplementation(() =>
+        Promise.resolve([{ ...inv }, { ...note }])
+      );
+      getSingleDoc.mockImplementation((_db, id) => {
+        if (id === 'cn-1') return Promise.resolve({ ...note });
+        if (id === 'inv-src') return Promise.resolve({ ...inv });
+        return Promise.reject(new Error('missing'));
+      });
+      let calls = 0;
+      updateDocs.mockImplementation((_db, docs) => {
+        calls += 1;
+        if (calls === 1) {
+          const issued = docs.find(doc => doc._id === 'cn-1');
+          note = { ...issued, _rev: '2-b', status: 'issued' };
+          return Promise.reject(
+            Object.assign(new Error('partial-update'), {
+              succeeded: ['cn-1'],
+              failed: [{ id: 'inv-src', status: 409, message: 'conflict' }],
+              docs: [{ ...note }, { ...inv }],
+            })
+          );
+        }
+        note = { ...docs[0] };
+        return Promise.resolve([{ ...inv }, { ...note }]);
+      });
+      await middleware(Actions.issueCreditNote('cn-1'));
+      expect(updateDocs).toHaveBeenCalledTimes(2);
+      expect(updateDocs.mock.calls[1][0]).toBe('invoices');
+      expect(updateDocs.mock.calls[1][1]).toEqual([
+        expect.objectContaining({
+          _id: 'cn-1',
+          status: 'draft',
+          _rev: '2-b',
+          grandTotal: 100,
+        }),
+      ]);
+      const published = next.mock.calls
+        .map(([action]) => action)
+        .filter(action => action.type === ACTION_TYPES.INVOICE_UPDATE);
+      expect(published.at(-1).payload).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            _id: 'cn-1',
+            status: 'draft',
+            _rev: '2-b',
+          }),
+        ])
+      );
+      expect(
+        published.at(-1).payload.some(
+          doc => doc._id === 'cn-1' && doc.status === 'issued'
+        )
+      ).toBe(false);
+      expect(toast.add).toHaveBeenCalledWith({
+        title: i18n.t('invoices:creditNotes:errors:updateFailed'),
+        type: 'warning',
+      });
+    });
+
     it('CREDIT_NOTE_ISSUE second concurrent issue stays draft when credit exhausted', async () => {
       const invoice = {
         _id: 'inv-src',
@@ -1504,7 +1647,7 @@ describe('Invoices Middleware', () => {
       expect(toast.add).toHaveBeenCalled();
     });
 
-    it('CREDIT_NOTE_ISSUE refreshes store when invoice sync fails after note write', async () => {
+    it('CREDIT_NOTE_ISSUE reloads the list when the pair write fails', async () => {
       const invoice = {
         _id: 'inv-src',
         _rev: '1-a',
@@ -1540,15 +1683,19 @@ describe('Invoices Middleware', () => {
         return Promise.resolve([{ ...inv }, { ...note }]);
       });
       await middleware(Actions.issueCreditNote('cn-1'));
-      expect(note.status).toBe('issued');
+      expect(updateDocs).toHaveBeenCalledTimes(1);
+      expect(note.status).toBe('draft');
       expect(
         next.mock.calls.some(
           ([a]) =>
             a.type === ACTION_TYPES.INVOICE_UPDATE &&
-            a.payload.some(d => d._id === 'cn-1' && d.status === 'issued')
+            a.payload.some(d => d._id === 'cn-1' && d.status === 'draft')
         )
       ).toBe(true);
-      expect(toast.add).toHaveBeenCalled();
+      expect(toast.add).toHaveBeenCalledWith({
+        title: i18n.t('invoices:creditNotes:errors:updateFailed'),
+        type: 'warning',
+      });
     });
 
     it('CREDIT_NOTE_ISSUE rejects when original invoice is cancelled', async () => {
