@@ -276,7 +276,7 @@ Execute in the order below. Each plan is self-contained. Stay on the current bra
 | [029](029-ipc-main-frame-checks.md) | Main-frame check on backup, dialogs, quit, update, theme | P1 | S | LOW | — | TODO |
 | [030](030-return-middleware-test-promises.md) | Middleware tests return their promises | P1 | S | LOW | — | DONE |
 | [031](031-numbering-backup-settlement-tests.md) | Tests for EST/CN numbers, backup overwrite, settlement | P1 | M | LOW | — | DONE |
-| [032](032-credit-note-invoice-one-write.md) | Credit note and invoice commit together | P1 | S | MED | 030, 031 | TODO |
+| [032](032-credit-note-invoice-one-write.md) | Credit note and invoice commit together | P1 | S | MED | 030, 031 | DONE |
 | [033](033-display-status-credit-notes.md) | Status badges pass linked credit notes | P2 | S | LOW | — | DONE |
 | [034](034-recurring-delete-tombstone.md) | Recurring delete writes the tombstone with the delete | P1 | M | MED | 030, 032 | TODO |
 | [035](035-payment-queue-error-codes.md) | Payment failures are not reported as notFound | P1 | S | LOW | 034 | TODO |
