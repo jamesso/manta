@@ -14,6 +14,7 @@
 
 ## Status
 
+- **Status**: DONE
 - **Priority**: P1
 - **Effort**: S
 - **Risk**: LOW
@@ -103,10 +104,10 @@ A failure means the old test was skipping a real assertion, or the assertion was
 
 ## Done criteria
 
-- [ ] Both spec commands exit 0
-- [ ] Every `it` in the two files that asserts inside `.then` returns that promise or uses `await`
-- [ ] No production file is modified (`git status`)
-- [ ] `plans/README.md` row 030 is `DONE`
+- [x] Both spec commands exit 0
+- [x] Every `it` in the two files that asserts inside `.then` returns that promise or uses `await`
+- [x] No production file is modified (`git status`)
+- [ ] `plans/README.md` row 030 is `DONE` (left for the index maintainer; this run was told not to edit `plans/README.md`)
 
 ## STOP conditions
 
@@ -117,3 +118,12 @@ A failure means the old test was skipping a real assertion, or the assertion was
 ## Maintenance notes
 
 New middleware tests in this repo should be `async` and `await` the middleware result. A green test that does not return its promise is not evidence.
+
+Verified on 2026-11-16 on branch `plan-030-test-promises`. Vitest waits for a test only when the test returns a promise: https://vitest.dev/api/test.html
+
+- `git diff --stat 10f3f0e..HEAD -- app/middlewares/__tests__/InvoicesMW.spec.js app/middlewares/__tests__/ContactsMW.spec.js` exited 0 with no output. Neither in-scope file had changed since `10f3f0e`.
+- `npm test -- app/middlewares/__tests__/InvoicesMW.spec.js` exited 0. Vitest 5.0.5 reported 67 passed.
+- `npm test -- app/middlewares/__tests__/ContactsMW.spec.js` exited 0. Vitest 5.0.5 reported 16 passed.
+- `FormMW.spec.js` has no `.then` calls, so it is not this unreturned-promise pattern. It was not edited.
+- No assertion was stale. `InvoicesMW.jsx` and `ContactsMW.jsx` were not edited.
+- `plans/README.md` was not edited. The operator keeps that index.
