@@ -1,3 +1,5 @@
+import { isMainWindowMainFrame } from './main-window-sender';
+
 // The setting `general.theme` drives nativeTheme.themeSource. Every renderer
 // follows it through the prefers-color-scheme media query.
 export const THEMES = ['system', 'light', 'dark'];
@@ -17,7 +19,8 @@ export function getBackgroundColor(nativeTheme) {
 
 export function setupTheme({ nativeTheme, ipcMain, BrowserWindow, store }) {
   nativeTheme.themeSource = normalizeTheme(store.get('general.theme'));
-  ipcMain.on('set-theme', (_event, value) => {
+  ipcMain.on('set-theme', (event, value) => {
+    if (!isMainWindowMainFrame(event)) return;
     const theme = normalizeTheme(value);
     store.set('general.theme', theme);
     nativeTheme.themeSource = theme;

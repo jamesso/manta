@@ -13,14 +13,13 @@ const {
 } = require('./backup-files');
 
 function trustedSender(event) {
-  const mainWindowID = appConfig.get('mainWindowID');
-  const mainWindow = BrowserWindow.fromId(mainWindowID);
-  if (!mainWindow) {
-    return null;
-  }
-  return BrowserWindow.fromWebContents(event.sender) === mainWindow
-    ? mainWindow
-    : null;
+  // Keep the shared main-frame rule here because this CommonJS unit cannot
+  // load the ESM helper in the backup unit test.
+  if (!event || !event.sender) return null;
+  const win = BrowserWindow.fromWebContents(event.sender);
+  if (!win || win.isDestroyed()) return null;
+  if (event.senderFrame !== event.sender.mainFrame) return null;
+  return win.id === appConfig.get('mainWindowID') ? win : null;
 }
 
 ipcMain.handle('backup-export', async (event, payload) => {
