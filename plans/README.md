@@ -284,7 +284,7 @@ Execute in the order below. Each plan is self-contained. Stay on the current bra
 | [037](037-restore-conflict-is-failure.md) | Restore conflicts fail the restore | P2 | S | MED | — | DONE |
 | [038](038-pouch-mutation-without-full-reload.md) | A Pouch write does not reload every invoice | P2 | L | MED | 031, 034, 037 | TODO |
 | [039](039-electron-45-3-3.md) | Electron 45.3.3 | P2 | S | LOW | — | DONE |
-| [040](040-remove-dead-manifest-entries.md) | Remove dead manifest entries and unused date-fns | P3 | S | LOW | 039 | TODO |
+| [040](040-remove-dead-manifest-entries.md) | Remove dead manifest entries and unused date-fns | P3 | S | LOW | 039 | DONE |
 | [041](041-release-workflow-quality-gates.md) | Release workflow runs lint, format, and e2e | P2 | S | LOW | — | DONE |
 | [042](042-readme-shipped-features.md) | README lists shipped features | P3 | S | LOW | — | DONE |
 | [043](043-delete-unused-store-enhancer.md) | Delete the unused store enhancer | P3 | S | LOW | — | DONE |
