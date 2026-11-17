@@ -228,8 +228,10 @@ action remains available. Recurring save/pause defers the Redux profile
 refresh to its run, after checkpoint writes; idle and failed runs also
 refresh the saved profile once. The runner ignores mutation metadata and
 keeps its one initial invoice load, with unchanged 409 handling.
-`backupFlow` already used mutation tallies and one final read per database;
-its source needed no edit, but its mocks no longer return `allDocs`.
+`backupFlow` already used mutation tallies. Its source needed no edit,
+but its mocks no longer return `allDocs`. Backup finalization retains an
+existing second recurring-profile read at lines 242 and 254; this branch
+does not change that path.
 
 **Regression evidence.** The first Pouch contract run exited 1 with the
 three expected array-versus-mutation failures. After implementation, all
@@ -266,6 +268,9 @@ environment for worktree `dc8f2ade-82dd-4744-a690-86efd47e0c4c`.
 for this worktree`. No alternate server, guessed port, or browser session
 was started. Runtime user-flow verification remains open.
 
-Only this plan file is committed, per operator instruction. Source and test
-changes remain in the existing worktree, unstaged; `.ai` is untracked.
-No README index edit, push, PR, branch switch, or new worktree was made.
+The full source, tests, and mocks are committed in `ccb25dc`, after the
+plan record commit `0856831`. `.ai` remains untracked. Independent review
+approved the implementation: 176 mutation-path tests and 268 additional
+regression tests passed, with scoped ESLint and diff checks clean. The
+separate locale repair resolves the eight broad-run failures before final
+integration verification.
