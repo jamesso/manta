@@ -333,12 +333,15 @@ function removeObsoleteKeys() {
 }
 
 function addEventListeners() {
-  ipcMain.on('quit-app', () => {
+  const { isMainWindowMainFrame } = require('./main/main-window-sender');
+  ipcMain.on('quit-app', event => {
+    if (!isMainWindowMainFrame(event)) return;
     app.quit();
   });
   // Quit and install
   // https://github.com/electron-userland/electron-builder/issues/1604#issuecomment-306709572
-  ipcMain.on('quit-and-install', () => {
+  ipcMain.on('quit-and-install', event => {
+    if (!isMainWindowMainFrame(event)) return;
     setImmediate(() => {
       // Remove this listener
       app.removeAllListeners('window-all-closed');
