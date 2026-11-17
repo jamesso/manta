@@ -289,7 +289,7 @@ Execute in the order below. Each plan is self-contained. Stay on the current bra
 | [042](042-readme-shipped-features.md) | README lists shipped features | P3 | S | LOW | — | DONE |
 | [043](043-delete-unused-store-enhancer.md) | Delete the unused store enhancer | P3 | S | LOW | — | DONE |
 | [044](044-move-einvoice-integrity-helper.md) | Main e-invoice code does not import app/ | P3 | M | MED | — | DONE |
-| [045](045-investigate-invoice-migration-currency.md) | Investigate migration 2 when currency is missing | P3 | S | LOW | 038 | TODO |
+| [045](045-investigate-invoice-migration-currency.md) | Investigate migration 2 when currency is missing | P3 | S | LOW | 038 | DONE |
 | [046](046-investigate-legacy-pdf-totals.md) | Investigate legacy PDF stored versus computed totals | P3 | S | LOW | — | REJECTED |
 | [047](047-investigate-einvoice-core-pin.md) | Decide on @e-invoice-eu/core 3.4.2 versus 3.4.4 | P3 | S | MED | 040 | DONE |
 | [048](048-spike-einvoice-receive.md) | Spike offline e-invoice receive | P3 | S | LOW | — | DONE |
