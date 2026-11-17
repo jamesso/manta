@@ -36,7 +36,7 @@ describe('Contacts Middleware', () => {
   describe('should handle CONTACT_GET_ALL action', () => {
     it('retrieves data correct DB', async () => {
       // Execute
-      middleware(Actions.getAllContacts());
+      await middleware(Actions.getAllContacts());
       // Expect
       // Call correct function
       expect(getAllDocs).toHaveBeenCalled();

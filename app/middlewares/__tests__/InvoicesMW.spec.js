@@ -134,7 +134,7 @@ describe('Invoices Middleware', () => {
 
   describe('should handle INVOICE_GET_ALL action', () => {
     it('retrieves data from correct DB', async () => {
-      middleware(Actions.getInvoices());
+      await middleware(Actions.getInvoices());
 
       // Call correct function
       expect(getAllDocs).toHaveBeenCalled();
