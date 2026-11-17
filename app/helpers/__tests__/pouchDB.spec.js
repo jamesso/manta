@@ -106,22 +106,40 @@ describe('pouchDB helpers', () => {
       expect(docs.some(d => d._id === 'bulk-a')).toBe(false);
     });
 
-    it('restoreDocs re-creates removed docs and skips 409 conflicts', async () => {
+    it('restoreDocs re-creates a removed doc when no successor exists', async () => {
       const snapshot = {
         _id: 'bulk-a',
         status: 'pending',
         currency: { code: 'USD' },
         clientNote: 'original',
       };
-      await restoreDocs('invoices', [snapshot]);
-      let docs = await getAllDocs('invoices');
+      const docs = await restoreDocs('invoices', [snapshot]);
       expect(docs.find(d => d._id === 'bulk-a').clientNote).toBe('original');
+    });
 
-      const live = docs.find(d => d._id === 'bulk-a');
-      await updateDoc('invoices', { ...live, clientNote: 'replaced' });
-      await restoreDocs('invoices', [snapshot]);
-      docs = await getAllDocs('invoices');
-      expect(docs.find(d => d._id === 'bulk-a').clientNote).toBe('replaced');
+    it('restoreDocs rejects a 409 when a successor document exists', async () => {
+      const snapshot = {
+        _id: 'restore-conflict-1',
+        status: 'pending',
+        currency: { code: 'USD' },
+      };
+      await saveDoc('invoices', snapshot);
+      await deleteDoc('invoices', snapshot._id);
+      await saveDoc('invoices', {
+        _id: snapshot._id,
+        recurringTombstone: true,
+      });
+      try {
+        await restoreDocs('invoices', [snapshot]);
+        expect.unreachable('should reject partial-restore');
+      } catch (err) {
+        expect(err.message).toBe('partial-restore');
+        expect(err.failed).toHaveLength(1);
+        expect(err.failed[0].id).toBe(snapshot._id);
+        expect(err.failed[0].status).toBe(409);
+        expect(err.failed[0].message).toEqual(expect.any(String));
+        expect(err.restored).not.toContain(snapshot._id);
+      }
     });
 
     it('restoreDocs partial failure returns persisted docs with earlier restores', async () => {
