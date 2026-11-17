@@ -14,6 +14,7 @@
 
 ## Status
 
+- **Status**: DONE
 - **Priority**: P2
 - **Effort**: S
 - **Risk**: LOW
@@ -87,11 +88,11 @@ Run `npm install electron@45`. Do not use `npm audit fix`. Do not change `overri
 
 ## Done criteria
 
-- [ ] Installed Electron is the `45.x` version from step 1 and is at least `45.3.3`
-- [ ] The range does not allow major 46
-- [ ] `npm test` exits 0
-- [ ] `npm run build` exits 0
-- [ ] No source file outside `package.json` and `package-lock.json` is modified
+- [x] Installed Electron is the `45.x` version from step 1 and is at least `45.3.3`
+- [x] The range does not allow major 46
+- [x] `npm test` exits 0
+- [x] `npm run build` exits 0
+- [x] No source file outside `package.json` and `package-lock.json` is modified
 - [ ] `plans/README.md` row 039 is `DONE`
 
 ## STOP conditions
@@ -104,3 +105,17 @@ Run `npm install electron@45`. Do not use `npm audit fix`. Do not change `overri
 ## Maintenance notes
 
 Electron 46 becomes stable around 2027-01-05 and Electron 45 support ends 2027-04-27, per the schedule cited above. A major bump is a separate plan. Re-check the schedule when that plan is written. This paragraph is not permission to start that bump.
+
+Installed Electron `45.3.3` on 2026-11-16. Release: https://releases.electronjs.org/release/v45.3.3. The stable channel lists the same version: https://releases.electronjs.org/release?channel=stable. `npm view electron dist-tags` reports `latest` and `45-x-y` as `45.3.3`. `npm view electron versions` shows the 45.3 line as `45.3.0`, `45.3.1`, `45.3.2`, `45.3.3`. Electron 46 is `46.0.0-alpha.11` only. The range is `^45.3.3` (`>=45.3.3 <46.0.0`).
+
+Drift check `git diff --stat 10f3f0e..HEAD -- package.json package-lock.json` exited 0 with no output.
+
+| Command | Exit | Result |
+|---|---|---|
+| `npm view electron@45 version` | 0 | Every match is 45.x. Newest is `45.3.3`. |
+| `npm install electron@45` | 0 | `package.json` and `package-lock.json` resolve `electron` to `45.3.3`. No other dependency changed. |
+| `node node_modules/electron/install.js` | 0 | Binary `v45.3.3`. The npm package has no postinstall, so `npm install` does not download the binary. |
+| `npm test` | 0 | 1268 passed, 2 skipped, 2 todo. 4 test files skipped. |
+| `npm run build` | 0 | Wrote `out/`. |
+
+`npm run test:e2e` was not run. `plans/README.md` was not edited. The operator maintains that index, so row 039 stays `TODO` there.
