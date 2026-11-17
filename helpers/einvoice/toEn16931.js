@@ -8,7 +8,7 @@ import {
 } from './codes.js';
 import { isBuyerReferenceOn, looksLikeVatId } from './identifiers.js';
 import { round2 } from './money.js';
-import { getSellerTaxIds } from '../../app/helpers/tax.js';
+import { getSellerTaxIds } from './sellerTax.js';
 
 function trim(s) {
   return String(s ?? '').trim();

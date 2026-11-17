@@ -5,10 +5,12 @@ import { INVOICE_STATUSES } from '../constants/invoices';
 import {
   DEFAULT_ESTIMATE_VALID_DAYS,
   ESTIMATE_SETTABLE_STATUSES,
-  ESTIMATE_STATUSES,
 } from '../constants/estimates';
 import { UNDO_TIMEOUT_MS } from '../constants/invoices';
+import { getEstimateStoredStatus } from '../../helpers/estimateStatus.js';
 import { getDocType, isEstimate, isInvoice } from './docType';
+
+export { getEstimateStoredStatus };
 
 const undoDeletedInvoiceIds = new Map();
 const undoInvoiceMeta = new Map();
@@ -81,14 +83,6 @@ export function clearInvoiceDeletedForUndo(invoiceOrId) {
 
 export function isInvoiceDeleteUndoable(invoiceId) {
   return undoDeletedInvoiceIds.has(invoiceId);
-}
-
-export function getEstimateStoredStatus(e) {
-  const status = e?.status;
-  if (ESTIMATE_STATUSES.includes(status)) {
-    return status;
-  }
-  return 'draft';
 }
 
 export function getEstimateDisplayStatus(e, now = Date.now()) {
