@@ -274,3 +274,7 @@ approved the implementation: 176 mutation-path tests and 268 additional
 regression tests passed, with scoped ESLint and diff checks clean. The
 separate locale repair resolves the eight broad-run failures before final
 integration verification.
+
+**Integration verification:** after merging the locale repair, `npm test`
+exited 0: 93 files and 1334 tests passed, 4 files skipped, 2 tests skipped,
+2 todo. `npm run build` exited 0. Implementation merged in PR #17.
