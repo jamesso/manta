@@ -1,8 +1,18 @@
+import {
+  LEGACY_TIN_PLACEHOLDER,
+  getSellerTaxIds,
+} from '../../helpers/einvoice/sellerTax.js';
+import {
+  TAX_CATEGORIES,
+  compareTaxGroups,
+  taxGroupKey,
+} from '../../helpers/taxGroups.js';
 import { roundMoney as roundMoneyImpl } from './money';
 
-export const TAX_CATEGORIES = ['S', 'Z', 'E', 'AE', 'K', 'G', 'O'];
+export { LEGACY_TIN_PLACEHOLDER, getSellerTaxIds };
+export { TAX_CATEGORIES, compareTaxGroups, taxGroupKey };
+
 export const EXEMPTION_REQUIRED = ['E', 'AE', 'K', 'G', 'O'];
-export const LEGACY_TIN_PLACEHOLDER = '123-456-789';
 
 export const DEFAULT_EXEMPTION_REASONS = {
   E: 'Exempt from VAT',
@@ -180,19 +190,6 @@ export function getTaxRatesErrors(list) {
   return errors;
 }
 
-export function getSellerTaxIds(profile, invoiceSettings) {
-  const taxIdFromProfile = String(profile?.taxId ?? '').trim();
-  const vatId = String(profile?.vatId ?? '').trim();
-  if (taxIdFromProfile) {
-    return { taxId: taxIdFromProfile, vatId };
-  }
-  const legacyTin = String(invoiceSettings?.tax?.tin ?? '').trim();
-  if (legacyTin && legacyTin !== LEGACY_TIN_PLACEHOLDER) {
-    return { taxId: legacyTin, vatId };
-  }
-  return { taxId: '', vatId };
-}
-
 export function buildSellerSnapshot(profile, invoiceSettings) {
   const ids = getSellerTaxIds(profile, invoiceSettings);
   const postal = profile?.postalAddress ?? {};
@@ -220,23 +217,4 @@ export function buildSellerSnapshot(profile, invoiceSettings) {
       bic: String(bank.bic ?? '').trim(),
     },
   };
-}
-
-export function compareTaxGroups(a, b) {
-  const catA = a.category ?? 'S';
-  const catB = b.category ?? 'S';
-  const idxA = TAX_CATEGORIES.indexOf(catA);
-  const idxB = TAX_CATEGORIES.indexOf(catB);
-  const orderA = idxA === -1 ? TAX_CATEGORIES.length : idxA;
-  const orderB = idxB === -1 ? TAX_CATEGORIES.length : idxB;
-  if (orderA !== orderB) {
-    return orderA - orderB;
-  }
-  const rateA = Number(a.rate) || 0;
-  const rateB = Number(b.rate) || 0;
-  return rateB - rateA;
-}
-
-export function taxGroupKey(category, rate) {
-  return `${category ?? 'S'}\0${rate ?? 0}`;
 }

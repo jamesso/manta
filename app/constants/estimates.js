@@ -1,10 +1,4 @@
-export const ESTIMATE_STATUSES = [
-  'draft',
-  'sent',
-  'accepted',
-  'declined',
-  'converted',
-];
+export { ESTIMATE_STATUSES } from '../../helpers/docStatuses.js';
 export const ESTIMATE_SETTABLE_STATUSES = [
   'draft',
   'sent',

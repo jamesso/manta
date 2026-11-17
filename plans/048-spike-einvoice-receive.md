@@ -14,6 +14,7 @@
 
 ## Status
 
+- **State**: DONE
 - **Priority**: P3
 - **Effort**: S for the spike. A later build would be L or XL.
 - **Risk**: LOW for this spike. The future import would be MED.
@@ -92,10 +93,10 @@ Write short answers:
 
 ## Done criteria
 
-- [ ] Result answers the five questions or stops at question 1 with the library fact
-- [ ] No application source file is modified
+- [x] Result answers the five questions or stops at question 1 with the library fact
+- [x] No application source file is modified
 - [ ] README row 048 is `DONE`
-- [ ] The Result says a follow-up build plan is required before any IPC or schema work
+- [x] The Result says a follow-up build plan is required before any IPC or schema work
 
 ## STOP conditions
 
@@ -103,6 +104,18 @@ Write short answers:
 - The library has no parser and you were about to add `fast-xml-parser` or similar. STOP.
 - A receive path already exists. Describe it. Do not design a second one.
 
+## Result
+
+Drift: plan 044 changed `main/einvoice.js` and files under `helpers/einvoice/`. `app/helpers/backup.js` did not change. The export pipeline in the Current state section still matches. `main/einvoice.js` still imports `InvoiceService`, `toEn16931`, `toUblJson`, and `getEInvoiceIssues`, and it calls `InvoiceService.generate`. This is not a behavior mismatch, so the spike continues.
+
+The search `fromUbl|parseInvoice|importXml` in production `main/`, `helpers/einvoice/`, and `app/` returned no matches. There is no receive function. `main/einvoice.js` only writes XML.
+
+1. The installed package is `@e-invoice-eu/core` 3.4.2. Its public classes are `InvoiceService`, `MappingService`, `FormatFactoryService`, and `ValidationService`. `InvoiceService` has `generate` only. `MappingService.transform` reads a spreadsheet buffer, not UBL or CII XML. The format interface exposes `syntax: 'UBL' | 'CII'` and `generate`. It has no read method. This spike cannot name a parser. Stop here. Do not add another XML library.
+
+A follow-up build plan is required before any IPC or schema work. That plan must name a parser first. This spike does not choose one.
+
 ## Maintenance notes
 
-A build plan that follows this spike must keep received documents out of `onlyInvoices` totals, must stay offline, and must refuse a newer backup rather than importing a partial model. That build is not this plan.
+State: DONE. The Result stops at question 1. `plans/README.md` was not edited. The operator maintains that index.
+
+A build plan that follows this spike must keep received documents out of `onlyInvoices` totals, must stay offline, and must refuse a newer backup rather than importing a partial model. That build is not this plan. `BACKUP_VERSION` in `app/helpers/backup.js` is 6. This spike does not pick a new backup version.

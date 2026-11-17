@@ -14,6 +14,7 @@
 
 ## Status
 
+- **State**: REJECTED
 - **Priority**: P3
 - **Effort**: S
 - **Risk**: LOW
@@ -112,10 +113,10 @@ A PDF pixel compare is required only if you change `Main.jsx`. The repo uses `no
 
 ## Done criteria
 
-- [ ] The Result section answers both questions in step 1
+- [x] The Result section answers both questions in step 1
 - [ ] README row 046 is `DONE` or `REJECTED`
-- [ ] A template change has a unit test and does not alter line mode
-- [ ] No change to e-invoice files
+- [x] No template change, so line mode is unchanged and no new test was added
+- [x] No change to e-invoice files
 
 ## STOP conditions
 
@@ -123,6 +124,29 @@ A PDF pixel compare is required only if you change `Main.jsx`. The repo uses `no
 - A PDF compare shows differences outside the total line. STOP and revert the template.
 - Business and minimal templates do not share the same condition. Report both. Do not fix only one.
 
+## Result
+
+Drift: `app/helpers/invoice.js` changed after `10f3f0e` because plan 044 moved the total helpers to `helpers/invoiceTotals.js`. `app/helpers/invoice.js` re-exports them. The two `Main.jsx` excerpts still match the live files. `getInvoiceTotals` still sets `mode` to `'line'` or `'invoice'`. `getInvoiceTotal` still returns `invoice.grandTotal` when that value is a finite number (`helpers/invoiceTotals.js`). This is not a behavior mismatch, so the investigation continues.
+
+1. Can invoice mode store a `grandTotal` that is not `getInvoiceTotals(doc).grandTotal` after a normal save? No.
+
+`getInvoiceData` assigns both stored numbers from `getInvoiceTotals(fields)`:
+
+- Edit save: `app/helpers/form.js` lines 793-794
+- New save: `app/helpers/form.js` lines 830-831
+
+`fields` is `pickInvoiceFields`. The saved document gets those same rows, tax, discount, and currency. Invoice mode does not keep `taxMode: 'line'` or `taxCalc: 1`. `getInvoiceTotals` does not read the stored `grandTotal` when it calculates. A later `getInvoiceTotals(doc)` therefore returns the stored `grandTotal`. `reconcilePaymentStatus` changes status only. Recurring drafts use one `getInvoiceTotals(draft)` result for both `subtotal` and `grandTotal` (`app/helpers/recurring.js` lines 130-134).
+
+A checked edit that starts as line mode and saves with the form in invoice mode can leave `taxMode: 'line'` and `taxCalc: 1` on the document, because `pickInvoiceFields` omits those keys and `Object.assign` does not delete them. One sample stored `grandTotal` 22 while `getInvoiceTotals(doc)` returned mode `'line'`, subtotal 20, tax 0, and grand total 20. That saved document is line mode. The template then prints `totals.subtotal` and `totals.grandTotal`, so the PDF does not mix the stored total with the computed tax. This plan does not change that save path.
+
+2. Do the templates read stored subtotal and computed tax in invoice mode? Yes. Minimal `Main.jsx` and business `Main.jsx` use the same condition. In invoice mode, subtotal and grand total come from `invoice.subtotal` and `invoice.grandTotal`. Tax and discount come from `totals.taxTotal` and `totals.discount`. In line mode, subtotal and grand total come from `totals`.
+
+No template edit. The invoice-mode tax line and the invoice-mode total come from the same `getInvoiceTotals` inputs that the save wrote. The stored total is the saved snapshot, and the template prints that snapshot on purpose.
+
 ## Maintenance notes
 
+State: REJECTED. `plans/README.md` was not edited. The operator maintains that index.
+
 If a later plan stores a rounded total that is allowed to differ from the row sum, the template and `getInvoiceTotal` must document which number is the legal total. Today `getInvoiceTotal` prefers the stored `grandTotal`.
+
+An edit that changes a line-mode document to invoice mode can leave `taxMode` and `taxCalc` on the saved document. That is a save-path issue, not a mixed PDF total. Do not "fix" it inside a template cleanup.

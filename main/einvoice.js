@@ -6,7 +6,7 @@ import { InvoiceService } from '@e-invoice-eu/core';
 
 import appConfig from './settings';
 import { getPrintOptions } from './print-options';
-import { validateEInvoiceExportPayload } from '../app/helpers/einvoiceExportIntegrity.js';
+import { validateEInvoiceExportPayload } from '../helpers/einvoice/exportIntegrity.js';
 import { toEn16931 } from '../helpers/einvoice/toEn16931.js';
 import { getEInvoiceIssues } from '../helpers/einvoice/getEInvoiceIssues.js';
 import { toUblJson } from '../helpers/einvoice/toUblJson.js';

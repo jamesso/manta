@@ -14,6 +14,7 @@
 
 ## Status
 
+- **State**: DONE
 - **Priority**: P3
 - **Effort**: M
 - **Risk**: MED
@@ -122,10 +123,10 @@ If `getSellerTaxIds` is pure, move it and re-export from `app/helpers/tax.js`. U
 
 ## Done criteria
 
-- [ ] `main/einvoice.js` imports the validator from `helpers/einvoice/`
-- [ ] `rg` shows no `app/` import under `main/` or `helpers/einvoice/` (tests excluded)
-- [ ] The old `app/helpers/einvoiceExportIntegrity.js` path still re-exports the same names
-- [ ] `npm test -- helpers/einvoice` and `npm run build` exit 0
+- [x] `main/einvoice.js` imports the validator from `helpers/einvoice/`
+- [x] `rg` shows no `app/` import under `main/` or `helpers/einvoice/` (tests excluded)
+- [x] The old `app/helpers/einvoiceExportIntegrity.js` path still re-exports the same names
+- [x] `npm test -- helpers/einvoice` and `npm run build` exit 0
 - [ ] `plans/README.md` row 044 is `DONE`
 
 ## STOP conditions
@@ -137,3 +138,19 @@ If `getSellerTaxIds` is pure, move it and re-export from `app/helpers/tax.js`. U
 ## Maintenance notes
 
 New e-invoice checks belong in `helpers/einvoice/`. `main/einvoice.js` should import that folder and `@e-invoice-eu/core` only. The re-export can be deleted in a later cleanup once `rg` shows no renderer imports of the old path. Do not delete it in this plan.
+
+State: DONE. `plans/README.md` was not edited. The operator maintains that index.
+
+`getSellerTaxIds` is pure. It now lives in `helpers/einvoice/sellerTax.js`. `app/helpers/tax.js` re-exports it. `toEn16931.js` imports the new module.
+
+`getDocType` is pure. The doc-type module now lives in `helpers/docType.js`. The old path re-exports it.
+
+`validateEInvoiceExportPayload` now lives in `helpers/einvoice/exportIntegrity.js`. The old path re-exports `validateEInvoiceExportPayload`, `taxGroupMultisetSignature`, `priceWithinFourDecimals`, and `linePriceQuantityCentsMatch`.
+
+`exportIntegrity.js` also needs `getAmountPaid`, `getDueDate`, `getInvoiceTotals`, `getIssuedAt`, and `UNIT_CODES`. Those functions do not use `window` or React. They now live outside `app/` so the main process does not import `app/helpers/invoice.js`:
+
+- `helpers/invoiceTotals.js` holds the total, payment, issue-date, and due-date helpers.
+- `helpers/money.js`, `helpers/taxGroups.js`, `helpers/docStatuses.js`, `helpers/estimateStatus.js`, and `helpers/units.js` hold the pure helpers those totals need.
+- The old `app/` paths re-export the same names.
+
+`helpers/email.js` was not changed. Validation rules, XML shape, and fixtures were not changed.

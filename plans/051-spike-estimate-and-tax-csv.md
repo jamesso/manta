@@ -14,6 +14,7 @@
 
 ## Status
 
+- **State**: DONE
 - **Priority**: P3
 - **Effort**: S for the spike. A later build is about M.
 - **Risk**: LOW
@@ -96,9 +97,9 @@ Include:
 
 ## Done criteria
 
-- [ ] Result contains the five parts
-- [ ] `buildInvoicesCsv` is specified as unchanged
-- [ ] No application file is modified
+- [x] Result contains the five parts
+- [x] `buildInvoicesCsv` is specified as unchanged
+- [x] No application file is modified
 - [ ] README row 051 is `DONE`
 
 ## STOP conditions
@@ -107,6 +108,33 @@ Include:
 - The spec adds estimate amounts into the invoice file. Rewrite it.
 - `taxBreakdown` does not exist on the totals object. Quote `getInvoiceTotals`'s return and STOP. Do not invent the field.
 
+## Result
+
+Drift: `app/helpers/csv.js` is unchanged since `10f3f0e`.
+
+The search matched `salesDocRows` and `amount_paid`. `salesDocRows` drops tombstones and keeps `isInvoice` or `isCreditNote` only. Estimates stay out of `buildInvoicesCsv`. The premise holds. The invoice header stays `number,client,issued,due,status,currency,subtotal,tax,discount,total,amount_paid,balance_due,docType,creditedInvoice`.
+
+`getInvoiceTotals` returns `mode`, `subtotal`, `discount`, `taxTotal`, `grandTotal`, and `taxBreakdown`. Each `taxBreakdown` entry has `category`, `rate`, `base`, and `amount`. Line mode sets `mode` to `'line'` and one entry per category and rate. Invoice mode sets `mode` to `'invoice'`. When the document has invoice-level tax, `taxBreakdown` has one entry with `key: 'legacy'`, `category` `AE` for reverse charge or `S` otherwise, `rate` equal to `tax.amount`, and `amount` equal to the invoice-level tax. When there is no invoice-level tax, `taxBreakdown` is empty. Do not invent a rate for that case.
+
+1. `buildEstimatesCsv(allSalesDocs, now)` uses the same columns. It lists estimates only. It does not add estimate totals to `buildInvoicesCsv`. Estimates have no payments and no due date. `amount_paid` is `0`. `balance_due` is empty. `due` is empty. `creditedInvoice` is empty. `docType` is `estimate`. Status comes from `getDisplayStatus`, which already handles estimates. Draft estimates stay in this file so the quote list is complete.
+
+2. `buildTaxSummaryCsv(allSalesDocs, from, to)` groups issued invoices and issued credit notes by currency code, `taxBreakdown.category`, and `taxBreakdown.rate`. For `mode === 'line'`, use each `taxBreakdown` entry. For `mode === 'invoice'`, use that same array: the one legacy entry when it exists, and no tax row when it is empty. The amount column is `taxBreakdown.amount`. The rate column is `taxBreakdown.rate`. Do not read a rate from anywhere else.
+
+3. The date filter uses `getIssuedAt`, which is epoch milliseconds. Compare local calendar days. `from` and `to` are inclusive. Do not fall back to `created_at`. A document with no issue date is excluded and counted. The build plan can show that count. Drafts are excluded. Void credit notes are excluded. Estimates are excluded from this file.
+
+4. A credit note reduces the tax total for its currency, category, and rate. Add the negative of `taxBreakdown.amount`. Do not emit the credit note as a positive sale. Two currencies do not share a row. Two rates do not share a row.
+
+5. Tests for the build plan, in `app/helpers/__tests__/csv.spec.js`:
+   - An estimate row is absent from the invoice CSV and present in the estimates CSV.
+   - Two rates produce two tax rows.
+   - A credit note reduces one rate.
+   - A draft is absent from the tax CSV.
+   - Two currencies do not share a row.
+
+`buildInvoicesCsv` is unchanged. A later build can send the new strings through the existing `csv-export` IPC with the default names `manta-estimates-YYYY-MM-DD.csv` and `manta-tax-YYYY-MM-DD.csv`. This spike does not add those functions.
+
 ## Maintenance notes
+
+State: DONE. `plans/README.md` was not edited. The operator maintains that index.
 
 The invoice CSV is a stable export. A new column there breaks spreadsheets people already import. New reports should be new functions and new default file names (`manta-estimates-YYYY-MM-DD.csv`, `manta-tax-YYYY-MM-DD.csv`).
