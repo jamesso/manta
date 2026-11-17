@@ -1,3 +1,4 @@
+import 'fake-indexeddb/auto';
 import * as ACTION_TYPES from '../../constants/actions.jsx';
 import * as Actions from '../../actions/invoices';
 import InvoicesMW from '../InvoicesMW';
@@ -21,11 +22,13 @@ import {
   saveDoc,
   updateDoc,
   removeDocs,
+  bulkSaveDocs,
   restoreDocs,
   updateDocs,
   mockData,
   resetMockPouchData,
 } from '../../helpers/pouchDB';
+import { buildRecurringTombstone } from '../../helpers/recurring';
 import { getAmountPaid, getStoredStatus } from '../../helpers/invoice';
 import { clearInvoiceMutationQueuesForTests } from '../../helpers/invoiceMutations';
 import { clearInvoiceNumberingWriteChainForTests } from '../../helpers/invoiceNumberingWrites';
@@ -127,6 +130,7 @@ describe('Invoices Middleware', () => {
     middleware = InvoicesMW({ dispatch, getState })(next);
     toast.add.mockClear();
     toast.close.mockClear();
+    bulkSaveDocs.mockReset();
     removeDocs.mockClear();
     restoreDocs.mockClear();
     updateDocs.mockClear();
@@ -489,6 +493,73 @@ describe('Invoices Middleware', () => {
   });
 
   describe('should handle INVOICE_DELETE action', () => {
+    it.each(['rejection', 'per-document error'])(
+      'refreshes the deleted list and warns after a tombstone %s',
+      async failure => {
+        const draft = {
+          _id: 'rec-prof-2026-03-15',
+          docType: 'invoice',
+          status: 'draft',
+          recurringId: 'prof',
+          periodKey: '2026-03-15',
+        };
+        mockData.invoicesRecords = [draft];
+        const error = new Error('tombstone write failed');
+        bulkSaveDocs.mockImplementationOnce(() =>
+          failure === 'rejection'
+            ? Promise.reject(error)
+            : Promise.resolve({
+                succeeded: [],
+                failed: [{ id: draft._id, error: true, message: error.message }],
+                allDocs: [],
+              })
+        );
+
+        await middleware(Actions.deleteInvoice(draft._id));
+
+        expect(bulkSaveDocs).toHaveBeenCalledWith('invoices', [
+          buildRecurringTombstone(draft.recurringId, draft.periodKey),
+        ]);
+        expect(next).toHaveBeenCalledWith({
+          type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+          payload: { type: 'warning', message: error.message },
+        });
+        expect(next).toHaveBeenLastCalledWith({
+          type: ACTION_TYPES.INVOICE_DELETE,
+          payload: [],
+        });
+        expect(mockData.invoicesRecords).toEqual([]);
+      }
+    );
+
+    it('includes the persisted recurring tombstone in the delete result', async () => {
+      const draft = {
+        _id: 'rec-prof-2026-03-15',
+        docType: 'invoice',
+        status: 'draft',
+        recurringId: 'prof',
+        periodKey: '2026-03-15',
+      };
+      const db = await vi.importActual('../../helpers/pouchDB');
+      await db.saveDoc('invoices', draft);
+      const tombstone = buildRecurringTombstone('prof', '2026-03-15');
+      getAllDocs.mockImplementationOnce(db.getAllDocs);
+      removeDocs.mockImplementationOnce(db.removeDocs);
+      bulkSaveDocs.mockImplementationOnce(db.bulkSaveDocs);
+      const savesBefore = saveDoc.mock.calls.length;
+
+      await middleware(Actions.deleteInvoice(draft._id));
+
+      const stored = await db.getAllDocs('invoices');
+      expect(stored).toEqual([expect.objectContaining(tombstone)]);
+      expect(next).toHaveBeenCalledWith({
+        type: ACTION_TYPES.INVOICE_DELETE,
+        payload: stored,
+      });
+      expect(saveDoc).toHaveBeenCalledTimes(savesBefore);
+      await db.deleteDoc('invoices', draft._id);
+    });
+
     it('should remove record from DB correctly', async () => {
       const invoiceID = 'jon-invoice';
       await middleware(Actions.deleteInvoice(invoiceID));

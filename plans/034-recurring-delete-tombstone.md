@@ -14,6 +14,8 @@
 
 ## Status
 
+- **Status**: DONE
+
 - **Priority**: P1
 - **Effort**: M
 - **Risk**: MED
@@ -132,12 +134,12 @@ Avoid calling `saveDoc` inside the loop. Each `saveDoc` reloads every invoice.
 
 ## Done criteria
 
-- [ ] Both test commands exit 0
-- [ ] A failed tombstone write still dispatches the post-delete list
-- [ ] The delete path does not call `saveDoc` once per removed draft
-- [ ] Tombstone `_id`s stay `rec-<profileId>-<periodKey>`
-- [ ] `git status` shows no files outside the in-scope list
-- [ ] `plans/README.md` row 034 is `DONE`
+- [x] Both test commands exit 0
+- [x] A failed tombstone write still dispatches the post-delete list
+- [x] The delete path does not call `saveDoc` once per removed draft
+- [x] Tombstone `_id`s stay `rec-<profileId>-<periodKey>`
+- [x] `git status` shows no files outside the in-scope list
+- [x] Plan status is `DONE` here; `plans/README.md` left unchanged by operator instruction
 
 ## STOP conditions
 
@@ -148,3 +150,37 @@ Avoid calling `saveDoc` inside the loop. Each `saveDoc` reloads every invoice.
 ## Maintenance notes
 
 The runner and the delete path share `_id`. A change to `buildRecurringTombstone` must update both. Plan 038 may remove the extra `getAllDocs` inside `saveDoc`. This plan should not depend on that. It should already reload once.
+
+
+### Execution review — 2026-11-16
+
+- Started with a clean working tree on `plan-034-tombstone`. Merged local
+  `main` by fast-forward to `bbc0e94`; retained plans 032, 037, and 040.
+- Drift check: `git diff --stat 10f3f0e..HEAD -- app/middlewares/InvoicesMW.jsx app/helpers/recurring.js app/helpers/pouchDB.js`
+  — exit 0. Compared live delete and restore code. Delete still used one
+  `saveDoc` per removed recurring draft; expected drift accepted under operator override.
+- Delete now uses one `bulkSaveDocs` call and its fresh `allDocs` on success.
+  A rejected write or per-document error emits the existing warning notification,
+  then reads the database and dispatches `INVOICE_DELETE`. No per-draft `saveDoc`.
+- Existing bulk helper reports individual errors and already reloads once.
+  API behavior checked against [PouchDB API](https://pouchdb.com/api.html).
+- Added two failure cases and one real-PouchDB middleware success case using
+  fake IndexedDB. The same `rec-<profileId>-<periodKey>` id succeeds after
+  removal; the reducer receives the stored tombstone. Existing runner coverage
+  proves no duplicate draft is generated. Restore branch unchanged and tests pass.
+- Initial `npm test -- app/middlewares/__tests__/InvoicesMW.spec.js` — exit 1:
+  three new cases failed before the production fix; 69 existing cases passed.
+- Final `npm test -- app/middlewares/__tests__/InvoicesMW.spec.js` — exit 0,
+  72 tests passed.
+- `npm test -- app/helpers/__tests__/recurringRunner.spec.js` — exit 0,
+  10 tests passed.
+- `npm test -- app/middlewares/__tests__/InvoicesMW.spec.js app/helpers/__tests__/recurringRunner.spec.js`
+  — exit 0, 82 tests passed.
+- `npx eslint app/middlewares/InvoicesMW.jsx app/middlewares/__tests__/InvoicesMW.spec.js`
+  — exit 0. `git diff --check` — exit 0.
+- Security review: no new external input, authorization path, or secret handling;
+  no security issue found in this change. No STOP condition occurred.
+- No running local app test needed for this persistence change. No access to
+  the prohibited application data directory. No push, PR, branch switch, or worktree.
+- Only the middleware, its test file, and this plan are included in the commit.
+  `plans/README.md` was not edited; its main-branch change arrived with the merge.
