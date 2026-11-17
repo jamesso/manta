@@ -14,6 +14,7 @@
 
 ## Status
 
+- **State**: DONE
 - **Priority**: P3
 - **Effort**: S for the spike. A later build is about M.
 - **Risk**: LOW for the spike
@@ -103,9 +104,9 @@ Include:
 
 ## Done criteria
 
-- [ ] Result contains the five parts
-- [ ] The spec does not auto-send and does not auto-issue by default
-- [ ] No application file is modified
+- [x] Result contains the five parts
+- [x] The spec does not auto-send and does not auto-issue by default
+- [x] No application file is modified
 - [ ] README row 050 is `DONE`
 
 ## STOP conditions
@@ -114,6 +115,31 @@ Include:
 - The spec calls `shell.openExternal` or `mailto` from the runner. Remove that.
 - `canEmail` allows drafts. Quote the function and STOP. The email rule is different from this plan's assumption.
 
+## Result
+
+Drift: `app/helpers/recurring.js` and `app/helpers/recurringRunner.js` are unchanged since `10f3f0e`.
+
+The search matched `status: 'draft'` and `delete draft.invoiceID` in `buildInvoiceFromProfile`. A recurring draft has no `invoiceID`.
+
+`canEmail` in `app/helpers/emailDraft.js` returns false for a draft. It also requires `invoiceID`, and it rejects `cancelled` and `refunded`. It does not allow drafts. The spike continues.
+
+1. The queue is every invoice with `recurringId`, `status: 'draft'`, no `invoiceID`, and no `recurringTombstone`. `lastRunAt` is stored on the profile and is overwritten with the runner `now` after a checkpoint. It is not a list of the drafts from that pass, and the previous value is not kept. The queue is therefore all unnumbered recurring drafts. Do not add a timestamp in this spike. A build plan that wants only the last run should add `runnerPassAt` on the draft, set to that pass's `now`, and compare it with the profile `lastRunAt`.
+
+2. Allowed actions: open the draft. The existing email action is allowed only after the document has an `invoiceID` and `canEmail` returns true. `canEmail` rejects drafts, so a draft in the queue cannot be emailed.
+
+3. Forbidden in the default: auto-issue, auto-send, and any path that calls the numbering writer inside `runRecurringOnce`. A 409 that belongs to the period stays a skip. The runner does not call `shell.openExternal` or open a `mailto:` link.
+
+4. An optional per-profile flag is a later plan. Default off. Do not add the flag to the profile document now. If a later plan turns it on, the user must confirm before numbers are consumed. The confirm says how many drafts will receive an invoice number, and it does not send mail.
+
+5. Tests for the build plan:
+   - The runner still creates a draft without `invoiceID`.
+   - A second run does not create a second draft for the same period.
+   - The queue helper excludes issued invoices and tombstones.
+
+This spike does not build the queue. A follow-up build plan is required before any button or profile field.
+
 ## Maintenance notes
+
+State: DONE. `plans/README.md` was not edited. The operator maintains that index.
 
 `runRecurringOnce` must stay safe to retry. A review queue that issues numbers has to use the same numbering writer as a manual save (`runInvoiceNumberingWrite`), not a new counter. That wiring belongs to the build plan.
