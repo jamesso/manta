@@ -39,7 +39,9 @@ ipcMain.on('settings:has', (event, key) => {
 
 ipcMain.on('settings:set', (event, key, value) => {
   // app.js owns these ids. A renderer must not move the trust anchor.
+  // electron-store treats an object key as a bulk write.
   if (
+    typeof key !== 'string' ||
     key === 'mainWindowID' ||
     key === 'previewWindowID' ||
     !isMainWindowMainFrame(event)

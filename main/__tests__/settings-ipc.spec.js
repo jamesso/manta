@@ -96,6 +96,13 @@ describe('settings ipc', () => {
     }
   });
 
+  it('main settings:set of an object key does not call store.set and sets returnValue false', () => {
+    const event = mainEvent();
+    handlers['settings:set'](event, { mainWindowID: 2, previewWindowID: 1 });
+    expect(appConfig.set).not.toHaveBeenCalled();
+    expect(event.returnValue).toBe(false);
+  });
+
   it('sub-frame settings:set does not call store.set', () => {
     const event = subFrameEvent();
     handlers['settings:set'](event, 'general.theme', 'dark');
