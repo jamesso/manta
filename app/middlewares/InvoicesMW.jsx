@@ -373,11 +373,11 @@ function queuedInvoiceWrite(invoiceId, mutate) {
             writeErr: err,
           }));
       })
-      .catch(() => ({
+      .catch(err => ({
         id: invoiceId,
         ok: false,
         committed: false,
-        error: 'notFound',
+        error: err.status === 404 ? 'notFound' : 'loadFailed',
       }))
   );
 }
