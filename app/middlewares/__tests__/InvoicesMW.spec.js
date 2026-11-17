@@ -147,20 +147,18 @@ describe('Invoices Middleware', () => {
       );
     });
 
-    it('calls next after the promised is returned', () => {
+    it('calls next after the promised is returned', async () => {
       const action = Actions.getInvoices();
-      middleware(action).then(() => {
-        expect(dispatch.mock.calls.length).toBe(0);
-        // Call next with resolved data
-        return getAllDocs('invoices').then(data => {
-          expect(next.mock.calls.length).toBe(1);
-          expect(next).toHaveBeenCalledWith(
-            Object.assign({}, action, {
-              payload: data,
-            })
-          );
-        });
-      });
+      await middleware(action);
+      expect(dispatch.mock.calls.length).toBe(0);
+      // Call next with resolved data
+      const data = await getAllDocs('invoices');
+      expect(next.mock.calls.length).toBe(1);
+      expect(next).toHaveBeenCalledWith(
+        Object.assign({}, action, {
+          payload: data,
+        })
+      );
     });
 
     it('handle error correctly', () => {
@@ -168,7 +166,7 @@ describe('Invoices Middleware', () => {
       getAllDocs.mockImplementationOnce(() => getAllDocs('random-string'));
       const expectedError = new Error('Incorrect database!');
       // Execute
-      middleware(Actions.getInvoices()).then(() => {
+      return middleware(Actions.getInvoices()).then(() => {
         // Calling next & send new notification
         expect(next).toHaveBeenCalled();
         expect(next).toHaveBeenCalledWith({
@@ -181,21 +179,20 @@ describe('Invoices Middleware', () => {
       });
     });
 
-    it('handle unknown error correctly', () => {
+    it('handle unknown error correctly', async () => {
       const unknownError = new Error('Something broke');
       getAllDocs.mockImplementationOnce(() => Promise.reject(unknownError));
-      middleware(Actions.getInvoices()).then(() =>
-        getAllDocs().catch(err => {
-          expect(next).toHaveBeenCalled();
-          expect(next).toHaveBeenCalledWith({
-            type: ACTION_TYPES.UI_NOTIFICATION_NEW,
-            payload: {
-              type: 'warning',
-              message: unknownError.message,
-            },
-          });
-        })
-      );
+      await middleware(Actions.getInvoices());
+      await getAllDocs().catch(err => {
+        expect(next).toHaveBeenCalled();
+        expect(next).toHaveBeenCalledWith({
+          type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+          payload: {
+            type: 'warning',
+            message: unknownError.message,
+          },
+        });
+      });
     });
   });
 
@@ -225,7 +222,7 @@ describe('Invoices Middleware', () => {
       expect(result).toEqual(invoice);
     });
 
-    it('should save records to DB', () => {
+    it('should save records to DB', async () => {
       // Setup
       const newInvoice = {
         recipient: {
@@ -242,12 +239,10 @@ describe('Invoices Middleware', () => {
         ],
       };
       // Execute
-      middleware(Actions.saveInvoice(newInvoice)).then(() =>
-        saveDoc('invoices', newInvoice).then(data => {
-          // Expect
-          expect(data).toEqual([...mockData.invoicesRecords, newInvoice]);
-        })
-      );
+      await middleware(Actions.saveInvoice(newInvoice));
+      const data = await saveDoc('invoices', newInvoice);
+      // Expect
+      expect(data).toEqual([...mockData.invoicesRecords, newInvoice]);
     });
 
     it('should call next and dispatch notification ', () => {
@@ -350,7 +345,7 @@ describe('Invoices Middleware', () => {
       saveDoc.mockImplementationOnce(() => Promise.reject(expectedError));
 
       // Execute
-      middleware(Actions.saveInvoice(newInvoice)).then(() => {
+      return middleware(Actions.saveInvoice(newInvoice)).then(() => {
         // Expect
         expect(next).toHaveBeenCalled();
         expect(next).toHaveBeenCalledWith({
@@ -391,7 +386,7 @@ describe('Invoices Middleware', () => {
       getSingleDoc.mockResolvedValueOnce({ ...currentInvoice, _rev: '1-x' });
       // Execute
       const action = Actions.editInvoice(currentInvoice);
-      middleware(action).then(() => {
+      return middleware(action).then(() => {
         // Call next
         expect(next.mock.calls.length).toBe(1);
         expect(next).toHaveBeenCalledWith(
@@ -443,34 +438,30 @@ describe('Invoices Middleware', () => {
       });
     });
 
-    it('should update the invoice', () => {
-      middleware(Actions.updateInvoice(currentInvoice)).then(() =>
-        updateDoc('invoices', currentInvoice).then(data => {
-          expect(data).toEqual(mockData.invoicesRecords);
-        })
-      );
+    it('should update the invoice', async () => {
+      await middleware(Actions.updateInvoice(currentInvoice));
+      const data = await updateDoc('invoices', currentInvoice);
+      expect(data).toEqual(mockData.invoicesRecords);
     });
 
-    it('should call next and dispatch notification', () => {
-      middleware(Actions.updateInvoice(currentInvoice)).then(() =>
-        updateDoc('invoices', currentInvoice).then(data => {
-          // Call next after the promised is returned
-          expect(next.mock.calls.length).toBe(1);
-          expect(next).toHaveBeenCalledWith({
-            type: ACTION_TYPES.INVOICE_UPDATE,
-            payload: mockData.invoicesRecords,
-          });
-          // Dispatch success notification
-          expect(dispatch.mock.calls.length).toBe(1);
-          expect(dispatch).toHaveBeenCalledWith({
-            type: ACTION_TYPES.UI_NOTIFICATION_NEW,
-            payload: {
-              type: 'success',
-              message: i18n.t('messages:invoice:updated'),
-            },
-          });
-        })
-      );
+    it('should call next and dispatch notification', async () => {
+      await middleware(Actions.updateInvoice(currentInvoice));
+      await updateDoc('invoices', currentInvoice);
+      // Call next after the promised is returned
+      expect(next.mock.calls.length).toBe(1);
+      expect(next).toHaveBeenCalledWith({
+        type: ACTION_TYPES.INVOICE_UPDATE,
+        payload: mockData.invoicesRecords,
+      });
+      // Dispatch success notification
+      expect(dispatch.mock.calls.length).toBe(1);
+      expect(dispatch).toHaveBeenCalledWith({
+        type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+        payload: {
+          type: 'success',
+          message: i18n.t('messages:invoice:updated'),
+        },
+      });
     });
 
     it('should handle syntax error correctly', async () => {
@@ -484,7 +475,7 @@ describe('Invoices Middleware', () => {
     it('should handle unkown error correctly', () => {
       const expectedError = new Error('Something Broken!');
       updateDoc.mockImplementationOnce(() => Promise.reject(expectedError));
-      middleware(Actions.updateInvoice(currentInvoice)).then(() => {
+      return middleware(Actions.updateInvoice(currentInvoice)).then(() => {
         expect(next).toHaveBeenCalled();
         expect(next).toHaveBeenCalledWith({
           type: ACTION_TYPES.UI_NOTIFICATION_NEW,
@@ -696,18 +687,16 @@ describe('Invoices Middleware', () => {
   });
 
   describe('should handle INVOICE_CONFIGS_SAVE action correctly', () => {
-    it('get the doc, merge with config object and dispatch a new action', () => {
+    it('get the doc, merge with config object and dispatch a new action', async () => {
       const invoiceID = 'id-string';
       const configs = { color: 'red' };
-      middleware(Actions.saveInvoiceConfigs(invoiceID, configs)).then(() =>
-        getSingleDoc('invoices', invoiceID).then(doc => {
-          expect(dispatch.mock.calls.length).toBe(1);
-          expect(dispatch).toHaveBeenCalledWith({
-            type: ACTION_TYPES.INVOICE_UPDATE,
-            payload: Object.assign({}, doc, { configs }),
-          });
-        })
-      );
+      await middleware(Actions.saveInvoiceConfigs(invoiceID, configs));
+      const doc = await getSingleDoc('invoices', invoiceID);
+      expect(dispatch.mock.calls.length).toBe(1);
+      expect(dispatch).toHaveBeenCalledWith({
+        type: ACTION_TYPES.INVOICE_UPDATE,
+        payload: Object.assign({}, doc, { configs }),
+      });
     });
 
     it('handle error correctly', async () => {
@@ -932,7 +921,7 @@ describe('Invoices Middleware', () => {
       email: 'jon@hbo.com',
     };
     const action = Actions.newInvoiceFromContact(contact);
-    middleware(action);
+    const pending = middleware(action);
     // Move to Form Tab
     expect(next.mock.calls.length).toBe(1);
     expect(next).toHaveBeenCalledWith({
@@ -949,6 +938,7 @@ describe('Invoices Middleware', () => {
         newRecipient: false,
       },
     });
+    return pending;
   });
 
   it('INVOICE_NEW_FROM_CONTACT asks before replacing unsaved work', async () => {
@@ -1747,7 +1737,8 @@ describe('Invoices Middleware', () => {
 
   it('let other actions pass through', () => {
     const action = { type: 'TEST' };
-    middleware(action);
+    const pending = middleware(action);
     expect(next).toHaveBeenCalledWith(action);
+    return pending;
   });
 });
