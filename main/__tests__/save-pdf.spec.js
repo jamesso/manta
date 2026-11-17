@@ -18,12 +18,13 @@ vi.mock('../preview-pdf-coordinator', async importOriginal => {
 });
 
 import path from 'node:path';
+import os from 'node:os';
 import { BrowserWindow, ipcMain, shell } from 'electron';
 import appConfig from '../settings';
 import { runPreviewPdfJob } from '../preview-pdf-coordinator';
 import { writeInvoicePdf } from '../print-invoice-pdf';
 
-const EXPORT_DIR = '/tmp/manta-save-pdf';
+const EXPORT_DIR = path.join(os.tmpdir(), 'manta-save-pdf');
 
 describe('save-pdf ipc handler', () => {
   let savePdf;

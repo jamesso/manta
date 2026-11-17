@@ -396,7 +396,10 @@ test('client name field suggests saved clients like line items', async () => {
   await expect(page.locator('#client-email')).toHaveCount(0);
   await expect(page.getByRole('listbox')).toHaveCount(0);
   await expect(
-    page.locator('#root').getByText('e2e@example.com')
+    page
+      .locator('[data-slot="card"]')
+      .filter({ has: name })
+      .getByText('e2e@example.com', { exact: true })
   ).toBeVisible();
 
   await name.fill('Someone New');
@@ -590,7 +593,13 @@ test('email invoice handoff stubs mail client and writes PDF', async () => {
   );
 
   await app.evaluate(({ shell }) => {
-    shell.openExternal = async () => {};
+    globalThis.emailHandoff = { urls: [], files: [] };
+    shell.openExternal = async url => {
+      globalThis.emailHandoff.urls.push(url);
+    };
+    shell.showItemInFolder = file => {
+      globalThis.emailHandoff.files.push(file);
+    };
   });
 
   const invoice = {
@@ -657,4 +666,8 @@ test('email invoice handoff stubs mail client and writes PDF', async () => {
 
   expect(payload.ok, payload.error).toBe(true);
   expect(fs.existsSync(payload.pdfPath)).toBe(true);
+  const handoff = await app.evaluate(() => globalThis.emailHandoff);
+  expect(handoff.urls).toHaveLength(1);
+  expect(handoff.urls[0]).toMatch(/^mailto:client@example\.com\?/);
+  expect(handoff.files).toEqual([payload.pdfPath]);
 });
