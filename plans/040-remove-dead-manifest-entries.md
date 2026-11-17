@@ -14,6 +14,7 @@
 
 ## Status
 
+- **Status**: DONE
 - **Priority**: P3
 - **Effort**: S
 - **Risk**: LOW
@@ -102,10 +103,10 @@ Delete the `overrides` key if `enzyme` is its only override. Delete the three st
 
 ## Done criteria
 
-- [ ] Root `package.json` has no `date-fns` dependency, no `overrides.enzyme`, and no allowScripts for core-js 2, ejs 2, or styled-components 3
-- [ ] `fsevents@2.3.3` allowScripts remains
-- [ ] `moment` remains
-- [ ] `npm test` and `npm run build` exit 0
+- [x] Root `package.json` has no `date-fns` dependency, no `overrides.enzyme`, and no allowScripts for core-js 2, ejs 2, or styled-components 3
+- [x] `fsevents@2.3.3` allowScripts remains
+- [x] `moment` remains
+- [x] `npm test` and `npm run build` exit 0
 - [ ] `plans/README.md` row 040 is `DONE`
 
 ## STOP conditions
@@ -118,3 +119,22 @@ Delete the `overrides` key if `enzyme` is its only override. Delete the three st
 ## Maintenance notes
 
 Do not add `date-fns` back for one `format()` call. The calendar stack already has it transitively. Application date labels use Moment because stored formats are Moment tokens.
+
+Drift check `git diff --stat 10f3f0e..HEAD -- package.json package-lock.json` exited 0. `package.json` and `package-lock.json` differ from `10f3f0e` only by plan 039 (`electron` `^45.2.1` to `^45.3.3`) and plan 028 (`is-svg` `^3.0.0` to `^6.1.0`). The `date-fns` `^4.4.0` dependency, the `overrides.enzyme` block, and the `allowScripts` block still matched this plan. Those two upgrades were left in place.
+
+`npm ls date-fns` after the uninstall shows `date-fns@4.4.0` only under `@base-ui/react@1.9.0` and `react-day-picker@10.0.2`. The root package does not depend on it. `moment@2.31.0` and `react-day-picker@10.0.2` remain direct dependencies. `styled-components@6.6.0` is the only installed major. `fsevents@2.3.3` remains under `vite`, and its allowScripts entry remains. `npm ls enzyme` prints `(empty)`.
+
+| Command | Exit | Result |
+|---|---|---|
+| `rg -n "from 'date-fns'\|require\('date-fns'\)" --glob '!node_modules/**' --glob '!plans/**'` | 1 | No matches. Exit 1 is rg's code for no match. |
+| `rg -n "styled-components@3" package-lock.json` | 1 | No matches. |
+| `npm ls enzyme` | 1 | `(empty)`. No installed enzyme. |
+| `npm ls fsevents` | 0 | `fsevents@2.3.3` under `vite@8.3.5`. |
+| `npm ls styled-components` | 0 | `styled-components@6.6.0` only. |
+| `npm uninstall date-fns` | 0 | Removed the root dependency. Did not remove `moment` or `react-day-picker`. |
+| `node -e` manifest check from step 2 | 0 | No root `date-fns`, no `overrides`, no stale allowScripts, `fsevents@2.3.3` present. |
+| `npm ls date-fns` | 0 | Transitive copies only. |
+| `npm test` | 0 | 1297 passed, 2 skipped, 2 todo. 4 test files skipped. |
+| `npm run build` | 0 | Wrote `out/`. |
+
+`plans/README.md` was not edited. The operator maintains that index, so row 040 stays `TODO` there.
