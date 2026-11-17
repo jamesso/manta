@@ -1,6 +1,6 @@
 export function round2(n) {
   return (
-    Math.sign(n) * Math.round((Math.abs(n) + Number.EPSILON) * 100) / 100
+    (Math.sign(n) * Math.round((Math.abs(n) + Number.EPSILON) * 100)) / 100
   );
 }
 

@@ -10,7 +10,9 @@ describe.skipIf(process.env.SYNC_EINVOICE_FIXTURES !== '1')(
   'sync fixture derived',
   () => {
     it('writes derived blocks', () => {
-      for (const name of readdirSync(fixtureDir).filter(f => f.endsWith('.json'))) {
+      for (const name of readdirSync(fixtureDir).filter(f =>
+        f.endsWith('.json')
+      )) {
         if (name === 'de-profile.json') {
           continue;
         }

@@ -106,7 +106,9 @@ describe('toUblJson', () => {
     expect(root['cac:TaxTotal'][0]['cbc:TaxAmount@currencyID']).toBe('EUR');
     const schemes =
       root['cac:AccountingSupplierParty']['cac:Party']['cac:PartyTaxScheme'];
-    expect(schemes.some(s => s['cac:TaxScheme']['cbc:ID'] === 'VAT')).toBe(true);
+    expect(schemes.some(s => s['cac:TaxScheme']['cbc:ID'] === 'VAT')).toBe(
+      true
+    );
     expect(schemes.some(s => s['cac:TaxScheme']['cbc:ID'] === 'FC')).toBe(true);
     expect(walkStrings(json)).toEqual([]);
   });

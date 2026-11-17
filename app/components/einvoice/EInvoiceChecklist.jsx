@@ -4,7 +4,11 @@ import { AlertCircle, AlertTriangle } from 'lucide-react';
 
 const FIX_ORDER = ['profile', 'bank', 'client', 'invoice', 'taxRates'];
 
-export default function EInvoiceChecklist({ issues, onCopyClient, copyClientVisible }) {
+export default function EInvoiceChecklist({
+  issues,
+  onCopyClient,
+  copyClientVisible,
+}) {
   const { t } = useTranslation();
   if (!issues?.length) {
     return (

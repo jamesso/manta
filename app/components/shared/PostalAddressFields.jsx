@@ -49,11 +49,9 @@ export default function PostalAddressFields({
       return { code, name };
     });
   }, [i18n.language]);
-  const selected =
-    countries.find(c => c.code === address.countryCode) ?? null;
+  const selected = countries.find(c => c.code === address.countryCode) ?? null;
 
-  const patch = partial =>
-    onChange({ ...address, ...partial });
+  const patch = partial => onChange({ ...address, ...partial });
 
   return (
     <div className="grid gap-4 md:grid-cols-2">

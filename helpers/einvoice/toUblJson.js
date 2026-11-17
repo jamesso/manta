@@ -80,9 +80,7 @@ function supplierParty(model, currency) {
     party['cbc:EndpointID@schemeID'] = 'EM';
   }
   if (model.seller.taxNumber) {
-    party['cac:PartyIdentification'] = [
-      { 'cbc:ID': model.seller.taxNumber },
-    ];
+    party['cac:PartyIdentification'] = [{ 'cbc:ID': model.seller.taxNumber }];
   }
   if (model.seller.tradingName) {
     party['cac:PartyName'] = [{ 'cbc:Name': model.seller.tradingName }];

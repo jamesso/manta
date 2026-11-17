@@ -34,7 +34,11 @@ const ctx = {
   invoiceSettings: { tax: { tin: '' } },
 };
 
-function derivedFor(invoice, profile = ctx.profile, invoiceSettings = ctx.invoiceSettings) {
+function derivedFor(
+  invoice,
+  profile = ctx.profile,
+  invoiceSettings = ctx.invoiceSettings
+) {
   return getEInvoiceDerived(invoice, {
     profile,
     invoiceSettings,
@@ -55,7 +59,11 @@ describe('validateEInvoiceExportPayload', () => {
       docType: 'estimate',
       status: 'sent',
     };
-    const derived = { ...derivedFor(estimate), docType: 'invoice', status: 'pending' };
+    const derived = {
+      ...derivedFor(estimate),
+      docType: 'invoice',
+      status: 'pending',
+    };
     expect(validateEInvoiceExportPayload(estimate, derived, ctx)).toBe(
       'derived-doc-type-mismatch'
     );
@@ -140,11 +148,13 @@ describe('validateEInvoiceExportPayload', () => {
   it('rejects unit prices with more than four decimal places', () => {
     const invoice = {
       ...lineInvoice,
-      rows: [{ ...lineInvoice.rows[0], price: 1.23456, quantity: 1, subtotal: 1.23 }],
+      rows: [
+        { ...lineInvoice.rows[0], price: 1.23456, quantity: 1, subtotal: 1.23 },
+      ],
     };
-    expect(validateEInvoiceExportPayload(invoice, derivedFor(invoice), ctx)).toBe(
-      'invalid-price-precision'
-    );
+    expect(
+      validateEInvoiceExportPayload(invoice, derivedFor(invoice), ctx)
+    ).toBe('invalid-price-precision');
     const fuzzy = {
       ...lineInvoice,
       rows: [
@@ -162,7 +172,10 @@ describe('validateEInvoiceExportPayload', () => {
     expect(
       validateEInvoiceExportPayload(
         { ...lineInvoice, rows: [{ ...lineInvoice.rows[0], price: 19.99 }] },
-        derivedFor({ ...lineInvoice, rows: [{ ...lineInvoice.rows[0], price: 19.99 }] }),
+        derivedFor({
+          ...lineInvoice,
+          rows: [{ ...lineInvoice.rows[0], price: 19.99 }],
+        }),
         ctx
       )
     ).toBeNull();
@@ -199,7 +212,11 @@ describe('validateEInvoiceExportPayload', () => {
     };
     const derived = derivedFor(legacy);
     expect(validateEInvoiceExportPayload(legacy, derived, ctx)).toBeNull();
-    const model = toEn16931(legacy, { profile: ctx.profile, invoice: ctx.invoiceSettings }, derived);
+    const model = toEn16931(
+      legacy,
+      { profile: ctx.profile, invoice: ctx.invoiceSettings },
+      derived
+    );
     const issues = getEInvoiceIssues(model, {
       format: 'xrechnung-ubl',
       invoice: legacy,
@@ -235,7 +252,10 @@ describe('validateEInvoiceExportPayload', () => {
   it('rejects tampered grand total', () => {
     const invoice = { ...lineInvoice };
     const derived = derivedFor(invoice);
-    derived.totals = { ...derived.totals, grandTotal: derived.totals.grandTotal + 1 };
+    derived.totals = {
+      ...derived.totals,
+      grandTotal: derived.totals.grandTotal + 1,
+    };
     expect(validateEInvoiceExportPayload(invoice, derived, ctx)).toBe(
       'derived-total-mismatch'
     );
@@ -246,9 +266,9 @@ describe('validateEInvoiceExportPayload', () => {
       ...lineInvoice,
       rows: [{ ...lineInvoice.rows[0], price: -1 }],
     };
-    expect(validateEInvoiceExportPayload(invoice, derivedFor(invoice), ctx)).toBe(
-      'invalid-price'
-    );
+    expect(
+      validateEInvoiceExportPayload(invoice, derivedFor(invoice), ctx)
+    ).toBe('invalid-price');
   });
 
   it('rejects non-integer quantity', () => {
@@ -256,9 +276,9 @@ describe('validateEInvoiceExportPayload', () => {
       ...lineInvoice,
       rows: [{ ...lineInvoice.rows[0], quantity: 1.5 }],
     };
-    expect(validateEInvoiceExportPayload(invoice, derivedFor(invoice), ctx)).toBe(
-      'invalid-quantity'
-    );
+    expect(
+      validateEInvoiceExportPayload(invoice, derivedFor(invoice), ctx)
+    ).toBe('invalid-quantity');
   });
 
   it('rejects invalid currency code', () => {
@@ -266,9 +286,9 @@ describe('validateEInvoiceExportPayload', () => {
       ...lineInvoice,
       currency: { code: 'EURO', fraction: 2 },
     };
-    expect(validateEInvoiceExportPayload(invoice, derivedFor(invoice), ctx)).toBe(
-      'invalid-currency'
-    );
+    expect(
+      validateEInvoiceExportPayload(invoice, derivedFor(invoice), ctx)
+    ).toBe('invalid-currency');
   });
 
   it('rejects unsupported unit code', () => {
@@ -276,9 +296,9 @@ describe('validateEInvoiceExportPayload', () => {
       ...lineInvoice,
       rows: [{ ...lineInvoice.rows[0], unitCode: 'ZZZ' }],
     };
-    expect(validateEInvoiceExportPayload(invoice, derivedFor(invoice), ctx)).toBe(
-      'invalid-unit-code'
-    );
+    expect(
+      validateEInvoiceExportPayload(invoice, derivedFor(invoice), ctx)
+    ).toBe('invalid-unit-code');
   });
 
   it('rejects derived issue date that differs from invoice', () => {
@@ -295,9 +315,9 @@ describe('validateEInvoiceExportPayload', () => {
       ...lineInvoice,
       currency: { code: 'eur', fraction: 2 },
     };
-    expect(validateEInvoiceExportPayload(invoice, derivedFor(invoice), ctx)).toBe(
-      'invalid-currency'
-    );
+    expect(
+      validateEInvoiceExportPayload(invoice, derivedFor(invoice), ctx)
+    ).toBe('invalid-currency');
   });
 
   it('rejects derived tax breakdown missing a group', () => {
@@ -334,8 +354,8 @@ describe('validateEInvoiceExportPayload', () => {
 
   it('rejects oversized note text', () => {
     const invoice = { ...lineInvoice, note: 'x'.repeat(10_001) };
-    expect(validateEInvoiceExportPayload(invoice, derivedFor(invoice), ctx)).toBe(
-      'text-too-long'
-    );
+    expect(
+      validateEInvoiceExportPayload(invoice, derivedFor(invoice), ctx)
+    ).toBe('text-too-long');
   });
 });
