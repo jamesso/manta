@@ -1,3 +1,4 @@
+const { isMainWindowMainFrame } = require('./main-window-sender');
 // Node Libs
 const fs = require('fs');
 
@@ -7,6 +8,7 @@ const dialog = require('electron').dialog;
 const BrowserWindow = require('electron').BrowserWindow;
 
 ipc.on('select-export-directory', async event => {
+  if (!isMainWindowMainFrame(event)) return;
   const window = BrowserWindow.fromWebContents(event.sender);
   const { canceled, filePaths } = await dialog.showOpenDialog(window, {
     properties: ['openDirectory'],
