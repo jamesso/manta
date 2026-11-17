@@ -14,6 +14,7 @@
 
 ## Status
 
+- **State**: DONE
 - **Priority**: P3
 - **Effort**: S for the spike. A later build is about M.
 - **Risk**: LOW
@@ -85,8 +86,8 @@ Include:
 
 ## Done criteria
 
-- [ ] Result contains the five parts
-- [ ] No application file is modified
+- [x] Result contains the five parts
+- [x] No application file is modified
 - [ ] README row 049 is `DONE`
 
 ## STOP conditions
@@ -95,6 +96,42 @@ Include:
 - The spec adds two currencies into one total. Rewrite that paragraph.
 - `getDueDate` returns a string you did not read. Read it and quote the unit (epoch ms versus `YYYY-MM-DD`) before writing bucket math.
 
+## Result
+
+Drift: plan 044 moved some invoice helpers out of `app/helpers/invoice.js`. `summarizeClients` and `getMonthlyPaid` did not change. `getBalanceDue` is still defined in `app/helpers/invoice.js`. `getDueDate` is still exported from that file. Its body is in `helpers/invoiceTotals.js`. The return value is unchanged. `summarizeClients` still returns `outstanding` as an object keyed by currency code. This is not a mismatch, so the spike continues.
+
+`getDueDate` returns epoch milliseconds or `null`. A custom date uses `moment(dueDate.selectedDate).valueOf()`. A term date uses `calTermDate`, which returns `Date#getTime()`. It does not return a `YYYY-MM-DD` string.
+
+The helper search matched `summarizeClients`, `getMonthlyPaid`, and `getBalanceDue`.
+
+1. Bucket rules. Call `getDueDate(invoice)`. Call `getBalanceDue(invoice, linkedCreditNotes)` with the notes from `groupCreditNotesByInvoice`. Put a document in a bucket only when that balance is greater than 0. Count local calendar days with `moment(due).startOf('day')` and `moment(now).startOf('day')`, the same day boundary `getDisplayStatus` uses. Let `past` be today minus the due day.
+   - `getDueDate` is `null`: bucket `missing`. Do not use `90+`.
+   - `past` is 0 or less, including due today: `current`. Not yet due is current.
+   - `past` 1–30: `1-30`.
+   - `past` 31–60: `31-60`.
+   - `past` 61–90: `61-90`.
+   - `past` 91 or more: `90+`.
+   The bucket uses the balance and the due date. It does not use the display word `partial`. A partial invoice is included because its balance is greater than 0.
+
+2. One table per currency code. Use the same key as `summarizeClients`: `invoice.currency?.code ?? 'USD'`. Do not add one currency to another. There is no FX sum.
+
+3. A statement for one contact lists that contact's open invoices, the bucket for each, and a total per currency. The sales-invoice preview renders one invoice. It has no function that renders a statement. The statement is a new export. The build plan must say that. This spike does not start that export.
+
+4. Exclusions. `onlyInvoices` keeps documents whose `docType` is `invoice` (a missing `docType` means invoice) and drops `recurringTombstone`. Estimates are not in that list. Drop draft invoices as well. `summarizeClients` adds outstanding only for display status `pending`, `partial`, or `overdue`, so the aging rows use that same open set. That drops draft, paid, cancelled, and refunded invoices. Issued credit notes are not rows. `getBalanceDue` already subtracts issued credit notes that match the invoice id and currency. Those notes stay in the balance. A void credit note is not `issued`, so it does not reduce the balance, and it is not a row. A draft credit note does not reduce the balance either.
+
+5. Add `agingByCurrency(contacts, salesDocs, now)` next to `summarizeClients` in `app/helpers/clients.js`. Do not add it in this spike. It should return, per contact and per currency, the open invoices, their buckets, and the bucket sums. The build plan should add these tests:
+   - Not yet due: the amount is `getBalanceDue`, and the bucket is `current`.
+   - 45 days past due: the bucket is `31-60`.
+   - A missing due date: the bucket is `missing`, not `90+`.
+   - Two currencies: two groups, and the totals are not added together.
+   - An issued credit note reduces the invoice balance and is not its own row.
+   - A draft invoice, an estimate, and a tombstone are absent.
+   - A void credit note does not change the balance.
+
+`getMonthlyPaid` still uses a six-month window. A chart period picker remains a separate small follow-up. This spike does not design that chart.
+
 ## Maintenance notes
+
+State: DONE. `plans/README.md` was not edited. The operator maintains that index.
 
 A build plan should live beside `summarizeClients` and should reuse `getBalanceDue`. A statement PDF must not go through the sales-invoice numbering counter.
