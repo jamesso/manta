@@ -56,8 +56,15 @@ The issue tracker, discussions and wiki of the original project do not apply to 
 - 🏗 Drag and drop to reorder items.
 - 📐 SVG logos for sharp printing.
 - 🎨 Custom designed, highly customizable templates.
-- 🏷 Invoice statuses: Draft, Pending, Overdue (automatic), Paid, Refunded and Cancelled.
-- 📊 Export to PDF to print or email.
+- 🏷 Stored invoice statuses are Draft, Pending, Paid, Refunded and Cancelled. A pending invoice past its due date shows as Overdue. A pending invoice with a payment and a remaining balance shows as Partially paid. Partially paid is a display state, not a stored status.
+- 💳 Record payments on an invoice.
+- 📋 Estimates that you can convert to invoices.
+- 🧾 Credit notes for an invoice.
+- 🔁 Recurring profiles create draft invoices when the app runs. They do not send email.
+- 📦 An item catalog you can reuse on documents.
+- 💾 Export a JSON backup, and export a CSV of your invoices.
+- 📊 Export a PDF to print.
+- ✉️ Email opens your mail client. It does not attach the PDF. Manta shows the PDF in its folder.
 - 📄 Export XRechnung (UBL) XML and Factur-X EN 16931 hybrid PDFs fully offline.
 - 🔒 Complete privacy. Your financial data stays on your computer.
 - 🌗 Light and dark mode (follows the system or your choice).
@@ -169,6 +176,8 @@ A pre-commit hook runs ESLint and Prettier on staged files.
 #### Releases
 
 Push a tag that starts with `v` (for example `v1.2.0`). The [Release workflow](./.github/workflows/release.yml) builds macOS, Windows and Linux installers and publishes them to GitHub Releases. It signs and notarizes the macOS build, and signs the Windows build, only when the signing secrets are set. Otherwise it publishes unsigned builds.
+
+The secret names are in [`.github/workflows/release.yml`](./.github/workflows/release.yml). macOS uses `MAC_CSC_LINK`, `MAC_CSC_KEY_PASSWORD`, `APPLE_API_KEY`, `APPLE_API_KEY_ID` and `APPLE_API_ISSUER`. Windows uses `WIN_CSC_LINK` and `WIN_CSC_KEY_PASSWORD`. If a set is missing, that operating system gets an unsigned build.
 
 See [CONTRIBUTING.md](./.github/CONTRIBUTING.md) to contribute.
 
