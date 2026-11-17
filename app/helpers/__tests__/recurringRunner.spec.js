@@ -330,6 +330,44 @@ describe('runRecurringOnce', () => {
     expect(result.created).toBe(1);
     expect(stores.invoices).toHaveLength(1);
   });
+
+  it('creates one weekly draft and does not create that period again', async () => {
+    const profile = {
+      _id: 'p-week',
+      name: 'Week',
+      active: true,
+      interval: 'weekly',
+      every: 1,
+      anchorDay: 1,
+      startDate: '2026-03-02',
+      nextDate: '2026-03-02',
+      endDate: null,
+      template: {
+        docType: 'invoice',
+        recipient: { fullname: 'C' },
+        rows: [{ id: 'r', quantity: '1', price: '1' }],
+      },
+    };
+    const due = dateKeyToMs('2026-03-02');
+    const db = memoryDb({ recurring: [profile], invoices: [] });
+    const first = await runRecurringOnce({
+      now: due,
+      db,
+      makeId: () => 'row-1',
+    });
+    expect(first.created).toBe(1);
+    const draft = db.stores.invoices.find(doc => doc.recurringId === 'p-week');
+    expect(draft._id).toBe('rec-p-week-2026-03-02');
+    const second = await runRecurringOnce({
+      now: due,
+      db,
+      makeId: () => 'row-2',
+    });
+    expect(second.created).toBe(0);
+    expect(
+      db.stores.invoices.filter(doc => doc.recurringId === 'p-week')
+    ).toHaveLength(1);
+  });
 });
 
 describe('runRecurringOnce tombstone with PouchDB', () => {

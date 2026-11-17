@@ -182,6 +182,44 @@ describe('backupFlow', () => {
     expect(recurringWrite).toBeDefined();
     expect(recurringWrite[1][0].nextDate >= '2026-03-01').toBe(true);
   });
+
+  it('passes the existing _rev to bulkSaveDocs on overwrite', async () => {
+    const { bulkSaveDocs, getAllDocs } = await import('../pouchDB');
+    bulkSaveDocs.mockReset();
+    bulkSaveDocs.mockImplementation(async (_db, docs) => ({
+      succeeded: docs.map(doc => doc._id),
+      failed: [],
+      allDocs: docs,
+    }));
+    getAllDocs.mockReset();
+    getAllDocs.mockImplementation(async db => {
+      if (db === 'invoices') {
+        return [{ _id: 'i1', _rev: '1-abc' }];
+      }
+      return [];
+    });
+    const ipc = {
+      invoke: vi.fn(async channel => {
+        if (channel === 'backup-snapshot') {
+          return { filePath: '/tmp/safety.json' };
+        }
+      }),
+    };
+    await runImport(
+      {
+        contacts: [],
+        invoices: [{ _id: 'i1', status: 'pending' }],
+      },
+      { mode: 'overwrite', includeSettings: false },
+      { ipc }
+    );
+    const invoiceWrite = bulkSaveDocs.mock.calls.find(
+      call => call[0] === 'invoices'
+    );
+    expect(invoiceWrite[1]).toEqual([
+      { _id: 'i1', status: 'pending', _rev: '1-abc' },
+    ]);
+  });
 });
 
 describe('importWriteLock', () => {

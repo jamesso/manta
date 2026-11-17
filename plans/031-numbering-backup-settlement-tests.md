@@ -14,6 +14,7 @@
 
 ## Status
 
+- **Status**: DONE
 - **Priority**: P1
 - **Effort**: M
 - **Risk**: LOW
@@ -144,12 +145,12 @@ Read `recurringRunner.spec.js` and copy its in-memory db. Add one test: a weekly
 
 ## Done criteria
 
-- [ ] All four test commands exit 0
-- [ ] `rg -n "estimateNumbering" app/helpers/__tests__/numbering.spec.js` prints a match
-- [ ] `rg -n "overwrite" app/helpers/__tests__/backupFlow.spec.js` prints a match
-- [ ] `rg -n "reconcilePaymentStatus\\(" app/helpers/__tests__/payments.spec.js` shows a call, not only an import
-- [ ] No production file is modified
-- [ ] `plans/README.md` row 031 is `DONE`
+- [x] All four test commands exit 0
+- [x] `rg -n "estimateNumbering" app/helpers/__tests__/numbering.spec.js` prints a match
+- [x] `rg -n "overwrite" app/helpers/__tests__/backupFlow.spec.js` prints a match
+- [x] `rg -n "reconcilePaymentStatus\\(" app/helpers/__tests__/payments.spec.js` shows a call, not only an import
+- [x] No production file is modified
+- [ ] `plans/README.md` row 031 is `DONE` (not edited; operator maintains the index)
 
 ## STOP conditions
 
@@ -160,3 +161,15 @@ Read `recurringRunner.spec.js` and copy its in-memory db. Add one test: a weekly
 ## Maintenance notes
 
 Plan 032 (credit-note write) and plan 038 (Pouch reload) assume these tests exist. If they fail after those plans, the behavior change is in those plans, not here.
+
+Executed 2026-11-16 on branch `plan-031-characterization`. Drift check `git diff --stat 10f3f0e..HEAD -- app/helpers/numbering.js app/helpers/backup.js app/helpers/backupFlow.js app/helpers/payments.js app/helpers/creditNoteSettlement.js app/helpers/recurringRunner.js` was empty (exit 0). `assignNumberIfMissing` accepts a numbering object only, so the estimate case uses `numberingKeyFor` and `formatInvoiceNumber(DEFAULT_ESTIMATE_NUMBERING)`. No production helper was changed. `plans/README.md` was not edited.
+
+Commands:
+
+- `npm test -- app/helpers/__tests__/numbering.spec.js` — exit 0
+- `npm test -- app/helpers/__tests__/backup.spec.js app/helpers/__tests__/backupFlow.spec.js` — exit 0
+- `npm test -- app/helpers/__tests__/payments.spec.js app/helpers/__tests__/creditNoteSettlement.spec.js` — exit 0
+- `npm test -- app/helpers/__tests__/recurringRunner.spec.js` — exit 0
+- `rg -n "estimateNumbering" app/helpers/__tests__/numbering.spec.js` — exit 0
+- `rg -n "overwrite" app/helpers/__tests__/backupFlow.spec.js` — exit 0
+- `rg -n "reconcilePaymentStatus\\(" app/helpers/__tests__/payments.spec.js` — exit 0 (calls, not only the import)

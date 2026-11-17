@@ -346,3 +346,50 @@ describe('getClearingPaymentDate', () => {
     expect(getClearingPaymentDate(inv100(), now)).toBe(now);
   });
 });
+
+describe('reconcilePaymentStatus', () => {
+  it('marks a pending invoice paid when payments cover the total', () => {
+    const doc = inv100({
+      payments: [
+        {
+          id: 'p1',
+          date: Date.UTC(2026, 10, 1),
+          amount: 100,
+          method: 'cash',
+        },
+      ],
+    });
+    expect(reconcilePaymentStatus(doc, now).status).toBe('paid');
+  });
+
+  it('marks a paid invoice pending when payments do not cover the total', () => {
+    const doc = inv100({
+      status: 'paid',
+      paidAt: Date.UTC(2026, 10, 1),
+      payments: [
+        {
+          id: 'p1',
+          date: Date.UTC(2026, 10, 1),
+          amount: 40,
+          method: 'cash',
+        },
+      ],
+    });
+    expect(reconcilePaymentStatus(doc, now).status).toBe('pending');
+  });
+
+  it('uses the credited status when an issued credit covers the balance', () => {
+    const doc = inv100({ _id: 'inv-1', docType: 'invoice' });
+    const notes = [
+      {
+        _id: 'cn-1',
+        docType: 'creditNote',
+        status: 'issued',
+        creditedInvoiceId: 'inv-1',
+        grandTotal: 100,
+        currency,
+      },
+    ];
+    expect(reconcilePaymentStatus(doc, now, notes).status).toBe('cancelled');
+  });
+});
