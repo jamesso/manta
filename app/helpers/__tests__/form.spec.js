@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import {
+  hasUnsavedChanges,
   updateRowField,
   parseNumberInput,
   getFormErrors,
@@ -34,6 +35,51 @@ const form = () => ({
   note: {},
   settings: { editMode: { active: false }, required_fields: {} },
 });
+describe('unsaved changes', () => {
+  it('does not confirm a clean edit even with existing document text', () => {
+    const f = form();
+    f.settings.editMode.active = true;
+    f.formRevision = 4;
+    f.cleanRevision = 4;
+    expect(hasUnsavedChanges(f)).toBe(false);
+  });
+  it('confirms an edit when revisions differ', () => {
+    const f = form();
+    f.settings.editMode.active = true;
+    f.formRevision = 5;
+    f.cleanRevision = 4;
+    expect(hasUnsavedChanges(f)).toBe(true);
+  });
+  it('confirms a new draft with a recipient name', () => {
+    const f = form();
+    f.rows = [];
+    f.recipient.new = { fullname: 'Jane' };
+    expect(hasUnsavedChanges(f)).toBe(true);
+  });
+  it('confirms a new draft with line text', () => {
+    const f = form();
+    f.recipient.new = {};
+    expect(hasUnsavedChanges(f)).toBe(true);
+  });
+  it('does not confirm empty drafts with blank or unit-only rows', () => {
+    const f = form();
+    f.recipient.new = {};
+    f.rows = [
+      { id: 'blank', description: '' },
+      { id: 'unit', unitCode: 'HUR' },
+    ];
+    expect(hasUnsavedChanges(f)).toBe(false);
+  });
+  it('suppresses confirmation during save even when revisions differ', () => {
+    const f = form();
+    f.settings.editMode.active = true;
+    f.formRevision = 5;
+    f.cleanRevision = 4;
+    f.savePending = true;
+    expect(hasUnsavedChanges(f)).toBe(false);
+  });
+});
+
 describe('form helpers', () => {
   it('updates row totals and handles empty values', () => {
     expect(

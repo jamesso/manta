@@ -61,7 +61,7 @@ import {
   setDocStatus,
   startOfDay,
 } from '../helpers/payments';
-import { hasUnsavedFormChanges } from '../helpers/form';
+import { hasUnsavedChanges } from '../helpers/form';
 import * as dialog from '@/lib/dialog';
 import {
   getAllDocs,
@@ -405,7 +405,7 @@ const InvoicesMW =
           );
         };
 
-        if (!hasUnsavedFormChanges(getState().form)) {
+        if (!hasUnsavedChanges(getState().form)) {
           apply();
           break;
         }
@@ -773,7 +773,7 @@ const InvoicesMW =
             });
           });
 
-        if (!hasUnsavedFormChanges(getState().form)) {
+        if (!hasUnsavedChanges(getState().form)) {
           return proceed().catch(err => {
             next({
               type: ACTION_TYPES.UI_NOTIFICATION_NEW,
@@ -1282,7 +1282,7 @@ const InvoicesMW =
             });
           });
 
-        if (!hasUnsavedFormChanges(getState().form)) {
+        if (!hasUnsavedChanges(getState().form)) {
           return runConvert().catch(err => {
             next({
               type: ACTION_TYPES.UI_NOTIFICATION_NEW,
@@ -1381,7 +1381,7 @@ const InvoicesMW =
             });
           });
 
-        if (!hasUnsavedFormChanges(getState().form)) {
+        if (!hasUnsavedChanges(getState().form)) {
           return loadCreditForm().catch(err => {
             next({
               type: ACTION_TYPES.UI_NOTIFICATION_NEW,
