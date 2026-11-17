@@ -14,6 +14,7 @@
 
 ## Status
 
+- **Status**: DONE
 - **Priority**: P3
 - **Effort**: S
 - **Risk**: LOW
@@ -92,10 +93,10 @@ Delete `app/store/enhancer.jsx`.
 
 ## Done criteria
 
-- [ ] `app/store/enhancer.jsx` is gone
-- [ ] Nothing in `app/` references `getInitialState` or `store/enhancer`
-- [ ] `App.jsx` still dispatches the list loads
-- [ ] `plans/README.md` row 043 is `DONE`
+- [x] `app/store/enhancer.jsx` is gone
+- [x] Nothing in `app/` references `getInitialState` or `store/enhancer`
+- [x] `App.jsx` still dispatches the list loads
+- [ ] `plans/README.md` row 043 is `DONE` (index left for the operator)
 
 ## STOP conditions
 
@@ -105,3 +106,8 @@ Delete `app/store/enhancer.jsx`.
 ## Maintenance notes
 
 Startup data loading belongs in the middleware actions `App.jsx` already dispatches. Do not add a second preload path that catches errors with `console.log`.
+
+Executed 2026-11-16 on `plan-033-041-043`. Drift `git diff --stat 10f3f0e..HEAD -- app/store/enhancer.jsx app/store/index.jsx app/index.jsx app/App.jsx` was empty (exit 0). `app/store/index.jsx` does not import this file. Deleted `app/store/enhancer.jsx`. No spec imported it, so `npm test` was skipped.
+
+- `rg -n "store/enhancer|getInitialState" --glob '!plans/**' --glob '!node_modules/**'` — exit 1, no matches.
+- `rg -n "getAllContacts|getInvoices" app/App.jsx` — exit 0, both names match (`getAllContacts` line 58, `getInvoices` line 60).
