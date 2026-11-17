@@ -1,10 +1,11 @@
 # Implementation Plans
 
-This folder has three plan series:
+This folder has four plan series:
 
 - **001–011: Electron 45 and dependency migration** (below). All DONE.
 - **012–018: UI redesign** with shadcn/ui, Tailwind CSS, Lucide and dark mode. See [UI redesign (012–018)](#ui-redesign-012018).
 - **019–026: Offline invoicing features**. See [Feature plans (019–026)](#feature-plans-019026).
+- **027–051: Hardening after the deep audit** at commit `10f3f0e`. See [Hardening (027–051)](#hardening-027051).
 
 ## Electron 45 and dependency migration (001–011)
 
@@ -259,3 +260,73 @@ Reviewed against commit `3e89104` on 2026-11-01. The source still represents the
 - Confirm package APIs and versions from current official documentation before installation. Historical version claims in these plans are context, not permission to force an unavailable version or ignore peer conflicts.
 - Grep counts, file presence, and build success are structural checks. Persistence, financial arithmetic, partial failures, and IPC validation require behavior tests. Browser or Electron checks must cover the changed user flow; report the actual environment used.
 - Tests and app checks described in a plan are future acceptance gates. This document review did not execute these features or certify tax compliance.
+
+## Hardening (027–051)
+
+Written on 2026-11-16, against commit `10f3f0e`. Plans 001–026 are DONE. These plans are the vetted findings from a deep audit of that tree. Rejected findings are listed at the end of this section so the next audit does not file them again.
+
+Execute in the order below. Each plan is self-contained. Stay on the current branch. Do not create a worktree. Do not commit unless the operator asks. No AI attribution on commits.
+
+### Execution order & status
+
+| Plan | Title | Priority | Effort | Risk | Depends on | Status |
+|------|-------|----------|--------|------|------------|--------|
+| [027](027-settings-ipc-trust-anchor.md) | Settings writes stay on the main window | P1 | S | MED | — | TODO |
+| [028](028-process-logo-and-is-svg.md) | Logo IPC reads only a trusted file; upgrade is-svg | P1 | S | MED | — | TODO |
+| [029](029-ipc-main-frame-checks.md) | Main-frame check on backup, dialogs, quit, update, theme | P1 | S | LOW | — | TODO |
+| [030](030-return-middleware-test-promises.md) | Middleware tests return their promises | P1 | S | LOW | — | TODO |
+| [031](031-numbering-backup-settlement-tests.md) | Tests for EST/CN numbers, backup overwrite, settlement | P1 | M | LOW | — | TODO |
+| [032](032-credit-note-invoice-one-write.md) | Credit note and invoice commit together | P1 | S | MED | 030, 031 | TODO |
+| [033](033-display-status-credit-notes.md) | Status badges pass linked credit notes | P2 | S | LOW | — | TODO |
+| [034](034-recurring-delete-tombstone.md) | Recurring delete writes the tombstone with the delete | P1 | M | MED | 030, 032 | TODO |
+| [035](035-payment-queue-error-codes.md) | Payment failures are not reported as notFound | P1 | S | LOW | 034 | TODO |
+| [036](036-one-unsaved-changes-check.md) | One unsaved-changes rule | P2 | M | MED | 035 | TODO |
+| [037](037-restore-conflict-is-failure.md) | Restore conflicts fail the restore | P2 | S | MED | — | TODO |
+| [038](038-pouch-mutation-without-full-reload.md) | A Pouch write does not reload every invoice | P2 | L | MED | 031, 034, 037 | TODO |
+| [039](039-electron-45-3-3.md) | Electron 45.3.3 | P2 | S | LOW | — | TODO |
+| [040](040-remove-dead-manifest-entries.md) | Remove dead manifest entries and unused date-fns | P3 | S | LOW | 039 | TODO |
+| [041](041-release-workflow-quality-gates.md) | Release workflow runs lint, format, and e2e | P2 | S | LOW | — | TODO |
+| [042](042-readme-shipped-features.md) | README lists shipped features | P3 | S | LOW | — | TODO |
+| [043](043-delete-unused-store-enhancer.md) | Delete the unused store enhancer | P3 | S | LOW | — | TODO |
+| [044](044-move-einvoice-integrity-helper.md) | Main e-invoice code does not import app/ | P3 | M | MED | — | TODO |
+| [045](045-investigate-invoice-migration-currency.md) | Investigate migration 2 when currency is missing | P3 | S | LOW | 038 | TODO |
+| [046](046-investigate-legacy-pdf-totals.md) | Investigate legacy PDF stored versus computed totals | P3 | S | LOW | — | TODO |
+| [047](047-investigate-einvoice-core-pin.md) | Decide on @e-invoice-eu/core 3.4.2 versus 3.4.4 | P3 | S | MED | 040 | TODO |
+| [048](048-spike-einvoice-receive.md) | Spike offline e-invoice receive | P3 | S | LOW | — | TODO |
+| [049](049-spike-aging-and-statements.md) | Spike aging buckets and a client statement | P3 | S | LOW | — | TODO |
+| [050](050-spike-recurring-review-queue.md) | Spike a review step after recurring drafts | P3 | S | LOW | — | TODO |
+| [051](051-spike-estimate-and-tax-csv.md) | Spike estimates CSV and tax-by-rate CSV | P3 | S | LOW | — | TODO |
+
+Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJECTED (with one-line rationale).
+
+048–051 are design spikes. The executor writes a Result section in the plan file and does not add the feature. 045–047 may end as REJECTED or BLOCKED when the investigation says a code change is not justified. That outcome is success for those three plans.
+
+### Dependency notes
+
+- **030 before 032, 034, 035, and 036.** Those plans edit invoice middleware. The tests must return their promises first, or a regression can stay green.
+- **031 before 032 and 038.** Characterization tests describe current numbering, backup overwrite, and settlement before those behaviors move.
+- **032 before 034.** Both edit `InvoicesMW.jsx`. Credit-note commit order lands first.
+- **034 before 035 before 036.** Same file, in that order. 036 also edits `form.js`.
+- **037 before 038.** Both edit `pouchDB.js`. The 409 fix is small and should not be mixed into the reload change.
+- **039 before 040.** Both edit `package.json`. Electron patch first. 047 waits on 040 so the core pin is not edited in parallel with the manifest cleanup.
+- **027, 028, and 029** touch different IPC files and can run in that order without waiting on each other. Do not run them in parallel. They share the main-frame rule and the test style in `main/__tests__/save-pdf.spec.js`.
+- **033, 041, 042, 043, 044, 046, 048–051** do not block the chain above.
+
+### Findings considered and rejected (audit at 10f3f0e)
+
+- **Electron 45 end-of-life migration.** 45 is supported through 2027-04-27. Plan 039 is only the 45.3.x patch. Source: [Electron schedule](https://releases.electronjs.org/schedule).
+- **Replace Moment, add TypeScript, or move to Redux Toolkit.** Settings store Moment format tokens. Those rewrites were already rejected.
+- **Remove styled-components from `preview/templates`.** The invoice paper depends on them.
+- **Peppol or a French approved platform.** Out of scope. Plan 048 stays offline.
+- **Dev-mode CSP and dropping `style-src 'unsafe-inline'`.** Production builds inject CSP. Templates need inline style.
+- **Unsigned updates as a code defect.** The README already describes unsigned builds. Plan 042 only names the secret keys.
+- **`writeChain.catch` in `invoiceNumberingWrites.js`.** The caller still receives the rejection. The catch only keeps the next numbering write runnable.
+- **`dangerouslySetInnerHTML` in `ui/components/ui/chart.jsx`.** Theme CSS variables, not invoice text.
+- **Downgrade PouchDB to clear the moderate `uuid` advisory.** The suggested audit fix is a downgrade. User data uses the `idb` adapter.
+- **`useNow` interval, route code-splitting, per-method Lodash imports, one-OS CI.** No measured cost that beats the invoice reload in plan 038. The three-OS matrix stays because this is a desktop app.
+- **Split `InvoicesMW.jsx` now.** Do 030 and 031 first. A split without those tests is high risk. Not scheduled.
+- **`reveal-file` path allowlist and `preview-active-request-id`.** Main frame is already required for reveal. The request id is a low-sensitivity correlator.
+- **Copied import-lock helpers, mixed toast calls, `jsconfig.json` `modal`/`tour`, thin `AGENTS.md`.** Real and low leverage. No plan.
+- **Preview render failure waits on the 10-second PDF timeout.** Low value.
+- **Unknown keys on settings import.** Prototype keys are already blocked. Extra keys are a smaller import issue.
+- **`syncFixtures.spec.js` asserts `true`.** It runs only when `SYNC_EINVOICE_FIXTURES=1`.
