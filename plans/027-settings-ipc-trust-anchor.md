@@ -14,6 +14,7 @@
 
 ## Status
 
+- **Status**: DONE
 - **Priority**: P1
 - **Effort**: S
 - **Risk**: MED
@@ -143,12 +144,12 @@ Keep `app.js` loading this file at startup, before windows call `sendSync`.
 
 ## Done criteria
 
-- [ ] `npm test -- main/__tests__/settings-ipc.spec.js` exits 0
-- [ ] `npx eslint main/settings-ipc.js main/__tests__/settings-ipc.spec.js` exits 0
-- [ ] Preview can still read `invoice`, `profile`, and `general` (case 5)
-- [ ] A renderer cannot `settings:set` `mainWindowID` or `previewWindowID` (case 3)
-- [ ] `git status` shows no files outside the in-scope list
-- [ ] `plans/README.md` status row for 027 is `DONE`
+- [x] `npm test -- main/__tests__/settings-ipc.spec.js` exits 0
+- [x] `npx eslint main/settings-ipc.js main/__tests__/settings-ipc.spec.js` exits 0
+- [x] Preview can still read `invoice`, `profile`, and `general` (case 5)
+- [x] A renderer cannot `settings:set` `mainWindowID` or `previewWindowID` (case 3)
+- [x] `git status` shows no product files outside `main/settings-ipc.js` and `main/__tests__/settings-ipc.spec.js` (this plan file is the required status update; `app.js` is unchanged)
+- [ ] `plans/README.md` status row for 027 is `DONE` (operator said not to edit `plans/README.md`)
 
 ## STOP conditions
 
@@ -161,3 +162,12 @@ Keep `app.js` loading this file at startup, before windows call `sendSync`.
 ## Maintenance notes
 
 Plans 028 and 029 add the same main-frame rule to other handlers. They must not weaken this store rule. A future preview feature that needs a new settings section must be added deliberately. Reviewers should check that `returnValue` is always set, because `sendSync` waits on it.
+
+Execution (2026-11-16), branch `plan-027-settings-ipc`:
+
+- Drift check `git diff --stat 10f3f0e..HEAD -- main/settings-ipc.js main/main-window-sender.js preload/index.js app.js preview/reducers/index.jsx` was empty. The live handler matched the Current state excerpt. Preview reads only `invoice`, `profile`, and `general`. `mainWindowID` and `previewWindowID` are set only in `app.js` via `appConfig.set`, not from a renderer.
+- Vitest 5 externalizes a `.js` file with no `import` or `export`, so `vi.mock('../settings')` did not apply to `require('./settings')`. The first test load threw `Electron Store: You can only use this module from the Electron main process or the renderer process, unless you pass an absolute cwd.` `main/settings-ipc.js` is now ESM, same as `main/save-pdf.js`. `app.js` still has `require('./main/settings-ipc')`. No shim.
+- `settings:set` calls `isMainWindowMainFrame` and rejects `mainWindowID` and `previewWindowID` before `store.set`. Reads accept the main frame of the main window or the preview window. The window id is `BrowserWindow.fromWebContents(event.sender).id`. A rejected get sets `returnValue` to `undefined`. A rejected has or set sets `returnValue` to `false`.
+- Files: `main/settings-ipc.js`, `main/__tests__/settings-ipc.spec.js`, this plan. `plans/README.md` was not edited.
+- `npm test -- main/__tests__/settings-ipc.spec.js` exit 0 (7 passed).
+- `npx eslint main/settings-ipc.js main/__tests__/settings-ipc.spec.js` exit 0.
