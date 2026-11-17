@@ -167,6 +167,8 @@
       "nothingDue": "Questa fattura non ha alcun saldo dovuto.",
       "duplicate": "Questo pagamento è già registrato.",
       "notFound": "Fattura o pagamento non trovato.",
+      "loadFailed": "Impossibile caricare la fattura. Riprova.",
+      "writeFailed": "Impossibile salvare il pagamento o la modifica dello stato. Riprova.",
       "draftWithPayments": "Una fattura con pagamenti non può tornare bozza. Rimuovi prima i pagamenti."
     },
     "toast": {
