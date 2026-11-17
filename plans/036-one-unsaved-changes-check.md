@@ -14,6 +14,8 @@
 
 ## Status
 
+- **Implementation**: DONE; browser verification BLOCKED (no Jean Run command).
+
 - **Priority**: P2
 - **Effort**: M
 - **Risk**: MED
@@ -128,12 +130,12 @@ Remove `hasUnsavedFormChanges` from `form.js` when `rg -n "hasUnsavedFormChanges
 
 ## Done criteria
 
-- [ ] The three test commands exit 0
-- [ ] `hasUnsavedFormChanges` is gone
-- [ ] InvoicesMW uses `hasUnsavedChanges` at every former call site
-- [ ] A clean edit does not take the confirm branch
-- [ ] `git status` shows no files outside the in-scope list
-- [ ] `plans/README.md` row 036 is `DONE`
+- [x] The three test commands exit 0
+- [x] `hasUnsavedFormChanges` is gone
+- [x] InvoicesMW uses `hasUnsavedChanges` at every former call site
+- [x] A clean edit does not take the confirm branch
+- [x] Changes limited to plan scope, the permitted one-line unused import removal in `FormMW.jsx`, and this plan; `.ai` notes untracked
+- [ ] `plans/README.md` row 036 is `DONE` — intentionally unchanged by operator instruction
 
 ## STOP conditions
 
@@ -144,3 +146,39 @@ Remove `hasUnsavedFormChanges` from `form.js` when `rg -n "hasUnsavedFormChanges
 ## Maintenance notes
 
 New "leave the editor" paths should call `hasUnsavedChanges` and a confirm. Do not add a second predicate. `savePending` is what blocks a prompt during save. Reviewers should check duplicate and new-from-contact still prompt when the new-invoice draft has text.
+
+
+### Execution record (2026-11-16)
+
+- Drift command exited 0: only `InvoicesMW.jsx` changed since `10f3f0e`
+  (114 insertions, 26 deletions). Compared the live predicates and call paths:
+  they match the plan; prior 032/034/035 changes remain intact.
+- `FormReducer.jsx` recipient and item updates call `withRevision`, which
+  increments `formRevision`. `UIMiddleware.jsx` already uses `hasUnsavedChanges`.
+  No STOP condition requires a behavior change outside this plan.
+- Replaced all four InvoicesMW calls (new from contact, duplicate/open,
+  estimate conversion, credit-note draft). Kept dialogs and proceed paths.
+- Search found one unused import in `FormMW.jsx`; removed that single line
+  under the scope exception. Removed the helper only after no callers remained.
+- Added six helper cases: clean edit, dirty edit, recipient draft, line draft,
+  empty/unit-only draft, and pending save. Existing revision predicate unchanged.
+- `npm ci`: exit 0; lockfile unchanged. npm reported 11 moderate dependency
+  vulnerabilities; dependency updates are outside plan scope.
+- `npm test -- app/helpers/__tests__/form.spec.js`: exit 0, 51 tests.
+- `npm test -- app/middlewares/__tests__/UIMiddleware.spec.js`: exit 0, 21 tests.
+- `npm test -- app/middlewares/__tests__/InvoicesMW.spec.js`: exit 0, 76 tests.
+- Combined three-file test command from step 2: exit 0, 148 tests.
+- Required three-file eslint command: exit 0. Additional eslint on `FormMW.jsx`:
+  exit 0. `git diff --check`: exit 0.
+- `rg` is unavailable; equivalent `grep -R -n 'hasUnsavedFormChanges' app`
+  returned no matches (exit 1).
+- Browser check BLOCKED: Jean `get_run_environments` listed only an unrelated
+  legal-ya environment. `start_run_environment` for this worktree
+  (`6178f94e-094d-4d33-8d77-7ba174899ced`) returned exactly:
+  `No run command configured in jean.json for this worktree`.
+  Browser skill read; no server or port invented, no browser flow claimed.
+- No access to real Manta application data. No new security boundary or input
+  handling introduced. README index left unchanged by explicit instruction.
+
+All future replacement paths must retain revision-based clean-edit checks,
+new-draft text checks, and savePending suppression through `hasUnsavedChanges`.

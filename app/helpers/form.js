@@ -881,19 +881,6 @@ export function validateCurrency(isRequired, currency) {
   return true;
 }
 
-export function hasUnsavedFormChanges(form) {
-  if (form.settings.editMode.active) {
-    return true;
-  }
-  if (hasDraftContent(form)) {
-    return true;
-  }
-  if (form.issuedAt != null) {
-    return true;
-  }
-  return form.rows.some(row => !isBlankRow(row));
-}
-
 function setEditRecipient(allContacts, currentContact) {
   if (allContacts.length) {
     const contactIDs = allContacts.map(contact => contact._id);
