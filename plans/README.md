@@ -271,10 +271,10 @@ Execute in the order below. Each plan is self-contained. Stay on the current bra
 
 | Plan | Title | Priority | Effort | Risk | Depends on | Status |
 |------|-------|----------|--------|------|------------|--------|
-| [027](027-settings-ipc-trust-anchor.md) | Settings writes stay on the main window | P1 | S | MED | — | TODO |
+| [027](027-settings-ipc-trust-anchor.md) | Settings writes stay on the main window | P1 | S | MED | — | DONE |
 | [028](028-process-logo-and-is-svg.md) | Logo IPC reads only a trusted file; upgrade is-svg | P1 | S | MED | — | TODO |
 | [029](029-ipc-main-frame-checks.md) | Main-frame check on backup, dialogs, quit, update, theme | P1 | S | LOW | — | TODO |
-| [030](030-return-middleware-test-promises.md) | Middleware tests return their promises | P1 | S | LOW | — | TODO |
+| [030](030-return-middleware-test-promises.md) | Middleware tests return their promises | P1 | S | LOW | — | DONE |
 | [031](031-numbering-backup-settlement-tests.md) | Tests for EST/CN numbers, backup overwrite, settlement | P1 | M | LOW | — | DONE |
 | [032](032-credit-note-invoice-one-write.md) | Credit note and invoice commit together | P1 | S | MED | 030, 031 | TODO |
 | [033](033-display-status-credit-notes.md) | Status badges pass linked credit notes | P2 | S | LOW | — | DONE |
