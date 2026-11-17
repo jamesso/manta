@@ -3,6 +3,7 @@ import {
   hasDangerousKey,
   mergeImportedSettings,
   parseBackup,
+  planMerge,
   sanitizeDoc,
 } from '../backup';
 import { buildRecurringTombstone } from '../recurring';
@@ -519,5 +520,33 @@ describe('backup helpers', () => {
       })
     );
     expect(parsed.invalid.invoices).toBe(1);
+  });
+});
+
+describe('planMerge', () => {
+  const existing = [{ _id: 'a', _rev: '1-abc', name: 'old' }];
+  const incoming = { _id: 'a', name: 'new' };
+
+  it('keeps the existing _rev when overwrite replaces a doc', () => {
+    const { toWrite, counts } = planMerge([incoming], existing, 'overwrite');
+    expect(toWrite).toEqual([{ _id: 'a', name: 'new', _rev: '1-abc' }]);
+    expect(counts.overwritten).toBe(1);
+  });
+
+  it('writes nothing and counts a skip for the same pair', () => {
+    const { toWrite, counts } = planMerge([incoming], existing, 'skip');
+    expect(toWrite).toEqual([]);
+    expect(counts.skipped).toBe(1);
+  });
+
+  it('adds an unknown id in overwrite mode without a _rev', () => {
+    const { toWrite, counts } = planMerge(
+      [{ _id: 'b', name: 'new' }],
+      existing,
+      'overwrite'
+    );
+    expect(counts.added).toBe(1);
+    expect(toWrite).toEqual([{ _id: 'b', name: 'new' }]);
+    expect(toWrite[0]._rev).toBeUndefined();
   });
 });

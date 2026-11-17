@@ -1,17 +1,37 @@
 import { beforeEach, vi } from 'vitest';
 import {
+  DEFAULT_CREDIT_NOTE_NUMBERING,
+  DEFAULT_ESTIMATE_NUMBERING,
   DEFAULT_NUMBERING,
+  defaultNumberingFor,
   normalizeNumbering,
   formatInvoiceNumber,
   advanceNumbering,
   mergeNumbering,
   assignNumberIfMissing,
+  numberingKeyFor,
   reconcileNumberingWithPersistedInvoices,
   resolveFormInvoiceIdForWrite,
   isRandomNumber,
   resolveStoredNumbering,
   suggestedInvoiceNumberFromReconciled,
 } from '../numbering';
+
+describe('estimate and credit-note numbering', () => {
+  it('maps each doc type to its settings key', () => {
+    expect(numberingKeyFor('estimate')).toBe('estimateNumbering');
+    expect(numberingKeyFor('creditNote')).toBe('creditNoteNumbering');
+    expect(numberingKeyFor('invoice')).toBe('numbering');
+    expect(numberingKeyFor(undefined)).toBe('numbering');
+  });
+
+  it('uses the EST- and CN- prefixes', () => {
+    expect(defaultNumberingFor('estimate').prefix).toBe('EST-');
+    expect(defaultNumberingFor('creditNote').prefix).toBe('CN-');
+    expect(formatInvoiceNumber(DEFAULT_ESTIMATE_NUMBERING)).toBe('EST-0001');
+    expect(formatInvoiceNumber(DEFAULT_CREDIT_NOTE_NUMBERING)).toBe('CN-0001');
+  });
+});
 
 describe('normalizeNumbering', () => {
   it('returns defaults for undefined', () => {
@@ -170,6 +190,20 @@ describe('reconcileNumberingWithPersistedInvoices', () => {
       { docType: 'creditNote', invoiceID: 'INV-0003' },
     ]);
     expect(next.next).toBe(1);
+  });
+
+  it('ignores an estimate whose number is above the invoice counter', () => {
+    const next = reconcileNumberingWithPersistedInvoices(base, [
+      { docType: 'invoice', invoiceID: 'INV-0003' },
+      { docType: 'estimate', invoiceID: 'INV-0050' },
+      { docType: 'creditNote', invoiceID: 'INV-0060' },
+    ]);
+    expect(next).toEqual({
+      prefix: 'INV-',
+      next: 4,
+      padding: 4,
+      format: 'sequential',
+    });
   });
 });
 
