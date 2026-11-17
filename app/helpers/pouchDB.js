@@ -178,22 +178,17 @@ const getSingleDoc = (dbName, docID) =>
   });
 
 // Save a Document
-const saveDoc = (dbName, doc) =>
-  setDB(dbName)
-    .then(db => db.put(doc))
-    .then(() => getAllDocs(dbName));
+const saveDoc = (dbName, doc) => setDB(dbName).then(db => db.put(doc));
 
 // Delete A Document
 const deleteDoc = (dbName, doc) =>
   setDB(dbName)
     .then(db => db.get(doc).then(record => db.remove(record)))
-    .then(() => getAllDocs(dbName));
+    .then(result => ({ ok: result.ok, id: result.id }));
 
 // Update A Document
 const updateDoc = (dbName, updatedDoc) =>
-  setDB(dbName)
-    .then(db => db.put(updatedDoc))
-    .then(() => getAllDocs(dbName));
+  setDB(dbName).then(db => db.put(updatedDoc));
 
 const removeDocs = (dbName, ids) =>
   setDB(dbName).then(async db => {
@@ -209,7 +204,7 @@ const removeDocs = (dbName, ids) =>
         failed.push(id);
       }
     }
-    return { removed, failed, docs: await getAllDocs(dbName) };
+    return { succeeded: removed.map(doc => doc._id), removed, failed };
   });
 
 const restoreDocs = (dbName, docs) =>
@@ -229,15 +224,13 @@ const restoreDocs = (dbName, docs) =>
         });
       }
     }
-    const allDocs = await getAllDocs(dbName);
     if (failed.length) {
       throw Object.assign(new Error('partial-restore'), {
         restored,
         failed,
-        docs: allDocs,
       });
     }
-    return allDocs;
+    return { succeeded: restored, failed };
   });
 
 const updateDocs = (dbName, docs) =>
@@ -259,39 +252,23 @@ const updateDocs = (dbName, docs) =>
         });
       }
     }
-    let allDocs;
-    try {
-      allDocs = await getAllDocs(dbName);
-    } catch (readErr) {
-      if (succeeded.length > 0 && failed.length > 0) {
-        throw Object.assign(new Error('partial-update'), {
-          succeeded,
-          failed,
-          docs: written,
-        });
-      }
-      throw readErr;
-    }
     if (failed.length) {
       throw Object.assign(new Error('partial-update'), {
         succeeded,
         failed,
-        docs: allDocs,
+        written,
       });
     }
-    return allDocs;
+    return { succeeded, failed };
   });
 
 const bulkSaveDocs = (dbName, docs) =>
   setDB(dbName)
     .then(db => db.bulkDocs(docs))
-    .then(results =>
-      getAllDocs(dbName).then(allDocs => ({
-        succeeded: results.filter(r => r.ok).map(r => r.id),
-        failed: results.filter(r => r.error),
-        allDocs,
-      }))
-    );
+    .then(results => ({
+      succeeded: results.filter(r => r.ok).map(r => r.id),
+      failed: results.filter(r => r.error),
+    }));
 
 export {
   getAllDocs,

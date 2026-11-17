@@ -57,14 +57,14 @@ function installTrackedInvoice(doc) {
         Object.assign(new Error('partial-update'), {
           succeeded: [],
           failed: [{ id: stored._id, status: 409 }],
-          docs: [{ ...stored }],
+          written: [],
         })
       );
     }
     const revNum = Number.parseInt(String(stored._rev).split('-')[0], 10);
     stored = { ...incoming, _rev: `${revNum + 1}-x` };
     mockData.invoicesRecords = [{ ...stored }];
-    return Promise.resolve([{ ...stored }]);
+    return Promise.resolve({ succeeded: docs.map(d => d._id), failed: [] });
   });
 
   return () => stored;
@@ -101,9 +101,14 @@ describe('Invoices Middleware', () => {
         })
     );
     updateDocs.mockReset();
-    updateDocs.mockImplementation(() =>
-      Promise.resolve(mockData.invoicesRecords)
-    );
+    updateDocs.mockImplementation(async (_db, docs) => {
+      for (const doc of docs) {
+        const idx = mockData.invoicesRecords.findIndex(d => d._id === doc._id);
+        if (idx >= 0)
+          mockData.invoicesRecords[idx] = { ...doc, _rev: '2-mock' };
+      }
+      return { succeeded: docs.map(d => d._id), failed: [] };
+    });
     getSingleDoc.mockImplementation((dbName, docID) => {
       if (!dbName) {
         return Promise.reject(new Error('No database found!'));
@@ -218,9 +223,60 @@ describe('Invoices Middleware', () => {
       ).resolves.toBe(false);
     });
 
+    it.each([false, true])(
+      'reloads once after saving a converted invoice (link failure: %s)',
+      async failLink => {
+        const estimate = {
+          _id: 'source-estimate',
+          _rev: '1-est',
+          docType: 'estimate',
+          status: 'pending',
+          invoiceID: 'EST-1',
+        };
+        const invoice = {
+          _id: 'converted-invoice',
+          sourceEstimateId: estimate._id,
+          status: 'draft',
+          rows: [],
+        };
+        mockData.invoicesRecords = [estimate];
+        getSingleDoc.mockResolvedValueOnce(estimate);
+        updateDoc.mockImplementationOnce(async (_db, doc) => {
+          if (failLink) throw new Error('link write failed');
+          mockData.invoicesRecords = mockData.invoicesRecords.map(d =>
+            d._id === doc._id ? { ...doc, _rev: '2-est' } : d
+          );
+          return { ok: true, id: doc._id, rev: '2-est' };
+        });
+        getAllDocs.mockClear();
+        const saved = await middleware(Actions.saveInvoice(invoice));
+        expect(saved).toMatchObject({
+          _id: invoice._id,
+          _rev: expect.any(String),
+        });
+        const published = next.mock.calls.find(
+          ([a]) => a.type === ACTION_TYPES.INVOICE_SAVE
+        )[0].payload;
+        expect(published).toEqual(mockData.invoicesRecords);
+        expect(
+          published.find(d => d._id === estimate._id).convertedInvoiceId
+        ).toBe(failLink ? undefined : invoice._id);
+        expect(getAllDocs.mock.calls).toEqual([['invoices']]);
+        expect(getAllDocs.mock.invocationCallOrder[0]).toBeGreaterThan(
+          updateDoc.mock.invocationCallOrder.at(-1)
+        );
+        if (failLink)
+          expect(toast.add).toHaveBeenCalledWith({
+            title: i18n.t('estimates:toast:linkFailed'),
+            type: 'warning',
+          });
+      }
+    );
+
     it('returns the submitted invoice when the db list has no matching id', async () => {
       const invoice = { _id: 'new-id', status: 'draft', rows: [] };
-      saveDoc.mockResolvedValueOnce([
+      saveDoc.mockResolvedValueOnce({ ok: true, id: invoice._id, rev: '1-x' });
+      getAllDocs.mockResolvedValueOnce([
         { _id: 'other-id', status: 'pending', rows: [] },
       ]);
       const result = await middleware(Actions.saveInvoice(invoice));
@@ -245,9 +301,9 @@ describe('Invoices Middleware', () => {
       };
       // Execute
       await middleware(Actions.saveInvoice(newInvoice));
-      const data = await saveDoc('invoices', newInvoice);
+      const data = await getAllDocs('invoices');
       // Expect
-      expect(data).toEqual([...mockData.invoicesRecords, newInvoice]);
+      expect(data).toContainEqual(expect.objectContaining(newInvoice));
     });
 
     it('should call next and dispatch notification ', () => {
@@ -275,12 +331,12 @@ describe('Invoices Middleware', () => {
       // Execute
       const action = Actions.saveInvoice(newInvoice);
       return middleware(action).then(() =>
-        saveDoc('invoices', newInvoice).then(data => {
+        getAllDocs('invoices').then(data => {
           // Call next after the promised is returned
           expect(next.mock.calls.length).toBe(1);
           expect(next).toHaveBeenCalledWith(
             Object.assign({}, action, {
-              payload: [...mockData.invoicesRecords, newInvoice],
+              payload: mockData.invoicesRecords,
             })
           );
           // Dispatch success notification, then open the preview drawer
@@ -445,7 +501,7 @@ describe('Invoices Middleware', () => {
 
     it('should update the invoice', async () => {
       await middleware(Actions.updateInvoice(currentInvoice));
-      const data = await updateDoc('invoices', currentInvoice);
+      const data = await getAllDocs('invoices');
       expect(data).toEqual(mockData.invoicesRecords);
     });
 
@@ -511,8 +567,9 @@ describe('Invoices Middleware', () => {
             ? Promise.reject(error)
             : Promise.resolve({
                 succeeded: [],
-                failed: [{ id: draft._id, error: true, message: error.message }],
-                allDocs: [],
+                failed: [
+                  { id: draft._id, error: true, message: error.message },
+                ],
               })
         );
 
@@ -545,12 +602,20 @@ describe('Invoices Middleware', () => {
       await db.saveDoc('invoices', draft);
       const tombstone = buildRecurringTombstone('prof', '2026-03-15');
       getAllDocs.mockImplementationOnce(db.getAllDocs);
+      getAllDocs
+        .mockImplementationOnce(db.getAllDocs)
+        .mockImplementationOnce(db.getAllDocs);
       removeDocs.mockImplementationOnce(db.removeDocs);
       bulkSaveDocs.mockImplementationOnce(db.bulkSaveDocs);
       const savesBefore = saveDoc.mock.calls.length;
+      getAllDocs.mockClear();
 
       await middleware(Actions.deleteInvoice(draft._id));
 
+      expect(getAllDocs).toHaveBeenCalledTimes(2);
+      expect(getAllDocs.mock.invocationCallOrder.at(-1)).toBeGreaterThan(
+        bulkSaveDocs.mock.invocationCallOrder.at(-1)
+      );
       const stored = await db.getAllDocs('invoices');
       expect(stored).toEqual([expect.objectContaining(tombstone)]);
       expect(next).toHaveBeenCalledWith({
@@ -598,7 +663,7 @@ describe('Invoices Middleware', () => {
       removeDocs.mockResolvedValueOnce({
         removed: [],
         failed: ['jon-invoice'],
-        docs: mockData.invoicesRecords,
+        succeeded: [],
       });
       const getState = vi.fn(() => ({
         form: {
@@ -622,7 +687,7 @@ describe('Invoices Middleware', () => {
       removeDocs.mockResolvedValueOnce({
         removed,
         failed: [],
-        docs: [],
+        succeeded: [],
       });
       await middleware(Actions.deleteInvoice('jon-invoice'));
       const addArg = toast.add.mock.calls[0][0];
@@ -653,7 +718,10 @@ describe('Invoices Middleware', () => {
   describe('INVOICE_RESTORE', () => {
     it('restores docs and updates state', async () => {
       const docs = [{ _id: 'x' }];
-      restoreDocs.mockResolvedValueOnce(mockData.invoicesRecords);
+      restoreDocs.mockResolvedValueOnce({
+        succeeded: docs.map(d => d._id),
+        failed: [],
+      });
       await middleware(Actions.restoreInvoices(docs));
       expect(restoreDocs).toHaveBeenCalledWith('invoices', docs);
       expect(next).toHaveBeenCalledWith({
@@ -667,8 +735,8 @@ describe('Invoices Middleware', () => {
       const err = Object.assign(new Error('partial-restore'), {
         restored: ['partial-restore-1'],
         failed: [{ id: undefined }],
-        docs: persisted,
       });
+      getAllDocs.mockResolvedValueOnce(persisted);
       restoreDocs.mockRejectedValueOnce(err);
       await middleware(Actions.restoreInvoices([{}, {}]));
       expect(next).toHaveBeenCalledWith({
@@ -704,7 +772,7 @@ describe('Invoices Middleware', () => {
       updateDoc.mockImplementation((_db, doc) => {
         stored = { ...doc, _rev: '2-x' };
         mockData.invoicesRecords = [{ ...stored }];
-        return Promise.resolve([{ ...stored }]);
+        return Promise.resolve({ ok: true, id: doc._id, rev: stored._rev });
       });
       await middleware(Actions.markInvoiceSent('inv-email', 'invoice'));
       expect(stored.sentAt).toBe(fixedNow);
@@ -918,7 +986,7 @@ describe('Invoices Middleware', () => {
           });
         }
         mockData.invoicesRecords = structuredClone(docs);
-        return structuredClone(docs);
+        return { succeeded: updates.map(d => d._id), failed: [] };
       });
       getState.mockReturnValue({
         form: {
@@ -1193,7 +1261,10 @@ describe('Invoices Middleware', () => {
         currency: { fraction: 2 },
         payments: [{ id: 'p1', amount: 10, date: 1, method: 'cash', note: '' }],
       };
-      updateDocs.mockResolvedValueOnce([freshDoc]);
+      updateDocs.mockResolvedValueOnce({
+        succeeded: [freshDoc._id],
+        failed: [],
+      });
       getAllDocs.mockResolvedValueOnce([freshDoc]);
       getState.mockReturnValue({
         form: {
@@ -1337,13 +1408,15 @@ describe('Invoices Middleware', () => {
         if (incoming._rev !== prev._rev) {
           return Promise.reject(
             Object.assign(new Error('partial-update'), {
-              docs: [...mockData.invoicesRecords],
+              succeeded: [],
+              failed: [{ id: incoming._id, status: 409 }],
+              written: [],
             })
           );
         }
         const nextRev = `${Number.parseInt(String(prev._rev).split('-')[0], 10) + 1}-x`;
         mockData.invoicesRecords[idx] = { ...incoming, _rev: nextRev };
-        return Promise.resolve([...mockData.invoicesRecords]);
+        return Promise.resolve({ succeeded: docs.map(d => d._id), failed: [] });
       });
       await middleware(Actions.recordFullPayment(['a', 'b', 'c']));
       const a = mockData.invoicesRecords.find(d => d._id === 'a');
@@ -1519,7 +1592,7 @@ describe('Invoices Middleware', () => {
           if (d._id === 'cn-1') note = { ...d, _rev: '2-b' };
           if (d._id === 'inv-src') inv = { ...d, _rev: '2-a' };
         }
-        return Promise.resolve([{ ...inv }, { ...note }]);
+        return Promise.resolve({ succeeded: docs.map(d => d._id), failed: [] });
       });
       await middleware(Actions.issueCreditNote('cn-1'));
       expect(note.status).toBe('issued');
@@ -1560,7 +1633,7 @@ describe('Invoices Middleware', () => {
           if (doc._id === 'cn-1') note = { ...doc, _rev: '2-b' };
           if (doc._id === 'inv-src') inv = { ...doc, _rev: '2-a' };
         }
-        return Promise.resolve([{ ...inv }, { ...note }]);
+        return Promise.resolve({ succeeded: docs.map(d => d._id), failed: [] });
       });
       await middleware(Actions.issueCreditNote('cn-1'));
       expect(updateDocs).toHaveBeenCalledTimes(1);
@@ -1663,19 +1736,20 @@ describe('Invoices Middleware', () => {
       } finally {
         spies.forEach(spy => spy.mockRestore());
       }
+      spies.forEach(spy => expect(spy).not.toHaveBeenCalled());
       expect(partial).toBeDefined();
       expect(partial.succeeded).toEqual([noteId]);
       expect(partial.failed).toEqual([
         expect.objectContaining({ id: invoiceId }),
       ]);
-      expect(partial.docs.map(doc => doc._id)).toEqual([noteId]);
+      expect(partial.written.map(doc => doc._id)).toEqual([noteId]);
       expect(updateDocs).toHaveBeenCalledTimes(2);
       expect(updateDocs.mock.calls[1][0]).toBe('invoices');
       expect(updateDocs.mock.calls[1][1]).toEqual([
         expect.objectContaining({
           _id: noteId,
           status: 'draft',
-          _rev: partial.docs[0]._rev,
+          _rev: partial.written[0]._rev,
           grandTotal: 100,
         }),
       ]);
@@ -1740,19 +1814,25 @@ describe('Invoices Middleware', () => {
             releaseFirst = () => {
               noteA = { ...updating, _rev: '2-a' };
               inv = { ...inv, _rev: '2-a' };
-              resolve([{ ...inv }, { ...noteA }, { ...noteB }]);
+              resolve({ succeeded: docs.map(d => d._id), failed: [] });
             };
           });
         }
         if (updating._id === 'cn-b' && updating.status === 'issued') {
           noteB = { ...updating, _rev: '2-b' };
-          return Promise.resolve([{ ...inv }, { ...noteA }, { ...noteB }]);
+          return Promise.resolve({
+            succeeded: docs.map(d => d._id),
+            failed: [],
+          });
         }
         if (updating._id === 'inv-src') {
           inv = { ...updating, _rev: '3-a' };
-          return Promise.resolve([{ ...inv }, { ...noteA }, { ...noteB }]);
+          return Promise.resolve({
+            succeeded: docs.map(d => d._id),
+            failed: [],
+          });
         }
-        return Promise.resolve([{ ...inv }, { ...noteA }, { ...noteB }]);
+        return Promise.resolve({ succeeded: docs.map(d => d._id), failed: [] });
       });
       const first = middleware(Actions.issueCreditNote('cn-a'));
       const second = middleware(Actions.issueCreditNote('cn-b'));
@@ -1835,7 +1915,7 @@ describe('Invoices Middleware', () => {
           return Promise.reject(new Error('sync failed'));
         }
         note = { ...docs[0], _rev: '2-b', status: 'issued' };
-        return Promise.resolve([{ ...inv }, { ...note }]);
+        return Promise.resolve({ succeeded: docs.map(d => d._id), failed: [] });
       });
       await middleware(Actions.issueCreditNote('cn-1'));
       expect(updateDocs).toHaveBeenCalledTimes(1);
@@ -1955,7 +2035,7 @@ describe('Invoices Middleware', () => {
       removeDocs.mockResolvedValueOnce({
         removed: [free],
         failed: [],
-        docs: [invoice, cn],
+        succeeded: [],
       });
       await middleware(Actions.deleteInvoice(['inv-blocked', 'free-id']));
       expect(removeDocs).toHaveBeenCalledWith('invoices', ['free-id']);
@@ -2026,7 +2106,7 @@ describe('Invoices Middleware', () => {
           mockData.invoicesRecords[idx] = { ...doc, _rev: '2-x' };
         }
       }
-      return Promise.resolve([...mockData.invoicesRecords]);
+      return Promise.resolve({ succeeded: docs.map(d => d._id), failed: [] });
     });
     await middleware(Actions.setInvoiceStatus(['r1', 'r2'], 'paid'));
     const numbers = written.map(d => d.invoiceID).sort();

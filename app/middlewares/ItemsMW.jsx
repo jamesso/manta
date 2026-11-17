@@ -92,7 +92,8 @@ const ItemsMW =
             return false;
           }
           try {
-            const newDocs = await saveDoc('items', action.payload);
+            await saveDoc('items', action.payload);
+            const newDocs = await getAllDocs('items');
             next({
               type: ACTION_TYPES.ITEM_SAVE,
               payload: newDocs,
@@ -131,7 +132,8 @@ const ItemsMW =
             return false;
           }
           try {
-            const newDocs = await updateDoc('items', action.payload);
+            await updateDoc('items', action.payload);
+            const newDocs = await getAllDocs('items');
             next({
               type: ACTION_TYPES.ITEM_UPDATE,
               payload: newDocs,
@@ -167,7 +169,8 @@ const ItemsMW =
         const ids = [...new Set([].concat(action.payload))];
         return runItemCatalogWrite(() =>
           removeDocs('items', ids)
-            .then(({ removed, failed, docs }) => {
+            .then(async ({ removed, failed }) => {
+              const docs = await getAllDocs('items');
               next({
                 type: ACTION_TYPES.ITEM_DELETE,
                 payload: docs,
@@ -221,7 +224,8 @@ const ItemsMW =
             current
           );
           try {
-            const allDocs = await restoreDocs('items', docs);
+            await restoreDocs('items', docs);
+            const allDocs = await getAllDocs('items');
             next({
               type: ACTION_TYPES.ITEM_RESTORE,
               payload: allDocs,
@@ -239,17 +243,23 @@ const ItemsMW =
               title: i18n.t('messages:item:restored'),
             });
           } catch (err) {
-            if (err.docs) {
-              next({
-                type: ACTION_TYPES.ITEM_RESTORE,
-                payload: err.docs,
-              });
+            let failure = err;
+            if (err.message === 'partial-restore') {
+              try {
+                const docs = await getAllDocs('items');
+                next({
+                  type: ACTION_TYPES.ITEM_RESTORE,
+                  payload: docs,
+                });
+              } catch (readErr) {
+                failure = readErr;
+              }
             }
             next({
               type: ACTION_TYPES.UI_NOTIFICATION_NEW,
               payload: {
                 type: 'warning',
-                message: err.message,
+                message: failure.message,
               },
             });
           }

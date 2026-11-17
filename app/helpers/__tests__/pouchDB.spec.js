@@ -47,20 +47,56 @@ describe('pouchDB helpers', () => {
   });
 
   it('saveDoc adds a contact', async () => {
-    const docs = await saveDoc('contacts', { _id: 'c1', fullname: 'A' });
+    const result = await saveDoc('contacts', { _id: 'c1', fullname: 'A' });
+    expect(result).toEqual({ ok: true, id: 'c1', rev: expect.any(String) });
+    const docs = await getAllDocs('contacts');
     expect(docs.some(d => d._id === 'c1')).toBe(true);
   });
 
   it('updateDoc changes a contact', async () => {
     const all = await getAllDocs('contacts');
     const saved = all.find(d => d._id === 'c1');
-    const docs = await updateDoc('contacts', { ...saved, fullname: 'B' });
+    const result = await updateDoc('contacts', { ...saved, fullname: 'B' });
+    expect(result).toEqual({ ok: true, id: 'c1', rev: expect.any(String) });
+    const docs = await getAllDocs('contacts');
     expect(docs.find(d => d._id === 'c1').fullname).toBe('B');
   });
 
   it('deleteDoc removes a contact', async () => {
-    const docs = await deleteDoc('contacts', 'c1');
+    expect(await deleteDoc('contacts', 'c1')).toEqual({ ok: true, id: 'c1' });
+    const docs = await getAllDocs('contacts');
     expect(docs.some(d => d._id === 'c1')).toBe(false);
+  });
+
+  it('mutation helpers never load the full list', async () => {
+    const mod = await import('../pouchDB.js');
+    const dbs = PouchDB._destructionListeners.get('contacts');
+    const spies = dbs.map(db => vi.spyOn(db, 'allDocs'));
+    try {
+      await saveDoc('contacts', { _id: 'contract-1' });
+      const doc = await getSingleDoc('contacts', 'contract-1');
+      await updateDoc('contacts', { ...doc, fullname: 'B' });
+      const current = await getSingleDoc('contacts', 'contract-1');
+      expect(await mod.updateDocs('contacts', [current])).toEqual({
+        succeeded: ['contract-1'],
+        failed: [],
+      });
+      expect(
+        await mod.bulkSaveDocs('contacts', [{ _id: 'contract-2' }])
+      ).toEqual({ succeeded: ['contract-2'], failed: [] });
+      const result = await mod.removeDocs('contacts', [
+        'contract-1',
+        'missing',
+      ]);
+      expect(result.succeeded).toEqual(['contract-1']);
+      expect(result.failed).toEqual(['missing']);
+      await mod.restoreDocs('contacts', result.removed);
+      await deleteDoc('contacts', 'contract-1');
+      await deleteDoc('contacts', 'contract-2');
+      spies.forEach(spy => expect(spy).not.toHaveBeenCalled());
+    } finally {
+      spies.forEach(spy => spy.mockRestore());
+    }
   });
 
   it('saveDoc adds an invoice and getAllDocs lists it', async () => {
@@ -120,7 +156,7 @@ describe('pouchDB helpers', () => {
         status: 'pending',
         currency: { code: 'USD' },
       });
-      const { removed, failed, docs } = await removeDocs('invoices', [
+      const { removed, failed, succeeded } = await removeDocs('invoices', [
         'bulk-a',
         'missing',
       ]);
@@ -128,6 +164,8 @@ describe('pouchDB helpers', () => {
       expect(removed[0]._id).toBe('bulk-a');
       expect(removed[0]._rev).toBeUndefined();
       expect(failed).toEqual(['missing']);
+      expect(succeeded).toEqual(['bulk-a']);
+      const docs = await getAllDocs('invoices');
       expect(docs.some(d => d._id === 'bulk-a')).toBe(false);
     });
 
@@ -138,7 +176,11 @@ describe('pouchDB helpers', () => {
         currency: { code: 'USD' },
         clientNote: 'original',
       };
-      const docs = await restoreDocs('invoices', [snapshot]);
+      expect(await restoreDocs('invoices', [snapshot])).toEqual({
+        succeeded: ['bulk-a'],
+        failed: [],
+      });
+      const docs = await getAllDocs('invoices');
       expect(docs.find(d => d._id === 'bulk-a').clientNote).toBe('original');
     });
 
@@ -167,7 +209,7 @@ describe('pouchDB helpers', () => {
       }
     });
 
-    it('restoreDocs partial failure returns persisted docs with earlier restores', async () => {
+    it('restoreDocs partial failure reports earlier restores for an explicit reload', async () => {
       try {
         await restoreDocs('invoices', [
           {
@@ -180,7 +222,8 @@ describe('pouchDB helpers', () => {
         expect.unreachable('should reject partial-restore');
       } catch (err) {
         expect(err.message).toBe('partial-restore');
-        expect(err.docs.some(d => d._id === 'partial-restore-1')).toBe(true);
+        const docs = await getAllDocs('invoices');
+        expect(docs.some(d => d._id === 'partial-restore-1')).toBe(true);
         expect(err.restored).toEqual(['partial-restore-1']);
         expect(err.failed).toHaveLength(1);
       }
@@ -225,13 +268,13 @@ describe('pouchDB helpers', () => {
         expect.unreachable('should reject partial-update');
       } catch (err) {
         expect(err.message).toBe('partial-update');
-        expect(err.docs.find(x => x._id === 'bulk-u1').status).toBe('paid');
+        expect(err.written.find(x => x._id === 'bulk-u1').status).toBe('paid');
         expect(err.succeeded).toEqual(['bulk-u1']);
         expect(err.failed).toHaveLength(1);
       }
     });
 
-    it('updateDocs keeps partial-update details when the reload fails', async () => {
+    it('updateDocs retains written revisions without a reload on partial failure', async () => {
       await saveDoc('invoices', {
         _id: 'reload-u1',
         status: 'pending',
@@ -263,85 +306,55 @@ describe('pouchDB helpers', () => {
       expect(err.failed).toEqual([
         expect.objectContaining({ id: 'reload-u2', status: 409 }),
       ]);
-      expect(err.docs).toHaveLength(1);
-      expect(err.docs[0]).toMatchObject({
+      expect(err.written).toHaveLength(1);
+      expect(err.written[0]).toMatchObject({
         _id: 'reload-u1',
         status: 'paid',
       });
-      expect(err.docs[0]._rev).toEqual(expect.any(String));
-      expect(err.docs[0]._rev).not.toBe(d1._rev);
+      expect(err.written[0]._rev).toEqual(expect.any(String));
+      expect(err.written[0]._rev).not.toBe(d1._rev);
       const after = await getAllDocs('invoices');
       expect(after.find(d => d._id === 'reload-u1')).toMatchObject({
         status: 'paid',
-        _rev: err.docs[0]._rev,
+        _rev: err.written[0]._rev,
       });
       expect(after.find(d => d._id === 'reload-u2').status).toBe('pending');
     });
 
-    it('updateDocs rethrows the read error when every put succeeded', async () => {
-      await saveDoc('invoices', {
-        _id: 'reload-all-ok',
-        status: 'pending',
-        currency: { code: 'USD' },
-      });
-      const all = await getAllDocs('invoices');
-      const doc = all.find(d => d._id === 'reload-all-ok');
-      const reload = failNextReload('invoices');
-      let err;
+    it('updateDocs succeeds without a reload when every put succeeds', async () => {
+      await saveDoc('contacts', { _id: 'no-reload', fullname: 'A' });
+      const doc = await getSingleDoc('contacts', 'no-reload');
+      const reload = failNextReload('contacts');
       try {
-        await updateDocs('invoices', [{ ...doc, status: 'paid' }]);
-        expect.unreachable('should rethrow the read error');
-      } catch (error) {
-        err = error;
+        expect(
+          await updateDocs('contacts', [{ ...doc, fullname: 'B' }])
+        ).toEqual({
+          succeeded: ['no-reload'],
+          failed: [],
+        });
+        await expect(getAllDocs('contacts')).rejects.toThrow('reload failed');
       } finally {
         reload.mockRestore();
       }
-      expect(err.message).toBe('reload failed');
-      expect(err.succeeded).toBeUndefined();
-      expect(err.failed).toBeUndefined();
-      expect(err.docs).toBeUndefined();
-      const after = await getAllDocs('invoices');
-      expect(after.find(d => d._id === 'reload-all-ok').status).toBe('paid');
+      expect((await getSingleDoc('contacts', doc._id)).fullname).toBe('B');
     });
 
-    it('updateDocs rethrows the read error when every put failed', async () => {
-      await saveDoc('invoices', {
-        _id: 'reload-all-fail-1',
-        status: 'pending',
-        currency: { code: 'USD' },
-      });
-      await saveDoc('invoices', {
-        _id: 'reload-all-fail-2',
-        status: 'pending',
-        currency: { code: 'USD' },
-      });
-      const all = await getAllDocs('invoices');
-      const d1 = all.find(d => d._id === 'reload-all-fail-1');
-      const d2 = all.find(d => d._id === 'reload-all-fail-2');
-      const reload = failNextReload('invoices');
-      let err;
+    it('updateDocs reports write conflicts without a reload when every put fails', async () => {
+      const doc = await getSingleDoc('contacts', 'no-reload');
+      const reload = failNextReload('contacts');
       try {
-        await updateDocs('invoices', [
-          { ...d1, _rev: '1-deadbeef', status: 'paid' },
-          { ...d2, _rev: '1-deadbeef', status: 'paid' },
-        ]);
-        expect.unreachable('should rethrow the read error');
-      } catch (error) {
-        err = error;
+        await expect(
+          updateDocs('contacts', [{ ...doc, _rev: '1-stale' }])
+        ).rejects.toMatchObject({
+          message: 'partial-update',
+          succeeded: [],
+          written: [],
+          failed: [expect.objectContaining({ id: doc._id, status: 409 })],
+        });
+        await expect(getAllDocs('contacts')).rejects.toThrow('reload failed');
       } finally {
         reload.mockRestore();
       }
-      expect(err.message).toBe('reload failed');
-      expect(err.succeeded).toBeUndefined();
-      expect(err.failed).toBeUndefined();
-      expect(err.docs).toBeUndefined();
-      const after = await getAllDocs('invoices');
-      expect(after.find(d => d._id === 'reload-all-fail-1').status).toBe(
-        'pending'
-      );
-      expect(after.find(d => d._id === 'reload-all-fail-2').status).toBe(
-        'pending'
-      );
     });
   });
 });

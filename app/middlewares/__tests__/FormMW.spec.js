@@ -295,13 +295,14 @@ describe('Form middleware', () => {
     form.savedSettings = { currency, tax: {}, required_fields: {} };
     const inv = [];
     const updates = [];
+    getAllDocs.mockImplementation(async () => [...inv]);
     saveDoc.mockImplementation(
       (_db, doc) =>
         new Promise(resolve => {
           resolveSave = () => {
             inv.length = 0;
             inv.push({ ...doc, _rev: '1-db' });
-            resolve(inv);
+            resolve({ ok: true, id: doc._id, rev: '1-db' });
           };
         })
     );
@@ -311,7 +312,7 @@ describe('Form middleware', () => {
         throw new Error('Document update conflict');
       }
       inv[0] = { ...doc, _rev: '2-db' };
-      return inv;
+      return { ok: true, id: doc._id, rev: '2-db' };
     });
     const chain = action => {
       form = FormReducer(form, action);
@@ -377,12 +378,12 @@ describe('Form middleware', () => {
     updateDoc.mockImplementation((_db, doc) => {
       updates.push({ ...doc });
       return new Promise(resolve => {
-        finishUpdate = () => resolve([{ ...doc, _rev: '2-old' }]);
+        finishUpdate = () => resolve({ ok: true, id: doc._id, rev: '2-old' });
       });
     });
     saveDoc.mockImplementation(async (_db, doc) => {
       creates.push({ ...doc });
-      return [{ ...doc, _rev: '1-new' }];
+      return { ok: true, id: doc._id, rev: '1-new' };
     });
     let form = makeForm();
     form.settings.editMode = {
@@ -432,12 +433,12 @@ describe('Form middleware', () => {
     updateDoc.mockImplementation((_db, doc) => {
       updates.push({ ...doc });
       return new Promise(resolve => {
-        finishUpdate = () => resolve([{ ...doc, _rev: '2-old' }]);
+        finishUpdate = () => resolve({ ok: true, id: doc._id, rev: '2-old' });
       });
     });
     saveDoc.mockImplementation(async (_db, doc) => {
       creates.push({ ...doc });
-      return [{ ...doc, _rev: '1-new' }];
+      return { ok: true, id: doc._id, rev: '1-new' };
     });
     let form = makeForm();
     form.settings.editMode = {
@@ -529,7 +530,8 @@ describe('Form middleware', () => {
     saveDoc.mockImplementation(
       () =>
         new Promise(resolve => {
-          resolveSaveDoc = () => resolve([{ _id: 'inv-5', _rev: '1-db' }]);
+          resolveSaveDoc = () =>
+            resolve({ ok: true, id: 'inv-5', rev: '1-db' });
         })
     );
 
@@ -650,7 +652,7 @@ describe('Form middleware', () => {
     );
     updateDoc.mockImplementation(async (_db, doc) => {
       note = { ...doc, _rev: '2-b', status: doc.status ?? note.status };
-      return [{ ...note }];
+      return { ok: true, id: note._id, rev: note._rev };
     });
     updateDocs.mockImplementation(async (_db, docs) => {
       if (docs.some(d => d._id === 'inv-src')) {
@@ -660,12 +662,18 @@ describe('Form middleware', () => {
         }
         inv = { ...docs[0], _rev: '2-a' };
       }
-      return [{ ...inv }, { ...note }];
+      return { succeeded: docs.map(d => d._id), failed: [] };
     });
     saveDoc.mockClear();
     updateDoc.mockClear();
 
+    getAllDocs.mockClear();
     await dispatch(Actions.saveFormData('final'));
+    // One validation read, then one list reload after both write attempts.
+    expect(getAllDocs).toHaveBeenCalledTimes(2);
+    expect(getAllDocs.mock.invocationCallOrder[1]).toBeGreaterThan(
+      updateDocs.mock.invocationCallOrder.at(-1)
+    );
     expect(note.status).toBe('issued');
     expect(updateDoc.mock.calls.filter(c => c[1]?._id === 'cn-1')).toHaveLength(
       1
@@ -795,12 +803,12 @@ describe('Form middleware', () => {
             patch
           );
         }
-        return structuredClone(docs);
+        return { succeeded: updates.map(d => d._id), failed: [] };
       });
       saveDoc.mockImplementation(async (_name, doc) => {
         docs.push(structuredClone(doc));
         signalForm();
-        return structuredClone(docs);
+        return { ok: true, id: doc._id, rev: doc._rev ?? '1-x' };
       });
       if (edit) {
         docs.push({
@@ -820,7 +828,7 @@ describe('Form middleware', () => {
           structuredClone(doc)
         );
         signalForm();
-        return structuredClone(docs);
+        return { ok: true, id: doc._id, rev: doc._rev ?? '1-x' };
       });
       const raceForm = {
         ...makeForm(),

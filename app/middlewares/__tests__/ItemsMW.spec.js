@@ -38,7 +38,7 @@ describe('ItemsMW', () => {
       if (idx >= 0) {
         mockData.itemsRecords[idx] = { ...mockData.itemsRecords[idx], ...doc };
       }
-      return [...mockData.itemsRecords];
+      return { ok: true, id: doc._id, rev: '2-mock' };
     });
     getAllDocs.mockImplementation(async dbName => {
       if (dbName === 'items') {
@@ -228,7 +228,7 @@ describe('ItemsMW', () => {
     removeDocs.mockResolvedValueOnce({
       removed: [{ _id: 'item-1', name: 'Design' }],
       failed: [],
-      docs: [],
+      succeeded: [],
     });
     await middleware(Actions.deleteItem('item-1'));
     expect(removeDocs).toHaveBeenCalledWith('items', ['item-1']);
@@ -250,16 +250,7 @@ describe('ItemsMW', () => {
         unitCode: 'C62',
       },
     ];
-    restoreDocs.mockResolvedValueOnce([
-      ...mockData.itemsRecords,
-      {
-        _id: 'a',
-        name: 'Design',
-        archived: true,
-        unitPrice: 1,
-        unitCode: 'C62',
-      },
-    ]);
+    restoreDocs.mockResolvedValueOnce({ succeeded: ['a'], failed: [] });
     await middleware(
       Actions.restoreItems([
         {

@@ -14,6 +14,9 @@
 
 ## Status
 
+- **Implementation**: DONE (2026-11-17); browser verification BLOCKED (no Jean Run command).
+- **Broad verification**: 92 files passed; locale validation has 8 existing failures at unchanged HEAD.
+
 - **Priority**: P2
 - **Effort**: L
 - **Risk**: MED
@@ -155,13 +158,13 @@ Do not merge a single doc into a reducer. Pass the full list from one `getAllDoc
 
 ## Done criteria
 
-- [ ] `saveDoc`, `updateDoc`, and `deleteDoc` do not call `getAllDocs`
-- [ ] Each user-action path that updates Redux calls `getAllDocs` at most once after the writes for that action
-- [ ] `recurringRunner` does not call `getAllDocs` once per created draft
-- [ ] The test commands in the table exit 0
-- [ ] `adapter: 'idb'` is unchanged
-- [ ] `git status` shows no files outside the in-scope list
-- [ ] `plans/README.md` row 038 is `DONE`
+- [x] `saveDoc`, `updateDoc`, and `deleteDoc` do not call `getAllDocs`
+- [x] Each user-action path that updates Redux calls `getAllDocs` at most once after the writes for that action
+- [x] `recurringRunner` does not call `getAllDocs` once per created draft
+- [x] The test commands in the table exit 0
+- [x] `adapter: 'idb'` is unchanged
+- [x] Changes stay within persistence helpers, their callers/tests/mocks, and this plan; `.ai` stays untracked
+- [x] Index maintenance waived by operator: `plans/README.md` is unchanged
 
 ## STOP conditions
 
@@ -173,3 +176,101 @@ Do not merge a single doc into a reducer. Pass the full list from one `getAllDoc
 ## Maintenance notes
 
 A new `saveDoc` caller must not assume an array return. It should write, then `getAllDocs` once if the screen shows a list. Plan 034 should already have removed the per-tombstone `saveDoc` loop. If that loop is back, do not reintroduce it here.
+
+
+### Execution review — 2026-11-17
+
+**Drift and limits.** Before edits, the required diff against `10f3f0e`
+showed 137 insertions and 38 deletions across `pouchDB.js`, `FormMW.jsx`,
+and `InvoicesMW.jsx`. The live code was compared before implementation.
+These were the operator-authorized changes from 032/034/035/036/037:
+credit-note pair writes and compensation, deterministic batch tombstones,
+`loadFailed` versus `notFound`, revision-based dirty checks, and restore
+409 failures. They remain in place. No plan 038 STOP condition occurred.
+Reducers, credit math, recurring IDs/schedules, `adapter: 'idb'`, migration
+reads, and every attachments flag are unchanged. No new library API was
+used, so no external API documentation lookup was needed. No real Manta
+profile was accessed. Security review found no new external input or
+authorization boundary and no security issue added by these changes.
+
+**Mutation contracts.** `saveDoc` and `updateDoc` return the Pouch write
+result `{ ok, id, rev }`; `deleteDoc` returns `{ ok, id }`. `updateDocs`
+and `bulkSaveDocs` return `{ succeeded, failed }`. `removeDocs` returns
+those ID arrays plus `removed` snapshots for Undo. `restoreDocs`
+also returns `{ succeeded, failed }`; it still throws `partial-restore`
+with `restored` and `failed` on conflicts or other per-document failures.
+None of these helpers reloads a list on success or failure.
+
+`updateDocs` still throws `partial-update` with `succeeded` and `failed`.
+Its `written` field contains only successful writes, including their new
+revisions. It is not a full list. Credit compensation now uses `written`
+instead of `err.docs`, so a later list-read failure cannot remove the
+revision needed to restore the prior credit note. Callers must explicitly
+load their list after writes or partial results. No caller or relevant mock
+still consumes `err.docs` or a mutation result as a list.
+
+**Caller review.** A repository-wide search covered all seven write helpers,
+imports, injected database objects, and mocks; the original caller list was
+not treated as complete. Contacts, items, recurring profiles, and invoice
+middlewares load complete arrays before passing list actions to reducers.
+Partial restore paths attempt one list load and report a read failure
+without retrying it. Invoice repairs refresh after partial writes too.
+Payment batches refresh once at finalization; their existing validation
+reads, queues, and load/write error codes remain.
+
+Form credit-note saves settle against the successfully written note through
+`updateCreditedInvoiceInDb`, then load the invoice list once, including when
+settlement fails. The existing settlement wrapper still loads first and
+reloads only if it wrote an invoice. Estimate conversion now writes its
+source link inside invoice save before the single list load; link failures
+warn while preserving the saved invoice. The standalone mark-converted
+action remains available. Recurring save/pause defers the Redux profile
+refresh to its run, after checkpoint writes; idle and failed runs also
+refresh the saved profile once. The runner ignores mutation metadata and
+keeps its one initial invoice load, with unchanged 409 handling.
+`backupFlow` already used mutation tallies. Its source needed no edit,
+but its mocks no longer return `allDocs`. Backup finalization retains an
+existing second recurring-profile read at lines 242 and 254; this branch
+does not change that path.
+
+**Regression evidence.** The first Pouch contract run exited 1 with the
+three expected array-versus-mutation failures. After implementation, all
+focused checks below exited 0. Tests cover the real database mutation
+contracts and absence of hidden reads, partial-write revision retention,
+restore conflicts, credit compensation, form settlement failure/retry,
+conversion link success/failure, persisted tombstones, partial restore
+read failure without retry, recurring checkpoint/runner failures, and
+multi-draft initial read counts. Existing dirty-check and payment error
+tests also passed in the broad run. No snapshots or e2e tests were added.
+
+| Final check | Result | Exit |
+| --- | --- | --- |
+| `npm ci` | Installed from unchanged lockfile; audit reports 11 moderate issues; dependency updates are outside this plan | 0 |
+| `npm test -- app/helpers/__tests__/pouchDB.spec.js` | 18 passed | 0 |
+| `npm test -- app/middlewares/__tests__/InvoicesMW.spec.js app/middlewares/__tests__/FormMW.spec.js app/middlewares/__tests__/ContactsMW.spec.js app/middlewares/__tests__/ItemsMW.spec.js app/middlewares/__tests__/RecurringMW.spec.js` | 136 passed | 0 |
+| `npm test -- app/helpers/__tests__/recurringRunner.spec.js` | 10 passed | 0 |
+| `npm test -- app/helpers/__tests__/creditNoteSettlement.spec.js` | 4 passed | 0 |
+| Scoped ESLint, including all changed JS/JSX tests and mocks | No errors or warnings | 0 |
+| `git diff --check` | Clean | 0 |
+| `npm test` (one broad run) | 92 files passed, 1 failed, 4 skipped; 1326 tests passed, 8 failed, 2 skipped, 2 todo | 1 |
+| `npm test -- i18n/__tests__/locales.spec.js -t 'translates every English key in invoices'` | Reproduced the 8 existing locale failures in isolation | 1 |
+
+The broad failures are missing `payments.errors.loadFailed` and
+`payments.errors.writeFailed` in de, fr, id, it, sk, ur-PK, vi, and zh-CN.
+A comparison of all nine invoice JSON files to `git show HEAD:<path>`
+confirmed identical bytes. HEAD English contains both keys; the eight
+other HEAD locales contain neither. `git diff --exit-code HEAD -- i18n`
+exited 0. No locale edits were made.
+
+**Browser verification blocked.** Jean `get_run_environments` returned no
+environment for worktree `dc8f2ade-82dd-4744-a690-86efd47e0c4c`.
+`start_run_environment` returned: `No run command configured in jean.json
+for this worktree`. No alternate server, guessed port, or browser session
+was started. Runtime user-flow verification remains open.
+
+The full source, tests, and mocks are committed in `ccb25dc`, after the
+plan record commit `0856831`. `.ai` remains untracked. Independent review
+approved the implementation: 176 mutation-path tests and 268 additional
+regression tests passed, with scoped ESLint and diff checks clean. The
+separate locale repair resolves the eight broad-run failures before final
+integration verification.

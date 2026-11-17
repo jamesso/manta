@@ -8,17 +8,23 @@ export function linkedCreditNotesForInvoice(allDocs, invoiceId) {
   );
 }
 
-export async function settleCreditedInvoiceInDb(invoiceId) {
-  const allDocs = await getAllDocs('invoices');
+// Returns whether settlement wrote an invoice. The caller owns the list reload.
+export async function updateCreditedInvoiceInDb(invoiceId, allDocs) {
   const invoice = allDocs.find(d => d._id === invoiceId);
   if (!invoice || !isInvoice(invoice)) {
-    return allDocs;
+    return false;
   }
   const linked = linkedCreditNotesForInvoice(allDocs, invoiceId);
   const updated = resolveStatusAfterCredit(invoice, linked, Date.now());
   if (updated === invoice) {
-    return allDocs;
+    return false;
   }
   await updateDocs('invoices', [updated]);
-  return getAllDocs('invoices');
+  return true;
+}
+
+export async function settleCreditedInvoiceInDb(invoiceId) {
+  const allDocs = await getAllDocs('invoices');
+  const changed = await updateCreditedInvoiceInDb(invoiceId, allDocs);
+  return changed ? getAllDocs('invoices') : allDocs;
 }

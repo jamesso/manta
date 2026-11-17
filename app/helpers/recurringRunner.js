@@ -62,6 +62,7 @@ async function confirm409BelongsToPeriod(db, profileId, periodKey) {
 async function saveInvoiceDraft(db, profile, periodKey, now, makeId) {
   const invoice = buildInvoiceFromProfile(profile, periodKey, now, makeId);
   try {
+    // The mutation result needs no list reload; this run tracks taken periods.
     await db.saveDoc('invoices', invoice);
     return { ok: true, skipped: false };
   } catch (err) {

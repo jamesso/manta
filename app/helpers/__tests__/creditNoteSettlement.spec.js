@@ -1,6 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { settleCreditedInvoiceInDb } from '../creditNoteSettlement';
+import {
+  settleCreditedInvoiceInDb,
+  updateCreditedInvoiceInDb,
+} from '../creditNoteSettlement';
 import { getAllDocs, updateDocs } from '../pouchDB';
 
 vi.mock('../pouchDB', () => ({
@@ -68,6 +71,20 @@ describe('settleCreditedInvoiceInDb', () => {
       updateDocs.mock.invocationCallOrder[0]
     );
     expect(result).toBe(reloaded);
+  });
+
+  it('settles from caller documents without loading a list', async () => {
+    updateDocs.mockResolvedValue({ succeeded: ['inv-1'], failed: [] });
+    const changed = await updateCreditedInvoiceInDb('inv-1', [
+      invoice(),
+      credit(),
+    ]);
+    expect(changed).toBe(true);
+    expect(getAllDocs).not.toHaveBeenCalled();
+    expect(updateDocs.mock.calls[0][1][0]).toMatchObject({
+      _id: 'inv-1',
+      status: 'cancelled',
+    });
   });
 
   it('does not write when the resolved invoice is the same object', async () => {
