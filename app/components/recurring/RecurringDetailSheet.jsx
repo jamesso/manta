@@ -33,6 +33,7 @@ import {
   getInvoiceNumber,
   getIssuedAt,
 } from '../../helpers/invoice';
+import { groupCreditNotesByInvoice } from '../../helpers/creditNotes';
 import {
   formatRecurringInterval,
   getRecurringClient,
@@ -81,6 +82,7 @@ export default function RecurringDetailSheet({
     );
   }
 
+  const creditByInvoice = groupCreditNotesByInvoice(allDocs);
   const dateFormat =
     window.manta.settings.get('invoice.dateFormat') ?? 'MM/DD/YYYY';
   const formatKey = key =>
@@ -171,6 +173,7 @@ export default function RecurringDetailSheet({
               <ul className="divide-y rounded-lg border text-sm">
                 {created.map(invoice => {
                   const issued = getIssuedAt(invoice);
+                  const linked = creditByInvoice.get(invoice._id) ?? [];
                   return (
                     <li key={invoice._id}>
                       <button
@@ -196,7 +199,7 @@ export default function RecurringDetailSheet({
                           </span>
                         </span>
                         <StatusBadge
-                          status={getDisplayStatus(invoice, now)}
+                          status={getDisplayStatus(invoice, now, linked)}
                           t={t}
                         />
                         <span className="shrink-0 tabular-nums">

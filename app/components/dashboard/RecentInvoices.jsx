@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { useTranslation } from 'react-i18next';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -17,6 +17,8 @@ import {
   getInvoiceNumber,
   getIssuedAt,
 } from '../../helpers/invoice';
+import { groupCreditNotesByInvoice } from '../../helpers/creditNotes';
+import { getAllSalesDocs } from '../../reducers/InvoicesReducer';
 import StatusBadge from '../invoices/StatusBadge';
 
 function clientName(invoice) {
@@ -27,6 +29,8 @@ function clientName(invoice) {
 export default function RecentInvoices({ invoices, now, dateFormat, onOpen }) {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  const allSalesDocs = useSelector(getAllSalesDocs) ?? [];
+  const creditByInvoice = groupCreditNotesByInvoice(allSalesDocs);
 
   if (invoices.length === 0) {
     return (
@@ -55,7 +59,8 @@ export default function RecentInvoices({ invoices, now, dateFormat, onOpen }) {
       <ul className="divide-y rounded-lg border">
         {invoices.map(inv => {
           const issued = getIssuedAt(inv) ?? inv.created_at;
-          const display = getDisplayStatus(inv, now);
+          const linked = creditByInvoice.get(inv._id) ?? [];
+          const display = getDisplayStatus(inv, now, linked);
           return (
             <li key={inv._id}>
               <button
