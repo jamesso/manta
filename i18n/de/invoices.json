@@ -158,6 +158,8 @@
       "nothingDue": "Diese Rechnung hat keinen offenen Betrag.",
       "duplicate": "Diese Zahlung ist bereits erfasst.",
       "notFound": "Die Rechnung oder Zahlung wurde nicht gefunden.",
+      "loadFailed": "Die Rechnung konnte nicht geladen werden. Versuchen Sie es erneut.",
+      "writeFailed": "Die Zahlung oder Statusänderung konnte nicht gespeichert werden. Versuchen Sie es erneut.",
       "draftWithPayments": "Eine Rechnung mit Zahlungen kann kein Entwurf werden. Entfernen Sie zuerst die Zahlungen."
     },
     "toast": {

@@ -176,6 +176,8 @@
       "nothingDue": "Táto faktúra nemá žiadny zostatok na úhradu.",
       "duplicate": "Táto platba je už zaznamenaná.",
       "notFound": "Faktúra alebo platba sa nenašla.",
+      "loadFailed": "Faktúru sa nepodarilo načítať. Skúste to znova.",
+      "writeFailed": "Platbu alebo zmenu stavu sa nepodarilo uložiť. Skúste to znova.",
       "draftWithPayments": "Faktúra s platbami sa nemôže stať konceptom. Najprv odstráňte platby."
     },
     "toast": {

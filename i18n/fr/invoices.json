@@ -167,6 +167,8 @@
       "nothingDue": "Cette facture n’a aucun solde dû.",
       "duplicate": "Ce paiement est déjà enregistré.",
       "notFound": "La facture ou le paiement est introuvable.",
+      "loadFailed": "Impossible de charger la facture. Réessayez.",
+      "writeFailed": "Impossible d’enregistrer le paiement ou le changement de statut. Réessayez.",
       "draftWithPayments": "Une facture avec des paiements ne peut pas redevenir un brouillon. Supprimez d’abord les paiements."
     },
     "toast": {

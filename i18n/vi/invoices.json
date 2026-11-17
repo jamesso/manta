@@ -149,6 +149,8 @@
       "nothingDue": "Hóa đơn này không còn số dư nợ.",
       "duplicate": "Khoản thanh toán này đã được ghi nhận.",
       "notFound": "Không tìm thấy hóa đơn hoặc khoản thanh toán.",
+      "loadFailed": "Không thể tải hóa đơn. Hãy thử lại.",
+      "writeFailed": "Không thể lưu khoản thanh toán hoặc thay đổi trạng thái. Hãy thử lại.",
       "draftWithPayments": "Hóa đơn có thanh toán không thể chuyển thành bản nháp. Hãy xóa các khoản thanh toán trước."
     },
     "toast": {

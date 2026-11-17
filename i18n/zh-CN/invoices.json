@@ -149,6 +149,8 @@
       "nothingDue": "此发票没有应付余额。",
       "duplicate": "此付款已记录。",
       "notFound": "未找到发票或付款。",
+      "loadFailed": "无法加载发票。请重试。",
+      "writeFailed": "无法保存付款或状态更改。请重试。",
       "draftWithPayments": "有付款的发票不能改为草稿。请先删除付款。"
     },
     "toast": {
