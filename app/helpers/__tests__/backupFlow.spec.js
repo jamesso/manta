@@ -36,7 +36,6 @@ describe('backupFlow', () => {
     bulkSaveDocs.mockResolvedValue({
       succeeded: ['it2'],
       failed: [],
-      allDocs: [{ _id: 'it1' }, { _id: 'it2' }],
     });
     const ipc = {
       invoke: vi.fn(async channel => {
@@ -66,7 +65,6 @@ describe('backupFlow', () => {
       .mockResolvedValueOnce({
         succeeded: ['c2'],
         failed: [],
-        allDocs: [{ _id: 'c1' }, { _id: 'c2' }],
       })
       .mockRejectedValueOnce(new Error('invoice batch failed'));
     let contactReads = 0;
@@ -118,10 +116,9 @@ describe('backupFlow', () => {
         return {
           succeeded: docs.map(d => d._id),
           failed: [],
-          allDocs: docs,
         };
       }
-      return { succeeded: [], failed: [], allDocs: [] };
+      return { succeeded: [], failed: [] };
     });
     getAllDocs.mockImplementation(async db => {
       if (db === 'recurring') return [];
@@ -189,7 +186,6 @@ describe('backupFlow', () => {
     bulkSaveDocs.mockImplementation(async (_db, docs) => ({
       succeeded: docs.map(doc => doc._id),
       failed: [],
-      allDocs: docs,
     }));
     getAllDocs.mockReset();
     getAllDocs.mockImplementation(async db => {
@@ -264,7 +260,7 @@ describe('importWriteLock', () => {
 
   it('keeps the lock until applySettings finishes', async () => {
     const { bulkSaveDocs, getAllDocs } = await import('../pouchDB');
-    bulkSaveDocs.mockResolvedValue({ succeeded: [], failed: [], allDocs: [] });
+    bulkSaveDocs.mockResolvedValue({ succeeded: [], failed: [] });
     const { isImportWriteLocked } = await import('../importWriteLock');
     let lockedDuringApply = false;
     const ipc = {

@@ -34,7 +34,7 @@ function memoryDb(initial = {}) {
         throw err;
       }
       stores[name].push({ ...doc });
-      return stores[name];
+      return { ok: true, id: doc._id, rev: '1-test' };
     },
     updateDoc: async (name, doc) => {
       const idx = stores[name].findIndex(d => d._id === doc._id);
@@ -42,7 +42,7 @@ function memoryDb(initial = {}) {
         throw new Error('missing');
       }
       stores[name][idx] = { ...doc };
-      return stores[name];
+      return { ok: true, id: doc._id, rev: '1-test' };
     },
     stores,
   };
@@ -69,7 +69,9 @@ describe('runRecurringOnce', () => {
       },
     };
     const db = memoryDb({ recurring: [profile], invoices: [] });
+    const reads = vi.spyOn(db, 'getAllDocs');
     const first = await runRecurringOnce({ now, db, makeId: () => 'row-1' });
+    expect(reads.mock.calls).toEqual([['recurring'], ['invoices']]);
     expect(first.created).toBe(3);
     const updated = db.stores.recurring[0];
     expect(updated.nextDate).toBe('2026-04-01');
@@ -261,12 +263,12 @@ describe('runRecurringOnce', () => {
         if (name === 'invoices') {
           invoiceSaves += 1;
         }
-        return stores[name];
+        return { ok: true, id: doc._id, rev: '1-test' };
       },
       updateDoc: async (name, doc) => {
         const idx = stores[name].findIndex(d => d._id === doc._id);
         stores[name][idx] = { ...doc };
-        return stores[name];
+        return { ok: true, id: doc._id, rev: '1-test' };
       },
       stores,
     };
@@ -314,12 +316,12 @@ describe('runRecurringOnce', () => {
         if (name === 'invoices') {
           saves += 1;
         }
-        return stores[name];
+        return { ok: true, id: doc._id, rev: '1-test' };
       },
       updateDoc: async (name, doc) => {
         const idx = stores[name].findIndex(d => d._id === doc._id);
         stores[name][idx] = { ...doc };
-        return stores[name];
+        return { ok: true, id: doc._id, rev: '1-test' };
       },
       stores,
     };

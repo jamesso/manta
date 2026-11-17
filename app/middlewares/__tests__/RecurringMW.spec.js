@@ -20,6 +20,7 @@ vi.mock('../../helpers/recurringRunner', () => ({
 
 import RecurringMW from '../RecurringMW';
 import {
+  getAllDocs,
   removeDocs,
   restoreDocs,
   mockData,
@@ -34,8 +35,10 @@ describe('RecurringMW', () => {
 
   beforeEach(() => {
     resetMockPouchData();
-    removeDocs.mockResolvedValue({ removed: [], failed: [], docs: [] });
-    restoreDocs.mockResolvedValue([]);
+    getAllDocs.mockClear();
+    getAllDocs.mockImplementation(async db => [...mockData[`${db}Records`]]);
+    removeDocs.mockResolvedValue({ removed: [], succeeded: [], failed: [] });
+    restoreDocs.mockResolvedValue({ succeeded: [], failed: [] });
     runRecurringOnceMock.mockClear();
     runRecurringOnceMock.mockResolvedValue({
       created: 0,
@@ -91,14 +94,72 @@ describe('RecurringMW', () => {
     );
   });
 
+  it.each([
+    ['save', false],
+    ['save', true],
+    ['pause', false],
+    ['pause', true],
+  ])(
+    'reloads profiles once after %s and its runner (runner failure: %s)',
+    async (kind, failRun) => {
+      const profile = {
+        _id: 'rp1',
+        _rev: '1-profile',
+        name: 'Plan',
+        active: true,
+        interval: 'monthly',
+        every: 1,
+        startDate: '2026-01-01',
+        nextDate: '2026-01-01',
+        anchorDay: 1,
+        template: {
+          recipient: { fullname: 'Client' },
+          rows: [{ price: '1', quantity: '1' }],
+        },
+      };
+      mockData.recurringRecords = [profile];
+      runRecurringOnceMock.mockImplementationOnce(async () => {
+        if (failRun) throw new Error('runner load failed');
+        mockData.recurringRecords[0] = {
+          ...mockData.recurringRecords[0],
+          nextDate: '2027-01-01',
+          _rev: '3-checkpoint',
+        };
+        return { created: 0, skipped: 0, capped: [], errors: [] };
+      });
+      dispatch.mockImplementation(action => middleware(action));
+      const action =
+        kind === 'save'
+          ? Actions.saveRecurring({ ...profile, name: 'Updated' })
+          : Actions.setRecurringActive({ id: profile._id, active: false });
+      expect(await middleware(action)).toBe(true);
+      await vi.waitFor(() =>
+        expect(
+          next.mock.calls.some(
+            ([action]) => action.type === ACTION_TYPES.RECURRING_GET_ALL
+          )
+        ).toBe(true)
+      );
+      const refreshed = next.mock.calls.find(
+        ([action]) => action.type === ACTION_TYPES.RECURRING_GET_ALL
+      )[0].payload;
+      expect(refreshed).toEqual(mockData.recurringRecords);
+      expect(refreshed[0]).toMatchObject(
+        kind === 'save' ? { name: 'Updated' } : { active: false }
+      );
+      expect(refreshed[0]._rev).toBe(failRun ? '2-mock' : '3-checkpoint');
+      expect(getAllDocs.mock.calls).toEqual([['recurring']]);
+    }
+  );
+
   it('restores removed profiles from the delete undo action', async () => {
     const removed = [{ _id: 'rp1', name: 'Plan' }];
     removeDocs.mockResolvedValueOnce({
       removed,
       failed: [],
-      docs: [],
+      succeeded: [],
     });
-    restoreDocs.mockResolvedValueOnce([]);
+    restoreDocs.mockResolvedValueOnce({ succeeded: [], failed: [] });
     await middleware(Actions.deleteRecurring(['rp1']));
     expect(toast.add).toHaveBeenCalled();
     dispatch.mockClear();

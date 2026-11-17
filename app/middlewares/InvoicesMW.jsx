@@ -181,8 +181,8 @@ async function handleSyncCreditedInvoice(
 }
 
 function docWithPartialRev(original, err) {
-  const saved = Array.isArray(err?.docs)
-    ? err.docs.find(doc => doc?._id === original._id)
+  const saved = Array.isArray(err?.written)
+    ? err.written.find(doc => doc?._id === original._id)
     : null;
   if (!saved?._rev) {
     return original;
@@ -297,7 +297,7 @@ function publishInvoiceDocs(next, allDocs) {
 function finalizeQueuedWrites({ results, next, dispatch, getState }) {
   const committed = results.filter(r => r.committed);
   const failed = results.filter(r => !r.ok);
-  const needsListRefresh = results.some(r => r.committed || r.allDocs);
+  const needsListRefresh = results.some(r => r.committed || r.needsRefresh);
 
   if (!needsListRefresh) {
     return Promise.resolve({ committed, failed, allDocs: null });
@@ -355,11 +355,10 @@ function queuedInvoiceWrite(invoiceId, mutate) {
           };
         }
         return updateDocs('invoices', [result.doc])
-          .then(allDocsAfter => ({
+          .then(() => ({
             id: invoiceId,
             ok: true,
             committed: true,
-            allDocs: allDocsAfter,
             doc: result.doc,
             payment: result.payment,
             stillPaid: result.stillPaid,
@@ -369,7 +368,7 @@ function queuedInvoiceWrite(invoiceId, mutate) {
             ok: false,
             committed: false,
             error: 'writeFailed',
-            allDocs: err.docs,
+            needsRefresh: Boolean(err.succeeded?.length),
             writeErr: err,
           }));
       })
@@ -380,6 +379,20 @@ function queuedInvoiceWrite(invoiceId, mutate) {
         error: err.status === 404 ? 'notFound' : 'loadFailed',
       }))
   );
+}
+
+async function markEstimateConvertedInDb(estimateId, invoiceId) {
+  const estimate = await getSingleDoc('invoices', estimateId);
+  await updateDoc('invoices', withConversion(estimate, invoiceId, Date.now()));
+  return estimate;
+}
+
+function notifyEstimateConverted(estimate) {
+  toast.add({
+    title: i18n.t('estimates:toast:converted', {
+      number: getInvoiceNumber(estimate),
+    }),
+  });
 }
 
 const InvoicesMW =
@@ -449,13 +462,13 @@ const InvoicesMW =
             if (repairs.length) {
               try {
                 await updateDocs('invoices', repairs);
-                payload = await getAllDocs('invoices');
               } catch {
                 toast.add({
                   title: i18n.t('invoices:creditNotes:errors:repairFailed'),
                   type: 'warning',
                 });
               }
+              payload = await getAllDocs('invoices');
             }
             next(
               Object.assign({}, action, {
@@ -475,8 +488,29 @@ const InvoicesMW =
       }
 
       case ACTION_TYPES.INVOICE_SAVE: {
+        let convertedEstimate;
         return saveDoc('invoices', action.payload)
+          .then(async mutation => {
+            if (action.payload.sourceEstimateId) {
+              try {
+                convertedEstimate = await markEstimateConvertedInDb(
+                  action.payload.sourceEstimateId,
+                  mutation.id
+                );
+              } catch (err) {
+                // A missing source was previously skipped by the form save.
+                if (err.status !== 404) {
+                  toast.add({
+                    title: i18n.t('estimates:toast:linkFailed'),
+                    type: 'warning',
+                  });
+                }
+              }
+            }
+            return getAllDocs('invoices');
+          })
           .then(newDocs => {
+            if (convertedEstimate) notifyEstimateConverted(convertedEstimate);
             next({
               type: ACTION_TYPES.INVOICE_SAVE,
               payload: newDocs,
@@ -590,14 +624,10 @@ const InvoicesMW =
                 );
               if (tombstones.length) {
                 try {
-                  const { failed, allDocs } = await bulkSaveDocs(
-                    'invoices',
-                    tombstones
-                  );
+                  const { failed } = await bulkSaveDocs('invoices', tombstones);
                   if (failed.length) {
                     throw new Error(failed[0].message || failed[0].name);
                   }
-                  return { ...result, docs: allDocs };
                 } catch (err) {
                   next({
                     type: ACTION_TYPES.UI_NOTIFICATION_NEW,
@@ -695,7 +725,8 @@ const InvoicesMW =
               }
             }
           }
-          return restoreDocs('invoices', action.payload);
+          await restoreDocs('invoices', action.payload);
+          return getAllDocs('invoices');
         })
           .then(docs => {
             for (const doc of action.payload) {
@@ -713,18 +744,24 @@ const InvoicesMW =
               }),
             });
           })
-          .catch(err => {
-            if (err.docs) {
-              next({
-                type: ACTION_TYPES.INVOICE_RESTORE,
-                payload: err.docs,
-              });
+          .catch(async err => {
+            let failure = err;
+            if (err.message === 'partial-restore') {
+              try {
+                const docs = await getAllDocs('invoices');
+                next({
+                  type: ACTION_TYPES.INVOICE_RESTORE,
+                  payload: docs,
+                });
+              } catch (readErr) {
+                failure = readErr;
+              }
             }
             next({
               type: ACTION_TYPES.UI_NOTIFICATION_NEW,
               payload: {
                 type: 'warning',
-                message: err.message,
+                message: failure.message,
               },
             });
           })
@@ -831,20 +868,22 @@ const InvoicesMW =
               return false;
             }
             if (!isInvoice(existing)) {
-              return updateDoc('invoices', action.payload).then(docs => {
-                next({
-                  type: ACTION_TYPES.INVOICE_UPDATE,
-                  payload: docs,
+              return updateDoc('invoices', action.payload)
+                .then(() => getAllDocs('invoices'))
+                .then(docs => {
+                  next({
+                    type: ACTION_TYPES.INVOICE_UPDATE,
+                    payload: docs,
+                  });
+                  dispatch({
+                    type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+                    payload: {
+                      type: 'success',
+                      message: i18n.t('messages:invoice:updated'),
+                    },
+                  });
+                  return persistedInvoice(docs, action.payload);
                 });
-                dispatch({
-                  type: ACTION_TYPES.UI_NOTIFICATION_NEW,
-                  payload: {
-                    type: 'success',
-                    message: i18n.t('messages:invoice:updated'),
-                  },
-                });
-                return persistedInvoice(docs, action.payload);
-              });
             }
             return runInvoiceMutationQueued(existing._id, async () => {
               const allDocs = await getAllDocs('invoices');
@@ -870,7 +909,8 @@ const InvoicesMW =
                 Date.now(),
                 linked
               );
-              const docs = await updateDoc('invoices', merged);
+              await updateDoc('invoices', merged);
+              const docs = await getAllDocs('invoices');
               next({
                 type: ACTION_TYPES.INVOICE_UPDATE,
                 payload: docs,
@@ -908,6 +948,7 @@ const InvoicesMW =
           .then(doc =>
             updateDoc('invoices', withSentMark(doc, kind, Date.now()))
           )
+          .then(() => getAllDocs('invoices'))
           .then(docs => {
             next({
               type: ACTION_TYPES.INVOICE_UPDATE,
@@ -1317,22 +1358,16 @@ const InvoicesMW =
           return false;
         }
         const { estimateId, invoiceId } = action.payload;
-        return getSingleDoc('invoices', estimateId)
-          .then(doc =>
-            updateDoc('invoices', withConversion(doc, invoiceId, Date.now()))
-          )
+        return markEstimateConvertedInDb(estimateId, invoiceId)
+          .then(() => getAllDocs('invoices'))
           .then(docs => {
             next({
               type: ACTION_TYPES.INVOICE_UPDATE,
               payload: docs,
             });
-            toast.add({
-              title: i18n.t('estimates:toast:converted', {
-                number: getInvoiceNumber(
-                  docs.find(d => d._id === estimateId) ?? { _id: estimateId }
-                ),
-              }),
-            });
+            notifyEstimateConverted(
+              docs.find(d => d._id === estimateId) ?? { _id: estimateId }
+            );
             return true;
           })
           .catch(() => {
@@ -1527,9 +1562,10 @@ const InvoicesMW =
                 const now = Date.now();
                 const nextNote = { ...cn, status: 'void', voidedAt: now };
                 const invoice = docs.find(d => d._id === cn.creditedInvoiceId);
-                const linked = linkedCreditNotes(docs, cn.creditedInvoiceId).map(
-                  note => (note._id === cn._id ? nextNote : note)
-                );
+                const linked = linkedCreditNotes(
+                  docs,
+                  cn.creditedInvoiceId
+                ).map(note => (note._id === cn._id ? nextNote : note));
                 const nextInvoice = invoice
                   ? resolveStatusAfterCredit(invoice, linked, now)
                   : invoice;

@@ -120,9 +120,9 @@ describe('Contacts Middleware', () => {
       };
       // Execute
       await middleware(Actions.saveContact(newContact));
-      const data = await saveDoc('contacts', newContact);
+      const data = await getAllDocs('contacts');
       // Expect
-      expect(data).toEqual([...mockData.contactsRecords, newContact]);
+      expect(data).toContainEqual(expect.objectContaining(newContact));
     });
 
     it('should call next and dispatch notification ', async () => {
@@ -137,12 +137,11 @@ describe('Contacts Middleware', () => {
 
       // Execute
       await middleware(action);
-      await saveDoc('contacts', newContact);
       // Expect calling next
       expect(next.mock.calls.length).toBe(1);
       expect(next).toHaveBeenCalledWith(
         Object.assign({}, action, {
-          payload: [...mockData.contactsRecords, newContact],
+          payload: mockData.contactsRecords,
         })
       );
       // Dispatch success notification
@@ -197,7 +196,7 @@ describe('Contacts Middleware', () => {
       removeDocs.mockResolvedValueOnce({
         removed: [{ _id: contactID }],
         failed: [],
-        docs: [],
+        succeeded: [],
       });
       await middleware(Actions.deleteContact(contactID));
       expect(removeDocs).toHaveBeenCalledWith('contacts', [contactID]);
@@ -209,8 +208,9 @@ describe('Contacts Middleware', () => {
       removeDocs.mockResolvedValueOnce({
         removed: [{ _id: contactID }],
         failed: [],
-        docs: [],
+        succeeded: [],
       });
+      getAllDocs.mockResolvedValueOnce([]);
       await middleware(action);
       expect(next).toHaveBeenCalledWith(
         Object.assign({}, action, {
@@ -238,7 +238,8 @@ describe('Contacts Middleware', () => {
     it('calls updateDoc and next with updated list', async () => {
       const doc = { _id: 'c1', _rev: '1-x', fullname: 'A', email: 'a@b.co' };
       const list = [doc];
-      updateDoc.mockResolvedValueOnce(list);
+      updateDoc.mockResolvedValueOnce({ ok: true, id: doc._id, rev: '2-x' });
+      getAllDocs.mockResolvedValueOnce(list);
       const action = Actions.updateContact(doc);
       await middleware(action);
       expect(updateDoc).toHaveBeenCalledWith('contacts', doc);
@@ -263,10 +264,50 @@ describe('Contacts Middleware', () => {
     });
   });
 
+  it.each([false, true])(
+    'loads once after a partial restore (read failure: %s)',
+    async failRead => {
+      const persisted = [{ _id: 'restored-contact', fullname: 'Restored' }];
+      restoreDocs.mockRejectedValueOnce(
+        Object.assign(new Error('partial-restore'), {
+          restored: ['restored-contact'],
+          failed: [{ id: 'conflict', status: 409 }],
+        })
+      );
+      getAllDocs.mockClear();
+      if (failRead)
+        getAllDocs.mockRejectedValueOnce(new Error('list unavailable'));
+      else getAllDocs.mockResolvedValueOnce(persisted);
+      await middleware(
+        Actions.restoreContacts(persisted.concat({ _id: 'conflict' }))
+      );
+      expect(getAllDocs.mock.calls).toEqual([['contacts']]);
+      const listActions = next.mock.calls
+        .map(([action]) => action)
+        .filter(action => action.type === ACTION_TYPES.CONTACT_RESTORE);
+      expect(listActions).toEqual(
+        failRead
+          ? []
+          : [{ type: ACTION_TYPES.CONTACT_RESTORE, payload: persisted }]
+      );
+      expect(next).toHaveBeenCalledWith({
+        type: ACTION_TYPES.UI_NOTIFICATION_NEW,
+        payload: {
+          type: 'warning',
+          message: failRead ? 'list unavailable' : 'partial-restore',
+        },
+      });
+    }
+  );
+
   describe('CONTACT_RESTORE', () => {
     it('restores contacts after delete', async () => {
       const docs = [{ _id: 'x', fullname: 'X', email: 'x@y.z' }];
-      restoreDocs.mockResolvedValueOnce(docs);
+      restoreDocs.mockResolvedValueOnce({
+        succeeded: docs.map(d => d._id),
+        failed: [],
+      });
+      getAllDocs.mockResolvedValueOnce(docs);
       await middleware(Actions.restoreContacts(docs));
       expect(restoreDocs).toHaveBeenCalledWith('contacts', docs);
       expect(next).toHaveBeenCalledWith({

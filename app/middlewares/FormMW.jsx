@@ -11,7 +11,6 @@ import * as InvoicesActions from '../actions/invoices';
 import * as ContactsActions from '../actions/contacts';
 import * as SettingsActions from '../actions/settings';
 import * as UIActions from '../actions/ui';
-import * as EstimateActions from '../actions/estimates';
 import * as RecurringActions from '../actions/recurring';
 
 // Helper
@@ -41,7 +40,10 @@ import {
   normalizeValidDays,
 } from '../helpers/estimate';
 import { getAllDocs, saveDoc, updateDoc } from '../helpers/pouchDB';
-import { settleCreditedInvoiceInDb } from '../helpers/creditNoteSettlement';
+import {
+  settleCreditedInvoiceInDb,
+  updateCreditedInvoiceInDb,
+} from '../helpers/creditNoteSettlement';
 import { formatNumber } from '../../helpers/formatNumber';
 import { toast } from '@/components/ui/toast';
 import {
@@ -397,28 +399,38 @@ async function handleSave({ dispatch, getState }, mode) {
             if (code) {
               return { ok: false, code };
             }
-            const newDocs = editMode.active
+            const mutation = editMode.active
               ? await updateDoc('invoices', draftPayload)
               : await saveDoc('invoices', draftPayload);
-            let fresh = await getAllDocs('invoices');
-            dispatch({ type: ACTION_TYPES.INVOICE_UPDATE, payload: fresh });
-            let persisted = persistedFromDocs(newDocs, draftPayload);
+            let persisted = {
+              ...draftPayload,
+              _id: mutation.id,
+              _rev: mutation.rev,
+            };
+            let syncFailed = false;
             if (draftPayload.status === 'issued') {
+              const writtenDocs = salesDocs
+                .filter(d => d._id !== persisted._id)
+                .concat(persisted);
               try {
-                fresh = await settleCreditedInvoiceInDb(
-                  formSnapshot.creditedInvoiceId
+                await updateCreditedInvoiceInDb(
+                  formSnapshot.creditedInvoiceId,
+                  writtenDocs
                 );
-                dispatch({ type: ACTION_TYPES.INVOICE_UPDATE, payload: fresh });
-                persisted =
-                  fresh.find(d => d._id === persisted._id) ?? persisted;
               } catch {
-                return {
-                  ok: 'partial',
-                  persisted,
-                  payload: draftPayload,
-                  syncFailed: true,
-                };
+                syncFailed = true;
               }
+            }
+            const fresh = await getAllDocs('invoices');
+            dispatch({ type: ACTION_TYPES.INVOICE_UPDATE, payload: fresh });
+            persisted = persistedFromDocs(fresh, persisted);
+            if (syncFailed) {
+              return {
+                ok: 'partial',
+                persisted,
+                payload: draftPayload,
+                syncFailed: true,
+              };
             }
             return { ok: true, persisted, payload: draftPayload };
           }
@@ -589,20 +601,6 @@ async function handleSave({ dispatch, getState }, mode) {
               },
             });
           }
-        }
-      }
-
-      if (!editMode.active && data.sourceEstimateId) {
-        const docs = await getAllDocs('invoices');
-        const est = docs.find(d => d._id === data.sourceEstimateId);
-        if (est) {
-          const invoiceId = savedBase?._id ?? data._id;
-          await dispatch(
-            EstimateActions.markEstimateConverted({
-              estimateId: data.sourceEstimateId,
-              invoiceId,
-            })
-          );
         }
       }
 

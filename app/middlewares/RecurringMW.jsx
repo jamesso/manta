@@ -99,15 +99,14 @@ const RecurringMW =
                 created_at: now,
                 lastRunAt: null,
               };
-              const newDocs = await saveDoc('recurring', doc);
-              next({ type: ACTION_TYPES.RECURRING_SAVE, payload: newDocs });
+              await saveDoc('recurring', doc);
             } else {
-              const newDocs = await updateDoc('recurring', doc);
-              next({ type: ACTION_TYPES.RECURRING_SAVE, payload: newDocs });
+              await updateDoc('recurring', doc);
             }
             dispatch(UIActions.setRecurringSheet(null));
             toast.add({ title: i18n.t('recurring:toast:saved') });
-            dispatch(Actions.runRecurring());
+            // The run reloads profiles after checkpoint writes, including idle runs.
+            dispatch(Actions.runRecurring({ refreshRecurring: true }));
             return true;
           } catch (err) {
             toast.add({ title: err.message, type: 'warning' });
@@ -136,9 +135,9 @@ const RecurringMW =
               active,
               ...applyScheduleOnSave(existing, { ...existing, active }, now),
             };
-            const newDocs = await updateDoc('recurring', doc);
-            next({ type: ACTION_TYPES.RECURRING_SET_ACTIVE, payload: newDocs });
-            dispatch(Actions.runRecurring());
+            await updateDoc('recurring', doc);
+            // The run reloads profiles after checkpoint writes, including idle runs.
+            dispatch(Actions.runRecurring({ refreshRecurring: true }));
             return true;
           } catch (err) {
             toast.add({ title: err.message, type: 'warning' });
@@ -158,7 +157,8 @@ const RecurringMW =
         return runRecurringWrite(async () => {
           try {
             const doc = await getSingleDoc('recurring', id);
-            const newDocs = await updateDoc('recurring', { ...doc, template });
+            await updateDoc('recurring', { ...doc, template });
+            const newDocs = await getAllDocs('recurring');
             next({
               type: ACTION_TYPES.RECURRING_TEMPLATE_UPDATE,
               payload: newDocs,
@@ -180,7 +180,8 @@ const RecurringMW =
         }
         const ids = [...new Set([].concat(action.payload))];
         return runRecurringWrite(() =>
-          removeDocs('recurring', ids).then(({ removed, failed, docs }) => {
+          removeDocs('recurring', ids).then(async ({ removed, failed }) => {
+            const docs = await getAllDocs('recurring');
             next({ type: ACTION_TYPES.RECURRING_DELETE, payload: docs });
             if (failed.length) {
               toast.add({
@@ -209,10 +210,24 @@ const RecurringMW =
 
       case ACTION_TYPES.RECURRING_RESTORE:
         return runRecurringWrite(() =>
-          restoreDocs('recurring', action.payload).then(docs => {
-            next({ type: ACTION_TYPES.RECURRING_RESTORE, payload: docs });
-            toast.add({ title: i18n.t('recurring:toast:restored') });
-          })
+          restoreDocs('recurring', action.payload)
+            .then(() => getAllDocs('recurring'))
+            .then(docs => {
+              next({ type: ACTION_TYPES.RECURRING_RESTORE, payload: docs });
+              toast.add({ title: i18n.t('recurring:toast:restored') });
+            })
+            .catch(async err => {
+              let failure = err;
+              if (err.message === 'partial-restore') {
+                try {
+                  const docs = await getAllDocs('recurring');
+                  next({ type: ACTION_TYPES.RECURRING_RESTORE, payload: docs });
+                } catch (readErr) {
+                  failure = readErr;
+                }
+              }
+              toast.add({ title: failure.message, type: 'warning' });
+            })
         );
 
       case ACTION_TYPES.RECURRING_RUN: {
@@ -253,6 +268,7 @@ const RecurringMW =
               });
             }
             if (
+              action.payload?.refreshRecurring ||
               result.created > 0 ||
               result.skipped > 0 ||
               result.capped?.length ||
@@ -262,6 +278,9 @@ const RecurringMW =
             }
           })
           .catch(err => {
+            if (action.payload?.refreshRecurring) {
+              dispatch(Actions.getRecurring());
+            }
             toast.add({ title: err.message, type: 'warning' });
           })
           .finally(() => {

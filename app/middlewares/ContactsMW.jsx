@@ -74,6 +74,7 @@ const ContactsMW =
           return false;
         }
         return saveDoc('contacts', action.payload)
+          .then(() => getAllDocs('contacts'))
           .then(newDocs => {
             next({
               type: ACTION_TYPES.CONTACT_SAVE,
@@ -107,6 +108,7 @@ const ContactsMW =
           return false;
         }
         return updateDoc('contacts', action.payload)
+          .then(() => getAllDocs('contacts'))
           .then(newDocs => {
             next({
               type: ACTION_TYPES.CONTACT_UPDATE,
@@ -141,7 +143,8 @@ const ContactsMW =
         }
         const ids = [...new Set([].concat(action.payload))];
         return removeDocs('contacts', ids)
-          .then(({ removed, failed, docs }) => {
+          .then(async ({ removed, failed }) => {
+            const docs = await getAllDocs('contacts');
             next({
               type: ACTION_TYPES.CONTACT_DELETE,
               payload: docs,
@@ -191,6 +194,7 @@ const ContactsMW =
           return undefined;
         }
         return restoreDocs('contacts', action.payload)
+          .then(() => getAllDocs('contacts'))
           .then(docs => {
             next({
               type: ACTION_TYPES.CONTACT_RESTORE,
@@ -202,18 +206,24 @@ const ContactsMW =
               }),
             });
           })
-          .catch(err => {
-            if (err.docs) {
-              next({
-                type: ACTION_TYPES.CONTACT_RESTORE,
-                payload: err.docs,
-              });
+          .catch(async err => {
+            let failure = err;
+            if (err.message === 'partial-restore') {
+              try {
+                const docs = await getAllDocs('contacts');
+                next({
+                  type: ACTION_TYPES.CONTACT_RESTORE,
+                  payload: docs,
+                });
+              } catch (readErr) {
+                failure = readErr;
+              }
             }
             next({
               type: ACTION_TYPES.UI_NOTIFICATION_NEW,
               payload: {
                 type: 'warning',
-                message: err.message,
+                message: failure.message,
               },
             });
           })

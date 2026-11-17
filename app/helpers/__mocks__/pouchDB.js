@@ -1,5 +1,4 @@
 import { vi } from 'vitest';
-import { faker } from '@faker-js/faker';
 const contactDoc = {
   id: 'jon-snow',
   fullname: 'Jon Snow',
@@ -74,29 +73,22 @@ const getAllDocs = vi.fn(
     })
 );
 
-const saveDoc = vi.fn(
-  (dbName, doc) =>
-    new Promise((resolve, reject) => {
-      !dbName && reject(new Error('No database found!'));
-      !doc && reject(new Error('No doc found!'));
-      dbName === 'contacts' && resolve([...mockData.contactsRecords, doc]);
-      dbName === 'invoices' && resolve([...mockData.invoicesRecords, doc]);
-      dbName === 'items' && resolve([...mockData.itemsRecords, doc]);
-      dbName === 'recurring' && resolve([...mockData.recurringRecords, doc]);
-    })
-);
+function persistDoc(dbName, doc) {
+  if (!dbName) return Promise.reject(new Error('No database found!'));
+  if (!doc) return Promise.reject(new Error('No doc found!'));
+  const key = `${dbName}Records`;
+  if (!mockData[key]) return Promise.reject(new Error('Incorrect database!'));
+  const id = doc._id ?? doc.id ?? crypto.randomUUID();
+  const rev = `${Number.parseInt(doc._rev || '0', 10) + 1}-mock`;
+  const stored = { ...doc, _id: id, _rev: rev };
+  mockData[key] = mockData[key]
+    .filter(d => (d._id ?? d.id) !== id)
+    .concat(stored);
+  return Promise.resolve({ ok: true, id, rev });
+}
 
-const updateDoc = vi.fn(
-  (dbName, doc) =>
-    new Promise((resolve, reject) => {
-      !dbName && reject(new Error('No database found!'));
-      !doc && reject(new Error('No doc found!'));
-      dbName === 'contacts' && resolve([...mockData.contactsRecords]);
-      dbName === 'invoices' && resolve([...mockData.invoicesRecords]);
-      dbName === 'items' && resolve([...mockData.itemsRecords]);
-      dbName === 'recurring' && resolve([...mockData.recurringRecords]);
-    })
-);
+const saveDoc = vi.fn(persistDoc);
+const updateDoc = vi.fn(persistDoc);
 
 const getSingleDoc = vi.fn(
   (dbName, docID) =>
@@ -113,23 +105,11 @@ const getSingleDoc = vi.fn(
     })
 );
 
-const deleteDoc = vi.fn(
-  (dbName, docId) =>
-    new Promise((resolve, reject) => {
-      !dbName && reject(new Error('No database found!'));
-      !docId && reject(new Error('No docID found!'));
-      if (dbName === 'contacts') {
-        docId == contactDoc.id
-          ? resolve([])
-          : reject(new Error('No contact found!'));
-      }
-      if (dbName === 'invoices') {
-        docId == invoiceDoc.id
-          ? resolve([])
-          : reject(new Error('No invoice found!'));
-      }
-    })
-);
+const deleteDoc = vi.fn(async (dbName, docId) => {
+  const key = `${dbName}Records`;
+  mockData[key] = (mockData[key] ?? []).filter(d => (d._id ?? d.id) !== docId);
+  return { ok: true, id: docId };
+});
 
 const removeDocs = vi.fn((dbName, ids) => {
   const key = `${dbName}Records`;
@@ -151,7 +131,7 @@ const removeDocs = vi.fn((dbName, ids) => {
   return Promise.resolve({
     removed,
     failed: [],
-    docs: mockData[key] ?? [],
+    succeeded: removed.map(doc => doc._id),
   });
 });
 
@@ -164,14 +144,18 @@ const restoreDocs = vi.fn((dbName, docs) => {
     }
     mockData[key] = [...byId.values()];
   }
-  return Promise.resolve(mockData[key] ?? []);
+  return Promise.resolve({ succeeded: docs.map(doc => doc._id), failed: [] });
 });
 
-const updateDocs = vi.fn(() => Promise.resolve(mockData.invoicesRecords));
+const updateDocs = vi.fn(async (dbName, docs) => {
+  for (const doc of docs) await persistDoc(dbName, doc);
+  return { succeeded: docs.map(doc => doc._id), failed: [] };
+});
 
-const bulkSaveDocs = vi.fn(() =>
-  Promise.resolve({ succeeded: [], failed: [], allDocs: [] })
-);
+const bulkSaveDocs = vi.fn(async (dbName, docs) => {
+  for (const doc of docs) await persistDoc(dbName, doc);
+  return { succeeded: docs.map(doc => doc._id), failed: [] };
+});
 
 export {
   getAllDocs,
