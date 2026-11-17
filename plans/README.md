@@ -279,7 +279,7 @@ Execute in the order below. Each plan is self-contained. Stay on the current bra
 | [032](032-credit-note-invoice-one-write.md) | Credit note and invoice commit together | P1 | S | MED | 030, 031 | DONE |
 | [033](033-display-status-credit-notes.md) | Status badges pass linked credit notes | P2 | S | LOW | — | DONE |
 | [034](034-recurring-delete-tombstone.md) | Recurring delete writes the tombstone with the delete | P1 | M | MED | 030, 032 | DONE |
-| [035](035-payment-queue-error-codes.md) | Payment failures are not reported as notFound | P1 | S | LOW | 034 | TODO |
+| [035](035-payment-queue-error-codes.md) | Payment failures are not reported as notFound | P1 | S | LOW | 034 | DONE |
 | [036](036-one-unsaved-changes-check.md) | One unsaved-changes rule | P2 | M | MED | 035 | TODO |
 | [037](037-restore-conflict-is-failure.md) | Restore conflicts fail the restore | P2 | S | MED | — | DONE |
 | [038](038-pouch-mutation-without-full-reload.md) | A Pouch write does not reload every invoice | P2 | L | MED | 031, 034, 037 | TODO |
