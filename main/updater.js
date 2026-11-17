@@ -1,3 +1,4 @@
+const { isMainWindowMainFrame } = require('./main-window-sender');
 // Libs
 const { BrowserWindow, ipcMain, app } = require('electron');
 const { autoUpdater } = require('electron-updater');
@@ -17,13 +18,13 @@ let silentMode = true;
 // HANDLING IPC
 // Check for updates manually
 ipcMain.on('check-for-updates', event => {
-  // Turn off silent mode first
-  silentMode = false;
-  checkForUpdate();
+  if (!isMainWindowMainFrame(event)) return;
+  checkForUpdate(false);
 });
 
 // Start Download
-ipcMain.on('update-download-started', () => {
+ipcMain.on('update-download-started', event => {
+  if (!isMainWindowMainFrame(event)) return;
   autoUpdater.downloadUpdate().catch(() => {});
 });
 
@@ -74,7 +75,8 @@ autoUpdater.on('update-downloaded', info => {
 });
 
 // Main Function
-function checkForUpdate() {
+function checkForUpdate(silent = true) {
+  silentMode = silent;
   // Only check for update in Production
   if (!isDev) {
     autoUpdater.checkForUpdates().catch(() => {});
@@ -83,3 +85,5 @@ function checkForUpdate() {
 
 // Check for update on Startup
 checkForUpdate();
+
+module.exports = { checkForUpdate };

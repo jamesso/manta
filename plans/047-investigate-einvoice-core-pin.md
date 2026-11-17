@@ -110,3 +110,54 @@ If a test fails, `npm install @e-invoice-eu/core@3.4.2` to restore, and set the 
 ## Maintenance notes
 
 Leave the dependency exact until a plan reads the next changelog. A caret will pick up 3.5 or 4 without a fixture run. Reviewers should reject a bump that edits `e2e/fixtures/einvoice/expected` in the same change without a separate review of the XML.
+
+## Result
+
+- Review date: 2026-11-16. Latest registry version: **3.4.4**.
+  `npm view @e-invoice-eu/core version`, `versions --json`, and
+  `repository --json` each exited 0. The registry lists 3.4.3 and 3.4.4
+  after 3.4.2; the repository is `gflohr/e-invoice-eu`.
+- Release evidence read through WebSearch:
+  - [3.4.3 release](https://github.com/gflohr/e-invoice-eu/releases/tag/%40e-invoice-eu%2Fcore%403.4.3):
+    “Patch Changes”: correct CII identifiers BT-128/BT-18, supporting documents
+    BG-24, and gross-price allowances; add the Factur-X MINIMUM buyer order
+    reference; update dependencies. These are output fixes, not a stated API break.
+  - [3.4.4 release](https://github.com/gflohr/e-invoice-eu/releases/tag/%40e-invoice-eu%2Fcore%403.4.4):
+    “Patch Changes”: output CII originator/despatch references BT-17/BT-16,
+    merge BT-17 with BT-18, map classification list versions and seller tax
+    representatives, lower the BT-11 conformance level to EN16931, and update
+    dependencies (except TypeScript and minimatch). No breaking export change
+    is listed.
+- Drift check: `git diff --stat 10f3f0e..HEAD -- package.json package-lock.json helpers/einvoice main/einvoice.js`
+  exited 0. Compared the live manifest and imports with the plan. Preserved
+  plans 039/028/040 manifest changes (Electron/is-svg versions and dead-entry
+  removal). Plan 044's integrity helper is now
+  `helpers/einvoice/exportIntegrity.js`; seller tax logic is in
+  `helpers/einvoice/sellerTax.js`. Both `InvoiceService` imports and all three
+  specified test paths still exist. The exact core pin remains 3.4.2 before
+  the baseline. No unexpected mismatch requires a stop.
+- Dependencies were absent. `npm ci` exited 0 and left the lockfile unchanged.
+  Node v24.22.1; npm 11.19.1.
+- Baseline: `env -u UPDATE_EINVOICE_SAMPLES npm test -- helpers/einvoice/__tests__/samples.spec.js`
+  exited 0: 1 file, 6 tests passed on 3.4.2. The update variable was never set.
+- Decision: test an exact 3.4.4 pin. The release notes describe relevant output
+  fixes and retain the current API. Final status and post-install checks follow.
+- Existing security findings: installation reported 11 moderate affected
+  packages. Audit evidence identifies [minimatch denial of service](https://github.com/advisories/GHSA-g3hv-75wg-m249)
+  through electron-builder/shadcn and [uuid buffer bounds](https://github.com/advisories/GHSA-w5hq-g745-h8pq)
+  through pouchdb-browser. These are outside this dependency-only scope; no
+  audit fix or unrelated dependency change was made.
+- Final status: **COMPLETED — ACCEPTED**. Pinned core to exact **3.4.4**
+  in `package.json` and `package-lock.json`. No import or mapper change was
+  needed. The lockfile also updates core's required `jsonpath-plus` from
+  11.2.2 to 11.3.0; core's declared tslib range changes to ^2.9.1, which the
+  existing lock already satisfies. No unrelated package was bumped.
+- `npm install --save-exact @e-invoice-eu/core@3.4.4`: exit 0.
+- Post-bump: `env -u UPDATE_EINVOICE_SAMPLES npm test -- helpers/einvoice/__tests__/samples.spec.js helpers/einvoice/__tests__/toEn16931.spec.js helpers/einvoice/__tests__/getEInvoiceIssues.spec.js`:
+  exit 0; 3 files and 26 tests passed, including all 6 golden samples.
+- `git diff --exit-code -- e2e/fixtures`: exit 0, no fixture changes.
+  `git diff --check`: exit 0. No fixtures were regenerated and no new tests
+  were added. No STOP condition occurred. No running app check was needed
+  for this dependency patch; the required existing tests cover XML output.
+- `plans/README.md` was not edited, as directed by the operator. The
+  coordinator must set row 047 to COMPLETED. `.ai/todo.md` stays untracked.

@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, ipcMain, shell } = require('electron');
+const { app, BrowserWindow, Menu, shell } = require('electron');
 const store = require('./settings');
 
 function buildMenu() {
@@ -14,7 +14,7 @@ function buildMenu() {
         label: 'Check For Updates',
         accelerator: 'CmdOrCtrl+U',
         click() {
-          ipcMain.emit('check-for-updates', { sender: mainWindow.webContents });
+          require('./updater').checkForUpdate(false);
         },
       },
 
@@ -29,7 +29,7 @@ function buildMenu() {
         label: 'Quit App',
         accelerator: 'CmdOrCtrl+Q',
         click() {
-          ipcMain.emit('quit-app');
+          app.quit();
         },
       },
     ],
@@ -222,7 +222,7 @@ function buildMenu() {
         label: 'Quit App',
         accelerator: 'CmdOrCtrl+Q',
         click() {
-          ipcMain.emit('quit-app');
+          app.quit();
         },
       }
     );
@@ -230,7 +230,7 @@ function buildMenu() {
       label: 'Check For Updates',
       accelerator: 'CmdOrCtrl+U',
       click() {
-        ipcMain.emit('check-for-updates', { sender: mainWindow.webContents });
+        require('./updater').checkForUpdate(false);
       },
     });
   }

@@ -14,6 +14,8 @@
 
 ## Status
 
+- **Status**: DONE
+
 - **Priority**: P1
 - **Effort**: S
 - **Risk**: LOW
@@ -156,12 +158,12 @@ Add or extend a theme test: an untrusted `set-theme` does not call `store.set`. 
 
 ## Done criteria
 
-- [ ] Both test commands exit 0
-- [ ] `trustedSender` rejects a sub-frame
-- [ ] Quit, update, dialogs, and `set-theme` return immediately for an untrusted event
-- [ ] Menu-driven update checks still call the main-process function without a fake event
-- [ ] `git status` shows no files outside the in-scope list
-- [ ] `plans/README.md` row 029 is `DONE`
+- [x] Both test commands exit 0
+- [x] `trustedSender` rejects a sub-frame
+- [x] Quit, update, dialogs, and `set-theme` return immediately for an untrusted event
+- [x] Menu-driven update checks still call the main-process function without a fake event
+- [x] Commit contains only in-scope code/tests and this plan; `.ai/todo.md` stays untracked
+- [x] Plan status is `DONE` here; `plans/README.md` is unchanged per operator instructions
 
 ## STOP conditions
 
@@ -173,3 +175,40 @@ Add or extend a theme test: an untrusted `set-theme` does not call `store.set`. 
 ## Maintenance notes
 
 New `ipcMain` handlers in `main/` should call `isMainWindowMainFrame` unless the preview window is the intended sender (`preview-rendered` is the preview window). Reviewers should reject a new privileged handler that only compares window ids.
+
+
+### Execution review (2026-11-16)
+
+- Resumed on `plan-029-main-frame` with a clean tracked working tree. No prior
+  implementation was present. `git merge main` fast-forwarded to `bbc0e94`
+  (exit 0). Plan 032 and 040 changes were retained without modification.
+- Drift check before and after the merge:
+  `git diff --stat 10f3f0e..HEAD -- main/backup.js main/select-export-directory.js main/select-logo-file.js main/updater.js main/theme.js app.js main/menu.js`
+  — exit 0, no in-scope drift. No STOP condition remains.
+- Backup now applies the same frame/window check locally. A direct CommonJS
+  import of the ESM helper failed in the unit test because its extensionless
+  settings import could not resolve. Used the explicitly permitted local check;
+  no trust rule or error string was weakened.
+- All seven other privileged IPC handlers use `isMainWindowMainFrame` and
+  return before side effects for an untrusted sender. Menu update actions call
+  exported `checkForUpdate(false)` directly; menu quit actions call `app.quit()`.
+  Startup update checks remain silent. No fake trusted events or path allowlist.
+- Confirmed current Electron event shape against
+  [IpcMainEvent documentation](https://www.electronjs.org/docs/latest/api/structures/ipc-main-event/).
+- `npm test -- main/__tests__/backup-ipc.spec.js`:
+  initial test harness exit 1 (jsdom URL could not be used with createRequire);
+  set this main-process test to the Node environment. Baseline exit 1 with all
+  four sub-frame cases failing as expected. Direct ESM-helper import attempt
+  exit 1 as described above. Final local-check run exit 0, 8 tests passed.
+- `npm test -- main/__tests__/theme.spec.js main/__tests__/backup-ipc.spec.js`
+  — exit 0, 17 tests passed.
+- `npm test -- main/__tests__/theme.spec.js` — exit 0, 9 tests passed.
+- `npx eslint main/backup.js main/select-export-directory.js main/select-logo-file.js main/updater.js main/theme.js app.js main/__tests__/backup-ipc.spec.js`
+  — exit 0 before and after formatting.
+- `npx eslint main/menu.js main/__tests__/theme.spec.js` — exit 0.
+- `npx prettier --write app.js main/backup.js main/menu.js main/select-export-directory.js main/select-logo-file.js main/updater.js main/theme.js main/__tests__/backup-ipc.spec.js main/__tests__/theme.spec.js`
+  — exit 0. `git diff --check` — exit 0.
+- No live app, real dialogs, production user data, or Playwright tests were used.
+  Only the requested backup and theme tests were added or extended. The security
+  review found no new issue in these changes. No dependency install was needed.
+- `plans/README.md` was not edited. `.ai/todo.md` is not part of the commit.

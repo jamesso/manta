@@ -273,7 +273,7 @@ Execute in the order below. Each plan is self-contained. Stay on the current bra
 |------|-------|----------|--------|------|------------|--------|
 | [027](027-settings-ipc-trust-anchor.md) | Settings writes stay on the main window | P1 | S | MED | — | DONE |
 | [028](028-process-logo-and-is-svg.md) | Logo IPC reads only a trusted file; upgrade is-svg | P1 | S | MED | — | DONE |
-| [029](029-ipc-main-frame-checks.md) | Main-frame check on backup, dialogs, quit, update, theme | P1 | S | LOW | — | TODO |
+| [029](029-ipc-main-frame-checks.md) | Main-frame check on backup, dialogs, quit, update, theme | P1 | S | LOW | — | DONE |
 | [030](030-return-middleware-test-promises.md) | Middleware tests return their promises | P1 | S | LOW | — | DONE |
 | [031](031-numbering-backup-settlement-tests.md) | Tests for EST/CN numbers, backup overwrite, settlement | P1 | M | LOW | — | DONE |
 | [032](032-credit-note-invoice-one-write.md) | Credit note and invoice commit together | P1 | S | MED | 030, 031 | DONE |
@@ -291,7 +291,7 @@ Execute in the order below. Each plan is self-contained. Stay on the current bra
 | [044](044-move-einvoice-integrity-helper.md) | Main e-invoice code does not import app/ | P3 | M | MED | — | DONE |
 | [045](045-investigate-invoice-migration-currency.md) | Investigate migration 2 when currency is missing | P3 | S | LOW | 038 | TODO |
 | [046](046-investigate-legacy-pdf-totals.md) | Investigate legacy PDF stored versus computed totals | P3 | S | LOW | — | REJECTED |
-| [047](047-investigate-einvoice-core-pin.md) | Decide on @e-invoice-eu/core 3.4.2 versus 3.4.4 | P3 | S | MED | 040 | TODO |
+| [047](047-investigate-einvoice-core-pin.md) | Decide on @e-invoice-eu/core 3.4.2 versus 3.4.4 | P3 | S | MED | 040 | DONE |
 | [048](048-spike-einvoice-receive.md) | Spike offline e-invoice receive | P3 | S | LOW | — | DONE |
 | [049](049-spike-aging-and-statements.md) | Spike aging buckets and a client statement | P3 | S | LOW | — | DONE |
 | [050](050-spike-recurring-review-queue.md) | Spike a review step after recurring drafts | P3 | S | LOW | — | DONE |
