@@ -14,6 +14,7 @@
 
 ## Status
 
+- **Status**: DONE
 - **Priority**: P1
 - **Effort**: S
 - **Risk**: MED
@@ -132,12 +133,12 @@ In `main/logo.js`:
 
 ## Done criteria
 
-- [ ] `npm test -- main/__tests__/logo.spec.js` exits 0
-- [ ] `package.json` depends on `is-svg` 6.x, not 3.x
-- [ ] `npm audit --omit=dev` has no high `is-svg` advisory
-- [ ] Untrusted callers and files over 2 MiB do not reach `readFile`
-- [ ] `git status` shows no files outside the in-scope list, other than the lockfile entries `npm install` must change for `is-svg`
-- [ ] `plans/README.md` row 028 is `DONE`
+- [x] `npm test -- main/__tests__/logo.spec.js` exits 0
+- [x] `package.json` depends on `is-svg` 6.x, not 3.x
+- [x] `npm audit --omit=dev` has no high `is-svg` advisory
+- [x] Untrusted callers and files over 2 MiB do not reach `readFile`
+- [x] `git status` shows no files outside the in-scope list, other than the lockfile entries `npm install` must change for `is-svg`
+- [ ] `plans/README.md` row 028 is `DONE` (operator said not to edit `plans/README.md`)
 
 ## STOP conditions
 
@@ -149,3 +150,16 @@ In `main/logo.js`:
 ## Maintenance notes
 
 The 2 MiB cap is a local DoS limit, not an image-quality setting. Raising it reopens a large-file read. Plan 029 still needs to gate the file dialog. This plan does not make the dialog safe by itself.
+
+Execution (2026-11-16), branch `plan-028-logo`:
+
+- Drift check `git diff --stat 10f3f0e..HEAD -- main/logo.js package.json package-lock.json app.js` exit 0. `main/logo.js` and `app.js` had no diff. Package drift was Electron `^45.2.1` to `^45.3.3` only. The live handler matched the Current state excerpt.
+- `npm view is-svg version` exit 0. Version `6.1.0`. The 6.1.0 readme shows `isSvg(string, options?)`. Source: https://www.npmjs.com/package/is-svg and https://github.com/sindresorhus/is-svg/blob/main/readme.md
+- `main/logo.js` is ESM, same as `main/save-pdf.js`. `app.js` still loads it with `require('./main/logo')`. After that conversion, and before the sender and size checks, `npm test -- main/__tests__/logo.spec.js` exit 1. Three tests failed because the handler still called `readFile` for a preview window, a sub-frame, and a file over 2 MiB. That red result was expected.
+- `npm install is-svg@6` exit 0. `package.json` now depends on `is-svg` `^6.1.0`. Electron stayed `^45.3.3`. The lockfile changed for `is-svg` 6.1.0, added `@file-type/xml`, `@tokenizer/token`, and `strtok3`, and removed `html-comment-regex`.
+- The handler uses `isMainWindowMainFrame` from `main/main-window-sender.js`. That helper keeps `event.senderFrame !== event.sender.mainFrame` and also requires the main window id, so a preview window fails. It then `stat`s the path, rejects a non-file, rejects a size over `2 * 1024 * 1024`, and only then reads. `isSvg` is called with the UTF-8 string. The static import survived `npm run build`. Electron 45.3.3 ships Node 24.22.3, which can `require` this ESM package (https://releases.electronjs.org/release/v45.3.3). On Node 24.22.1, `isSvg('<svg xmlns="http://www.w3.org/2000/svg"></svg>')` returned true.
+- `npm test -- main/__tests__/logo.spec.js` exit 0 (5 passed).
+- `npx eslint main/logo.js main/__tests__/logo.spec.js` exit 0.
+- `npm audit --omit=dev --json` exit 1 because two moderate findings remain. `is-svg` is absent. No high or critical finding.
+- `npm run build` exit 0.
+- `plans/README.md` was not edited.
