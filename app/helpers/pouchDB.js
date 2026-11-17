@@ -222,9 +222,6 @@ const restoreDocs = (dbName, docs) =>
         await db.put(clean);
         restored.push(doc._id);
       } catch (err) {
-        if (err.status === 409) {
-          continue;
-        }
         failed.push({
           id: doc._id,
           status: err.status,

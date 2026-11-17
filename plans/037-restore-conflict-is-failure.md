@@ -14,6 +14,7 @@
 
 ## Status
 
+- **Status**: DONE
 - **Priority**: P2
 - **Effort**: S
 - **Risk**: MED
@@ -115,10 +116,10 @@ In the `catch`, push 409 into `failed` with `status: 409` and `message: err.mess
 
 ## Done criteria
 
-- [ ] Both test commands exit 0
-- [ ] A 409 is in `failed` and the function throws `partial-restore`
-- [ ] A clean restore still resolves to the document list
-- [ ] `git status` shows no files outside the in-scope list
+- [x] Both test commands exit 0
+- [x] A 409 is in `failed` and the function throws `partial-restore`
+- [x] A clean restore still resolves to the document list
+- [x] `git status` shows no files outside the in-scope list
 - [ ] `plans/README.md` row 037 is `DONE`
 
 ## STOP conditions
@@ -130,3 +131,16 @@ In the `catch`, push 409 into `failed` with `status: 409` and `message: err.mess
 ## Maintenance notes
 
 Callers of `restoreDocs` must handle `partial-restore`. The undo toast should not say the invoice came back when `failed` is non-empty. If the middleware catch already shows `err.message`, the string `partial-restore` is what the user sees. A clearer undo string is out of scope.
+
+PouchDB `db.put` without the current `_rev` returns status 409 and message `Document update conflict` when the id already exists. Source: https://pouchdb.com/api.html#create_document
+
+The old pouch test expected a silent 409 after a newer write. That assertion is gone. The same test still restores a deleted id when no successor exists. `InvoicesMW.spec.js` already expects `partial-restore`. Production middleware was not changed.
+
+`plans/README.md` was not edited. The operator maintains the index. Row 037 stays `TODO` there.
+
+Commands:
+
+- Drift check: `git diff --stat 10f3f0e..HEAD -- app/helpers/pouchDB.js app/helpers/__tests__/pouchDB.spec.js` → no diff, exit 0
+- Step 1: `npm test -- app/helpers/__tests__/pouchDB.spec.js` → exit 1. The new test failed because a 409 was ignored. The other 13 tests passed.
+- Step 2: `npm test -- app/helpers/__tests__/pouchDB.spec.js app/middlewares/__tests__/InvoicesMW.spec.js` → exit 0 (81 tests)
+- Step 3: `npx eslint app/helpers/pouchDB.js app/helpers/__tests__/pouchDB.spec.js` → exit 0
