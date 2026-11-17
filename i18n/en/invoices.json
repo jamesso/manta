@@ -158,6 +158,8 @@
       "nothingDue": "This invoice has no balance due.",
       "duplicate": "This payment is already recorded.",
       "notFound": "The invoice or payment was not found.",
+      "loadFailed": "Could not load the invoice. Try again.",
+      "writeFailed": "Could not save the payment or status change. Try again.",
       "draftWithPayments": "An invoice with payments cannot become a draft. Remove the payments first."
     },
     "toast": {

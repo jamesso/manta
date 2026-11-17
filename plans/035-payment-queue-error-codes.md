@@ -14,6 +14,7 @@
 
 ## Status
 
+- **Status**: DONE (2026-11-16)
 - **Priority**: P1
 - **Effort**: S
 - **Risk**: LOW
@@ -119,11 +120,11 @@ Do not map `writeFailed` in this outer catch. That path already returns inside t
 
 ## Done criteria
 
-- [ ] The middleware test command exits 0
-- [ ] A 500 from `getSingleDoc` or `getAllDocs` is not `notFound`
-- [ ] A 404 is still `notFound`
-- [ ] `git status` shows no files outside the in-scope list
-- [ ] `plans/README.md` row 035 is `DONE`
+- [x] The middleware test command exits 0 (76 tests)
+- [x] A 500 from `getSingleDoc` or `getAllDocs` is `loadFailed`
+- [x] A 404 is still `notFound`
+- [x] Changes are limited to the in-scope files and this plan; `.ai` notes stay untracked
+- [x] Index maintenance waived by operator: do not edit `plans/README.md`
 
 ## STOP conditions
 
@@ -134,3 +135,30 @@ Do not map `writeFailed` in this outer catch. That path already returns inside t
 ## Maintenance notes
 
 New errors thrown inside `mutate` before it returns `{ ok: false }` hit this catch. `mutate` should keep returning result objects for validation failures (`overpayment` and similar). Those must not become `loadFailed`.
+
+
+### Completion review (2026-11-16)
+
+- Drift check exited 0. Changes from plans 032/034/037 were expected;
+  the live `queuedInvoiceWrite` matched the current-state excerpt. Existing
+  helper, credit-note, and recurring-delete changes were preserved.
+- Outer catch now returns `notFound` only for `err.status === 404`; other
+  read rejections return `loadFailed`. Inner write failures still return
+  `writeFailed`. In-memory validation results are unchanged.
+- The toast translates error keys only. Added missing English `loadFailed`
+  and `writeFailed` strings under the existing `payments.errors` object;
+  raw database messages are not added to the toast or queued result.
+- Added four payment regression cases: invoice 404, invoice 500, list 500,
+  and write rejection. Each checks the queued error, `committed: false`,
+  failed action result, no store update, and warning toast.
+- Before the fix, `npm test -- app/middlewares/__tests__/InvoicesMW.spec.js`
+  exited 1: only the two 500 cases failed; 404 and write rejection passed.
+  After the fix, the same command exited 0: all 76 tests passed.
+- `npx eslint app/middlewares/InvoicesMW.jsx app/middlewares/__tests__/InvoicesMW.spec.js`
+  exited 0. `git diff --check` exited 0.
+- Dependencies were absent. `npm ci` exited 0 without lockfile changes;
+  npm reported 11 moderate dependency vulnerabilities. Dependency upgrades
+  are outside this plan. No new security issue was found in this change.
+- No STOP condition occurred. No live app test was required for this
+  middleware error mapping; focused tests cover the result and toast path.
+- Operator override: update this plan only; leave `plans/README.md` unchanged.

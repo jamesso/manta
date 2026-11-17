@@ -31,6 +31,7 @@ import {
 import { buildRecurringTombstone } from '../../helpers/recurring';
 import { getAmountPaid, getStoredStatus } from '../../helpers/invoice';
 import { clearInvoiceMutationQueuesForTests } from '../../helpers/invoiceMutations';
+import * as invoiceMutations from '../../helpers/invoiceMutations';
 import { clearInvoiceNumberingWriteChainForTests } from '../../helpers/invoiceNumberingWrites';
 import { toast } from '@/components/ui/toast';
 import * as dialog from '@/lib/dialog';
@@ -1083,6 +1084,66 @@ describe('Invoices Middleware', () => {
   });
 
   describe('INVOICE_PAYMENT_ADD', () => {
+    it.each([
+      ['missing invoice', getSingleDoc, { status: 404 }, 'notFound'],
+      ['invoice load failure', getSingleDoc, { status: 500 }, 'loadFailed'],
+      [
+        'invoice list load failure',
+        getAllDocs,
+        { status: 500, message: 'disk' },
+        'loadFailed',
+      ],
+      ['write failure', updateDocs, new Error('disk'), 'writeFailed'],
+    ])(
+      'reports %s without committing a payment',
+      async (_name, readOrWrite, error, expectedError) => {
+        getSingleDoc.mockResolvedValueOnce({
+          _id: 'inv-error',
+          status: 'pending',
+          grandTotal: 100,
+          currency: { fraction: 2 },
+        });
+        if (readOrWrite === getSingleDoc) {
+          getSingleDoc.mockReset();
+        }
+        readOrWrite.mockRejectedValueOnce(error);
+        const queuedWrite = vi.spyOn(
+          invoiceMutations,
+          'runInvoiceMutationQueued'
+        );
+        try {
+          const ok = await middleware(
+            Actions.recordPayment('inv-error', {
+              id: 'pay-error',
+              amount: 40,
+              date: fixedNow,
+              method: 'cash',
+            })
+          );
+          expect(ok).toBe(false);
+          await expect(
+            queuedWrite.mock.results[0].value
+          ).resolves.toMatchObject({
+            id: 'inv-error',
+            ok: false,
+            committed: false,
+            error: expectedError,
+          });
+          expect(next).not.toHaveBeenCalledWith(
+            expect.objectContaining({ type: ACTION_TYPES.INVOICE_UPDATE })
+          );
+          expect(toast.add).toHaveBeenCalledWith({
+            title: i18n.t(`invoices:payments:errors:${expectedError}`, {
+              defaultValue: expectedError,
+            }),
+            type: 'warning',
+          });
+        } finally {
+          queuedWrite.mockRestore();
+        }
+      }
+    );
+
     it('records a payment and updates the store', async () => {
       getSingleDoc.mockResolvedValueOnce({
         _id: 'inv-1',
