@@ -1,7 +1,32 @@
 import 'fake-indexeddb/auto';
 import { vi, describe, it, expect, beforeAll } from 'vitest';
+import PouchDB from 'pouchdb-browser';
 
 vi.mock('pouchdb-browser', async () => vi.importActual('pouchdb-browser'));
+
+function failNextReload(dbName) {
+  const list = PouchDB._destructionListeners?.get(dbName);
+  if (!list?.length) {
+    throw new Error(`No open database named ${dbName}`);
+  }
+  let pending = true;
+  const spies = list.map(db => {
+    const original = db.allDocs.bind(db);
+    return vi.spyOn(db, 'allDocs').mockImplementation((...args) => {
+      const opts = args[0];
+      if (pending && opts && typeof opts === 'object' && opts.include_docs) {
+        pending = false;
+        return Promise.reject(new Error('reload failed'));
+      }
+      return original(...args);
+    });
+  });
+  return {
+    mockRestore() {
+      spies.forEach(spy => spy.mockRestore());
+    },
+  };
+}
 
 describe('pouchDB helpers', () => {
   let getAllDocs;
@@ -204,6 +229,119 @@ describe('pouchDB helpers', () => {
         expect(err.succeeded).toEqual(['bulk-u1']);
         expect(err.failed).toHaveLength(1);
       }
+    });
+
+    it('updateDocs keeps partial-update details when the reload fails', async () => {
+      await saveDoc('invoices', {
+        _id: 'reload-u1',
+        status: 'pending',
+        currency: { code: 'USD' },
+      });
+      await saveDoc('invoices', {
+        _id: 'reload-u2',
+        status: 'pending',
+        currency: { code: 'USD' },
+      });
+      const all = await getAllDocs('invoices');
+      const d1 = all.find(d => d._id === 'reload-u1');
+      const d2 = all.find(d => d._id === 'reload-u2');
+      const reload = failNextReload('invoices');
+      let err;
+      try {
+        await updateDocs('invoices', [
+          { ...d1, status: 'paid' },
+          { ...d2, _rev: '1-deadbeef', status: 'paid' },
+        ]);
+        expect.unreachable('should reject partial-update');
+      } catch (error) {
+        err = error;
+      } finally {
+        reload.mockRestore();
+      }
+      expect(err.message).toBe('partial-update');
+      expect(err.succeeded).toEqual(['reload-u1']);
+      expect(err.failed).toEqual([
+        expect.objectContaining({ id: 'reload-u2', status: 409 }),
+      ]);
+      expect(err.docs).toHaveLength(1);
+      expect(err.docs[0]).toMatchObject({
+        _id: 'reload-u1',
+        status: 'paid',
+      });
+      expect(err.docs[0]._rev).toEqual(expect.any(String));
+      expect(err.docs[0]._rev).not.toBe(d1._rev);
+      const after = await getAllDocs('invoices');
+      expect(after.find(d => d._id === 'reload-u1')).toMatchObject({
+        status: 'paid',
+        _rev: err.docs[0]._rev,
+      });
+      expect(after.find(d => d._id === 'reload-u2').status).toBe('pending');
+    });
+
+    it('updateDocs rethrows the read error when every put succeeded', async () => {
+      await saveDoc('invoices', {
+        _id: 'reload-all-ok',
+        status: 'pending',
+        currency: { code: 'USD' },
+      });
+      const all = await getAllDocs('invoices');
+      const doc = all.find(d => d._id === 'reload-all-ok');
+      const reload = failNextReload('invoices');
+      let err;
+      try {
+        await updateDocs('invoices', [{ ...doc, status: 'paid' }]);
+        expect.unreachable('should rethrow the read error');
+      } catch (error) {
+        err = error;
+      } finally {
+        reload.mockRestore();
+      }
+      expect(err.message).toBe('reload failed');
+      expect(err.succeeded).toBeUndefined();
+      expect(err.failed).toBeUndefined();
+      expect(err.docs).toBeUndefined();
+      const after = await getAllDocs('invoices');
+      expect(after.find(d => d._id === 'reload-all-ok').status).toBe('paid');
+    });
+
+    it('updateDocs rethrows the read error when every put failed', async () => {
+      await saveDoc('invoices', {
+        _id: 'reload-all-fail-1',
+        status: 'pending',
+        currency: { code: 'USD' },
+      });
+      await saveDoc('invoices', {
+        _id: 'reload-all-fail-2',
+        status: 'pending',
+        currency: { code: 'USD' },
+      });
+      const all = await getAllDocs('invoices');
+      const d1 = all.find(d => d._id === 'reload-all-fail-1');
+      const d2 = all.find(d => d._id === 'reload-all-fail-2');
+      const reload = failNextReload('invoices');
+      let err;
+      try {
+        await updateDocs('invoices', [
+          { ...d1, _rev: '1-deadbeef', status: 'paid' },
+          { ...d2, _rev: '1-deadbeef', status: 'paid' },
+        ]);
+        expect.unreachable('should rethrow the read error');
+      } catch (error) {
+        err = error;
+      } finally {
+        reload.mockRestore();
+      }
+      expect(err.message).toBe('reload failed');
+      expect(err.succeeded).toBeUndefined();
+      expect(err.failed).toBeUndefined();
+      expect(err.docs).toBeUndefined();
+      const after = await getAllDocs('invoices');
+      expect(after.find(d => d._id === 'reload-all-fail-1').status).toBe(
+        'pending'
+      );
+      expect(after.find(d => d._id === 'reload-all-fail-2').status).toBe(
+        'pending'
+      );
     });
   });
 });
