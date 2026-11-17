@@ -66,6 +66,7 @@ const invoicesMigrations = {
   },
 
   2: doc => {
+    if (!doc.currency) return doc;
     // Update current doc currency setting
     const newDoc = Object.assign({}, doc, {
       currency: {

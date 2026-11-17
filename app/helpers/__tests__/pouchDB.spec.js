@@ -28,6 +28,59 @@ function failNextReload(dbName) {
   };
 }
 
+describe('invoice migration', () => {
+  it('migrates historical invoices without currency on first open', async () => {
+    // 2a32058^ saved pending invoices using the obsolete appSettings.currency key.
+    const historical = {
+      _id: 'historical-no-currency',
+      status: 'pending',
+      created_at: 1514700000000,
+      rows: [],
+      subtotal: 0,
+      grandTotal: 0,
+    };
+    const withCurrency = {
+      _id: 'historical-with-currency',
+      status: 'pending',
+      currency: { code: 'EUR' },
+      dueDate: '2018-02-01',
+      configs: { accentColor: { color: '#123456', useCustom: true } },
+    };
+    const previousVersion = localStorage.getItem('invoicesVersion');
+    const db = new PouchDB('invoices', { adapter: 'idb' });
+    vi.resetModules();
+    localStorage.removeItem('invoicesVersion');
+    try {
+      await db.bulkDocs([historical, withCurrency]);
+      const { getAllDocs } = await import('../pouchDB.js');
+      const docs = await getAllDocs('invoices');
+      const migrated = docs.find(doc => doc._id === historical._id);
+      const { _rev, ...body } = migrated;
+      expect(body).toEqual(historical);
+      expect(localStorage.getItem('invoicesVersion')).toBe('4');
+      expect(docs.find(doc => doc._id === withCurrency._id)).toMatchObject({
+        status: 'pending',
+        currency: {
+          code: 'EUR',
+          placement: 'before',
+          separator: 'commaDot',
+          fraction: 2,
+        },
+        dueDate: { selectedDate: '2018-02-01', useCustom: true },
+        configs: { accentColor: '#123456', customAccentColor: true },
+      });
+    } finally {
+      await db.destroy();
+      vi.resetModules();
+      if (previousVersion === null) {
+        localStorage.removeItem('invoicesVersion');
+      } else {
+        localStorage.setItem('invoicesVersion', previousVersion);
+      }
+    }
+  });
+});
+
 describe('pouchDB helpers', () => {
   let getAllDocs;
   let saveDoc;
