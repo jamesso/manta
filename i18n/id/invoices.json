@@ -149,6 +149,8 @@
       "nothingDue": "Faktur ini tidak memiliki sisa tagihan.",
       "duplicate": "Pembayaran ini sudah dicatat.",
       "notFound": "Faktur atau pembayaran tidak ditemukan.",
+      "loadFailed": "Tidak dapat memuat faktur. Coba lagi.",
+      "writeFailed": "Tidak dapat menyimpan pembayaran atau perubahan status. Coba lagi.",
       "draftWithPayments": "Faktur dengan pembayaran tidak dapat menjadi draf. Hapus pembayaran terlebih dahulu."
     },
     "toast": {
