@@ -239,6 +239,41 @@ describe('getDisplayStatus', () => {
     expect(getDisplayStatus(invoice, now)).toBe('partial');
   });
 
+  it('stays pending when an issued credit note covers the balance', () => {
+    const currency = { code: 'USD', fraction: 2 };
+    const invoice = {
+      _id: 'inv-1',
+      status: 'pending',
+      grandTotal: 100,
+      currency,
+      payments: [
+        {
+          id: 'p1',
+          date: Date.UTC(2026, 0, 1),
+          amount: 40,
+          method: 'cash',
+        },
+      ],
+      dueDate: {
+        useCustom: true,
+        selectedDate: { years: 2026, months: 0, date: 20 },
+      },
+    };
+    const creditNote = {
+      _id: 'cn-1',
+      docType: 'creditNote',
+      status: 'issued',
+      creditedInvoiceId: 'inv-1',
+      grandTotal: 60,
+      currency,
+    };
+    const now = Date.UTC(2026, 0, 10);
+    expect(getAmountPaid(invoice)).toBeGreaterThan(0);
+    expect(getBalanceDue(invoice, [creditNote])).toBe(0);
+    expect(getDisplayStatus(invoice, now, [creditNote])).toBe('pending');
+    expect(getDisplayStatus(invoice, now)).toBe('partial');
+  });
+
   it('overdue wins over partial', () => {
     const pastDue = {
       status: 'pending',

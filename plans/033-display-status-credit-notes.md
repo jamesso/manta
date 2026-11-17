@@ -14,6 +14,7 @@
 
 ## Status
 
+- **Status**: DONE
 - **Priority**: P2
 - **Effort**: S
 - **Risk**: LOW
@@ -114,11 +115,11 @@ If a component does not have the credit notes in its props and there is no exist
 
 ## Done criteria
 
-- [ ] `invoice.spec.js` exits 0 and includes the covering-credit case
-- [ ] Each of the three call sites passes linked credit notes
-- [ ] `emailDraft.js` is unchanged
-- [ ] `git status` shows no files outside the in-scope list
-- [ ] `plans/README.md` row 033 is `DONE`
+- [x] `invoice.spec.js` exits 0 and includes the covering-credit case
+- [x] Each of the three call sites passes linked credit notes
+- [x] `emailDraft.js` is unchanged
+- [x] `git status` shows no files outside the in-scope list
+- [ ] `plans/README.md` row 033 is `DONE` (index left for the operator)
 
 ## STOP conditions
 
@@ -129,3 +130,9 @@ If a component does not have the credit notes in its props and there is no exist
 ## Maintenance notes
 
 Any new list of invoices that shows `partial` must pass linked credit notes. Stored status `paid` does not consult this argument.
+
+Executed 2026-11-16 on `plan-033-041-043`. Drift `git diff --stat 10f3f0e..HEAD -- app/components/dashboard/RecentInvoices.jsx app/components/contacts/ClientDetailSheet.jsx app/components/recurring/RecurringDetailSheet.jsx app/helpers/invoice.js` was empty (exit 0). `getDisplayStatus` still returns overdue before it reads credit notes. `emailDraft.js` was not edited.
+
+- `npm test -- app/helpers/__tests__/invoice.spec.js` — exit 0. 48 tests passed, including the covering-credit case.
+- `npx eslint app/components/dashboard/RecentInvoices.jsx app/components/contacts/ClientDetailSheet.jsx app/components/recurring/RecurringDetailSheet.jsx app/helpers/__tests__/invoice.spec.js` — exit 0.
+- `rg` of `getDisplayStatus(...)` on the three components — exit 0. Each call passes `linked`.

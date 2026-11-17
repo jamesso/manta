@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/button';
@@ -23,6 +23,8 @@ import {
   getInvoiceNumber,
   getIssuedAt,
 } from '../../helpers/invoice';
+import { groupCreditNotesByInvoice } from '../../helpers/creditNotes';
+import { getAllSalesDocs } from '../../reducers/InvoicesReducer';
 import * as InvoicesActions from '../../actions/invoices';
 import StatusBadge from '../invoices/StatusBadge';
 import { useNow } from '../invoices/useNow';
@@ -53,6 +55,7 @@ export default function ClientDetailSheet({
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const now = useNow();
+  const allSalesDocs = useSelector(getAllSalesDocs) ?? [];
   const contact = useSheetValue(open, openContact);
   const summary = useSheetValue(open, openSummary);
 
@@ -69,6 +72,7 @@ export default function ClientDetailSheet({
     summary.outstanding,
     summary.invoices
   );
+  const creditByInvoice = groupCreditNotesByInvoice(allSalesDocs);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -115,6 +119,7 @@ export default function ClientDetailSheet({
               <ul className="divide-y rounded-lg border text-sm">
                 {summary.invoices.map(invoice => {
                   const issued = getIssuedAt(invoice);
+                  const linked = creditByInvoice.get(invoice._id) ?? [];
                   const issuedLabel = issued
                     ? moment(issued).format(dateFormat)
                     : '—';
@@ -134,7 +139,7 @@ export default function ClientDetailSheet({
                           </span>
                         </span>
                         <StatusBadge
-                          status={getDisplayStatus(invoice, now)}
+                          status={getDisplayStatus(invoice, now, linked)}
                           t={t}
                         />
                         <span className="shrink-0 tabular-nums">

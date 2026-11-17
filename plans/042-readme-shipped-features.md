@@ -14,6 +14,7 @@
 
 ## Status
 
+- **Status**: DONE
 - **Priority**: P3
 - **Effort**: S
 - **Risk**: LOW
@@ -95,11 +96,11 @@ Under Releases, list the seven secret names and the unsigned outcome. Link the w
 
 ## Done criteria
 
-- [ ] Features mention estimates, partial payment display, credit notes, recurring drafts, items, and backup
-- [ ] The file does not say recurring mail is sent automatically
-- [ ] The file does not say the mail client receives an attachment
-- [ ] Signing secret names are listed and no secret value is present
-- [ ] `plans/README.md` row 042 is `DONE`
+- [x] Features mention estimates, partial payment display, credit notes, recurring drafts, items, and backup
+- [x] The file does not say recurring mail is sent automatically
+- [x] The file does not say the mail client receives an attachment
+- [x] Signing secret names are listed and no secret value is present
+- [ ] `plans/README.md` row 042 is `DONE` (index left for the operator)
 
 ## STOP conditions
 
@@ -109,3 +110,9 @@ Under Releases, list the seven secret names and the unsigned outcome. Link the w
 ## Maintenance notes
 
 When a later plan adds a user-facing feature, update this list in the same change. The signing names must match `release.yml` if those env names change.
+
+Executed 2026-11-16 on `plan-033-041-043`. Drift `git diff --stat 10f3f0e..HEAD -- README.md` was empty (exit 0). Edited `README.md` only. `npm test` skipped on purpose.
+
+- `rg -n "Estimate|Partially paid|Credit note|Recurring|backup|catalog" README.md` — exit 0. Each idea matches.
+- `rg -n "MAC_CSC_LINK|WIN_CSC_LINK" README.md` — exit 0. Both names appear, with the other five secret names.
+- `rg -n "BEGIN CERT|AKIA" README.md` — exit 1. No matches.
