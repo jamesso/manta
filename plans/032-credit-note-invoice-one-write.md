@@ -14,6 +14,7 @@
 
 ## Status
 
+- **Status**: DONE
 - **Priority**: P1
 - **Effort**: S
 - **Risk**: MED
@@ -122,12 +123,12 @@ You may delete the inner try/catch that swallows `handleSyncCreditedInvoice` on 
 
 ## Done criteria
 
-- [ ] The middleware test command exits 0
-- [ ] Issue and void each call `updateDocs` with the note and the invoice together when the invoice changes
-- [ ] A partial failure restores the note or, if restore fails, still surfaces `updateFailed` and reloads the list
-- [ ] `CREDIT_NOTE_SYNC_INVOICE` still calls `handleSyncCreditedInvoice`
-- [ ] `git status` shows no files outside the in-scope list
-- [ ] `plans/README.md` row 032 is `DONE`
+- [x] The middleware test command exits 0
+- [x] Issue and void each call `updateDocs` with the note and the invoice together when the invoice changes
+- [x] A partial failure restores the note or, if restore fails, still surfaces `updateFailed` and reloads the list
+- [x] `CREDIT_NOTE_SYNC_INVOICE` still calls `handleSyncCreditedInvoice`
+- [x] `git status` shows no files outside the in-scope list, except this plan file (status and notes) and untracked `.ai/todo.md` (not committed)
+- [ ] `plans/README.md` row 032 is `DONE` (left for the index maintainer; this run was told not to edit `plans/README.md`)
 
 ## STOP conditions
 
@@ -139,3 +140,20 @@ You may delete the inner try/catch that swallows `handleSyncCreditedInvoice` on 
 ## Maintenance notes
 
 Form save can still mark `creditSyncFailed` through `settleCreditedInvoiceInDb`. That path is a separate edit of an already stored note. Do not "unify" it here. Reviewers should check that a failed issue does not leave `status: 'issued'` when the invoice put did not happen.
+
+Issue and void now build the next invoice in memory with `resolveStatusAfterCredit`, then call `updateDocs` once with `[nextNote, nextInvoice]` when the invoice object changes. `resolveStatusAfterCredit` and the credit total math were not changed. `CREDIT_NOTE_SYNC_INVOICE`, and the already-issued and already-void branches, still call `handleSyncCreditedInvoice`.
+
+`updateDocs` still puts documents one by one and throws `partial-update` with `succeeded`, `failed`, and `docs`. On that error, the handler writes back each document from the batch that succeeded, using the `_rev` from `err.docs` when it is present. That covers a saved note with a failed invoice put, and a saved invoice with a failed note put. If the restore put also throws, the handler toasts `invoices:creditNotes:errors:updateFailed`, publishes `getAllDocs`, and does not try again. A generic rejection (not `partial-update`) does not restore. The note-only write used when the invoice does not change is unchanged aside from sharing that failure toast.
+
+The old test `CREDIT_NOTE_ISSUE refreshes store when invoice sync fails after note write` required the note to stay `issued` after the invoice write failed. That is the bug this plan removes. The test is now `CREDIT_NOTE_ISSUE reloads the list when the pair write fails`. It still `await`s the middleware. Plans 030 and 031 tests were not removed.
+
+`plans/README.md` was not edited. The operator maintains the index. Row 032 stays `TODO` there until the index is updated.
+
+Drift was not a STOP. `git diff --stat 10f3f0e..HEAD` showed three deletions in `app/helpers/pouchDB.js` (`restoreDocs` no longer ignores status 409). `updateDocs` still throws `partial-update` with `succeeded`, `failed`, and `docs`. The issue and void excerpts matched the live code. `creditNoteSettlement.js` and `InvoicesMW.jsx` had no diff in that range.
+
+Commands on branch `plan-032-credit-write`:
+
+- Drift check: `git diff --stat 10f3f0e..HEAD -- app/middlewares/InvoicesMW.jsx app/helpers/creditNoteSettlement.js app/helpers/pouchDB.js` → exit 0. Only `app/helpers/pouchDB.js` changed (3 deletions).
+- Step 1: `npm test -- app/middlewares/__tests__/InvoicesMW.spec.js` → exit 1. The two new tests failed. The other 67 tests passed.
+- Step 2: `npm test -- app/middlewares/__tests__/InvoicesMW.spec.js app/helpers/__tests__/creditNoteSettlement.spec.js` → exit 0. Vitest 5.0.5 reported 72 passed (2 files). Re-run after the restore helper was generalized; exit 0 again.
+- Step 3: `npx eslint app/middlewares/InvoicesMW.jsx app/middlewares/__tests__/InvoicesMW.spec.js` → exit 0. Re-run after the final helper edit; exit 0 again.

@@ -179,6 +179,66 @@ async function handleSyncCreditedInvoice(
   }
 }
 
+function docWithPartialRev(original, err) {
+  const saved = Array.isArray(err?.docs)
+    ? err.docs.find(doc => doc?._id === original._id)
+    : null;
+  if (!saved?._rev) {
+    return original;
+  }
+  return { ...original, _rev: saved._rev };
+}
+
+function originalsToRestore(err, originals) {
+  if (!err || err.message !== 'partial-update') {
+    return [];
+  }
+  const succeeded = Array.isArray(err.succeeded) ? err.succeeded : [];
+  const failed = Array.isArray(err.failed) ? err.failed : [];
+  if (!succeeded.length || !failed.length) {
+    return [];
+  }
+  const failedIds = new Set(failed.map(item => item?.id ?? item));
+  return succeeded
+    .filter(id => !failedIds.has(id))
+    .map(id => originals.find(doc => doc?._id === id))
+    .filter(Boolean)
+    .map(doc => docWithPartialRev(doc, err));
+}
+
+async function commitCreditNoteWithInvoice(
+  ctx,
+  originalNote,
+  nextNote,
+  invoice,
+  nextInvoice
+) {
+  const wroteInvoice = Boolean(invoice && nextInvoice !== invoice);
+  const batch = wroteInvoice ? [nextNote, nextInvoice] : [nextNote];
+  const originals = wroteInvoice ? [originalNote, invoice] : [originalNote];
+  try {
+    await updateDocs('invoices', batch);
+  } catch (err) {
+    const restore = originalsToRestore(err, originals);
+    if (restore.length) {
+      try {
+        await updateDocs('invoices', restore);
+      } catch {
+        /* do not loop */
+      }
+    }
+    publishInvoiceDocs(ctx.next, await getAllDocs('invoices'));
+    toast.add({
+      title: i18n.t('invoices:creditNotes:errors:updateFailed'),
+      type: 'warning',
+    });
+    return;
+  }
+  const fresh = await getAllDocs('invoices');
+  publishInvoiceDocs(ctx.next, fresh);
+  syncEditMode(ctx.dispatch, ctx.getState, fresh, originalNote._id);
+}
+
 async function mutateCreditNoteOnInvoice(creditedInvoiceId, fn) {
   return runInvoiceMutationQueued(creditedInvoiceId, fn);
 }
@@ -1385,15 +1445,20 @@ const InvoicesMW =
                   });
                   return;
                 }
-                await updateDocs('invoices', [{ ...cn, status: 'issued' }]);
-                const afterNote = await getAllDocs('invoices');
-                publishInvoiceDocs(next, afterNote);
-                syncEditMode(dispatch, getState, afterNote, id);
-                try {
-                  await handleSyncCreditedInvoice(cn.creditedInvoiceId, ctx);
-                } catch {
-                  /* note stays issued in store */
-                }
+                const now = Date.now();
+                const nextNote = { ...cn, status: 'issued' };
+                const nextInvoice = resolveStatusAfterCredit(
+                  invoice,
+                  linked.map(note => (note._id === cn._id ? nextNote : note)),
+                  now
+                );
+                await commitCreditNoteWithInvoice(
+                  ctx,
+                  cn,
+                  nextNote,
+                  invoice,
+                  nextInvoice
+                );
               }
             );
           })
@@ -1441,17 +1506,22 @@ const InvoicesMW =
                   }
                   return;
                 }
-                await updateDocs('invoices', [
-                  { ...cn, status: 'void', voidedAt: Date.now() },
-                ]);
-                const afterNote = await getAllDocs('invoices');
-                publishInvoiceDocs(next, afterNote);
-                syncEditMode(dispatch, getState, afterNote, id);
-                try {
-                  await handleSyncCreditedInvoice(cn.creditedInvoiceId, ctx);
-                } catch {
-                  /* void stays in store */
-                }
+                const now = Date.now();
+                const nextNote = { ...cn, status: 'void', voidedAt: now };
+                const invoice = docs.find(d => d._id === cn.creditedInvoiceId);
+                const linked = linkedCreditNotes(docs, cn.creditedInvoiceId).map(
+                  note => (note._id === cn._id ? nextNote : note)
+                );
+                const nextInvoice = invoice
+                  ? resolveStatusAfterCredit(invoice, linked, now)
+                  : invoice;
+                await commitCreditNoteWithInvoice(
+                  ctx,
+                  cn,
+                  nextNote,
+                  invoice,
+                  nextInvoice
+                );
               }
             );
           })
