@@ -96,6 +96,12 @@ test('captures e-invoice UI screenshots', async () => {
       )
       .toBe(true);
 
+    // Settings shares the bottom-left corner with notifications. Hovering a
+    // toast pauses its timer, so clear it before moving to the sidebar.
+    await main.mouse.move(640, 400);
+    await expect(main.locator('[data-slot="toast"]')).toHaveCount(0, {
+      timeout: 15_000,
+    });
     const sidebar = main.locator('[data-slot="sidebar"]');
     await sidebar
       .getByRole('button', { name: 'Settings', exact: true })
